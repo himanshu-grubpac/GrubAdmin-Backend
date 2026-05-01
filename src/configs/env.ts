@@ -11,6 +11,10 @@ export const MAIL_MIRROR = process.env.MAIL_MIRROR as string;
 export const MAIL_MIRROR_PASS = process.env.MAIL_MIRROR_PASS as string;
 export const AUTH_SECRET = process.env.AUTH_SECRET as string;
 
+// JWT Token Expiration Settings (in seconds)
+export const JWT_ACCESS_TOKEN_EXPIRY = parseInt(process.env.JWT_ACCESS_TOKEN_EXPIRY || "86400"); // Default: 24 hours
+export const JWT_REFRESH_TOKEN_EXPIRY = parseInt(process.env.JWT_REFRESH_TOKEN_EXPIRY || "604800"); // Default: 7 days
+
 export const SEED_EMAIL = process.env.SEED_EMAIL as string;
 export const SEED_PASSWORD = process.env.SEED_PASSWORD as string;
 export const SEED_NAME = process.env.SEED_NAME as string;
@@ -38,7 +42,7 @@ export const loadEnv = (): void => {
 		"AWS_REGION",
 		"AWS_BUCKET_NAME",
 		"AWS_SECRET",
-		"GOOGLE_MAPS_API_KEY",
+		// "GOOGLE_MAPS_API_KEY",
 		"ALLOWED_ORIGINS",
 	];
 

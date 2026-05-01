@@ -1,30 +1,60 @@
 import { createHandlers } from "@/utils/hono-factory";
 import { verifyOtpRequestBodyValidator } from "../../validators/auth.validators";
-import { deleteSavedOtp, getSavedOtp } from "@/db/actions/otp.actions";
+import { deleteSavedOtp, getSavedOtp, compareOtp } from "@/db/actions/otp.actions";
+import {
+	getOtpAttempt,
+	isOtpAttemptLocked,
+	incrementOtpAttempt,
+	resetOtpAttempt,
+	getOtpLockoutRemaining,
+} from "@/db/actions/otp-attempt.actions";
 import { APIError } from "@/types/error";
 import { getUniqueAdmin, updateAdmin } from "@/db/actions/admin.actions";
 import { JWT } from "@/utils/jwt";
+import { setAuthCookie } from "@/utils/cookie";
+import { JWT_ACCESS_TOKEN_EXPIRY } from "@/configs/env";
 import type { APIResponse } from "@/types/api";
 import { resolveMessageTemplate } from "@/utils/message.ts";
-
-interface ResponseData {
-	auth_token: string;
-}
 
 export const verifyOtpHandler = createHandlers(
 	verifyOtpRequestBodyValidator,
 	async (context) => {
 		const { email, otp } = context.req.valid("json");
 
+		const ip_address = context.req.header("x-forwarded-for") ||
+			context.req.header("x-real-ip") ||
+			context.req.header("cf-connecting-ip") ||
+			"unknown";
+
+		const isLocked = await isOtpAttemptLocked({ email, ip_address });
+		if (isLocked) {
+			const remainingMinutes = await getOtpLockoutRemaining({ email, ip_address });
+			throw new APIError(
+				`Account temporarily locked due to too many failed attempts. Try again in ${remainingMinutes} minutes.`,
+				undefined,
+				undefined,
+				429
+			);
+		}
+
 		const savedOtp = await getSavedOtp(email);
 
 		if (!savedOtp) {
-			throw new APIError(undefined, "food.auth.login.OTP_EXPIRED", undefined, 400);
+			
+			await incrementOtpAttempt({ email, ip_address });
+			throw new APIError(undefined, "admin.auth.OTP_EXPIRED", undefined, 400);
 		}
 
-		if (savedOtp.otp !== otp) {
-			throw new APIError(undefined, "food.auth.login.OTP_INVALID", undefined, 400);
+		const isValidOtp = await compareOtp(otp, savedOtp.otp);
+
+		if (!isValidOtp) {
+			
+			await incrementOtpAttempt({ email, ip_address });
+			throw new APIError(undefined, "admin.auth.OTP_INVALID", undefined, 400);
 		}
+
+		
+		await resetOtpAttempt({ email, ip_address });
 
 		await deleteSavedOtp(email);
 
@@ -54,12 +84,12 @@ export const verifyOtpHandler = createHandlers(
 			role: admin.type,
 		});
 
+		// Set JWT token as HttpOnly Secure cookie instead of returning in body
+		setAuthCookie(context, token, { expiresIn: JWT_ACCESS_TOKEN_EXPIRY });
+
 		const response = {
 			success: true as const,
 			...resolveMessageTemplate("admin.auth.login.SUCCESS"),
-			data: {
-				auth_token: token,
-			},
 		};
 
 		return context.json(response as any, response.code as any);

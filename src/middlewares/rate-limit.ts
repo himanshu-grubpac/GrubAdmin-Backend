@@ -1,0 +1,31 @@
+import { MiddlewareHandler } from "hono";
+
+
+const rateLimitStore = new Map<string, { count: number; last: number }>();
+
+export interface RateLimitOptions {
+  windowMs: number; 
+  max: number; 
+  keyGenerator?: (c: any) => string;
+}
+
+export function rateLimit(options: RateLimitOptions): MiddlewareHandler {
+  const { windowMs, max, keyGenerator } = options;
+  return async (c, next) => {
+    const key = keyGenerator
+      ? keyGenerator(c)
+      : `${c.req.header("x-forwarded-for") || c.req.header("x-real-ip") || c.req.header("host") || c.req.header("user-agent")}`;
+    const now = Date.now();
+    let entry = rateLimitStore.get(key);
+    if (!entry || now - entry.last > windowMs) {
+      entry = { count: 1, last: now };
+    } else {
+      entry.count++;
+    }
+    rateLimitStore.set(key, entry);
+    if (entry.count > max) {
+      return c.json({ success: false, message: `Too many requests, please try again later.` }, 429);
+    }
+    await next();
+  };
+}

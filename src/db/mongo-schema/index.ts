@@ -1,4 +1,5 @@
 export * from "./otp.model";
+export * from "./otp-attempt.model";
 export * from "./admin-update-otp.model";
 export * from "./admin-log.model.ts";
 export * from "./admin-notification.model.ts";

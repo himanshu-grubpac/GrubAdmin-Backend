@@ -5,7 +5,7 @@ import type { APIResponse } from "@/types/api";
 import { APIError } from "@/types/error";
 import { createHandlers } from "@/utils/hono-factory";
 
-interface AdminWithPasswordFlag extends admin {
+interface AdminWithPasswordFlag extends Omit<admin, 'password'> {
 	is_password_set: boolean;
 }
 
@@ -27,15 +27,16 @@ export const getMyAccountHandler = createHandlers(
 			throw new APIError("No admin found", undefined, undefined, 404);
 		}
 
+		const { password, ...userWithoutPassword } = admin.user;
+
 		return context.json<APIResponse<ResponseData>>(
 			{
 				success: true,
 				code: 200,
 				data: {
 					user: {
-						...admin.user,
+						...userWithoutPassword,
 						is_password_set: admin.user.password !== null,
-						password: null,
 					},
 					role: admin.type,
 				},

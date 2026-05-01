@@ -50,7 +50,7 @@ export const sendOtpHandler = createHandlers(
 		});
 
 		await services.mailer.sendEmail({
-			from: "ankan@sqaby.com",
+			from: process.env.MAIL,
 			subject: "OTP",
 			to: email,
 			text: `Your OTP is ${otp}`,

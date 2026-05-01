@@ -4,12 +4,10 @@ import { getUniqueAdmin, updateAdmin } from "@/db/actions/admin.actions";
 import { APIError } from "@/types/error";
 import { Bcrypt } from "@/utils/bcrypt";
 import { JWT } from "@/utils/jwt";
+import { setAuthCookie } from "@/utils/cookie";
+import { JWT_ACCESS_TOKEN_EXPIRY } from "@/configs/env";
 import type { APIResponse } from "@/types/api";
 import { resolveMessageTemplate } from "@/utils/message.ts";
-
-interface ResponseData {
-	auth_token: string;
-}
 
 export const loginHandler = createHandlers(
 	loginRequestBodyValidator,
@@ -35,7 +33,8 @@ export const loginHandler = createHandlers(
 		const isCorrectPassword = await Bcrypt.compareHash({
 			data: password,
 			hashedValue: admin.user.password,
-		});
+		});    
+
 
 		if (!isCorrectPassword) {
 			throw new APIError(undefined, "admin.account.INVALID_PASSWORD", undefined, 401);
@@ -55,15 +54,14 @@ export const loginHandler = createHandlers(
 			role: admin.type,
 		});
 
+		// Set JWT token as HttpOnly Secure cookie instead of returning in body
+		setAuthCookie(context, token, { expiresIn: JWT_ACCESS_TOKEN_EXPIRY });
+
 		const response = {
 			success: true as const,
 			...resolveMessageTemplate("admin.auth.login.SUCCESS"),
-			data: {
-				auth_token: token,
-			},
 		};
 
 		return context.json(response as any, response.code as any);
 	},
 );
-

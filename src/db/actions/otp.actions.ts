@@ -1,5 +1,6 @@
 import { Otp } from "../mongo-schema";
 import { Otp as OtpUtil } from "@/utils/otp.ts";
+import { Bcrypt } from "@/utils/bcrypt";
 
 interface SaveOtpArgs {
 	otp_id?: string;
@@ -10,19 +11,33 @@ interface SaveOtpArgs {
 	is_password_reset?: boolean;
 }
 
+const normalizeEmail = (email: string) => email.trim().toLowerCase();
+
+export const hashOtp = async (otp: string): Promise<string> => {
+	return await Bcrypt.generateHash({ data: otp });
+};
+
+
+export const compareOtp = async (plainOtp: string, hashedOtp: string): Promise<boolean> => {
+	return await Bcrypt.compareHash({ data: plainOtp, hashedValue: hashedOtp });
+};
+
 export const saveOtp = async (args: SaveOtpArgs) => {
+	const hashedOtp = await hashOtp(args.otp);
+	const email = normalizeEmail(args.email);
+
 	if (args.otp_id) {
 		return Otp.findOneAndUpdate(
 			{
-				email: args.email,
+				email,
 				otp_id: args.otp_id,
 			},
 			{
-				otp: args.otp,
+				otp: hashedOtp,
 				role: args.role,
 				for_what: args.for_what,
 				is_password_reset: args.is_password_reset,
-				createdAt: new Date(), // Reset TTL
+				createdAt: new Date(), 
 			},
 			{
 				new: true,
@@ -33,8 +48,8 @@ export const saveOtp = async (args: SaveOtpArgs) => {
 	const otp_id = OtpUtil.generateOtp(6);
 
 	return Otp.create({
-		email: args.email,
-		otp: args.otp,
+		email,
+		otp: hashedOtp, 
 		otp_id,
 		role: args.role,
 		for_what: args.for_what,
@@ -43,26 +58,28 @@ export const saveOtp = async (args: SaveOtpArgs) => {
 };
 
 export const getSavedOtp = async (email: string, otp_id?: string) => {
+	const normalizedEmail = normalizeEmail(email);
+
 	if (otp_id) {
 		return Otp.findOne({
-			email,
+			email: normalizedEmail,
 			otp_id,
 		});
 	}
 	return Otp.findOne({
-		email,
+		email: normalizedEmail,
 	}).sort({ createdAt: -1 });
 };
 
 export const getOtpByToken = async (email: string, token: string) => {
 	return Otp.findOne({
-		email,
+		email: normalizeEmail(email),
 		otp: token,
 	});
 };
 
 export const deleteSavedOtp = async (email: string) => {
 	return Otp.deleteMany({
-		email,
+		email: normalizeEmail(email),
 	});
 };

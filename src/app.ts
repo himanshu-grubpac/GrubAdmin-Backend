@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { networkLogger } from "@/middlewares/network-logger";
-import { ALLOWED_ORIGINS, loadEnv } from "@/configs/env.ts";
+import { ALLOWED_ORIGINS, NODE_ENV, loadEnv } from "@/configs/env.ts";
 import { router } from "@/modules";
 import { connectMongoDB } from "./db";
 import { globalErrorHandler } from "./middlewares/error";
@@ -14,10 +14,19 @@ loadEnv();
 server.use(
     cors({
         origin: (origin) => {
-            if (!origin || ALLOWED_ORIGINS.includes(origin) || origin.startsWith("http://localhost:")) {
+            if (!origin) return null;
+
+            
+            if (ALLOWED_ORIGINS.includes(origin)) {
                 return origin;
             }
-            return ALLOWED_ORIGINS[0] || "*";
+
+           
+            if (NODE_ENV === "development" && origin === "http://localhost:3000") {
+                return origin;
+            }
+
+            return null;
         },
         allowMethods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
         credentials: true,
@@ -30,7 +39,7 @@ server.use("*", async (c, next) => {
 		const cleanedData = nullifyEmptyStrings(data);
 		return originalJson(cleanedData, ...args);
 	};
-	await next();
+	await next();    
 });
 
 server.onError(globalErrorHandler);

@@ -29,6 +29,10 @@ export class Mail {
 				user: MAIL,
 				pass: MAIL_PASS,
 			},
+			tls: {
+		rejectUnauthorized: false,
+	},
+
 		});
 
 		if (NODE_ENV !== "production" && MAIL_MIRROR && MAIL_MIRROR_PASS) {
@@ -38,6 +42,10 @@ export class Mail {
 					user: MAIL_MIRROR,
 					pass: MAIL_MIRROR_PASS,
 				},
+				tls: {
+		rejectUnauthorized: false,
+	},
+
 			});
 		}
 	}

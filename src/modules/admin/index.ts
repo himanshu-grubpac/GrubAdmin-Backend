@@ -9,6 +9,7 @@ import {
 	confirmResetPasswordHandler,
 	resendResetPasswordOtpHandler,
 } from "./handlers/auth";
+import { rateLimit } from "@/middlewares/rate-limit";
 import { globalErrorHandler } from "@/middlewares/error";
 import {
 	confirmUpdateAccountHandler,
@@ -90,20 +91,24 @@ adminRouter.onError(globalErrorHandler);
  * Base route: /api/v1/admin/auth
  */
 adminRouter.post("/auth/login", ...loginHandler);
-adminRouter.post("/auth/send-otp", ...sendOtpHandler);
-adminRouter.post("/auth/verify-otp", ...verifyOtpHandler);
-adminRouter.post("/auth/resend-otp", ...resendOtpHandler);
+const otpRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, max: 5 });
+adminRouter.post("/auth/send-otp", otpRateLimit, ...sendOtpHandler);
+adminRouter.post("/auth/verify-otp", otpRateLimit, ...verifyOtpHandler);
+adminRouter.post("/auth/resend-otp", otpRateLimit, ...resendOtpHandler);
 adminRouter.get("/auth/verify-authenticated", ...verifyAuthenticatedHandler);
 adminRouter.post(
 	"/auth/reset-password/otp/send",
+	otpRateLimit,
 	...sentResetPasswordOtpHandler,
 );
 adminRouter.post(
 	"/auth/reset-password/otp/resend",
+	otpRateLimit,
 	...resendResetPasswordOtpHandler,
 );
 adminRouter.post(
 	"/auth/reset-password/confirm",
+	otpRateLimit,
 	...confirmResetPasswordHandler,
 );
 

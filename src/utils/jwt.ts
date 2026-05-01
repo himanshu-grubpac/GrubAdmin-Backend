@@ -1,4 +1,4 @@
-import { AUTH_SECRET } from "@/configs/env";
+import { AUTH_SECRET, JWT_ACCESS_TOKEN_EXPIRY, JWT_REFRESH_TOKEN_EXPIRY } from "@/configs/env";
 import { APIError } from "@/types/error";
 import type { AuthPayload, FoodAuthPayload } from "@/types/jwt";
 import { type JwtPayload, sign, verify } from "jsonwebtoken";
@@ -28,6 +28,9 @@ export class JWT {
 				user: payload,
 			},
 			AUTH_SECRET,
+			{
+				expiresIn: JWT_ACCESS_TOKEN_EXPIRY, 
+			},
 		);
 	}
 
