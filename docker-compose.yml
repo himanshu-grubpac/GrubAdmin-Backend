@@ -1,0 +1,42 @@
+version: "3.8"
+
+services:
+  api:
+    build: .
+    container_name: grub-api
+    restart: unless-stopped
+    environment:
+      PORT: 8000
+
+      # MySQL
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: grub_db
+      MYSQL_USER: grub_user
+      MYSQL_PASSWORD: StrongUserPass@123
+
+      # MongoDB
+      MONGO_HOST: mongo
+      MONGO_PORT: 27017
+      MONGO_USER: mongo_root
+      MONGO_PASSWORD: StrongMongoRoot@123
+
+    networks:
+      - frontend_net
+      - backend_net
+      - db_net
+
+networks:
+  frontend_net:
+    driver: bridge
+    driver_opts:
+      com.docker.network.driver.mtu: 1400
+  backend_net:
+    driver: bridge
+    driver_opts:
+      com.docker.network.driver.mtu: 1400
+  db_net:
+    driver: bridge
+    driver_opts:
+      com.docker.network.driver.mtu: 1400
+

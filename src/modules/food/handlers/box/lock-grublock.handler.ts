@@ -1,0 +1,74 @@
+import { loggerService } from "@/services/system-log.ts";
+import { createHandlers } from "@/utils/hono-factory.ts";
+import { foodAuthGuard } from "@/middlewares/auth";
+import { lockUnlockGrublockRequestBodyValidator } from "food/validators/box.validators.ts";
+import { updateBoxLockStatus } from "@/db/actions/box.actions.ts";
+import type { APIResponse } from "@/types/api";
+import { resolveMessageTemplate } from "@/utils/message";
+
+export const lockGrublockHandler = createHandlers(
+	foodAuthGuard(["admin", "manager"]),
+	lockUnlockGrublockRequestBodyValidator,
+	async (context) => {
+		const { client_id, user_id, user, type } = context.var;
+		const { ids, consumer_full_name, consumer_country_code, consumer_phone } =
+			context.req.valid("json");
+
+		const userObj = user as any;
+		const userName = type === "admin"
+			? userObj.name
+			: `${userObj.first_name} ${userObj.last_name || ""}`.trim();
+
+		const result = await updateBoxLockStatus({
+			ids,
+			lock_status: "locked",
+			user: {
+				id: user_id,
+				email: userObj.email || "",
+				name: userName || "Unknown",
+			},
+			client_id,
+			consumer: consumer_full_name
+				? {
+						full_name: consumer_full_name,
+						country_code: consumer_country_code || "",
+						phone: consumer_phone || "",
+				  }
+				: undefined,
+		});
+
+		const mobile = consumer_phone ? `${consumer_country_code || ""} ${consumer_phone}`.trim() : "your registered phone";
+
+		const response = {
+			success: true as const,
+			...resolveMessageTemplate("food.box.SECURED", { id: ids[0], mobile }),
+			message: "Boxes locked successfully", // Specific override
+			data: result,
+		};
+
+		
+		// Start auto-injected log
+		try {
+			// Find subjects from result if array or use req body
+			const subjects = (context.req.valid("json") as any)?.ids || ((context.req.valid("json") as any)?.id ? [(context.req.valid("json") as any)?.id] : ["Unknown"]);
+			for (const id of subjects) {
+				await loggerService.log({
+					category: "GrubLock",
+					type: "Status",
+					actor: { 
+						id: (context.var as any).client_id || (context.var as any).admin_id || "Unknown", 
+						name: (context.var as any).admin_name || (context.var as any).employee_id || "Admin", 
+						role: "admin", 
+						table: "client" 
+					},
+					client_id: context.var.client_id,
+					subject: { id: id, name: id, type: "box" },
+					metadata: { action: "lock" }
+				});
+			}
+		} catch (err) { }
+		// End auto-injected log
+
+		return context.json<APIResponse<typeof result>>(response, response.code as any);
+	},
+);

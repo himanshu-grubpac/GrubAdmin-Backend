@@ -1,0 +1,86 @@
+import { createHandlers } from "@/utils/hono-factory.ts";
+import { authGuard } from "@/middlewares/auth";
+import { exportClientRequestQueryValidator } from "@/modules/admin/validators/client.validators";
+import { getClients } from "@/db/actions/client.actions.ts";
+import { json2csv } from "json-2-csv";
+import { Permission } from "@/utils/permission.ts";
+import { CLIENTS_PERMISSIONS } from "@/configs/constants.ts";
+import type { BoxType } from "@/types/common/box-type.ts";
+import { services } from "@/services";
+import { ipMiddleware } from "@/middlewares/common/ip.ts";
+
+export const exportClientHandler = createHandlers(
+	authGuard(["admin", "employee"]),
+	exportClientRequestQueryValidator,
+	ipMiddleware,
+	async (context) => {
+		const {
+			query,
+			fetch_all,
+			order,
+			order_factor,
+			filter,
+			page_size,
+			page_number,
+		} = context.req.valid("query");
+
+		const { admin, role, ip } = context.var;
+
+		const perms = Permission.checkAdminPermissions({
+			admin,
+			permissions_allowed: {
+				verticals: typeof filter === "string" ? [filter] : filter,
+				clients: [CLIENTS_PERMISSIONS.export_clients_list],
+			},
+		});
+
+		const verticalsAllowed: BoxType[] | undefined = !perms.is_super_admin
+			? (perms.perm["verticals"] as BoxType[])
+			: undefined;
+
+		const data = await getClients({
+			query,
+			pageSize: page_size,
+			fetch_all,
+			pageNumber: page_number,
+			filter: filter
+				? typeof filter === "string"
+					? [filter]
+					: filter
+				: verticalsAllowed,
+			order,
+			orderingFactor: order_factor,
+		});
+
+		const formattedClients = data.clients.map((c) => ({
+			...c,
+			client_id: (c as any).client_display_id,
+		}));
+
+		const csv = json2csv(formattedClients, {
+			emptyFieldValue: null,
+			delimiter: {
+				field: ",",
+				wrap: '"', // ensures commas in text are safely escaped
+			},
+		});
+
+		services.adminLogger.log({
+			module: "client",
+			action: "export",
+			admin_id: admin?.id,
+			admin_name: `${admin?.first_name} ${admin?.last_name}`,
+			role_id: admin?.role_id,
+			role_name: role?.name,
+			ip,
+		});
+
+		context.header("Content-Type", "text/csv; charset=utf-8");
+		context.header(
+			"Content-Disposition",
+			`attachment; filename="clients.csv"`,
+		);
+
+		return context.body(csv);
+	},
+);

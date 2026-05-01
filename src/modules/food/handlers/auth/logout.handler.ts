@@ -1,0 +1,50 @@
+import { createHandlers } from "@/utils/hono-factory";
+import type { APIResponse } from "@/types/api";
+import { foodAuthGuard } from "@/middlewares/auth";
+import { loggerService } from "@/services/system-log.ts";
+
+export const logoutHandler = createHandlers(
+    foodAuthGuard(),
+    async (context) => {
+        const { client_id, user_id, user, type } = context.var;
+
+        // Log access
+        const userObj = user as any;
+        const actorName = type === "admin" 
+            ? userObj.name 
+            : `${userObj.first_name} ${userObj.last_name || ""}`.trim();
+
+        await loggerService.log({
+            category: "Profile",
+            type: "Access",
+            actor: {
+                id: user_id,
+                name: actorName,
+                role: type,
+                table: type === "admin" ? "client" : "vertical_food_employee",
+            },
+            client_id,
+            subject: {
+                id: user_id,
+                name: actorName,
+                type: "employee",
+            },
+            metadata: {
+                action: "logout",
+            },
+        });
+
+        return context.json<APIResponse>(
+            {
+                success: true,
+                code: 200,
+                message: "Logged out successfully",
+            },
+            {
+                status: 200,
+            },
+        );
+    },
+);
+
+

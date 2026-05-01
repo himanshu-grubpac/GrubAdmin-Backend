@@ -1,0 +1,529 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/db/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model admin {
+  id            String           @id @default(ulid())
+  first_name    String
+  last_name     String?
+  password      String?
+  mobile_number String?
+  country_code  String?
+  email         String           @unique
+  location      String?
+  joining_date  DateTime?
+  role_id       String?
+  status        employee_status? @default(unassigned)
+  avatar        String?
+  employee_id   String?          @unique
+  created_at    DateTime         @default(now())
+  updated_at    DateTime         @updatedAt
+  role          role?            @relation(fields: [role_id], references: [id])
+
+  @@index([role_id], map: "admin_role_id_fkey")
+}
+
+model admin_dismissed {
+  id             String    @id @default(ulid())
+  first_name     String
+  last_name      String?
+  password       String?
+  mobile_number  String?
+  country_code   String?
+  email          String    @unique
+  is_super_admin Boolean   @default(true)
+  location       String?
+  joining_date   DateTime?
+  role           String?
+  employee_id    String?
+  created_at     DateTime  @default(now())
+  updated_at     DateTime  @updatedAt
+}
+
+model system_config {
+  id         String   @id @default(ulid())
+  key        String   @unique
+  value      String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model icon {
+  id             String         @id @default(ulid())
+  name           String?
+  bucket_key     String
+  created_at     DateTime       @default(now())
+  updated_at     DateTime       @updatedAt
+  faq_categories faq_category[]
+
+  @@fulltext([name])
+}
+
+model vertical {
+  id             String         @id @default(ulid())
+  name           String         @unique
+  created_at     DateTime       @default(now())
+  updated_at     DateTime       @updatedAt
+  boxes          box[]
+  clients        client[]
+  faq_categories faq_category[]
+
+  @@index([name])
+}
+
+model client {
+  id                      String                   @id @default(ulid())
+  name                    String
+  client_display_id       String
+  organization_name       String?
+  country                 String?
+  state                   String?
+  email                   String?
+  password                String?
+  mobile_number           String?
+  country_code            String?
+  status                  client_status            @default(active)
+  created_at              DateTime                 @default(now())
+  updated_at              DateTime                 @updatedAt
+  vertical_id             String?
+  profile_pic             String?
+  boxes                   box[]
+  vertical                vertical?                @relation(fields: [vertical_id], references: [id])
+  vertical_food_consumers vertical_food_consumer[]
+  vertical_food_employees vertical_food_employee[]
+  restaurants             restaurant[]
+  notifications           notification[]
+
+  @@unique([vertical_id, email])
+  @@index([name])
+  @@index([organization_name])
+  @@index([country])
+  @@index([state])
+  @@index([email])
+  @@index([mobile_number])
+}
+
+model faq_category {
+  id          String                  @id @default(ulid())
+  name        String
+  icon_id     String?
+  vertical_id String
+  description String?
+  status      faq_category_status     @default(active)
+  index       Int
+  created_at  DateTime                @default(now())
+  updated_at  DateTime                @updatedAt
+  icon        icon?                   @relation(fields: [icon_id], references: [id])
+  vertical    vertical                @relation(fields: [vertical_id], references: [id], onDelete: Cascade)
+  questions   faq_question_category[]
+
+  @@index([name])
+  @@index([description])
+  @@index([icon_id], map: "faq_category_icon_id_fkey")
+  @@index([vertical_id], map: "faq_category_vertical_id_fkey")
+}
+
+model faq_question {
+  id                String                         @id @default(ulid())
+  question          String
+  answer            String                         @db.LongText
+  publishing_status faq_question_publishing_status @default(draft)
+  status            faq_category_status            @default(active)
+  attachments       Json?
+  created_at        DateTime                       @default(now())
+  updated_at        DateTime                       @updatedAt
+  categories        faq_question_category[]
+
+  @@index([question])
+}
+
+model faq_question_category {
+  id          String       @id @default(ulid())
+  question_id String
+  category_id String
+  created_at  DateTime     @default(now())
+  updated_at  DateTime     @updatedAt
+  category    faq_category @relation(fields: [category_id], references: [id], onDelete: Cascade)
+  question    faq_question @relation(fields: [question_id], references: [id], onDelete: Cascade)
+
+  @@index([category_id], map: "faq_question_category_category_id_fkey")
+  @@index([question_id], map: "faq_question_category_question_id_fkey")
+}
+
+model role {
+  id               String      @id @default(ulid())
+  name             String
+  is_super_admin   Boolean     @default(false)
+  permissions_json Json
+  status           role_status @default(active)
+  created_at       DateTime    @default(now())
+  updated_at       DateTime    @updatedAt
+  admins           admin[]
+
+  @@index([name])
+}
+
+model box {
+  id             String     @id @default(ulid())
+  name           String?
+  box_display_id String     @unique
+  vertical_id    String?
+  client_id      String?    @map("customer_id")
+  status         box_status @default(active)
+
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+  vehicle_number String?
+
+  telemetry box_telemetry_latest?
+
+  connection_employee_id       String?
+  connection_employee          vertical_food_employee?      @relation("box_connection", fields: [connection_employee_id], references: [id])
+  client                       client?                      @relation(fields: [client_id], references: [id])
+  vertical                     vertical?                    @relation(fields: [vertical_id], references: [id])
+  lock                         box_lock?
+
+  boxes                        vertical_food_consumer_box[] @relation("vertical_food_consumer_boxes")
+  vertical_food_employee_boxes vertical_food_employee_box[] @relation("vertical_food_employee_boxes")
+  restaurant_boxes             restaurant_box[]
+
+  @@index([client_id], map: "box_client_id_fkey")
+  @@index([vertical_id], map: "box_vertical_id_fkey")
+  @@index([connection_employee_id], map: "box_connection_employee_id_fkey")
+}
+
+model restaurant {
+  id               String                   @id @default(ulid())
+  name             String
+  client_id        String?
+  created_at       DateTime                 @default(now())
+  updated_at       DateTime                 @updatedAt
+  city             String?
+  google_place_id  String?
+  latitude         Float?
+  line_one         String?
+  line_two         String?
+  longitude        Float?
+  pincode          String?
+  state            String?
+  status           restaurant_status        @default(active)
+  employees        vertical_food_employee[]
+  client           client?                  @relation(fields: [client_id], references: [id])
+  restaurant_boxes restaurant_box[]
+
+  @@index([client_id], map: "restaurant_client_id_fkey")
+}
+
+model vertical_food_employee {
+  id                           String                        @id @default(ulid())
+  first_name                   String
+  last_name                    String
+  country_code                 String
+  mobile_number                String
+  email                        String                        @unique
+  password                     String?
+  employee_display_id          String                        @unique
+  joining_date                 DateTime                      @default(now())
+  client_id                    String?
+  restaurant_id                String?
+  role                         client_employee_role
+  status                       employee_status               @default(unassigned)
+  created_at                   DateTime                      @default(now())
+  updated_at                   DateTime                      @updatedAt
+  profile_pic                  String?
+  connected_boxes              box[]                         @relation("box_connection")
+  client                       client?                       @relation(fields: [client_id], references: [id])
+  restaurant                   restaurant?                   @relation(fields: [restaurant_id], references: [id])
+  vertical_food_employee_boxes vertical_food_employee_box[]  @relation("vertical_food_employee_boxes")
+
+
+  @@unique([country_code, mobile_number])
+  @@index([client_id], map: "vertical_food_employee_client_id_fkey")
+  @@index([restaurant_id], map: "vertical_food_employee_restaurant_id_fkey")
+  @@map("vertical_food_employee")
+}
+
+model vertical_food_employee_box {
+  id          String                  @id @default(ulid())
+  employee_id String?
+  box_id      String
+  created_at  DateTime                @default(now())
+  updated_at  DateTime                @updatedAt
+  status      employee_box_status     @default(shared)
+  access      employee_box_access     @default(direct)
+  box         box                     @relation("vertical_food_employee_boxes", fields: [box_id], references: [id], onDelete: Cascade)
+  employee    vertical_food_employee? @relation("vertical_food_employee_boxes", fields: [employee_id], references: [id], onDelete: Cascade)
+
+  @@unique([employee_id, box_id])
+  @@index([box_id], map: "vertical_food_employee_box_box_id_fkey")
+  @@index([employee_id], map: "vertical_food_employee_box_employee_id_fkey")
+  @@map("vertical_food_employee_box")
+}
+
+model restaurant_box {
+  id            String                @id @default(ulid())
+  restaurant_id String
+  box_id        String
+  created_at    DateTime              @default(now())
+  updated_at    DateTime              @updatedAt
+  status        restaurant_box_status @default(shared)
+  box           box                   @relation(fields: [box_id], references: [id], onDelete: Cascade)
+  restaurant    restaurant            @relation(fields: [restaurant_id], references: [id], onDelete: Cascade)
+
+  @@index([box_id], map: "restaurant_box_box_id_fkey")
+  @@index([restaurant_id], map: "restaurant_box_restaurant_id_fkey")
+}
+
+model vertical_food_employee_deleted {
+  id                  String   @id @default(ulid())
+  first_name          String
+  last_name           String
+  country_code        String
+  mobile_number       String
+  email               String
+  employee_display_id String
+  joining_date        DateTime
+  client_name         String
+  role_name           String
+  created_at          DateTime @default(now())
+  updated_at          DateTime @updatedAt
+  profile_pic         String?
+  client_id           String?
+  x_primary_key       String?
+
+  @@map("vertical_food_employee_deleted")
+}
+
+model restaurant_deleted {
+  id              String   @id @default(ulid())
+  name            String
+  client_id       String?
+  client_name     String?
+  manager_id      String?
+  manager_name    String?
+  city            String?
+  google_place_id String?
+  latitude        Float?
+  line_one        String?
+  line_two        String?
+  longitude       Float?
+  pincode         String?
+  state           String?
+  x_primary_key   String?
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+}
+
+model box_deleted {
+  id             String   @id @default(ulid())
+  name           String?
+  box_display_id String
+  vertical_id    String?
+  vertical_name  String?
+  client_id      String?
+  client_name    String?
+  vehicle_number String?
+  x_primary_key  String?
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+}
+
+model vertical_food_consumer {
+  id           String                       @id @default(ulid())
+  full_name    String
+  country_code String
+  phone        String
+  status       food_consumer_status         @default(pending)
+  client_id    String?
+  created_at   DateTime                     @default(now())
+  updated_at   DateTime                     @updatedAt
+  client       client?                      @relation(fields: [client_id], references: [id])
+  boxes        vertical_food_consumer_box[] @relation("vertical_food_consumer_boxes")
+
+  @@unique([phone, country_code])
+  @@index([client_id], map: "vertical_food_consumer_client_id_fkey")
+  @@map("vertical_food_consumer")
+}
+
+model vertical_food_consumer_box {
+  id          String                 @id @default(ulid())
+  consumer_id String
+  box_id      String
+  created_at  DateTime               @default(now())
+  updated_at  DateTime               @updatedAt
+  box         box                    @relation("vertical_food_consumer_boxes", fields: [box_id], references: [id], onDelete: Cascade)
+  consumer    vertical_food_consumer @relation("vertical_food_consumer_boxes", fields: [consumer_id], references: [id], onDelete: Cascade)
+
+  @@index([box_id], map: "vertical_food_consumer_box_box_id_fkey")
+  @@index([consumer_id], map: "vertical_food_consumer_box_consumer_id_fkey")
+}
+
+model box_lock {
+  id             String          @id @default(ulid())
+  box_id         String          @unique
+  lock_status    box_lock_status @default(unlocked)
+  created_at     DateTime        @default(now())
+  updated_status DateTime        @updatedAt
+  box            box             @relation(fields: [box_id], references: [id], onDelete: Cascade)
+}
+
+
+
+model notification {
+  id              String            @id @default(ulid())
+  client_id       String
+  box_id          String?
+  box_display_id  String?
+  box_name        String?
+  restaurant_name String?
+  type            notification_type @default(notification)
+  title           String
+  description     String            @db.Text
+  is_read         Boolean           @default(false)
+  is_dismissed    Boolean           @default(false)
+  created_at      DateTime          @default(now())
+  updated_at      DateTime          @updatedAt
+  client          client            @relation(fields: [client_id], references: [id], onDelete: Cascade)
+
+  @@index([client_id])
+  @@index([box_id])
+  @@index([is_read])
+  @@index([is_dismissed])
+}
+
+enum employee_status {
+  active
+  suspended
+  unassigned
+}
+
+enum faq_category_status {
+  active
+  suspended
+  deleted
+}
+
+enum faq_question_publishing_status {
+  draft
+  published
+}
+
+enum role_status {
+  active
+  deleted
+}
+
+enum box_status {
+  active
+  suspended
+}
+
+enum box_lock_status {
+  locked
+  unlocked
+  not_available
+  offline
+}
+
+enum box_health_status {
+  critical
+  healthy
+  attention
+}
+
+enum box_connection_status {
+  connected
+  disconnected
+  unknown
+}
+
+enum client_employee_role {
+  manager
+  delivery
+}
+
+enum client_status {
+  active
+  inactive
+  suspended
+}
+
+enum restaurant_status {
+  active
+  suspended
+}
+
+enum restaurant_box_status {
+  shared
+  not_shared
+  blocked
+}
+
+enum employee_box_status {
+  shared
+  blocked
+}
+
+enum employee_box_access {
+  direct
+  public
+  all_employees
+}
+
+
+enum hardware_state {
+  on
+  off
+  unknown
+}
+
+
+model box_telemetry_latest {
+  id                    String                 @id @default(ulid())
+  box_id                String                 @unique
+  health_status         box_health_status?     @default(healthy)
+  power_status          hardware_state?        @default(unknown)
+  battery_percentage    Int?
+  memory_percentage     Int?
+  ext_temp              Int?
+  zone1_temp            Int?
+  zone2_temp            Int?
+  ioniser_status        hardware_state?        @default(unknown)
+  adas_status           hardware_state?        @default(unknown)
+  bluetooth_status      hardware_state?        @default(unknown)
+  camera_status         hardware_state?        @default(unknown)
+  gps_status            hardware_state?        @default(unknown)
+  gyrosensor_status     hardware_state?        @default(unknown)
+  port_big_status       hardware_state?        @default(unknown)
+  port_small_status     hardware_state?        @default(unknown)
+  save_to_memory_status hardware_state?        @default(unknown)
+  sim_status            hardware_state?        @default(unknown)
+  solar_status          hardware_state?        @default(unknown)
+  turn_signal_status    hardware_state?        @default(unknown)
+  wifi_status           hardware_state?        @default(unknown)
+  advert_screen_status  hardware_state?        @default(unknown)
+  dual_zone_status      hardware_state?        @default(unknown)
+  connection_status     box_connection_status? @default(unknown)
+
+  updated_at DateTime @updatedAt
+
+  box box @relation(fields: [box_id], references: [id], onDelete: Cascade)
+}
+
+enum food_consumer_status {
+  pending
+  delivered
+  cancelled
+}
+
+enum notification_type {
+  warning
+  error
+  success
+  notification
+}

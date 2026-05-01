@@ -1,0 +1,57 @@
+import { AUTH_SECRET } from "@/configs/env";
+import { APIError } from "@/types/error";
+import type { AuthPayload, FoodAuthPayload } from "@/types/jwt";
+import { type JwtPayload, sign, verify } from "jsonwebtoken";
+
+interface JwtAuthPayload extends JwtPayload {
+	user?: AuthPayload;
+}
+
+interface FoodJwtAuthPayload extends JwtPayload {
+	user?: FoodAuthPayload;
+}
+
+export class JWT {
+	static verifyAuthToken(token: string): AuthPayload {
+		const { user } = verify(token, AUTH_SECRET) as JwtAuthPayload;
+
+		if (!user) {
+			throw new APIError("Invalid token", undefined, undefined, 401);
+		}
+
+		return user;
+	}
+
+	static signAuthToken(payload: AuthPayload): string {
+		return sign(
+			{
+				user: payload,
+			},
+			AUTH_SECRET,
+		);
+	}
+
+	static verifyFoodAuthToken(token: string): FoodAuthPayload {
+		const { user } = verify(token, AUTH_SECRET) as FoodJwtAuthPayload;
+
+		if (!user) {
+			throw new APIError(
+				"The auth token is either invalid or has expired!",
+				undefined,
+				undefined,
+				401,
+			);
+		}
+
+		return user;
+	}
+
+	static signFoodAuthToken(payload: FoodAuthPayload): string {
+		return sign(
+			{
+				user: payload,
+			},
+			AUTH_SECRET,
+		);
+	}
+}
