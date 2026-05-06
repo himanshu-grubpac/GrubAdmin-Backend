@@ -9,6 +9,8 @@ interface ResponseData {
 }
 
 export const deleteAccountEligiblityHandler = createHandlers(
+
+	
 	authGuard(["admin", "employee"]),
 	async (context) => {
 		const { user_id } = context.var;

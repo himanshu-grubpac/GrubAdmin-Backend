@@ -17,6 +17,7 @@ import { Otp } from "@/utils/otp.ts";
 import { services } from "@/services";
 import { logger } from "@/utils/logger.ts";
 import { resolveMessageTemplate } from "@/utils/message.ts";
+import { MAIL } from "@/configs/env.ts";
 
 export const updateAccountHandler = createHandlers(
 	authGuard(["admin", "employee"]),
@@ -110,11 +111,18 @@ export const updateAccountHandler = createHandlers(
 			});
 
 			await services.mailer.sendEmail({
-				from: "ankan@sqaby.com",
+				from: MAIL,
 				subject: "OTP for Account Update",
 				to: email,
 				text: `Your account update OTP is ${otp}`,
 			});
+
+			const response = {
+				success: true as const,
+				...resolveMessageTemplate("admin.account.UPDATE_OTP_SENT"),
+			};
+
+			return context.json(response as any, response.code as any);
 		} else if (mobile_number) {
 			if (
 				user.mobile_number === mobile_number &&
@@ -145,11 +153,18 @@ export const updateAccountHandler = createHandlers(
 			});
 
 			await services.mailer.sendEmail({
-				from: "ankan@sqaby.com",
+				from: MAIL,
 				subject: "OTP for Account Update",
 				to: user.email,
 				text: `Your account update OTP is ${otp}`,
 			});
+
+			const response = {
+				success: true as const,
+				...resolveMessageTemplate("admin.account.UPDATE_OTP_SENT"),
+			};
+
+			return context.json(response as any, response.code as any);
 		} else if (new_password) {
 			if (!user.password) {
 				await setNewPassword({

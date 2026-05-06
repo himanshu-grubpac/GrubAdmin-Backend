@@ -32,13 +32,20 @@ export const suspendAdminsHandler = createHandlers(
 		const { admins } = context.req.valid("json");
 
 		if (admins.includes(user_id)) {
-			throw new APIError("You cannot suspend yourself", undefined, undefined, 400);
+			throw new APIError("You cannot suspend your own account", undefined, undefined, 403);
 		}
 
 		const adminsToBeSuspended = await getAdmins({
 			ids: admins,
 			fetchAll: true,
 		});
+
+		if (!loggedInAdminRole?.is_super_admin) {
+			const hasSuperAdmin = adminsToBeSuspended.admins.some((a) => a.role?.is_super_admin);
+			if (hasSuperAdmin) {
+				throw new APIError("Unauthorized: You cannot suspend a Super Admin", undefined, undefined, 403);
+			}
+		}
 
 		await toggleSuspendAdmins({
 			admin_ids: admins,

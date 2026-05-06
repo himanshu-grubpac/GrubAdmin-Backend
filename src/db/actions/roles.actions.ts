@@ -1,6 +1,7 @@
 import { prisma } from "@/db";
 import { type Prisma, type role } from "@/db/types";
 import { APIError } from "@/types/error";
+import { normalizeRoleName } from "@/utils/string.ts";
 
 interface CreateRoleArgs {
 	name: string;
@@ -9,13 +10,23 @@ interface CreateRoleArgs {
 }
 
 export const createRole = async (args: CreateRoleArgs) => {
-	return prisma.role.create({
-		data: {
-			name: args.name,
-			permissions_json: args.permissions,
-			is_super_admin: args.isSuperAdmin,
-		},
-	});
+	const normalizedName = normalizeRoleName(args.name);
+
+	try {
+		return await prisma.role.create({
+			data: {
+				name: args.name.trim(),
+				name_normalized: normalizedName,
+				permissions_json: args.permissions,
+				is_super_admin: false, 
+			},
+		});
+	} catch (error: any) {
+		if (error.code === "P2002") {
+			throw new APIError("Role name already exists", undefined, undefined, 400);
+		}
+		throw error;
+	}
 };
 
 interface GetRolesArgs {
@@ -91,19 +102,46 @@ interface UpdateRoleArgs {
 }
 
 export const updateRole = async (args: UpdateRoleArgs) => {
-	return prisma.role.update({
-		where: {
-			id: args.id,
-			NOT: {
-				status: "deleted",
-			},
-		},
-		data: {
-			name: args.name,
-			permissions_json: args.permissions,
-			is_super_admin: args.isSuperAdmin,
-		},
+	const existingRole = await prisma.role.findUnique({
+		where: { id: args.id },
 	});
+
+	if (!existingRole || existingRole.status === "deleted") {
+		throw new APIError("Role not found", undefined, undefined, 404);
+	}
+
+	// If it's a Super Admin role, prevent demotion or deactivation
+	if (existingRole.is_super_admin) {
+		if (args.isSuperAdmin === false) {
+			throw new APIError("Super Admin role cannot be demoted", undefined, undefined, 400);
+		}
+	}
+
+	const data: Prisma.roleUpdateInput = {
+		permissions_json: args.permissions,
+	};
+
+	if (args.name) {
+		data.name = args.name.trim();
+		data.name_normalized = normalizeRoleName(args.name);
+	}
+
+	try {
+		return await prisma.role.update({
+			where: {
+				id: args.id,
+				NOT: {
+					status: "deleted",
+				},
+			},
+			data,
+		});
+	} catch (error: any) {
+		if (error.code === "P2002") {
+			throw new APIError("Another role with this name already exists", undefined, undefined, 400);
+		}
+		throw error;
+	}
 };
 
 interface DeleteRoleArgs {
@@ -129,6 +167,10 @@ export const deleteRole = async (args: DeleteRoleArgs) => {
 
 	if (!role) {
 		throw new APIError("Role not found", undefined, undefined, 404);
+	}
+
+	if (role.is_super_admin) {
+		throw new APIError("Super Admin role cannot be deleted", undefined, undefined, 403);
 	}
 
 	if (role._count.admins > 0) {

@@ -11,7 +11,8 @@ export const createRoleRequestBodyValidator = zValidator(
 				error: "Please provide a valid role name",
 			})
 			.trim()
-			.min(1, "Role Name is required"),
+			.min(2, "Role name must be at least 2 characters long")
+			.max(50, "Role name must not exceed 50 characters"),
 		permissions: z.record(
 			z.union(
 				Object.values(PERMISSION_TOPICS).map((pt) => z.literal(pt)),
@@ -20,11 +21,6 @@ export const createRoleRequestBodyValidator = zValidator(
 			z.any(),
 			"Permissions are required",
 		),
-		is_super_admin: z
-			.boolean({
-				error: "Please mention is the admin is super admin",
-			})
-			.optional(),
 	}),
 	(response) => {
 		if (!response.success) {
@@ -41,7 +37,8 @@ export const updateRoleRequestBodyValidator = zValidator(
 				error: "Please provide a valid role name",
 			})
 			.trim()
-			.min(1, "Role Name is required")
+			.min(2, "Role name must be at least 2 characters long")
+			.max(50, "Role name must not exceed 50 characters")
 			.optional(),
 		permissions: z
 			.record(
@@ -52,11 +49,6 @@ export const updateRoleRequestBodyValidator = zValidator(
 				z.any(),
 				"Permissions are required",
 			)
-			.optional(),
-		is_super_admin: z
-			.boolean({
-				error: "Please mention is the admin is super admin",
-			})
 			.optional(),
 	}),
 	(response) => {

@@ -63,23 +63,33 @@ export const confirmResetPasswordHandler = createHandlers(
 
 		const admin = await getUniqueAdmin({ email });
 
-		if (!admin || !admin.user.password) {
-			throw new APIError("Admin not found or password not set", undefined, undefined, 404);
+		if (!admin) {
+			throw new APIError("Admin not found", undefined, undefined, 404);
 		}
 
-		
-		const isSamePassword = await Bcrypt.compareHash({
-			data: password,
-			hashedValue: admin.user.password,
-		});
-
-		if (isSamePassword) {
+		if (admin.user.status === "suspended") {
 			throw new APIError(
-				"New password must be different from your old password!",
+				"Your account is suspended. Password reset is not allowed.",
 				undefined,
 				undefined,
-				400,
+				403,
 			);
+		}
+
+		if (admin.user.password) {
+			const isSamePassword = await Bcrypt.compareHash({
+				data: password,
+				hashedValue: admin.user.password,
+			});
+
+			if (isSamePassword) {
+				throw new APIError(
+					"New password must be different from your old password!",
+					undefined,
+					undefined,
+					400,
+				);
+			}
 		}
 
 		const hashedPassword = await Bcrypt.generateHash({

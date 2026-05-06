@@ -73,7 +73,7 @@ export const updateAccountRequestBodyValidator = zValidator(
 				error: "Please provide a non empty country code",
 			})
 			.optional(),
-	}),
+	}).strict(),
 	(response) => {
 		if (!response.success) {
 			validatorErrorHandler(response.error);

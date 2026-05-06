@@ -6,7 +6,7 @@ import { json2csv } from "json-2-csv";
 import { Permission } from "@/utils/permission.ts";
 import { EMPLOYEES_PERMISSIONS } from "@/configs/constants.ts";
 import { ipMiddleware } from "@/middlewares/common/ip.ts";
-import { services } from "@/services";
+import { sanitizeCsvValue } from "@/utils/string.ts";
 
 export const exportAdminsHandler = createHandlers(
 	authGuard(["admin", "employee"]),
@@ -56,11 +56,28 @@ export const exportAdminsHandler = createHandlers(
 						status,
 					});
 
-		const csv = json2csv(data.admins, {
+		
+		const MAX_EXPORT_LIMIT = 5000;
+		const adminsToExport = data.admins.slice(0, MAX_EXPORT_LIMIT);
+
+		const exportRows = adminsToExport.map((admin: any) => ({
+			"First Name": sanitizeCsvValue(admin.first_name),
+			"Last Name": sanitizeCsvValue(admin.last_name),
+			"Email": sanitizeCsvValue(admin.email),
+			"Employee ID": sanitizeCsvValue(admin.employee_id),
+			"Location": sanitizeCsvValue(admin.location),
+			"Role": sanitizeCsvValue(admin.role?.name || admin.role),
+			"Status": sanitizeCsvValue(admin.status || "dismissed"),
+			"Joining Date": admin.joining_date
+				? new Date(admin.joining_date).toLocaleDateString()
+				: "N/A",
+		}));
+
+		const csv = json2csv(exportRows, {
 			emptyFieldValue: null,
 			delimiter: {
 				field: ",",
-				wrap: '"', // ensures commas in text are safely escaped
+				wrap: '"',
 			},
 		});
 

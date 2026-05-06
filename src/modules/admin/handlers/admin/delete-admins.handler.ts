@@ -33,13 +33,20 @@ export const deleteAdminsHandler = createHandlers(
 		const { admins } = context.req.valid("json");
 
 		if (admins.includes(user_id)) {
-			throw new APIError("You cannot delete yourself!", undefined, undefined, 400);
+			throw new APIError("You cannot delete your own account", undefined, undefined, 403);
 		}
 
 		const adminsToBeDeleted = await getAdmins({
 			ids: admins,
 			fetchAll: true,
 		});
+
+		if (!loggedInAdminRole?.is_super_admin) {
+			const hasSuperAdmin = adminsToBeDeleted.admins.some((a) => a.role?.is_super_admin);
+			if (hasSuperAdmin) {
+				throw new APIError("Unauthorized: You cannot delete a Super Admin", undefined, undefined, 403);
+			}
+		}
 
 		await deleteAdmins(admins);
 

@@ -158,6 +158,7 @@ model faq_question_category {
 model role {
   id               String      @id @default(ulid())
   name             String
+  name_normalized  String      @unique
   is_super_admin   Boolean     @default(false)
   permissions_json Json
   status           role_status @default(active)

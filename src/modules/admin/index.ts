@@ -108,7 +108,7 @@ adminRouter.post(
 );
 adminRouter.post(
 	"/auth/reset-password/confirm",
-	otpRateLimit,
+	
 	...confirmResetPasswordHandler,
 );
 
