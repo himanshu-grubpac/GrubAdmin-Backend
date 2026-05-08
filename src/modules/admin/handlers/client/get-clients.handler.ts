@@ -46,6 +46,9 @@ export const getClientsHandler = createHandlers(
 					? [filter]
 					: filter
 				: verticalsAllowed,
+			omit: {
+				password: true,
+			},
 		});
 
 		return context.json<APIResponse<ResponseData>>(
@@ -54,10 +57,13 @@ export const getClientsHandler = createHandlers(
 				code: 200,
 				data: {
 					...clientsData,
-					customers: clientsData.clients.map((c) => ({
-						...c,
-						client_id: (c as any).client_display_id,
-					})) as any,
+					customers: clientsData.clients.map((c) => {
+						const { password, ...safeClient } = c as any;
+						return {
+							...safeClient,
+							client_id: safeClient.client_display_id,
+						};
+					}),
 				},
 				pagination: calculatePagination(page_number, page_size, clientsData.count),
 			},

@@ -20,15 +20,16 @@ export const verifyOtpHandler = createHandlers(
 	verifyOtpRequestBodyValidator,
 	async (context) => {
 		const { email, otp } = context.req.valid("json");
+		const normalizedEmail = email.trim().toLowerCase();
 
 		const ip_address = context.req.header("x-forwarded-for") ||
 			context.req.header("x-real-ip") ||
 			context.req.header("cf-connecting-ip") ||
 			"unknown";
 
-		const isLocked = await isOtpAttemptLocked({ email, ip_address });
+		const isLocked = await isOtpAttemptLocked({ email: normalizedEmail, ip_address });
 		if (isLocked) {
-			const remainingMinutes = await getOtpLockoutRemaining({ email, ip_address });
+			const remainingMinutes = await getOtpLockoutRemaining({ email: normalizedEmail, ip_address });
 			throw new APIError(
 				`Account temporarily locked due to too many failed attempts. Try again in ${remainingMinutes} minutes.`,
 				undefined,
@@ -37,11 +38,11 @@ export const verifyOtpHandler = createHandlers(
 			);
 		}
 
-		const savedOtp = await getSavedOtp(email);
+		const savedOtp = await getSavedOtp(normalizedEmail);
 
 		if (!savedOtp) {
 			
-			await incrementOtpAttempt({ email, ip_address });
+			await incrementOtpAttempt({ email: normalizedEmail, ip_address });
 			throw new APIError(undefined, "admin.auth.OTP_EXPIRED", undefined, 400);
 		}
 
@@ -49,17 +50,17 @@ export const verifyOtpHandler = createHandlers(
 
 		if (!isValidOtp) {
 			
-			await incrementOtpAttempt({ email, ip_address });
+			await incrementOtpAttempt({ email: normalizedEmail, ip_address });
 			throw new APIError(undefined, "admin.auth.OTP_INVALID", undefined, 400);
 		}
 
 		
-		await resetOtpAttempt({ email, ip_address });
+		await resetOtpAttempt({ email: normalizedEmail, ip_address });
 
-		await deleteSavedOtp(email);
+		await deleteSavedOtp(normalizedEmail);
 
 		const admin = await getUniqueAdmin({
-			email,
+			email: normalizedEmail,
 		});
 
 		if (!admin) {
@@ -72,7 +73,7 @@ export const verifyOtpHandler = createHandlers(
 
 		if (admin.user.status === "unassigned") {
 			await updateAdmin({
-				email,
+				email: normalizedEmail,
 				data: {
 					status: "active",
 				},

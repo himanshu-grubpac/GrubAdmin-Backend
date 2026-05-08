@@ -1,7 +1,7 @@
 import { authGuard } from "@/middlewares/auth";
 import { createHandlers } from "@/utils/hono-factory";
 import { createClientRequestBodyValidator } from "../../validators/client.validators";
-import { createClient } from "@/db/actions/client.actions";
+import { createClient, getUniqueClient } from "@/db/actions/client.actions";
 import type { client } from "@/db/types";
 import type { APIResponse } from "@/types/api";
 import { Permission } from "@/utils/permission.ts";
@@ -32,9 +32,17 @@ export const createClientHandler = createHandlers(
 		const { client_id, ...rest } = context.req.valid("json");
 		const data = { ...rest, client_display_id: client_id };
 
-		const vertical = await getVertical(data.vertical_id);
+		const existingClient = await getUniqueClient({ client_display_id: client_id });
+		if (existingClient) {
+			throw new APIError("Client ID already exists", undefined, undefined, 400);
+		}
 
-		if (vertical?.name === "camping" && data.organization_name) {
+		const vertical = await getVertical(data.vertical_id);
+		if (!vertical) {
+			throw new APIError("Invalid vertical selected", undefined, undefined, 400);
+		}
+
+		if (vertical.name === "camping" && data.organization_name) {
 			throw new APIError(
 				"You cannot add organization name while you have an organization name",
 				undefined,
@@ -45,6 +53,9 @@ export const createClientHandler = createHandlers(
 
 		const client = await createClient({
 			data,
+			omit: {
+				password: true,
+			},
 		});
 
 		services.adminLogger.log({
@@ -59,14 +70,16 @@ export const createClientHandler = createHandlers(
 			effected_name: client.name,
 		});
 
+		const { password, ...safeClient } = client as any;
+
 		return context.json<APIResponse<ResponseData>>({
 			success: true,
 			code: 200,
 			data: {
 				customer: {
-					...client,
-					client_id: (client as any).client_display_id,
-				} as any,
+					...safeClient,
+					client_id: safeClient.client_display_id,
+				},
 			},
 		});
 	},

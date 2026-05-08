@@ -13,9 +13,10 @@ export const loginHandler = createHandlers(
 	loginRequestBodyValidator,
 	async (context) => {
 		const { email, password } = context.req.valid("json");
+		const normalizedEmail = email.trim().toLowerCase();
 
 		const admin = await getUniqueAdmin({
-			email,
+			email: normalizedEmail,
 		});
 
 		if (!admin) {
@@ -42,7 +43,7 @@ export const loginHandler = createHandlers(
 
 		if (admin.user.status === "unassigned") {
 			await updateAdmin({
-				email,
+				email: normalizedEmail,
 				data: {
 					status: "active",
 				},

@@ -10,10 +10,19 @@ export const normalizeRoleName = (name: string): string => {
 };
 
 
-export const sanitizeCsvValue = (value: any): string => {
+export const sanitizeCsvValue = (value: any): any => {
 	if (value === null || value === undefined) return "";
-	const stringValue = String(value);
+	
+	if (typeof value === "object" && !(value instanceof Date)) {
+		if (Array.isArray(value)) {
+			return value.map(sanitizeCsvValue);
+		}
+		return Object.fromEntries(
+			Object.entries(value).map(([k, v]) => [k, sanitizeCsvValue(v)])
+		);
+	}
 
+	const stringValue = String(value);
 
 	if (/^[=+\-@]/.test(stringValue.trim())) {
 		return `'${stringValue}`;

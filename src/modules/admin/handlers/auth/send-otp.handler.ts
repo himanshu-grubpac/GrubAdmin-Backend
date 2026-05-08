@@ -11,9 +11,10 @@ export const sendOtpHandler = createHandlers(
 	sendOtpRequestBodyValidator,
 	async (context) => {
 		const { email } = context.req.valid("json");
+		const normalizedEmail = email.trim().toLowerCase();
 
 		const admin = await getUniqueAdmin({
-			email,
+			email: normalizedEmail,
 		});
 
 		if (!admin) {
@@ -29,7 +30,7 @@ export const sendOtpHandler = createHandlers(
 			);
 		}
 
-		const sentOtp = await getSavedOtp(email);
+		const sentOtp = await getSavedOtp(normalizedEmail);
 
 		if (sentOtp) {
 			throw new APIError(
@@ -43,7 +44,7 @@ export const sendOtpHandler = createHandlers(
 		const otp = Otp.generateOtp(4);
 
 		await saveOtp({
-			email,
+			email: normalizedEmail,
 			otp,
 			role: admin.type,
 			for_what: "login",
@@ -52,7 +53,7 @@ export const sendOtpHandler = createHandlers(
 		await services.mailer.sendEmail({
 			from: process.env.MAIL,
 			subject: "OTP",
-			to: email,
+			to: normalizedEmail,
 			text: `Your OTP is ${otp}`,
 		});
 

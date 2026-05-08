@@ -8,6 +8,7 @@ import { CLIENTS_PERMISSIONS } from "@/configs/constants.ts";
 import type { BoxType } from "@/types/common/box-type.ts";
 import { services } from "@/services";
 import { ipMiddleware } from "@/middlewares/common/ip.ts";
+import { sanitizeCsvValue } from "@/utils/string.ts";
 
 export const exportClientHandler = createHandlers(
 	authGuard(["admin", "employee"]),
@@ -50,14 +51,22 @@ export const exportClientHandler = createHandlers(
 				: verticalsAllowed,
 			order,
 			orderingFactor: order_factor,
+			omit: {
+				password: true,
+			},
 		});
 
-		const formattedClients = data.clients.map((c) => ({
-			...c,
-			client_id: (c as any).client_display_id,
-		}));
+		const formattedClients = data.clients.map((c) => {
+			const { password, ...safeClient } = c as any;
+			return {
+				...safeClient,
+				client_id: safeClient.client_display_id,
+			};
+		});
 
-		const csv = json2csv(formattedClients, {
+		const sanitizedClients = formattedClients.map((c) => sanitizeCsvValue(c));
+
+		const csv = json2csv(sanitizedClients, {
 			emptyFieldValue: null,
 			delimiter: {
 				field: ",",

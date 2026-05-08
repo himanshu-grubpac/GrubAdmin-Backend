@@ -18,7 +18,9 @@ export const createVerticalHandler = createHandlers(
 
 		Permission.checkAdminPermissions({
 			admin,
-			permissions_allowed: {},
+			permissions_allowed: {
+				verticals: ["add verticals"],
+			},
 		});
 
 		const { name } = context.req.valid("json");

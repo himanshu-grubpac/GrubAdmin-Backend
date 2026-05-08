@@ -1,7 +1,42 @@
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
-import { PAGE_SIZE, PERMISSION_TOPICS } from "@/configs/constants.ts";
+import { PAGE_SIZE, PERMISSION_TOPICS, PERMISSION_SETS } from "@/configs/constants.ts";
 import { validatorErrorHandler } from "@/utils/zod.ts";
+
+const permissionSchema = z
+	.record(
+		z.string(),
+		z.array(z.string({ error: "Individual permissions must be text strings" }), {
+			error: "Permissions under a topic must be an array of strings",
+		}).min(1, "Permissions list under a topic cannot be empty"),
+	)
+	.superRefine((permissions, ctx) => {
+		for (const [topic, values] of Object.entries(permissions)) {
+			// @ts-ignore
+			const allowedSet = PERMISSION_SETS[topic as keyof typeof PERMISSION_SETS];
+
+			if (!allowedSet) {
+				ctx.addIssue({
+					code: z.ZodIssueCode.custom,
+					message: "Permission topic must be a valid topic",
+					path: [topic],
+				});
+				continue;
+			}
+
+			if (!values) continue;
+
+			for (const value of values) {
+				if (!allowedSet.has(value as never)) {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message: `Invalid permission '${value}' under topic '${topic}'`,
+						path: [topic],
+					});
+				}
+			}
+		}
+	});
 
 export const createRoleRequestBodyValidator = zValidator(
 	"json",
@@ -13,14 +48,7 @@ export const createRoleRequestBodyValidator = zValidator(
 			.trim()
 			.min(2, "Role name must be at least 2 characters long")
 			.max(50, "Role name must not exceed 50 characters"),
-		permissions: z.record(
-			z.union(
-				Object.values(PERMISSION_TOPICS).map((pt) => z.literal(pt)),
-				"Permission topic must be a valid topic",
-			),
-			z.any(),
-			"Permissions are required",
-		),
+		permissions: permissionSchema,
 	}),
 	(response) => {
 		if (!response.success) {
@@ -40,16 +68,7 @@ export const updateRoleRequestBodyValidator = zValidator(
 			.min(2, "Role name must be at least 2 characters long")
 			.max(50, "Role name must not exceed 50 characters")
 			.optional(),
-		permissions: z
-			.record(
-				z.union(
-					Object.values(PERMISSION_TOPICS).map((pt) => z.literal(pt)),
-					"Permission topic must be a valid topic",
-				),
-				z.any(),
-				"Permissions are required",
-			)
-			.optional(),
+		permissions: permissionSchema.optional(),
 	}),
 	(response) => {
 		if (!response.success) {

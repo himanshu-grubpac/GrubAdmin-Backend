@@ -10,8 +10,9 @@ export const resendResetPasswordOtpHandler = createHandlers(
 	resendPasswordResetOtpRequestBodyValidator,
 	async (context) => {
 		const { email } = context.req.valid("json");
+		const normalizedEmail = email.trim().toLowerCase();
 
-		const savedOtp = await getSavedOtp(email);
+		const savedOtp = await getSavedOtp(normalizedEmail);
 
 		if (!savedOtp) {
 			throw new APIError("Please first send the otp to resen otp", undefined, undefined, 400);
@@ -20,7 +21,7 @@ export const resendResetPasswordOtpHandler = createHandlers(
 		const otp = Otp.generateOtp(4);
 
 		await saveOtp({
-			email,
+			email: normalizedEmail,
 			otp,
 			role: savedOtp.role,
 			for_what: savedOtp.for_what,
@@ -30,7 +31,7 @@ export const resendResetPasswordOtpHandler = createHandlers(
 		await services.mailer.sendEmail({
 			from: "ankan@sqaby.com",
 			subject: "Reset Password OTP",
-			to: email,
+			to: normalizedEmail,
 			text: `Your OTP for resetting your password is ${otp}`,
 		});
 

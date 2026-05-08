@@ -10,6 +10,8 @@ import { createBox } from "@/db/actions/box.actions.ts";
 import type { APIResponse } from "@/types/api";
 import { ipMiddleware } from "@/middlewares/common/ip.ts";
 import { services } from "@/services";
+import { getVertical } from "@/db/actions/vertical.actions.ts";
+import { APIError } from "@/types/error";
 
 interface ResponseData {
 	box: box;
@@ -33,6 +35,11 @@ export const createBoxHandler = createHandlers(
 			ioniser_status,
 			battery_percentage,
 		} = context.req.valid("json");
+
+		const verticalData = await getVertical(vertical);
+		if (!verticalData) {
+			throw new APIError("Invalid vertical selected", undefined, undefined, 400);
+		}
 
 		const box = await createBox({
 			box_display_id: box_id,

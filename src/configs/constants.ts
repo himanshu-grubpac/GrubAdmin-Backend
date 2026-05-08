@@ -85,6 +85,11 @@ export const CLIENTS_PERMISSIONS = {
 	edit_profile_details: "edit profile details",
 } as const;
 
+export const VERTICALS_PERMISSIONS = {
+	view_verticals: "view verticals",
+	add_verticals: "add verticals"
+} as const;
+
 export const PERMISSION_SETS = {
 	[PERMISSION_TOPICS.DASHBOARD]: new Set(
 		Object.values(DASHBOARD_PERMISSIONS),
@@ -95,7 +100,7 @@ export const PERMISSION_SETS = {
 	[PERMISSION_TOPICS.ROLES]: new Set(Object.values(ROLES_PERMISSIONS)),
 	[PERMISSION_TOPICS.CLIENTS]: new Set(Object.values(CLIENTS_PERMISSIONS)),
 	[PERMISSION_TOPICS.SUPPORT]: new Set(Object.values(SUPPORT_PERMISSIONS)),
-	verticals: new Set(BOX_VERTICALS),
+	verticals: new Set([...BOX_VERTICALS, ...Object.values(VERTICALS_PERMISSIONS)]),
 } as const;
 
 export const LOG_MODULES = [

@@ -11,16 +11,17 @@ export const sentResetPasswordOtpHandler = createHandlers(
 	sendPasswordResetOtpRequestBodyValidator,
 	async (context) => {
 		const { email } = context.req.valid("json");
+		const normalizedEmail = email.trim().toLowerCase();
 
 		const admin = await getUniqueAdmin({
-			email,
+			email: normalizedEmail,
 		});
 
 		if (!admin) {
 			throw new APIError("No such admin exists!", undefined, undefined, 404);
 		}
 
-		const sentOtp = await getSavedOtp(email);
+		const sentOtp = await getSavedOtp(normalizedEmail);
 
 		if (sentOtp) {
 			throw new APIError(
@@ -34,7 +35,7 @@ export const sentResetPasswordOtpHandler = createHandlers(
 		const otp = Otp.generateOtp(4);
 
 		await saveOtp({
-			email,
+			email: normalizedEmail,
 			otp,
 			role: admin.type,
 			for_what: "forget_password",
@@ -44,7 +45,7 @@ export const sentResetPasswordOtpHandler = createHandlers(
 		await services.mailer.sendEmail({
 			from: "ankan@sqaby.com",
 			subject: "Reset Password OTP",
-			to: email,
+			to: normalizedEmail,
 			text: `Your OTP for resetting your password is ${otp}`,
 		});
 

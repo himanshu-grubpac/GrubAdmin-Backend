@@ -27,14 +27,11 @@ export const createRoleHandler = createHandlers(
 			},
 		});
 
-		const { is_super_admin, name, permissions } = context.req.valid("json");
-
-		CustomValidator.validatePermissionSet(permissions);
+		const { name, permissions } = context.req.valid("json");
 
 		const role = await createRole({
 			name,
 			permissions,
-			isSuperAdmin: is_super_admin,
 		});
 
 		services.adminLogger.log({

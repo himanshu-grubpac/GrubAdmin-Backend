@@ -19,6 +19,7 @@ export const confirmResetPasswordHandler = createHandlers(
 	confirmResetPasswordRequestBodyValidator,
 	async (context) => {
 		const { email, otp, password } = context.req.valid("json");
+		const normalizedEmail = email.trim().toLowerCase();
 
 		const ip_address = context.req.header("x-forwarded-for") ||
 			context.req.header("x-real-ip") ||
@@ -26,9 +27,9 @@ export const confirmResetPasswordHandler = createHandlers(
 			"unknown";
 
 		
-		const isLocked = await isOtpAttemptLocked({ email, ip_address });
+		const isLocked = await isOtpAttemptLocked({ email: normalizedEmail, ip_address });
 		if (isLocked) {
-			const remainingMinutes = await getOtpLockoutRemaining({ email, ip_address });
+			const remainingMinutes = await getOtpLockoutRemaining({ email: normalizedEmail, ip_address });
 			throw new APIError(
 				`Account temporarily locked due to too many failed attempts. Try again in ${remainingMinutes} minutes.`,
 				undefined,
@@ -37,11 +38,11 @@ export const confirmResetPasswordHandler = createHandlers(
 			);
 		}
 
-		const savedOtp = await getSavedOtp(email);
+		const savedOtp = await getSavedOtp(normalizedEmail);
 
 		if (!savedOtp || !savedOtp.is_password_reset) {
 			
-			await incrementOtpAttempt({ email, ip_address });
+			await incrementOtpAttempt({ email: normalizedEmail, ip_address });
 			throw new APIError(
 				"The password is either expired or was never sent!",
 				undefined,
@@ -54,14 +55,14 @@ export const confirmResetPasswordHandler = createHandlers(
 
 		if (!isValidOtp) {
 			
-			await incrementOtpAttempt({ email, ip_address });
+			await incrementOtpAttempt({ email: normalizedEmail, ip_address });
 			throw new APIError("The otp is invalid", undefined, undefined, 400);
 		}
 
 		
-		await resetOtpAttempt({ email, ip_address });
+		await resetOtpAttempt({ email: normalizedEmail, ip_address });
 
-		const admin = await getUniqueAdmin({ email });
+		const admin = await getUniqueAdmin({ email: normalizedEmail });
 
 		if (!admin) {
 			throw new APIError("Admin not found", undefined, undefined, 404);
@@ -98,13 +99,13 @@ export const confirmResetPasswordHandler = createHandlers(
 		});
 
 		await updateAdmin({
-			email,
+			email: normalizedEmail,
 			data: {
 				password: hashedPassword,
 			},
 		});
 
-		await deleteSavedOtp(email);
+		await deleteSavedOtp(normalizedEmail);
 
 		const token = JWT.signAuthToken({
 			id: admin.user.id,

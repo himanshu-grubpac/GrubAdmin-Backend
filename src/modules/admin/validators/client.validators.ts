@@ -2,6 +2,7 @@ import {
 	BOX_VERTICALS,
 	CLIENT_ORDERING_FACTORS,
 	PAGE_SIZE,
+	LONG_PAGE_SIZE,
 } from "@/configs/constants";
 import { validatorErrorHandler } from "@/utils/zod";
 import { zValidator } from "@hono/zod-validator";
@@ -24,7 +25,7 @@ export const createClientRequestBodyValidator = zValidator(
 			})
 			.trim()
 			.min(1, "Client ID must not be empty"),
-		email: z.string().trim().email({
+		email: z.string().trim().toLowerCase().email({
 			error: "Please provide a valid email",
 		}),
 		country_code: z
@@ -92,12 +93,13 @@ export const getClientRequestQueryValidator = zValidator(
 		page_number: z.coerce
 			.number("Please provide a page number")
 			.int("Page number must an integer")
-			.nonnegative("Page number cannot be negative")
+			.min(1, "Page number must be at least 1")
 			.default(1),
 		page_size: z.coerce
 			.number("Please provide a page size")
 			.int("Page size must an integer")
-			.nonnegative("Page size cannot be negative")
+			.min(1, "Page size must be at least 1")
+			.max(LONG_PAGE_SIZE, `page_size must be less than or equal to ${LONG_PAGE_SIZE}`)
 			.default(PAGE_SIZE),
 		filter: z
 			.union([
@@ -155,12 +157,13 @@ export const exportClientRequestQueryValidator = zValidator(
 		page_number: z.coerce
 			.number("Please provide a page number")
 			.int("Page number must an integer")
-			.nonnegative("Page number cannot be negative")
+			.min(1, "Page number must be at least 1")
 			.default(1),
 		page_size: z.coerce
 			.number("Please provide a page size")
 			.int("Page size must an integer")
-			.nonnegative("Page size cannot be negative")
+			.min(1, "Page size must be at least 1")
+			.max(LONG_PAGE_SIZE, `page_size must be less than or equal to ${LONG_PAGE_SIZE}`)
 			.default(PAGE_SIZE),
 		filter: z
 			.union([

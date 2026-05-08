@@ -31,6 +31,14 @@ export const authGuard = (type?: UserType[]) =>
 				throw new APIError("You are not an admin", undefined, undefined, 403);
 			}
 
+			if (admin.user.status === "suspended") {
+				throw new APIError("Your account is suspended. Access denied.", undefined, undefined, 403);
+			}
+
+			if (admin.user.role && admin.user.role.status !== "active") {
+				throw new APIError("Your assigned role is suspended or deleted.", undefined, undefined, 403);
+			}
+
 			context.set("admin", admin.user);
 			context.set("role", admin.user.role);
 		}

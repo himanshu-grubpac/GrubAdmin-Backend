@@ -32,12 +32,11 @@ export const updateRoleHandler = createHandlers(
 		});
 
 		const { id } = context.req.valid("param");
-		const { name, is_super_admin, permissions } = context.req.valid("json");
+		const { name, permissions } = context.req.valid("json");
 
 		const role = await updateRole({
 			id,
 			name,
-			isSuperAdmin: is_super_admin,
 			permissions,
 		});
 

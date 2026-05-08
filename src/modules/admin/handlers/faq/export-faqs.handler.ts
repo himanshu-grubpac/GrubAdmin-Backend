@@ -7,6 +7,7 @@ import { Permission } from "@/utils/permission.ts";
 import { SUPPORT_PERMISSIONS } from "@/configs/constants.ts";
 import { ipMiddleware } from "@/middlewares/common/ip.ts";
 import { services } from "@/services";
+import { sanitizeCsvValue } from "@/utils/string.ts";
 
 export const exportFaqsHandler = createHandlers(
 	authGuard(["employee", "admin"]),
@@ -30,7 +31,9 @@ export const exportFaqsHandler = createHandlers(
 			state: "active",
 		});
 
-		const csv = json2csv(faqs.faqs, {
+		const sanitizedFaqs = faqs.faqs.map((f) => sanitizeCsvValue(f));
+
+		const csv = json2csv(sanitizedFaqs, {
 			emptyFieldValue: null,
 			delimiter: {
 				field: ",",

@@ -47,7 +47,7 @@ export const getUniqueAdmin = async (
 		};
 	} else if (args.email) {
 		employeeWhereQuery = {
-			email: args.email,
+			email: args.email.toLowerCase().trim(),
 		};
 	}
 

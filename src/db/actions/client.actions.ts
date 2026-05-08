@@ -1,7 +1,7 @@
 import { APIError } from "@/types/error";
 import type { client, Prisma } from "@/db/types";
 import { prisma } from "..";
-import type { CLIENT_ORDERING_FACTORS } from "@/configs/constants";
+import { CLIENT_ORDERING_FACTORS, PAGE_SIZE, LONG_PAGE_SIZE } from "@/configs/constants";
 import type { BoxType } from "@/types/common/box-type.ts";
 
 interface CreateClientArgs {
@@ -26,15 +26,44 @@ export const createClient = async (args: CreateClientArgs) => {
 		);
 	}
 
-	return select
-		? prisma.client.create({
-				data,
-				select,
-			})
-		: prisma.client.create({
-				data,
-				omit,
-			});
+	if (typeof data.email === "string") {
+		data.email = data.email.toLowerCase().trim();
+
+		const existingEmail = await prisma.client.findFirst({
+			where: {
+				email: data.email,
+				vertical_id: data.vertical_id,
+			},
+		});
+
+		if (existingEmail) {
+			throw new APIError("Email already exists under this vertical", undefined, undefined, 400);
+		}
+	}
+
+	try {
+		return await (select
+			? prisma.client.create({
+					data,
+					select,
+				})
+			: prisma.client.create({
+					data,
+					omit,
+				}));
+	} catch (error: any) {
+		if (error.code === "P2002") {
+			const targets = error.meta?.target || "";
+			if (targets.includes("client_display_id") || targets.includes("client_id")) {
+				throw new APIError("Client ID already exists", undefined, undefined, 400);
+			}
+			throw new APIError("Client already exists with this email or display ID", undefined, undefined, 400);
+		}
+		if (error.code === "P2003") {
+			throw new APIError("Invalid vertical selected", undefined, undefined, 400);
+		}
+		throw error;
+	}
 };
 
 interface GetClientsArgs {
@@ -74,6 +103,11 @@ export const getClients = async (
 			"You can only use either select or omit in clients query",
 		);
 	}
+
+	const safePageSize = fetch_all 
+		? undefined 
+		: Math.min(pageSize ?? PAGE_SIZE, LONG_PAGE_SIZE);
+	const safePageNumber = Math.max(pageNumber ?? 1, 1);
 
 	const clientsQuery: Prisma.clientFindManyArgs = {
 		where: {
@@ -122,10 +156,10 @@ export const getClients = async (
 					: undefined,
 		},
 		skip:
-			!fetch_all && pageNumber && pageSize
-				? (pageNumber - 1) * pageSize
+			!fetch_all && safePageNumber && safePageSize
+				? (safePageNumber - 1) * safePageSize
 				: undefined,
-		take: pageSize ? pageSize : undefined,
+		take: safePageSize ? safePageSize : undefined,
 		orderBy:
 			orderingFactor && order
 				? {
@@ -184,11 +218,13 @@ export const getUniqueClient = async (args: GetUniqueClientArgs) => {
 		throw new Error("Please provide id, email address, or client display ID");
 	}
 
+	const normalizedSearchEmail = args.email ? args.email.toLowerCase().trim() : undefined;
+
 	const result = await prisma.client.findFirst({
 		where: {
 			OR: [
 				args.id ? { id: args.id } : {},
-				args.email ? { email: args.email } : {},
+				normalizedSearchEmail ? { email: normalizedSearchEmail } : {},
 				args.client_display_id ? { client_display_id: args.client_display_id } : {},
 			].filter(c => Object.keys(c).length > 0)
 		},
