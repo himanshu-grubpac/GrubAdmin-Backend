@@ -109,19 +109,21 @@ model client {
 }
 
 model faq_category {
-  id          String                  @id @default(ulid())
-  name        String
-  icon_id     String?
-  vertical_id String
-  description String?
-  status      faq_category_status     @default(active)
-  index       Int
-  created_at  DateTime                @default(now())
-  updated_at  DateTime                @updatedAt
-  icon        icon?                   @relation(fields: [icon_id], references: [id])
-  vertical    vertical                @relation(fields: [vertical_id], references: [id], onDelete: Cascade)
-  questions   faq_question_category[]
+  id              String                  @id @default(ulid())
+  name            String
+  name_normalized String
+  icon_id         String?
+  vertical_id     String
+  description     String?
+  status          faq_category_status     @default(active)
+  index           Int
+  created_at      DateTime                @default(now())
+  updated_at      DateTime                @updatedAt
+  icon            icon?                   @relation(fields: [icon_id], references: [id])
+  vertical        vertical                @relation(fields: [vertical_id], references: [id], onDelete: Cascade)
+  questions       faq_question_category[]
 
+  @@unique([vertical_id, name_normalized])
   @@index([name])
   @@index([description])
   @@index([icon_id], map: "faq_category_icon_id_fkey")

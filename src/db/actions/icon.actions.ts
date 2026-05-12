@@ -9,15 +9,23 @@ interface CreateIconsArgs {
 	}[];
 }
 
-export const createIcons = (args: CreateIconsArgs) => {
+/**
+ * Creates multiple icons atomically inside a single database transaction.
+ * Returns the complete list of newly created icon records.
+ */
+export const createIcons = async (args: CreateIconsArgs) => {
 	const { icons } = args;
 
-	return prisma.icon.createMany({
-		data: icons.map((i) => ({
-			name: i.name,
-			bucket_key: i.key,
-		})),
-	});
+	return prisma.$transaction(
+		icons.map((i) =>
+			prisma.icon.create({
+				data: {
+					name: i.name,
+					bucket_key: i.key,
+				},
+			}),
+		),
+	);
 };
 
 interface GetIconsArgs {

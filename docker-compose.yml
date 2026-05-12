@@ -1,30 +1,60 @@
 version: "3.8"
 
 services:
+  mysql:
+    image: mysql:8.0
+    container_name: grub-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password_here
+      MYSQL_DATABASE: grub_db
+      MYSQL_USER: grub_user
+      MYSQL_PASSWORD: StrongUserPass@123 # Raw password for container config
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - db_net
+
+  mongo:
+    image: mongo:6.0
+    container_name: grub-mongo
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongo_root
+      MONGO_INITDB_ROOT_PASSWORD: StrongMongoRoot@123 # Raw password for container config
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - db_net
+
   api:
     build: .
     container_name: grub-api
     restart: unless-stopped
+    depends_on:
+      - mysql
+      - mongo
+    env_file:
+      - .env
     environment:
       PORT: 8000
-
-      # MySQL
-      MYSQL_HOST: mysql
-      MYSQL_PORT: 3306
-      MYSQL_DATABASE: grub_db
-      MYSQL_USER: grub_user
-      MYSQL_PASSWORD: StrongUserPass@123
-
-      # MongoDB
-      MONGO_HOST: mongo
-      MONGO_PORT: 27017
-      MONGO_USER: mongo_root
-      MONGO_PASSWORD: StrongMongoRoot@123
-
+      # Percent-encoded '@' as '%40' for valid URL parsing
+      DATABASE_URL: mysql://grub_user:StrongUserPass%40123@mysql:3306/grub_db
+      MONGO_URI: mongodb://mongo_root:StrongMongoRoot%40123@mongo:27017/grubpac_logs?authSource=admin
+    ports:
+      - "8000:8000"
     networks:
       - frontend_net
       - backend_net
       - db_net
+
+volumes:
+  mysql_data:
+  mongo_data:
 
 networks:
   frontend_net:
@@ -39,4 +69,3 @@ networks:
     driver: bridge
     driver_opts:
       com.docker.network.driver.mtu: 1400
-

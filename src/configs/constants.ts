@@ -28,6 +28,7 @@ export const PERMISSION_TOPICS = {
 	SUPPORT: "support",
 	CLIENTS: "clients",
 	VERTICALS: "verticals",
+	SYSTEM_SETTINGS: "system_settings",
 } as const;
 
 export const DASHBOARD_PERMISSIONS = {
@@ -90,6 +91,11 @@ export const VERTICALS_PERMISSIONS = {
 	add_verticals: "add verticals"
 } as const;
 
+export const SYSTEM_SETTINGS_PERMISSIONS = {
+	view_configs: "view configs",
+	edit_configs: "edit configs",
+} as const;
+
 export const PERMISSION_SETS = {
 	[PERMISSION_TOPICS.DASHBOARD]: new Set(
 		Object.values(DASHBOARD_PERMISSIONS),
@@ -100,6 +106,9 @@ export const PERMISSION_SETS = {
 	[PERMISSION_TOPICS.ROLES]: new Set(Object.values(ROLES_PERMISSIONS)),
 	[PERMISSION_TOPICS.CLIENTS]: new Set(Object.values(CLIENTS_PERMISSIONS)),
 	[PERMISSION_TOPICS.SUPPORT]: new Set(Object.values(SUPPORT_PERMISSIONS)),
+	[PERMISSION_TOPICS.SYSTEM_SETTINGS]: new Set(
+		Object.values(SYSTEM_SETTINGS_PERMISSIONS),
+	),
 	verticals: new Set([...BOX_VERTICALS, ...Object.values(VERTICALS_PERMISSIONS)]),
 } as const;
 

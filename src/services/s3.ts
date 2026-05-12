@@ -16,7 +16,7 @@ import { ulid } from "ulid";
 interface UploadToS3Args {
 	file: File;
 	prefix: string;
-	acl?: ObjectCannedACL;
+	acl?: ObjectCannedACL; // Kept for backwards compatibility, but ignored in execution to prevent bucket ownership crashes
 }
 
 interface UploadToS3Response {
@@ -45,17 +45,19 @@ export class s3Service {
 	}
 
 	async uploadToS3(args: UploadToS3Args): Promise<UploadToS3Response> {
-		const { file, prefix, acl } = args;
+		const { file, prefix } = args;
 
 		const fileBuffer = await this.convertFileToBuffer(file);
 
-		const key = `${file.name}-${ulid()}`;
+		// Clean filename spaces for clean URLs
+		const cleanFileName = file.name.replace(/\s+/g, "_");
+		const key = `${ulid()}-${cleanFileName}`;
 		const bucketKey = `${prefix}/${key}`;
 
-		const response = await this.client.send(
+		// 🔒 Strip ACL parameter to comply with ACL-disabled buckets
+		await this.client.send(
 			new PutObjectCommand({
 				Bucket: this.bucket,
-				ACL: acl ?? "public-read",
 				Key: bucketKey,
 				Body: fileBuffer,
 				ContentType: file.type,
@@ -66,6 +68,26 @@ export class s3Service {
 			key,
 			file_name: file.name,
 		};
+	}
+
+	/**
+	 * Deletes objects from S3 for transactional rollbacks on database write failures
+	 */
+	async deleteFromS3(keys: string[], prefix: string): Promise<void> {
+		if (keys.length === 0) return;
+		try {
+			await this.client.send(
+				new DeleteObjectsCommand({
+					Bucket: this.bucket,
+					Delete: {
+						Objects: keys.map((key) => ({ Key: `${prefix}/${key}` })),
+						Quiet: true,
+					},
+				}),
+			);
+		} catch (error) {
+			console.error("Critical: Failed to clean up uploaded S3 objects during rollback:", error);
+		}
 	}
 
 	async emptyBucket() {
