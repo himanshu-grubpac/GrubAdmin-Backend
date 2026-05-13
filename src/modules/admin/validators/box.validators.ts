@@ -60,7 +60,7 @@ export const updateBoxRequestBodyValidator = zValidator(
 			.nullable(),
 		vehicle_number: z.string().optional().nullable(),
 		status: z
-			.union([z.literal("active")], {
+			.union([z.literal("active"), z.literal("suspended")], {
 				error: "Please provide a valid status",
 			})
 			.optional(),
