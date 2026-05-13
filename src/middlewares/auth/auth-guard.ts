@@ -1,6 +1,7 @@
 import type { UserType } from "@/types/common";
 import { APIError } from "@/types/error";
 import { createMiddleware } from "hono/factory";
+import { getCookie } from "hono/cookie";
 import { JWT } from "@/utils/jwt";
 import type { admin, role } from "@/db/types";
 import { getUniqueAdmin } from "@/db/actions/admin.actions.ts";
@@ -14,7 +15,13 @@ export const authGuard = (type?: UserType[]) =>
 			role?: role | null;
 		};
 	}>(async (context, next) => {
-		const authToken = context.req.header("authorization")?.split(" ")[1];
+		// First try to get token from cookie (HttpOnly cookie set by login)
+		let authToken = getCookie(context, "auth_token");
+		
+		// Fallback to Authorization header
+		if (!authToken) {
+			authToken = context.req.header("authorization")?.split(" ")[1];
+		}
 
 		if (!authToken) {
 			throw new APIError("Unauthenticated access", undefined, undefined, 401);

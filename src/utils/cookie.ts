@@ -1,5 +1,5 @@
 import type { Context } from "hono";
-import { setCookie } from "hono/cookie";
+import { setCookie, deleteCookie } from "hono/cookie";
 import { NODE_ENV } from "@/configs/env";
 
 export interface SetAuthCookieOptions {
@@ -23,9 +23,19 @@ export const setAuthCookie = (
 	setCookie(context, "auth_token", token, {
 		httpOnly: true,
 		secure: NODE_ENV === "production",
-		sameSite: "Strict",
+		sameSite: "Lax",
 		path: "/",
 		maxAge: expiresIn,
 		expires: expiresAt,
+	});
+};
+
+/**
+ * Clear the auth cookie (for logout)
+ * @param context - Hono context
+ */
+export const deleteAuthCookie = (context: Context) => {
+	deleteCookie(context, "auth_token", {
+		path: "/",
 	});
 };
