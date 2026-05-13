@@ -513,11 +513,12 @@ export const getBoxes = async (
 	return {
 		boxes: boxesResponse.value.map((box) => {
 			const { vertical_food_employee_boxes, connection_employee, telemetry, ...boxData } = (box as any);
+			const { id: _telemetryId, box_id: _telemetryBoxId, updated_at: _telemetryUpdatedAt, ...telemetryData } = (telemetry || {}) as any;
 			const boxWithTelemetry = { ...boxData, telemetry };
 			const handler = getHandlerStatus(boxWithTelemetry);
 			return {
 				...boxData,
-				...(telemetry || {}),
+				...telemetryData,
 				global_status: getGlobalStatus(boxWithTelemetry),
 				handler_status: handler.status,
 				handler_employee: handler.details,
@@ -548,11 +549,12 @@ export const getFoodEmployeeBoxes = async (employeeId: string) => {
 
 	return assignments.map((a) => {
 		const { vertical_food_employee_boxes, connection_employee, telemetry, ...boxData } = (a.box as any);
+		const { id: _telemetryId, box_id: _telemetryBoxId, updated_at: _telemetryUpdatedAt, ...telemetryData } = (telemetry || {}) as any;
 		const boxWithTelemetry = { ...boxData, telemetry };
 		const handler = getHandlerStatus(boxWithTelemetry);
 		return {
 			...boxData,
-			...(telemetry || {}),
+			...telemetryData,
 			global_status: getGlobalStatus(boxWithTelemetry),
 			handler_status: handler.status,
 			handler_employee: handler.details,

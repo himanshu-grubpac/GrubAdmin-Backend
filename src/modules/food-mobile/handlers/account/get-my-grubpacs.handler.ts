@@ -60,9 +60,10 @@ export const getMyGrubpacsHandler = createHandlers(
 
 		const formattedBoxes = boxes.map((box) => {
 			const { telemetry, ...boxData } = box;
+			const { id: _telemetryId, box_id: _telemetryBoxId, updated_at: _telemetryUpdatedAt, ...telemetryData } = (telemetry || {}) as any;
 			return {
 				...boxData,
-				...(telemetry || {}),
+				...telemetryData,
 			};
 		});
 
