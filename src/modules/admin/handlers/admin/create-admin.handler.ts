@@ -50,17 +50,34 @@ export const createAdminHandler = createHandlers(
 			throw new APIError("The specified role does not exist", undefined, undefined, 400);
 		}
 
-		const admin = await createAdmin({
-			role_id: role,
-			first_name,
-			email,
-			country_code,
-			mobile_number,
-			joining_date,
-			location,
-			employee_id,
-			last_name,
-		});
+		let admin;
+		try {
+			admin = await createAdmin({
+				role_id: role,
+				first_name,
+				email,
+				country_code,
+				mobile_number,
+				joining_date,
+				location,
+				employee_id,
+				last_name,
+			});
+		} catch (error: any) {
+			if (error.code === 409) {
+				services.adminLogger.log({
+					module: "employee",
+					action: "create",
+					admin_id: loggedInAdmin?.id,
+					admin_name: `${loggedInAdmin?.first_name} ${loggedInAdmin?.last_name}`,
+					role_id: loggedInAdmin?.role_id,
+					role_name: loggedInAdminRole?.name,
+					ip,
+					effected_name: `[COLLISION] ${email}`,
+				});
+			}
+			throw error;
+		}
 
 		services.adminLogger.log({
 			module: "employee",

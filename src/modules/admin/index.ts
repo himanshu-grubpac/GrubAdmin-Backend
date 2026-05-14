@@ -22,6 +22,10 @@ import {
 	createClientHandler,
 	exportClientHandler,
 	getClientsHandler,
+	getClientHandler,
+	updateClientHandler,
+	deleteClientHandler,
+	patchClientStatusHandler,
 } from "./handlers/client";
 import {
 	createVerticalHandler,
@@ -145,6 +149,10 @@ adminRouter.get(
 adminRouter.post("/customer", ...createClientHandler);
 adminRouter.get("/customer", ...getClientsHandler);
 adminRouter.get("/customer/export", ...exportClientHandler);
+adminRouter.get("/customer/:id", ...getClientHandler);
+adminRouter.patch("/customer/:id", ...updateClientHandler);
+adminRouter.delete("/customer/:id", ...deleteClientHandler);
+adminRouter.patch("/customer/:id/status", ...patchClientStatusHandler);
 
 /**
  * Name: Admin Vertical Route

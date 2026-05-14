@@ -51,12 +51,29 @@ export const createClientHandler = createHandlers(
 			);
 		}
 
-		const client = await createClient({
-			data,
-			omit: {
-				password: true,
-			},
-		});
+		let client;
+		try {
+			client = await createClient({
+				data,
+				omit: {
+					password: true,
+				},
+			});
+		} catch (error: any) {
+			if (error.code === 409) {
+				services.adminLogger.log({
+					module: "client",
+					action: "create",
+					admin_id: admin?.id,
+					admin_name: `${admin?.first_name} ${admin?.last_name}`,
+					role_id: admin?.role_id,
+					role_name: role?.name,
+					ip,
+					effected_name: `[COLLISION] ${rest.email}`,
+				});
+			}
+			throw error;
+		}
 
 		services.adminLogger.log({
 			module: "client",

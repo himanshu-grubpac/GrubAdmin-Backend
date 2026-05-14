@@ -203,3 +203,48 @@ export const exportClientRequestQueryValidator = zValidator(
 		}
 	},
 );
+
+export const updateClientRequestBodyValidator = zValidator(
+	"json",
+	z.object({
+		name: z.string().trim().min(1, "Name must not be empty").optional(),
+		email: z.string().trim().toLowerCase().email("Please provide a valid email").optional(),
+		country_code: z.string().trim().min(1, "CountryCode must not be empty").optional(),
+		mobile_number: z.string().trim().length(10, "Mobile number must be 10 characters long").optional(),
+		country: z.string().trim().min(1, "Country must not be empty").optional(),
+		state: z.string().trim().min(1, "Region must not be empty").optional(),
+		organization_name: z.string().trim().min(1, "organization name must not be empty").optional(),
+		vertical_id: z.ulid("Please provide a vertical id that is a valid ulid").optional(),
+	}),
+	(response) => {
+		if (!response.success) {
+			validatorErrorHandler(response.error);
+		}
+	},
+);
+
+export const patchClientStatusValidator = zValidator(
+	"json",
+	z.object({
+		status: z.enum(["active", "inactive", "suspended"], {
+			error: "Status must be one of active, inactive or suspended",
+		}),
+	}),
+	(response) => {
+		if (!response.success) {
+			validatorErrorHandler(response.error);
+		}
+	},
+);
+
+export const clientIdParamValidator = zValidator(
+	"param",
+	z.object({
+		id: z.ulid("Invalid Client ID"),
+	}),
+	(response) => {
+		if (!response.success) {
+			validatorErrorHandler(response.error);
+		}
+	},
+);

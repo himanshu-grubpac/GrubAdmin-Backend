@@ -50,26 +50,43 @@ export const updateAdminHandler = createHandlers(
 			}
 		}
 
-		const updatedAdmin = await updateAdmin({
-			id: data.id,
-			data: {
-				email: data.email,
-				country_code: data.country_code,
-				mobile_number: data.mobile_number,
-				first_name: data.first_name,
-				last_name: data.last_name,
-				role: data.role
-					? {
-							connect: {
-								id: data.role,
-							},
-						}
-					: undefined,
-				joining_date: data.joining_date,
-				location: data.location,
-				employee_id: data.employee_id,
-			},
-		});
+		let updatedAdmin;
+		try {
+			updatedAdmin = await updateAdmin({
+				id: data.id,
+				data: {
+					email: data.email,
+					country_code: data.country_code,
+					mobile_number: data.mobile_number,
+					first_name: data.first_name,
+					last_name: data.last_name,
+					role: data.role
+						? {
+								connect: {
+									id: data.role,
+								},
+							}
+						: undefined,
+					joining_date: data.joining_date,
+					location: data.location,
+					employee_id: data.employee_id,
+				},
+			});
+		} catch (error: any) {
+			if (error.code === 409) {
+				services.adminLogger.log({
+					module: "employee",
+					action: "update",
+					admin_id: loggedInAdmin?.id,
+					admin_name: `${loggedInAdmin?.first_name} ${loggedInAdmin?.last_name}`,
+					role_id: loggedInAdmin?.role_id,
+					role_name: loggedInAdminRole?.name,
+					ip,
+					effected_name: `[UPDATE COLLISION] ${data.email}`,
+				});
+			}
+			throw error;
+		}
 
 		services.adminLogger.log({
 			module: "employee",

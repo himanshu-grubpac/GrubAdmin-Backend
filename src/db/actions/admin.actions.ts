@@ -7,6 +7,7 @@ import {
 } from "@/db/types";
 import { Bcrypt } from "@/utils/bcrypt.ts";
 import { APIError } from "@/types/error";
+import { checkEmailAvailability } from "@/utils/account";
 
 interface GetUniqueAdminArgs {
 	email?: string;
@@ -111,14 +112,7 @@ export const updateAdmin = async (args: UpdateAdminArgs) => {
 	const updateData = { ...args.data };
 
 	if (typeof updateData.email === "string") {
-		updateData.email = updateData.email.toLowerCase().trim();
-		const duplicate = await prisma.admin.findFirst({
-			where: {
-				email: updateData.email,
-				id: { not: currentAdminId },
-			},
-		});
-		if (duplicate) throw new APIError("Email already exists", undefined, undefined, 400);
+		await checkEmailAvailability(updateData.email, currentAdminId);
 	}
 
 	if (typeof updateData.employee_id === "string") {
@@ -220,16 +214,9 @@ interface CreateAdminArgs {
 
 export const createAdmin = async (args: CreateAdminArgs) => {
 
+	await checkEmailAvailability(args.email);
 	const normalizedEmail = args.email.toLowerCase().trim();
 	const normalizedEmployeeId = args.employee_id?.trim() || null;
-
-
-	const existingEmail = await prisma.admin.findUnique({
-		where: { email: normalizedEmail },
-	});
-	if (existingEmail) {
-		throw new APIError("Email already exists", undefined, undefined, 400);
-	}
 
 
 	if (normalizedEmployeeId) {

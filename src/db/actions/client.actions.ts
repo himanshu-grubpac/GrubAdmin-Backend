@@ -1,4 +1,5 @@
 import { APIError } from "@/types/error";
+import { checkEmailAvailability } from "@/utils/account";
 import type { client, Prisma } from "@/db/types";
 import { prisma } from "..";
 import { CLIENT_ORDERING_FACTORS, PAGE_SIZE, LONG_PAGE_SIZE } from "@/configs/constants";
@@ -27,18 +28,7 @@ export const createClient = async (args: CreateClientArgs) => {
 	}
 
 	if (typeof data.email === "string") {
-		data.email = data.email.toLowerCase().trim();
-
-		const existingEmail = await prisma.client.findFirst({
-			where: {
-				email: data.email,
-				vertical_id: data.vertical_id,
-			},
-		});
-
-		if (existingEmail) {
-			throw new APIError("Email already exists under this vertical", undefined, undefined, 400);
-		}
+		await checkEmailAvailability(data.email);
 	}
 
 	try {
@@ -239,4 +229,102 @@ export const getUniqueClient = async (args: GetUniqueClientArgs) => {
 		...result,
 		client_id: result.client_display_id,
 	} as any;
+};
+
+interface UpdateClientArgs {
+	id: string;
+	data: Prisma.clientUpdateInput;
+	select?: Prisma.clientSelect;
+	omit?: Prisma.clientOmit;
+}
+
+export const updateClient = async (args: UpdateClientArgs) => {
+	const { id, data, select, omit } = args;
+
+	if (select && omit) {
+		throw new Error("You cannot use both select and omit query together!");
+	}
+
+	// Normalize email if provided
+	if (typeof data.email === "string") {
+		await checkEmailAvailability(data.email, id);
+	}
+
+	try {
+		return await (select
+			? prisma.client.update({
+					where: { id },
+					data,
+					select,
+				})
+			: prisma.client.update({
+					where: { id },
+					data,
+					omit,
+				}));
+	} catch (error: any) {
+		if (error.code === "P2002") {
+			const targets = error.meta?.target || "";
+			if (targets.includes("client_display_id") || targets.includes("client_id")) {
+				throw new APIError("Client ID already exists", undefined, undefined, 400);
+			}
+			throw new APIError("Client already exists with this email or display ID", undefined, undefined, 400);
+		}
+		if (error.code === "P2025") {
+			throw new APIError("Client not found", undefined, undefined, 404);
+		}
+		throw error;
+	}
+};
+
+export const deleteClient = async (id: string) => {
+	return await prisma.$transaction(async (tx) => {
+		const client = await tx.client.findUnique({
+			where: { id },
+			include: { vertical: true },
+		});
+
+		if (!client) {
+			throw new APIError("Client not found", undefined, undefined, 404);
+		}
+
+		// Check for dependencies
+		const [boxes, employees, consumers, restaurants] = await Promise.all([
+			tx.box.count({ where: { client_id: id } }),
+			tx.vertical_food_employee.count({ where: { client_id: id } }),
+			tx.vertical_food_consumer.count({ where: { client_id: id } }),
+			tx.restaurant.count({ where: { client_id: id } }),
+		]);
+
+		if (boxes > 0 || employees > 0 || consumers > 0 || restaurants > 0) {
+			throw new APIError(
+				"Cannot delete client with active dependencies (boxes, employees, consumers, or restaurants)",
+				undefined,
+				undefined,
+				400,
+			);
+		}
+
+		// Move to client_deleted
+		await tx.client_deleted.create({
+			data: {
+				name: client.name,
+				client_display_id: client.client_display_id,
+				organization_name: client.organization_name,
+				country: client.country,
+				state: client.state,
+				email: client.email,
+				mobile_number: client.mobile_number,
+				country_code: client.country_code,
+				vertical_id: client.vertical_id,
+				vertical_name: client.vertical?.name,
+				profile_pic: client.profile_pic,
+				x_primary_key: client.id,
+			},
+		});
+
+		return await tx.client.delete({
+			where: { id },
+		});
+	});
 };
