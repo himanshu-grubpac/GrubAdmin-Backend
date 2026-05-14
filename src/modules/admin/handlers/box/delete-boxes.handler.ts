@@ -6,6 +6,8 @@ import type { APIResponse } from "@/types/api";
 import { ipMiddleware } from "@/middlewares/common/ip.ts";
 import { services } from "@/services";
 import { logger } from "@/utils/logger.ts";
+import { Permission } from "@/utils/permission.ts";
+import { GRUBPACS_PERMISSIONS } from "@/configs/constants.ts";
 
 export const deleteBoxesHandler = createHandlers(
 	authGuard(["admin", "employee"]),
@@ -13,6 +15,13 @@ export const deleteBoxesHandler = createHandlers(
 	ipMiddleware,
 	async (context) => {
 		const { admin, ip, role } = context.var;
+
+		Permission.checkAdminPermissions({
+			admin,
+			permissions_allowed: {
+				grubpac: [GRUBPACS_PERMISSIONS.delete_grubpacs],
+			},
+		});
 
 		const { box_ids } = context.req.valid("json");
 

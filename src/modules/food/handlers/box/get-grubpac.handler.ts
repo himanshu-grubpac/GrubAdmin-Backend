@@ -238,7 +238,7 @@ export const getGrubpacHandler = createHandlers(
 		const response = {
 			success: true as const,
 			...resolveMessageTemplate("food.common.FETCH_SUCCESS"),
-			data: { boxes: formattedBoxes, count: formattedBoxes.length },
+			data: { boxes: formattedBoxes, count: count },
 			pagination: calculatePagination(finalPage, finalLimit, count),
 		};
 

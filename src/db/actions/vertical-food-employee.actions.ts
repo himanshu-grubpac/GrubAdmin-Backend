@@ -576,7 +576,8 @@ export const getVerticalFoodEmployees = async (
 			const flattenBox = (box: any) => {
 				if (!box) return null;
 				const { telemetry, ...boxData } = box;
-				return { ...boxData, ...(telemetry || {}) };
+				const { id: _telemetryId, box_id: _telemetryBoxId, updated_at: _telemetryUpdatedAt, ...telemetryData } = (telemetry || {}) as any;
+				return { ...boxData, ...telemetryData };
 			};
 
 			// Combine direct connections and shared permissions

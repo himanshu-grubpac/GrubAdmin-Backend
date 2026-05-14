@@ -33,8 +33,11 @@ export const createAdminHandler = createHandlers(
 			},
 		});
 
+		const body = context.req.valid("json");
+		body.email = body.email.toLowerCase().trim();
+
+		const roleId = body.role_id || body.role;
 		const {
-			role,
 			first_name,
 			last_name,
 			email,
@@ -43,41 +46,35 @@ export const createAdminHandler = createHandlers(
 			joining_date,
 			location,
 			employee_id,
-		} = context.req.valid("json");
+		} = body;
 
-		const roleExists = await prisma.role.findUnique({ where: { id: role } });
-		if (!roleExists) {
-			throw new APIError("The specified role does not exist", undefined, undefined, 400);
+		if (!roleId) {
+			throw new APIError("Please provide a valid role", undefined, undefined, 400);
 		}
 
-		let admin;
-		try {
-			admin = await createAdmin({
-				role_id: role,
-				first_name,
-				email,
-				country_code,
-				mobile_number,
-				joining_date,
-				location,
-				employee_id,
-				last_name,
-			});
-		} catch (error: any) {
-			if (error.code === 409) {
-				services.adminLogger.log({
-					module: "employee",
-					action: "create",
-					admin_id: loggedInAdmin?.id,
-					admin_name: `${loggedInAdmin?.first_name} ${loggedInAdmin?.last_name}`,
-					role_id: loggedInAdmin?.role_id,
-					role_name: loggedInAdminRole?.name,
-					ip,
-					effected_name: `[COLLISION] ${email}`,
-				});
-			}
-			throw error;
+		const targetRole = await prisma.role.findFirst({
+			where: { id: roleId, status: "active" },
+		});
+
+		if (!targetRole) {
+			throw new APIError("Selected role is invalid, inactive or deleted", undefined, undefined, 400);
 		}
+
+		if (targetRole.is_super_admin && !loggedInAdminRole?.is_super_admin) {
+			throw new APIError("Unauthorized: Only a Super Admin can assign the Super Admin role", undefined, undefined, 403);
+		}
+
+		const admin = await createAdmin({
+			role_id: roleId,
+			first_name,
+			email,
+			country_code,
+			mobile_number,
+			joining_date: joining_date || null,
+			location: location?.trim() || null,
+			employee_id: employee_id?.trim() || null,
+			last_name,
+		});
 
 		services.adminLogger.log({
 			module: "employee",

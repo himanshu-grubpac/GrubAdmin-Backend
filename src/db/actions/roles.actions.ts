@@ -18,7 +18,7 @@ export const createRole = async (args: CreateRoleArgs) => {
 				name: args.name.trim(),
 				name_normalized: normalizedName,
 				permissions_json: args.permissions,
-				is_super_admin: false, 
+				is_super_admin: args.isSuperAdmin ?? false,
 			},
 		});
 	} catch (error: any) {

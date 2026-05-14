@@ -280,37 +280,87 @@ interface ToggleAssignBoxesArgs {
 export const toggleAssignBoxes = async (args: ToggleAssignBoxesArgs) => {
 	const { client_id, box_ids } = args;
 
-	if (client_id) {
-		const boxes = await prisma.box.findMany({
-			where: {
-				id: {
-					in: box_ids,
-				},
-			},
-		});
-
-		const client = await getUniqueClient({
-			id: client_id,
-		});
-
-		for (const box of boxes) {
-			if (box.vertical_id !== client?.vertical_id) {
-				throw new APIError(undefined, "food.box.VERTICAL_MISMATCH", undefined, 400);
-			}
-		}
+	if (!Array.isArray(box_ids) || box_ids.length === 0) {
+		throw new APIError("No boxes provided", undefined, undefined, 400);
 	}
 
-	return prisma.box.updateMany({
-		where: {
-			id: {
-				in: box_ids,
+	return prisma.$transaction(async (tx) => {
+		// Always fetch boxes first so we can enforce business rules (active-only) deterministically.
+		const boxes = await tx.box.findMany({
+			where: {
+				id: { in: box_ids },
 			},
-		},
-		data: {
-			client_id,
-		},
+			select: {
+				id: true,
+				vertical_id: true,
+				status: true,
+			},
+		});
+
+		const foundBoxIds = new Set(boxes.map((b) => b.id));
+		const missing = box_ids.filter((id) => !foundBoxIds.has(id));
+		if (missing.length > 0) {
+			throw new APIError(`Some boxes were not found: ${missing.slice(0, 5).join(", ")}` , undefined, undefined, 404);
+		}
+
+		if (client_id) {
+			// Active-only enforcement
+			const inactive = boxes.filter((b) => b.status !== "active");
+			if (inactive.length > 0) {
+				throw new APIError(
+					"Only active boxes can be assigned.",
+					undefined,
+					undefined,
+					400
+				);
+			}
+
+			const client = await getUniqueClient({ id: client_id });
+			if (!client) {
+				throw new APIError("Client not found", undefined, undefined, 404);
+			}
+			for (const box of boxes) {
+				if (box.vertical_id !== client.vertical_id) {
+					throw new APIError(undefined, "food.box.VERTICAL_MISMATCH", undefined, 400);
+				}
+			}
+		}
+
+		// Single source of truth for this module’s "assignment" UI is box.client_id.
+		// However, we must also clear dependent assignment relations on unassign so the UI and lists stay consistent.
+		if (client_id === null) {
+			// Clear any restaurant-level assignments and employee-level shares tied to these boxes.
+			await tx.restaurant_box.updateMany({
+				where: {
+					box_id: { in: box_ids },
+				},
+				data: {
+					status: "not_shared",
+				},
+			});
+
+			await tx.vertical_food_employee_box.updateMany({
+				where: {
+					box_id: { in: box_ids },
+					status: "shared",
+				},
+				data: {
+					status: "blocked",
+				},
+			});
+		}
+
+		return tx.box.updateMany({
+			where: {
+				id: { in: box_ids },
+			},
+			data: {
+				client_id,
+			},
+		});
 	});
 };
+
 
 interface DeleteBoxesArgs {
 	box_ids: string[];
@@ -444,7 +494,11 @@ export const getBoxes = async (
 	const [boxesResponse, boxesCountResponse] = await Promise.allSettled([
 		prisma.box.findMany(boxesQueryArgs),
 		prisma.box.count({
-			where: boxesQueryArgs.where,
+			where: {
+				...boxesQueryArgs.where,
+				skip: undefined,
+				take: undefined,
+			},
 		}),
 	]);
 
@@ -459,11 +513,12 @@ export const getBoxes = async (
 	return {
 		boxes: boxesResponse.value.map((box) => {
 			const { vertical_food_employee_boxes, connection_employee, telemetry, ...boxData } = (box as any);
+			const { id: _telemetryId, box_id: _telemetryBoxId, updated_at: _telemetryUpdatedAt, ...telemetryData } = (telemetry || {}) as any;
 			const boxWithTelemetry = { ...boxData, telemetry };
 			const handler = getHandlerStatus(boxWithTelemetry);
 			return {
 				...boxData,
-				...(telemetry || {}),
+				...telemetryData,
 				global_status: getGlobalStatus(boxWithTelemetry),
 				handler_status: handler.status,
 				handler_employee: handler.details,
@@ -494,11 +549,12 @@ export const getFoodEmployeeBoxes = async (employeeId: string) => {
 
 	return assignments.map((a) => {
 		const { vertical_food_employee_boxes, connection_employee, telemetry, ...boxData } = (a.box as any);
+		const { id: _telemetryId, box_id: _telemetryBoxId, updated_at: _telemetryUpdatedAt, ...telemetryData } = (telemetry || {}) as any;
 		const boxWithTelemetry = { ...boxData, telemetry };
 		const handler = getHandlerStatus(boxWithTelemetry);
 		return {
 			...boxData,
-			...(telemetry || {}),
+			...telemetryData,
 			global_status: getGlobalStatus(boxWithTelemetry),
 			handler_status: handler.status,
 			handler_employee: handler.details,
@@ -740,7 +796,13 @@ export const getVerticalFoodBoxes = async (args: GetVerticalFoodBoxesArgs) => {
 
 	const [boxes, count] = await prisma.$transaction([
 		prisma.box.findMany(boxesQueryArgs),
-		prisma.box.count({ where: boxesQueryArgs.where }),
+		prisma.box.count({
+			where: {
+				...boxesQueryArgs.where,
+				skip: undefined,
+				take: undefined,
+			},
+		}),
 	]);
 
 	// Optimization: Only fetch necessary fields for all employees and create a map for O(1) lookup

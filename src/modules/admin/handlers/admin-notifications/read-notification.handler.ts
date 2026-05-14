@@ -11,12 +11,10 @@ export const readNotificationHandler = createHandlers(
 		const { ids } = context.req.valid("json");
 		const { admin } = context.var;
 
-		const t = await readAdminNotification({
+		await readAdminNotification({
 			ids,
 			recipientId: admin?.id ?? "",
 		});
-
-		console.log(t);
 
 		return context.json<APIResponse>(
 			{

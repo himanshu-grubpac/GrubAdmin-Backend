@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import {
 	loginHandler,
+	logoutHandler,
 	resendOtpHandler,
 	sendOtpHandler,
 	verifyAuthenticatedHandler,
@@ -95,6 +96,7 @@ adminRouter.onError(globalErrorHandler);
  * Base route: /api/v1/admin/auth
  */
 adminRouter.post("/auth/login", ...loginHandler);
+adminRouter.post("/auth/logout", ...logoutHandler);
 const otpRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, max: 5 });
 adminRouter.post("/auth/send-otp", otpRateLimit, ...sendOtpHandler);
 adminRouter.post("/auth/verify-otp", otpRateLimit, ...verifyOtpHandler);
