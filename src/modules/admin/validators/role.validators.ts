@@ -49,6 +49,7 @@ export const createRoleRequestBodyValidator = zValidator(
 			.min(2, "Role name must be at least 2 characters long")
 			.max(50, "Role name must not exceed 50 characters"),
 		permissions: permissionSchema,
+		is_super_admin: z.boolean().optional(),
 	}),
 	(response) => {
 		if (!response.success) {
@@ -69,6 +70,7 @@ export const updateRoleRequestBodyValidator = zValidator(
 			.max(50, "Role name must not exceed 50 characters")
 			.optional(),
 		permissions: permissionSchema.optional(),
+		is_super_admin: z.boolean().optional(),
 	}),
 	(response) => {
 		if (!response.success) {
@@ -80,7 +82,7 @@ export const updateRoleRequestBodyValidator = zValidator(
 export const updateRoleRequestParamValidator = zValidator(
 	"param",
 	z.object({
-		id: z.ulid("Please provide a valid id"),
+		id: z.string().min(1, "Please provide a valid id"),
 	}),
 	(response) => {
 		if (!response.success) {
@@ -92,7 +94,7 @@ export const updateRoleRequestParamValidator = zValidator(
 export const deleteRoleRequestParamValidator = zValidator(
 	"param",
 	z.object({
-		id: z.ulid("Please provide a valid id"),
+		id: z.string().min(1, "Please provide a valid id"),
 	}),
 	(response) => {
 		if (!response.success) {

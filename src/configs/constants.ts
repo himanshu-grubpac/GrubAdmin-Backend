@@ -29,6 +29,7 @@ export const PERMISSION_TOPICS = {
 	CLIENTS: "clients",
 	VERTICALS: "verticals",
 	SYSTEM_SETTINGS: "system_settings",
+	GRUBPACS: "grubpac",
 } as const;
 
 export const DASHBOARD_PERMISSIONS = {
@@ -96,6 +97,15 @@ export const SYSTEM_SETTINGS_PERMISSIONS = {
 	edit_configs: "edit configs",
 } as const;
 
+export const GRUBPACS_PERMISSIONS = {
+	view_grubpacs: "view grubpacs",
+	add_grubpacs: "add grubpacs",
+	edit_grubpacs: "edit grubpacs",
+	delete_grubpacs: "delete grubpacs",
+	assign_grubpacs: "assign grubpacs",
+	export_grubpacs: "export grubpacs",
+} as const;
+
 export const PERMISSION_SETS = {
 	[PERMISSION_TOPICS.DASHBOARD]: new Set(
 		Object.values(DASHBOARD_PERMISSIONS),
@@ -106,6 +116,7 @@ export const PERMISSION_SETS = {
 	[PERMISSION_TOPICS.ROLES]: new Set(Object.values(ROLES_PERMISSIONS)),
 	[PERMISSION_TOPICS.CLIENTS]: new Set(Object.values(CLIENTS_PERMISSIONS)),
 	[PERMISSION_TOPICS.SUPPORT]: new Set(Object.values(SUPPORT_PERMISSIONS)),
+	[PERMISSION_TOPICS.GRUBPACS]: new Set(Object.values(GRUBPACS_PERMISSIONS)),
 	[PERMISSION_TOPICS.SYSTEM_SETTINGS]: new Set(
 		Object.values(SYSTEM_SETTINGS_PERMISSIONS),
 	),

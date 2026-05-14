@@ -27,17 +27,18 @@ export const updateRoleHandler = createHandlers(
 		Permission.checkAdminPermissions({
 			admin,
 			permissions_allowed: {
-				roles: ["view roles"],
+				roles: ["edit roles"],
 			},
 		});
 
 		const { id } = context.req.valid("param");
-		const { name, permissions } = context.req.valid("json");
+		const { name, permissions, is_super_admin } = context.req.valid("json");
 
 		const role = await updateRole({
 			id,
 			name,
 			permissions,
+			isSuperAdmin: is_super_admin,
 		});
 
 		if (!role) {

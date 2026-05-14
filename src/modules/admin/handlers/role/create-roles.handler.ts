@@ -27,11 +27,12 @@ export const createRoleHandler = createHandlers(
 			},
 		});
 
-		const { name, permissions } = context.req.valid("json");
+		const { name, permissions, is_super_admin } = context.req.valid("json");
 
 		const role = await createRole({
 			name,
 			permissions,
+			isSuperAdmin: is_super_admin,
 		});
 
 		services.adminLogger.log({

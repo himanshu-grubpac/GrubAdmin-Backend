@@ -40,7 +40,7 @@ export const createAdminRequestBodyValidator = zValidator(
 			.date("Please provide a valid joining date")
 			.optional(),
 		role: z.ulid("Please provide a valid role").optional(),
-		employee_id: z.string("Please provide employee_id"),
+		employee_id: z.string("Please provide employee_id").optional(),
 	}),
 	(response) => {
 		if (!response.success) {

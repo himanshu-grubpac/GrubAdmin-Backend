@@ -12,6 +12,8 @@ import { ipMiddleware } from "@/middlewares/common/ip.ts";
 import { services } from "@/services";
 import { getVertical } from "@/db/actions/vertical.actions.ts";
 import { APIError } from "@/types/error";
+import { Permission } from "@/utils/permission.ts";
+import { GRUBPACS_PERMISSIONS } from "@/configs/constants.ts";
 
 interface ResponseData {
 	box: box;
@@ -23,6 +25,13 @@ export const createBoxHandler = createHandlers(
 	ipMiddleware,
 	async (context) => {
 		const { admin, role, ip } = context.var;
+
+		Permission.checkAdminPermissions({
+			admin,
+			permissions_allowed: {
+				grubpac: [GRUBPACS_PERMISSIONS.add_grubpacs],
+			},
+		});
 
 		const {
 			box_id,
