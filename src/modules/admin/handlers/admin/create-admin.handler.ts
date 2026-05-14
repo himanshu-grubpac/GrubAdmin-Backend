@@ -35,10 +35,9 @@ export const createAdminHandler = createHandlers(
 
 		const body = context.req.valid("json");
 		body.email = body.email.toLowerCase().trim();
-		if (body.employee_id) body.employee_id = body.employee_id.trim();
 
+		const roleId = body.role_id || body.role;
 		const {
-			role,
 			first_name,
 			last_name,
 			email,
@@ -49,8 +48,12 @@ export const createAdminHandler = createHandlers(
 			employee_id,
 		} = body;
 
+		if (!roleId) {
+			throw new APIError("Please provide a valid role", undefined, undefined, 400);
+		}
+
 		const targetRole = await prisma.role.findFirst({
-			where: { id: role, status: "active" },
+			where: { id: roleId, status: "active" },
 		});
 
 		if (!targetRole) {
@@ -62,14 +65,14 @@ export const createAdminHandler = createHandlers(
 		}
 
 		const admin = await createAdmin({
-			role_id: role,
+			role_id: roleId,
 			first_name,
 			email,
 			country_code,
 			mobile_number,
-			joining_date,
-			location,
-			employee_id,
+			joining_date: joining_date || null,
+			location: location?.trim() || null,
+			employee_id: employee_id?.trim() || null,
 			last_name,
 		});
 

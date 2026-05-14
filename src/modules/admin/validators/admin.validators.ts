@@ -39,7 +39,14 @@ export const createAdminRequestBodyValidator = zValidator(
 		joining_date: z.coerce
 			.date("Please provide a valid joining date")
 			.optional(),
-		role: z.ulid("Please provide a valid role").optional(),
+		role: z
+			.string("Please provide a valid role")
+			.min(1, "Please provide a valid role")
+			.optional(),
+		role_id: z
+			.string("Please provide a valid role")
+			.min(1, "Please provide a valid role")
+			.optional(),
 		employee_id: z.string("Please provide employee_id").optional(),
 	}),
 	(response) => {
@@ -87,7 +94,14 @@ export const updateAdminRequestBodyValidator = zValidator(
 		joining_date: z.coerce
 			.date("Please provide a valid joining date")
 			.optional(),
-		role: z.ulid("Please provide a valid role").optional(),
+		role: z
+			.string("Please provide a valid role")
+			.min(1, "Please provide a valid role")
+			.optional(),
+		role_id: z
+			.string("Please provide a valid role")
+			.min(1, "Please provide a valid role")
+			.optional(),
 		employee_id: z.string("Please provide employee_id").optional(),
 	}),
 	(response) => {
