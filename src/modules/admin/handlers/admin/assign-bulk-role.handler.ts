@@ -43,10 +43,6 @@ export const assignBulkRoleHandler = createHandlers(
 			throw new APIError("Unauthorized: Only a Super Admin can assign the Super Admin role", undefined, undefined, 403);
 		}
 
-		if (admins.includes(loggedInAdmin?.id)) {
-			throw new APIError("You cannot change your own role via bulk assignment", undefined, undefined, 403);
-		}
-
 		const adminsToBeAssignedRoles = await getAdmins({
 			ids: admins,
 			fetchAll: true,
@@ -84,3 +80,9 @@ export const assignBulkRoleHandler = createHandlers(
 		);
 	},
 );
+
+
+
+
+
+

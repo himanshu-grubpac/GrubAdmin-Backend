@@ -5,6 +5,12 @@ export type APIResponse<D = void> = {
 	client_id?: string;
 	req_inputs?: any;
 	pagination?: Pagination;
+	meta?: {
+		page: number;
+		limit: number;
+		total_count: number;
+		total_pages: number;
+	};
 	debug?: {
 		[key: string]: any;
 	};

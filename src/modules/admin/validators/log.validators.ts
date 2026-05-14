@@ -62,6 +62,7 @@ export const getAdminLogsRequestQueryValidators = zValidator(
 				z.union(LOG_ACTIONS.map((m) => z.literal(m))).array(),
 			])
 			.optional(),
+		admin_id: z.string().optional(),
 		start_date: z.string().optional().transform((v) => v ? new Date(v) : undefined),
 		end_date: z.string().optional().transform((v) => {
 			if (!v) return undefined;

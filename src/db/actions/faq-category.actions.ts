@@ -2,7 +2,7 @@ import { prisma } from "@/db";
 import { type faq_category, type Prisma } from "@/db/types";
 import { APIError } from "@/types/error";
 
-// Normalizes a string by trimming whitespace, collapsing multiple internal spaces to a single space, and lowercasing.
+
 export const normalizeName = (name: string): string => {
 	return name.trim().replace(/\s+/g, " ").toLowerCase();
 };
@@ -64,7 +64,7 @@ export const createFaqCategory = async (args: CreateFaqCategoryArgs) => {
 			},
 		});
 	} catch (error: any) {
-		// Catch Prisma Unique Constraint Violation (P2002)
+
 		if (error.code === "P2002") {
 			throw new APIError("FAQ category with this name already exists in this vertical", undefined, undefined, 400);
 		}
@@ -83,7 +83,7 @@ interface UpdateFaqCategoryArgs {
 export const updateFaqCategory = async (args: UpdateFaqCategoryArgs) => {
 	const { name, description, icon, vertical, id } = args;
 
-	// Fetch current record
+
 	const current = await prisma.faq_category.findFirst({
 		where: {
 			id,
@@ -101,7 +101,7 @@ export const updateFaqCategory = async (args: UpdateFaqCategoryArgs) => {
 	const targetName = name !== undefined ? name : current.name;
 	const targetNormalized = normalizeName(targetName);
 
-	// Validate vertical exists if it is being changed
+
 	if (vertical && vertical !== current.vertical_id) {
 		const verticalExists = await prisma.vertical.findUnique({
 			where: { id: vertical },
@@ -111,7 +111,6 @@ export const updateFaqCategory = async (args: UpdateFaqCategoryArgs) => {
 		}
 	}
 
-	// Validate icon exists if it is being changed
 	if (icon && icon !== current.icon_id) {
 		const iconExists = await prisma.icon.findUnique({
 			where: { id: icon },
@@ -121,7 +120,6 @@ export const updateFaqCategory = async (args: UpdateFaqCategoryArgs) => {
 		}
 	}
 
-	// If name or vertical is being modified, perform the duplicate check
 	if (name !== undefined || vertical !== undefined) {
 		const duplicate = await prisma.faq_category.findFirst({
 			where: {
@@ -155,7 +153,7 @@ export const updateFaqCategory = async (args: UpdateFaqCategoryArgs) => {
 			},
 		});
 	} catch (error: any) {
-		// Catch Prisma Unique Constraint Violation (P2002)
+
 		if (error.code === "P2002") {
 			throw new APIError("FAQ category with this name already exists in this vertical", undefined, undefined, 400);
 		}
@@ -198,8 +196,7 @@ export const deleteFaqCategories = async (args: DeleteFaqCategoriesArgs) => {
 				},
 			});
 
-			// Soft delete each FAQ category individually in the transaction,
-			// appending a unique suffix to name_normalized to free up the unique slot.
+
 			const fetchedCategories = await tx.faq_category.findMany({
 				where: {
 					id: { in: categories },
@@ -270,48 +267,48 @@ export const getFaqCategory = async (
 		where: {
 			id: ids
 				? {
-						in: ids,
-					}
+					in: ids,
+				}
 				: undefined,
 			OR: query
 				? [
-						{
-							name: {
-								contains: query,
-							},
+					{
+						name: {
+							contains: query,
 						},
-						{
-							description: {
-								contains: query,
-							},
+					},
+					{
+						description: {
+							contains: query,
 						},
-						includeQuestions
-							? {
-									questions: {
-										some: {
-											question: {
-												question: {
-													contains: query,
-												},
-											},
+					},
+					includeQuestions
+						? {
+							questions: {
+								some: {
+									question: {
+										question: {
+											contains: query,
 										},
 									},
-								}
-							: {},
-						includeQuestions
-							? {
-									questions: {
-										some: {
-											question: {
-												answer: {
-													contains: query,
-												},
-											},
+								},
+							},
+						}
+						: {},
+					includeQuestions
+						? {
+							questions: {
+								some: {
+									question: {
+										answer: {
+											contains: query,
 										},
 									},
-								}
-							: {},
-					]
+								},
+							},
+						}
+						: {},
+				]
 				: undefined,
 			status: state,
 			vertical_id,
@@ -321,12 +318,12 @@ export const getFaqCategory = async (
 			icon: true,
 			questions: includeQuestions
 				? {
-						where: {
-							question: {
-								publishing_status: questionType ? questionType : undefined,
-							},
+					where: {
+						question: {
+							publishing_status: questionType ? questionType : undefined,
 						},
-					}
+					},
+				}
 				: false,
 			_count: {
 				select: {

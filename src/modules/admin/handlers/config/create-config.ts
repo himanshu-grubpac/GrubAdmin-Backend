@@ -1,7 +1,7 @@
 import { createHandlers } from "@/utils/hono-factory.ts";
 import { createConfigRequestBodyValidator } from "@/modules/admin/validators/config.validators.ts";
 import { authGuard } from "@/middlewares/auth";
-import { createConfig } from "@/db/actions/config.actions.ts";
+import { upsertConfig } from "@/db/actions/config.actions.ts";
 import { prisma } from "@/db";
 import type { system_config } from "@/db/types";
 import type { APIResponse } from "@/types/api";
@@ -35,7 +35,7 @@ export const createConfigHandler = createHandlers(
 			where: { key: normalizedKey },
 		});
 
-		const config = await createConfig({
+		const config = await upsertConfig({
 			key,
 			value,
 		});

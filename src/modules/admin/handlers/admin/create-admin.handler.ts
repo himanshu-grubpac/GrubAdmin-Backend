@@ -1,15 +1,15 @@
-import { prisma } from "@/db";
 import { createHandlers } from "@/utils/hono-factory.ts";
 import { authGuard } from "@/middlewares/auth";
 import { createAdminRequestBodyValidator } from "@/modules/admin/validators/admin.validators.ts";
 import type { admin } from "@/db/types";
 import { createAdmin } from "@/db/actions/admin.actions.ts";
 import type { APIResponse } from "@/types/api";
-import { APIError } from "@/types/error";
 import { Permission } from "@/utils/permission.ts";
 import { EMPLOYEES_PERMISSIONS } from "@/configs/constants.ts";
 import { services } from "@/services";
 import { ipMiddleware } from "@/middlewares/common/ip.ts";
+import { prisma } from "@/db";
+import { APIError } from "@/types/error/api-error";
 
 interface ResponseData {
 	admin: admin;
@@ -33,10 +33,6 @@ export const createAdminHandler = createHandlers(
 			},
 		});
 
-		const body = context.req.valid("json");
-		body.email = body.email.toLowerCase().trim();
-		if (body.employee_id) body.employee_id = body.employee_id.trim();
-
 		const {
 			role,
 			first_name,
@@ -47,18 +43,11 @@ export const createAdminHandler = createHandlers(
 			joining_date,
 			location,
 			employee_id,
-		} = body;
+		} = context.req.valid("json");
 
-		const targetRole = await prisma.role.findFirst({
-			where: { id: role, status: "active" },
-		});
-
-		if (!targetRole) {
-			throw new APIError("Selected role is invalid, inactive or deleted", undefined, undefined, 400);
-		}
-
-		if (targetRole.is_super_admin && !loggedInAdminRole?.is_super_admin) {
-			throw new APIError("Unauthorized: Only a Super Admin can assign the Super Admin role", undefined, undefined, 403);
+		const roleExists = await prisma.role.findUnique({ where: { id: role } });
+		if (!roleExists) {
+			throw new APIError("The specified role does not exist", undefined, undefined, 400);
 		}
 
 		const admin = await createAdmin({

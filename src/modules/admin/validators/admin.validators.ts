@@ -13,34 +13,60 @@ export const createAdminRequestBodyValidator = zValidator(
 			})
 			.trim()
 			.min(2, "Name must be at least 2 characters long"),
-		last_name: z
-			.string({
-				error: "Please provide a valid last name",
-			})
-			.trim()
-			.min(2, "Name must be at least 2 characters long")
-			.optional(),
-		country_code: z
-			.string("Please provide a country code")
-			.trim()
-			.min(1, "The country code must be 1 character long")
-			.optional(),
-		mobile_number: z
-			.string("Please provide a valid mobile number")
-			.trim()
-			.min(10, "Mobile number must be 10 characters long")
-			.max(10, "Mobile number must be 10 characters long")
-			.optional(),
-		location: z
-			.string("Please provide a valid location")
-			.trim()
-			.min(1, "Location must not be empty")
-			.optional(),
-		joining_date: z.coerce
-			.date("Please provide a valid joining date")
-			.optional(),
+		last_name: z.preprocess(
+			(val) => (val === "" || val === null ? null : val),
+			z
+				.string({
+					error: "Please provide a valid last name",
+				})
+				.trim()
+				.min(2, "Name must be at least 2 characters long")
+				.nullable()
+				.optional(),
+		),
+		country_code: z.preprocess(
+			(val) => (val === "" || val === null ? null : val),
+			z
+				.string()
+				.trim()
+				.min(1, "The country code must be 1 character long")
+				.nullable()
+				.optional(),
+		),
+		mobile_number: z.preprocess(
+			(val) => (val === "" || val === null ? null : val),
+			z
+				.string()
+				.trim()
+				.min(10, "Mobile number must be 10 characters long")
+				.max(10, "Mobile number must be 10 characters long")
+				.nullable()
+				.optional(),
+		),
+		location: z.preprocess(
+			(val) => (val === "" || val === null ? null : val),
+			z
+				.string()
+				.trim()
+				.min(1, "Location must not be empty")
+				.nullable()
+				.optional(),
+		),
+		joining_date: z.preprocess(
+			(val) => (val === "" || val === null ? null : val),
+			z.coerce
+				.date("Please provide a valid joining date")
+				.refine((date) => date <= new Date(), {
+					message: "Joining date cannot be in the future",
+				})
+				.nullable()
+				.optional(),
+		),
 		role: z.ulid("Please provide a valid role").optional(),
-		employee_id: z.string("Please provide employee_id"),
+		employee_id: z.preprocess(
+			(val) => (val === "" || val === null ? null : val),
+			z.string().nullable().optional(),
+		),
 	}),
 	(response) => {
 		if (!response.success) {
@@ -61,34 +87,60 @@ export const updateAdminRequestBodyValidator = zValidator(
 			.trim()
 			.min(2, "Name must be at least 2 characters long")
 			.optional(),
-		last_name: z
-			.string({
-				error: "Please provide a valid last name",
-			})
-			.trim()
-			.min(2, "Name must be at least 2 characters long")
-			.optional(),
-		country_code: z
-			.string("Please provide a country code")
-			.trim()
-			.min(1, "The country code must be 1 character long")
-			.optional(),
-		mobile_number: z
-			.string("Please provide a valid mobile number")
-			.trim()
-			.min(10, "Mobile number must be 10 characters long")
-			.max(10, "Mobile number must be 10 characters long")
-			.optional(),
-		location: z
-			.string("Please provide a valid location")
-			.trim()
-			.min(1, "Location must not be empty")
-			.optional(),
-		joining_date: z.coerce
-			.date("Please provide a valid joining date")
-			.optional(),
+		last_name: z.preprocess(
+			(val) => (val === "" || val === null ? null : val),
+			z
+				.string({
+					error: "Please provide a valid last name",
+				})
+				.trim()
+				.min(2, "Name must be at least 2 characters long")
+				.nullable()
+				.optional(),
+		),
+		country_code: z.preprocess(
+			(val) => (val === "" || val === null ? null : val),
+			z
+				.string()
+				.trim()
+				.min(1, "The country code must be 1 character long")
+				.nullable()
+				.optional(),
+		),
+		mobile_number: z.preprocess(
+			(val) => (val === "" || val === null ? null : val),
+			z
+				.string()
+				.trim()
+				.min(10, "Mobile number must be 10 characters long")
+				.max(10, "Mobile number must be 10 characters long")
+				.nullable()
+				.optional(),
+		),
+		location: z.preprocess(
+			(val) => (val === "" || val === null ? null : val),
+			z
+				.string()
+				.trim()
+				.min(1, "Location must not be empty")
+				.nullable()
+				.optional(),
+		),
+		joining_date: z.preprocess(
+			(val) => (val === "" || val === null ? null : val),
+			z.coerce
+				.date("Please provide a valid joining date")
+				.refine((date) => date <= new Date(), {
+					message: "Joining date cannot be in the future",
+				})
+				.nullable()
+				.optional(),
+		),
 		role: z.ulid("Please provide a valid role").optional(),
-		employee_id: z.string("Please provide employee_id").optional(),
+		employee_id: z.preprocess(
+			(val) => (val === "" || val === null ? null : val),
+			z.string().nullable().optional(),
+		),
 	}),
 	(response) => {
 		if (!response.success) {
@@ -129,6 +181,7 @@ export const getAdminsRequestQueryValidator = zValidator(
 					z.literal("unassigned"),
 					z.literal("suspended"),
 					z.literal("dismissed"),
+					z.literal("all"),
 				],
 				"Please provide a valid status",
 			)
@@ -232,6 +285,7 @@ export const exportAdminsRequestQueryValidator = zValidator(
 					z.literal("unassigned"),
 					z.literal("suspended"),
 					z.literal("dismissed"),
+					z.literal("all"),
 				],
 				"Please provide a valid status",
 			)

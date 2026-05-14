@@ -9,10 +9,7 @@ interface CreateIconsArgs {
 	}[];
 }
 
-/**
- * Creates multiple icons atomically inside a single database transaction.
- * Returns the complete list of newly created icon records.
- */
+
 export const createIcons = async (args: CreateIconsArgs) => {
 	const { icons } = args;
 
@@ -39,8 +36,8 @@ export const getIcons = async (args: GetIconsArgs) => {
 		where: {
 			name: args.query
 				? {
-						contains: args.query,
-					}
+					contains: args.query,
+				}
 				: undefined,
 		},
 		take: args.pageSize,

@@ -17,6 +17,7 @@ export const getAdminLogsHandler = createHandlers(
 			start_date,
 			category,
 			type,
+			admin_id,
 		} = context.req.valid("query");
 
 		const result = await getSystemLogs({
@@ -27,6 +28,7 @@ export const getAdminLogsHandler = createHandlers(
 			page_size: limit,
 			start_date,
 			end_date,
+			actor_id: admin_id,
 		});
 
 		return context.json<APIResponse<any>>(
@@ -34,11 +36,13 @@ export const getAdminLogsHandler = createHandlers(
 				success: true,
 				code: 200,
 				message: "Admin logs fetched successfully",
-				data: {
-					logs: result.logs,
-					count: result.page_count,
+				data: result.logs,
+				meta: {
+					page: result.page || 1,
+					limit: result.page_size || result.total_count,
+					total_count: result.total_count,
+					total_pages: Math.ceil(result.total_count / (result.page_size || 10)),
 				},
-				pagination: calculatePagination(result.page || 1, result.page_size || result.total_count, result.total_count),
 			},
 			{
 				status: 200,

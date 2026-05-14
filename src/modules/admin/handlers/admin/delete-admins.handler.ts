@@ -36,10 +36,16 @@ export const deleteAdminsHandler = createHandlers(
 			throw new APIError("You cannot delete your own account", undefined, undefined, 403);
 		}
 
+		const uniqueAdmins = Array.from(new Set(admins));
+
 		const adminsToBeDeleted = await getAdmins({
-			ids: admins,
+			ids: uniqueAdmins,
 			fetchAll: true,
 		});
+
+		if (adminsToBeDeleted.admins.length !== uniqueAdmins.length) {
+			throw new APIError("One or more of the selected accounts does not exist", undefined, undefined, 404);
+		}
 
 		if (!loggedInAdminRole?.is_super_admin) {
 			const hasSuperAdmin = adminsToBeDeleted.admins.some((a) => a.role?.is_super_admin);
@@ -48,7 +54,7 @@ export const deleteAdminsHandler = createHandlers(
 			}
 		}
 
-		await deleteAdmins(admins);
+		await deleteAdmins(uniqueAdmins);
 
 		Promise.allSettled(
 			adminsToBeDeleted.admins.map((admin) =>

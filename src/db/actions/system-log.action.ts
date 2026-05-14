@@ -62,8 +62,22 @@ export const getSystemLogs = async (args: GetLogsArgs) => {
 		}
 	}
 
-	if (actor_id) filter["actor.id"] = actor_id;
-	if (subject_id) filter["subject.id"] = subject_id;
+	if (actor_id) {
+		andConditions.push({
+			$or: [
+				{ "actor.id": actor_id },
+				{ admin_id: actor_id },
+			]
+		});
+	}
+	if (subject_id) {
+		andConditions.push({
+			$or: [
+				{ "subject.id": subject_id },
+				{ effected_id: subject_id },
+			]
+		});
+	}
 
 	if (search) {
 		andConditions.push({

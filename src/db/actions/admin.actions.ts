@@ -122,14 +122,16 @@ export const updateAdmin = async (args: UpdateAdminArgs) => {
 	}
 
 	if (typeof updateData.employee_id === "string") {
-		updateData.employee_id = updateData.employee_id.trim();
-		const duplicate = await prisma.admin.findFirst({
-			where: {
-				employee_id: updateData.employee_id,
-				id: { not: currentAdminId },
-			},
-		});
-		if (duplicate) throw new APIError("Employee ID already exists", undefined, undefined, 400);
+		updateData.employee_id = updateData.employee_id.trim() || null;
+		if (updateData.employee_id) {
+			const duplicate = await prisma.admin.findFirst({
+				where: {
+					employee_id: updateData.employee_id,
+					id: { not: currentAdminId },
+				},
+			});
+			if (duplicate) throw new APIError("Employee ID already exists", undefined, undefined, 400);
+		}
 	}
 
 	try {
@@ -219,7 +221,7 @@ interface CreateAdminArgs {
 export const createAdmin = async (args: CreateAdminArgs) => {
 
 	const normalizedEmail = args.email.toLowerCase().trim();
-	const normalizedEmployeeId = args.employee_id?.trim();
+	const normalizedEmployeeId = args.employee_id?.trim() || null;
 
 
 	const existingEmail = await prisma.admin.findUnique({
@@ -369,9 +371,6 @@ export const getAdmins = async (
 			pageNumber && pageSize && !fetchAll
 				? (pageNumber - 1) * pageSize
 				: undefined,
-		omit: {
-			password: true,
-		},
 		include: !excludeRoles
 			? {
 				role: true,
@@ -394,8 +393,16 @@ export const getAdmins = async (
 		throw new APIError(String(adminsCountResponse.reason), undefined, undefined, 400);
 	}
 
+	const adminsList = (adminsResponse.value as any[]).map((admin) => {
+		const { password, ...rest } = admin;
+		return {
+			...rest,
+			has_password: password !== null,
+		};
+	});
+
 	return {
-		admins: adminsResponse.value,
+		admins: adminsList as any,
 		count: adminsCountResponse.value,
 	};
 };
@@ -407,7 +414,7 @@ interface AssignBulkRoleArgs {
 
 export const assignBulkRole = async (args: AssignBulkRoleArgs) => {
 	return await prisma.$transaction(async (tx) => {
-		// 1. Fetch target admins to check their current roles
+
 		const targets = await tx.admin.findMany({
 			where: {
 				id: {
@@ -424,7 +431,7 @@ export const assignBulkRole = async (args: AssignBulkRoleArgs) => {
 			throw new APIError("No valid active admins found", undefined, undefined, 404);
 		}
 
-		// 2. Last Super Admin Protection
+
 		const superAdminsInList = targets.filter((t) => t.role?.is_super_admin);
 
 		if (superAdminsInList.length > 0) {
@@ -440,7 +447,7 @@ export const assignBulkRole = async (args: AssignBulkRoleArgs) => {
 			}
 		}
 
-		// 3. Atomic Update
+
 		return tx.admin.updateMany({
 			where: {
 				id: {
@@ -462,6 +469,7 @@ interface ToggleSuspendAdminsArgs {
 
 export const toggleSuspendAdmins = async (args: ToggleSuspendAdminsArgs) => {
 	return await prisma.$transaction(async (tx) => {
+
 		const admins = await tx.admin.findMany({
 			where: {
 				id: {
@@ -477,7 +485,7 @@ export const toggleSuspendAdmins = async (args: ToggleSuspendAdminsArgs) => {
 			throw new APIError(undefined, "admin.auth.ACCOUNT_NOT_FOUND", undefined, 404);
 		}
 
-		// 1. Last Super Admin Protection
+
 		const superAdminsInList = admins.filter(
 			(a) => a.role?.is_super_admin && a.status === "active",
 		);
@@ -494,6 +502,7 @@ export const toggleSuspendAdmins = async (args: ToggleSuspendAdminsArgs) => {
 				throw new APIError("Cannot suspend the last active Super Admin", undefined, undefined, 400);
 			}
 		}
+
 
 		return tx.admin.updateMany({
 			where: {
@@ -525,7 +534,6 @@ export const deleteAdmins = async (adminIds: string[]) => {
 			throw new APIError(undefined, "admin.auth.ACCOUNT_NOT_FOUND", undefined, 404);
 		}
 
-		// 1. Last Super Admin Protection
 		const superAdminsInList = admins.filter(
 			(a) => a.role?.is_super_admin && a.status === "active",
 		);
@@ -543,7 +551,14 @@ export const deleteAdmins = async (adminIds: string[]) => {
 			}
 		}
 
-		// 2. Archive to dismissed table
+		await tx.admin_dismissed.deleteMany({
+			where: {
+				email: {
+					in: admins.map((a) => a.email),
+				},
+			},
+		});
+
 		const dismissedAdmins = await tx.admin_dismissed.createMany({
 			data: admins.map((a) => ({
 				first_name: a.first_name,
@@ -555,7 +570,7 @@ export const deleteAdmins = async (adminIds: string[]) => {
 				location: a.location,
 				joining_date: a.joining_date,
 				role: a.role?.name,
-				employee_id: a.employee_id, // Added missing field
+				employee_id: a.employee_id,
 			})),
 		});
 
@@ -563,7 +578,6 @@ export const deleteAdmins = async (adminIds: string[]) => {
 			throw new APIError("Admin archival failed", undefined, undefined, 400);
 		}
 
-		// 3. Final Hard Delete (after successful archive)
 		return tx.admin.deleteMany({
 			where: {
 				id: {
@@ -655,8 +669,50 @@ export const getDismissedAdmins = async (
 		throw new APIError(String(adminsCountResponse.reason), undefined, undefined, 400);
 	}
 
+	const dismissedAdmins = adminsResponse.value;
+	let adminsWithRole = dismissedAdmins as any[];
+
+	if (!args.excludeRoles) {
+		const roleNames = Array.from(
+			new Set(
+				dismissedAdmins
+					.map((a) => a.role)
+					.filter((name): name is string => typeof name === "string"),
+			),
+		);
+
+		const roles = roleNames.length > 0
+			? await prisma.role.findMany({
+					where: {
+						name: {
+							in: roleNames,
+						},
+					},
+			  })
+			: [];
+
+		const rolesMap = new Map(roles.map((r) => [r.name, r]));
+
+		adminsWithRole = dismissedAdmins.map((admin) => {
+			const roleObj = admin.role ? rolesMap.get(admin.role) : null;
+			return {
+				...admin,
+				role: roleObj || (admin.role ? {
+					id: "",
+					name: admin.role,
+					name_normalized: admin.role.toLowerCase(),
+					is_super_admin: admin.is_super_admin,
+					permissions_json: {},
+					status: "active",
+					created_at: new Date(),
+					updated_at: new Date(),
+				} : null),
+			};
+		});
+	}
+
 	return {
-		admins: adminsResponse.value,
+		admins: adminsWithRole,
 		count: adminsCountResponse.value,
 	};
 };

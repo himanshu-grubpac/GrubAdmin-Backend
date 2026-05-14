@@ -41,7 +41,7 @@ export const verifyOtpHandler = createHandlers(
 		const savedOtp = await getSavedOtp(normalizedEmail);
 
 		if (!savedOtp) {
-			
+
 			await incrementOtpAttempt({ email: normalizedEmail, ip_address });
 			throw new APIError(undefined, "admin.auth.OTP_EXPIRED", undefined, 400);
 		}
@@ -49,12 +49,12 @@ export const verifyOtpHandler = createHandlers(
 		const isValidOtp = await compareOtp(otp, savedOtp.otp);
 
 		if (!isValidOtp) {
-			
+
 			await incrementOtpAttempt({ email: normalizedEmail, ip_address });
 			throw new APIError(undefined, "admin.auth.OTP_INVALID", undefined, 400);
 		}
 
-		
+
 		await resetOtpAttempt({ email: normalizedEmail, ip_address });
 
 		await deleteSavedOtp(normalizedEmail);

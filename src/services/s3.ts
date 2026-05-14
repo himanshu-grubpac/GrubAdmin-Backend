@@ -12,6 +12,8 @@ import {
 	AWS_SECRET,
 } from "@/configs/env.ts";
 import { ulid } from "ulid";
+import path from "path";
+
 
 interface UploadToS3Args {
 	file: File;
@@ -49,12 +51,13 @@ export class s3Service {
 
 		const fileBuffer = await this.convertFileToBuffer(file);
 
-		// Clean filename spaces for clean URLs
-		const cleanFileName = file.name.replace(/\s+/g, "_");
-		const key = `${ulid()}-${cleanFileName}`;
+
+		const baseName = path.basename(file.name);
+		const safeFileName = baseName.replace(/[^a-zA-Z0-9.\-_]/g, "_");
+		const key = `${ulid()}-${safeFileName}`;
 		const bucketKey = `${prefix}/${key}`;
 
-		// 🔒 Strip ACL parameter to comply with ACL-disabled buckets
+
 		await this.client.send(
 			new PutObjectCommand({
 				Bucket: this.bucket,
@@ -65,14 +68,12 @@ export class s3Service {
 		);
 
 		return {
-			key,
+			key: bucketKey,
 			file_name: file.name,
 		};
 	}
 
-	/**
-	 * Deletes objects from S3 for transactional rollbacks on database write failures
-	 */
+
 	async deleteFromS3(keys: string[], prefix: string): Promise<void> {
 		if (keys.length === 0) return;
 		try {
@@ -80,7 +81,7 @@ export class s3Service {
 				new DeleteObjectsCommand({
 					Bucket: this.bucket,
 					Delete: {
-						Objects: keys.map((key) => ({ Key: `${prefix}/${key}` })),
+						Objects: keys.map((key) => ({ Key: key })),
 						Quiet: true,
 					},
 				}),
@@ -110,8 +111,8 @@ export class s3Service {
 				const deleteParams = {
 					Bucket: this.bucket,
 					Delete: {
-						// @ts-ignore
-						Objects: objects.map((o) => ({ Key: o.Key })),
+
+						Objects: objects.map((o: any) => ({ Key: o.Key })),
 						Quiet: true,
 					},
 				};

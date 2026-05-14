@@ -25,7 +25,7 @@ export const getAdminsHandler = createHandlers(
 
 		const permissionsAllowed: PermissionLabelFor<"employees">[] = [];
 
-		if (status === "unassigned" || status === "active") {
+		if (status === "unassigned" || status === "active" || status === "all") {
 			permissionsAllowed.push(
 				EMPLOYEES_PERMISSIONS.view_active_employees,
 			);
@@ -55,10 +55,45 @@ export const getAdminsHandler = createHandlers(
 				? await getDismissedAdmins({
 						query,
 						role: typeof role === "string" ? [role] : role,
-						excludeRoles: true,
+						excludeRoles: false,
 						pageNumber: page_number,
 						pageSize: page_size,
 					})
+				: status === "all"
+				? await (async () => {
+						const activeRes = await getAdmins({
+							query,
+							role_id: typeof role === "string" ? [role] : role,
+							fetchAll: true,
+						});
+						const dismissedRes = await getDismissedAdmins({
+							query,
+							role: typeof role === "string" ? [role] : role,
+							excludeRoles: false,
+							fetchAll: true,
+						});
+
+						const processedDismissed = dismissedRes.admins.map((a) => ({
+							...a,
+							status: "dismissed" as const,
+						}));
+
+						const combined = [
+							...activeRes.admins,
+							...processedDismissed,
+						];
+
+						const total = combined.length;
+						const paginated = combined.slice(
+							(page_number - 1) * page_size,
+							page_number * page_size,
+						);
+
+						return {
+							admins: paginated,
+							count: total,
+						};
+				  })()
 				: await getAdmins({
 						query,
 						role_id: typeof role === "string" ? [role] : role,
@@ -67,12 +102,17 @@ export const getAdminsHandler = createHandlers(
 						pageNumber: page_number,
 					});
 
-		return context.json<APIResponse<ResponseData>>(
+		return context.json<APIResponse<any>>(
 			{
 				success: true,
 				code: 200,
-				data: adminsData,
-				pagination: calculatePagination(page_number, page_size, adminsData.count),
+				data: adminsData.admins,
+				meta: {
+					page: page_number,
+					limit: page_size,
+					total_count: adminsData.count,
+					total_pages: Math.ceil(adminsData.count / page_size),
+				},
 			},
 			{
 				status: 200,

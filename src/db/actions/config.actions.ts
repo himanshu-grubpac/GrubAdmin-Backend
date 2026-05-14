@@ -6,35 +6,30 @@ interface CreateConfigArgs {
 	value: string;
 }
 
-export const createConfig = async (args: CreateConfigArgs) => {
+export const upsertConfig = async (args: CreateConfigArgs) => {
 	const normalizedKey = args.key.trim().toLowerCase();
 
-	const existingConfig = await prisma.system_config.findFirst({
-		where: {
-			key: {
-				equals: normalizedKey,
-			},
-		},
-	});
-
-	if (existingConfig) {
-		throw new APIError("Config key already exists", undefined, undefined, 400);
-	}
-
 	try {
-		return await prisma.system_config.create({
-			data: {
+		return await prisma.system_config.upsert({
+			where: {
+				key: normalizedKey,
+			},
+			update: {
+				value: args.value.trim(),
+			},
+			create: {
 				key: normalizedKey,
 				value: args.value.trim(),
 			},
 		});
 	} catch (error: any) {
-		if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
-			throw new APIError("Config key already exists", undefined, undefined, 400);
-		}
-		throw error;
+		throw new APIError(
+			error instanceof Error ? error.message : "Failed to save configuration",
+			undefined,
+			undefined,
+			400,
+		);
 	}
-
 };
 
 export const getConfigs = async () => {

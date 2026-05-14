@@ -35,10 +35,29 @@ export const suspendAdminsHandler = createHandlers(
 			throw new APIError("You cannot suspend your own account", undefined, undefined, 403);
 		}
 
+		const uniqueAdmins = Array.from(new Set(admins));
+
 		const adminsToBeSuspended = await getAdmins({
-			ids: admins,
+			ids: uniqueAdmins,
 			fetchAll: true,
 		});
+
+		if (adminsToBeSuspended.admins.length !== uniqueAdmins.length) {
+			throw new APIError("One or more of the selected accounts does not exist", undefined, undefined, 404);
+		}
+
+		const alreadySuspended = adminsToBeSuspended.admins.filter(
+			(admin) => admin.status === "suspended",
+		);
+
+		if (alreadySuspended.length > 0) {
+			throw new APIError(
+				"One or more of the selected accounts are already suspended",
+				undefined,
+				undefined,
+				400,
+			);
+		}
 
 		if (!loggedInAdminRole?.is_super_admin) {
 			const hasSuperAdmin = adminsToBeSuspended.admins.some((a) => a.role?.is_super_admin);
@@ -48,7 +67,7 @@ export const suspendAdminsHandler = createHandlers(
 		}
 
 		await toggleSuspendAdmins({
-			admin_ids: admins,
+			admin_ids: uniqueAdmins,
 			state: "suspended",
 		});
 
