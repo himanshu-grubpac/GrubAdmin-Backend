@@ -36,12 +36,17 @@ export const getAdminLogsHandler = createHandlers(
 				success: true,
 				code: 200,
 				message: "Admin logs fetched successfully",
-				data: result.logs,
+				data: {
+					logs: result.logs,
+					count: result.total_count,
+				},
 				meta: {
 					page: result.page || 1,
 					limit: result.page_size || result.total_count,
 					total_count: result.total_count,
-					total_pages: Math.ceil(result.total_count / (result.page_size || 10)),
+					total_pages: Math.ceil(
+						result.total_count / (result.page_size || 10),
+					),
 				},
 			},
 			{

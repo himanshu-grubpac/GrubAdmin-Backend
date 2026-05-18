@@ -12,6 +12,7 @@ import {
 } from "./handlers/auth";
 import { rateLimit } from "@/middlewares/rate-limit";
 import { globalErrorHandler } from "@/middlewares/error";
+import { ipMiddleware } from "@/middlewares/common/ip.ts";
 import {
 	confirmUpdateAccountHandler,
 	deleteAccountEligiblityHandler,
@@ -31,6 +32,7 @@ import {
 import {
 	createVerticalHandler,
 	getVerticalsHandler,
+	deleteVerticalHandler,
 } from "@/modules/admin/handlers/vertical";
 import { createConfigHandler } from "@/modules/admin/handlers/config";
 import { createIconsHandler } from "@/modules/admin/handlers/icon";
@@ -161,8 +163,9 @@ adminRouter.patch("/customer/:id/status", ...patchClientStatusHandler);
  * Description: This router is responsible for handling all the vertical related interaction in the admin panel according to their roles
  * Base route: /api/v1/admin/vertical
  */
-adminRouter.post("/vertical", ...createVerticalHandler);
+adminRouter.post("/vertical", ipMiddleware, ...createVerticalHandler);
 adminRouter.get("/vertical", ...getVerticalsHandler);
+adminRouter.delete("/vertical/:id", ipMiddleware, ...deleteVerticalHandler);
 
 /**
  * Name: Icon Router

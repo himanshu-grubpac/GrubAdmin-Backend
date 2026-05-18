@@ -47,55 +47,33 @@ export const updateAccountHandler = createHandlers(
 
 		const { user, type } = admin;
 
-		if ((joining_date || assigned_location) && type !== "admin") {
-			throw new APIError(undefined, "admin.auth.UNAUTHORIZED", undefined, 403);
+		// [SENIOR ARCHITECTURE FIX]: Determine what has actually changed
+		// This prevents "Restriction" errors when the frontend sends stale/current data.
+		const isEmailChanged = !!(email && email !== user.email);
+		const isMobileChanged = !!(mobile_number && mobile_number !== user.mobile_number);
+		const isPasswordChanging = !!new_password;
+		const isNameChanged = !!((first_name && first_name !== user.first_name) || (last_name && last_name !== user.last_name));
+		const isLocationChanged = !!(assigned_location && assigned_location !== user.location);
+		const isDateChanged = !!(joining_date && joining_date.toISOString() !== user.joining_date?.toISOString());
+
+		if ((isDateChanged || isLocationChanged) && type !== "admin") {
+			throw new APIError("You are not authorized to change the joining date or assigned location.", "admin.auth.UNAUTHORIZED", undefined, 403);
 		}
 
-		if (
-			email &&
-			(mobile_number ||
-				new_password ||
-				old_password ||
-				first_name ||
-				last_name ||
-				joining_date ||
-				assigned_location ||
-				country_code)
-		) {
-			throw new APIError(undefined, "admin.account.UPDATE_RESTRICTION", undefined, 400);
+		// Apply restrictions only to ACTUAL changes
+		if (isEmailChanged && (isMobileChanged || isPasswordChanging || isNameChanged || isLocationChanged || isDateChanged)) {
+			throw new APIError("You cannot update your email along with other profile or security details in a single request.", "admin.account.UPDATE_RESTRICTION", undefined, 400);
 		}
 
-		if (
-			mobile_number &&
-			(email ||
-				new_password ||
-				old_password ||
-				first_name ||
-				last_name ||
-				joining_date ||
-				assigned_location)
-		) {
-			throw new APIError(undefined, "admin.account.UPDATE_RESTRICTION", undefined, 400);
+		if (isMobileChanged && (isEmailChanged || isPasswordChanging || isNameChanged || isLocationChanged || isDateChanged)) {
+			throw new APIError("You cannot update your mobile number along with other profile or security details in a single request.", "admin.account.UPDATE_RESTRICTION", undefined, 400);
 		}
 
-		if (
-			new_password &&
-			(email ||
-				first_name ||
-				last_name ||
-				joining_date ||
-				assigned_location ||
-				mobile_number ||
-				country_code)
-		) {
-			throw new APIError(undefined, "admin.account.UPDATE_RESTRICTION", undefined, 400);
+		if (isPasswordChanging && (isEmailChanged || isMobileChanged || isNameChanged || isLocationChanged || isDateChanged)) {
+			throw new APIError("You cannot update your password along with other profile details in a single request.", "admin.account.UPDATE_RESTRICTION", undefined, 400);
 		}
 
-		if (email) {
-			if (user.email === email) {
-				throw new APIError(undefined, "admin.account.SAME_OLD_VALUE", undefined, 400);
-			}
-
+		if (isEmailChanged) {
 			const profileUpdateOtp = await getAdminUpdateOtp(user_id);
 
 			if (profileUpdateOtp && profileUpdateOtp.email) {
@@ -123,14 +101,7 @@ export const updateAccountHandler = createHandlers(
 			};
 
 			return context.json(response as any, response.code as any);
-		} else if (mobile_number) {
-			if (
-				user.mobile_number === mobile_number &&
-				user.country_code === country_code
-			) {
-				throw new APIError(undefined, "admin.account.SAME_OLD_VALUE", undefined, 400);
-			}
-
+		} else if (isMobileChanged) {
 			if (!country_code) {
 				throw new APIError("Please provide a country code", undefined, undefined, 400);
 			}

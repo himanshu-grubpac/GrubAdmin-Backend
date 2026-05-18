@@ -20,3 +20,19 @@ export const createVerticalRequestBodyValidator = zValidator(
 		}
 	},
 );
+
+export const deleteVerticalParamValidator = zValidator(
+	"param",
+	z.object({
+		id: z.string({
+			error: "Please provide a valid vertical ID",
+		}).ulid({
+			message: "Invalid vertical ID",
+		}),
+	}),
+	(response) => {
+		if (!response.success) {
+			validatorErrorHandler(response.error);
+		}
+	},
+);

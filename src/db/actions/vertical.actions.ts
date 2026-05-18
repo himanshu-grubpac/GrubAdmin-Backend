@@ -104,5 +104,54 @@ export const updateVertical = async (args: UpdateVerticalArgs) => {
 };
 
 export const getVerticals = async () => {
-	return prisma.vertical.findMany();
+	return prisma.vertical.findMany({
+		where: {
+			status: "active",
+		},
+	});
+};
+
+export const deleteVertical = async (id: string) => {
+	const vertical = await prisma.vertical.findUnique({
+		where: { id },
+		include: {
+			_count: {
+				select: {
+					boxes: true,
+					clients: true,
+					faq_categories: true,
+				},
+			},
+		},
+	});
+
+	if (!vertical) {
+		throw new APIError("No vertical found!", undefined, undefined, 404);
+	}
+
+	if (vertical.status === "deleted") {
+		throw new APIError("Vertical is already deleted", undefined, undefined, 400);
+	}
+
+	if (
+		vertical._count.boxes > 0 ||
+		vertical._count.clients > 0 ||
+		vertical._count.faq_categories > 0
+	) {
+		throw new APIError(
+			"Cannot delete vertical because active dependencies exist",
+			undefined,
+			{
+				boxes: vertical._count.boxes,
+				clients: vertical._count.clients,
+				faq_categories: vertical._count.faq_categories,
+			},
+			400,
+		);
+	}
+
+	return await prisma.vertical.update({
+		where: { id },
+		data: { status: "deleted" },
+	});
 };

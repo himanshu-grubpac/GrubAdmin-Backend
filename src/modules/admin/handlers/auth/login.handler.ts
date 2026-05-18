@@ -8,6 +8,8 @@ import { setAuthCookie } from "@/utils/cookie";
 import { JWT_ACCESS_TOKEN_EXPIRY } from "@/configs/env";
 import type { APIResponse } from "@/types/api";
 import { resolveMessageTemplate } from "@/utils/message.ts";
+import { services } from "@/services";
+import { DEFAULT_IP_ADDRESS } from "@/configs/constants.ts";
 
 export const loginHandler = createHandlers(
 	loginRequestBodyValidator,
@@ -53,6 +55,23 @@ export const loginHandler = createHandlers(
 		const token = JWT.signAuthToken({
 			id: admin.user.id,
 			role: admin.type,
+		});
+
+		// Log the login event
+		const ip = context.req.header("x-forwarded-for")?.split(",")[0] || 
+				   context.req.header("x-real-ip") || 
+				   DEFAULT_IP_ADDRESS;
+
+		services.adminLogger.log({
+			module: "authentication",
+			action: "login",
+			admin_id: admin.user.id,
+			admin_name: `${admin.user.first_name} ${admin.user.last_name || ""}`.trim(),
+			role_id: admin.user.role_id,
+			role_name: admin.user.role?.name || "Admin",
+			ip,
+			effected_id: admin.user.id,
+			effected_name: "Self",
 		});
 
 		// Set JWT token as HttpOnly Secure cookie instead of returning in body

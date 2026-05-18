@@ -670,12 +670,12 @@ export const getDismissedAdmins = async (
 
 		const roles = roleNames.length > 0
 			? await prisma.role.findMany({
-					where: {
-						name: {
-							in: roleNames,
-						},
+				where: {
+					name: {
+						in: roleNames,
 					},
-			  })
+				},
+			})
 			: [];
 
 		const rolesMap = new Map(roles.map((r) => [r.name, r]));

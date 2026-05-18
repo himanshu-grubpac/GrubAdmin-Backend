@@ -106,7 +106,10 @@ export const getAdminsHandler = createHandlers(
 			{
 				success: true,
 				code: 200,
-				data: adminsData.admins,
+				data: {
+					admins: adminsData.admins,
+					total: adminsData.count,
+				},
 				meta: {
 					page: page_number,
 					limit: page_size,

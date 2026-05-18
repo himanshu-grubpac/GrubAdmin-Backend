@@ -65,10 +65,11 @@ model icon {
 }
 
 model vertical {
-  id             String         @id @default(ulid())
-  name           String         @unique
-  created_at     DateTime       @default(now())
-  updated_at     DateTime       @updatedAt
+  id             String          @id @default(ulid())
+  name           String          @unique
+  status         vertical_status @default(active)
+  created_at     DateTime        @default(now())
+  updated_at     DateTime        @updatedAt
   boxes          box[]
   clients        client[]
   faq_categories faq_category[]
@@ -205,11 +206,11 @@ model box {
 
   telemetry box_telemetry_latest?
 
-  connection_employee_id       String?
-  connection_employee          vertical_food_employee?      @relation("box_connection", fields: [connection_employee_id], references: [id])
-  client                       client?                      @relation(fields: [client_id], references: [id])
-  vertical                     vertical?                    @relation(fields: [vertical_id], references: [id])
-  lock                         box_lock?
+  connection_employee_id String?
+  connection_employee    vertical_food_employee? @relation("box_connection", fields: [connection_employee_id], references: [id])
+  client                 client?                 @relation(fields: [client_id], references: [id])
+  vertical               vertical?               @relation(fields: [vertical_id], references: [id])
+  lock                   box_lock?
 
   boxes                        vertical_food_consumer_box[] @relation("vertical_food_consumer_boxes")
   vertical_food_employee_boxes vertical_food_employee_box[] @relation("vertical_food_employee_boxes")
@@ -243,27 +244,26 @@ model restaurant {
 }
 
 model vertical_food_employee {
-  id                           String                        @id @default(ulid())
+  id                           String                       @id @default(ulid())
   first_name                   String
   last_name                    String
   country_code                 String
   mobile_number                String
-  email                        String                        @unique
+  email                        String                       @unique
   password                     String?
-  employee_display_id          String                        @unique
-  joining_date                 DateTime                      @default(now())
+  employee_display_id          String                       @unique
+  joining_date                 DateTime                     @default(now())
   client_id                    String?
   restaurant_id                String?
   role                         client_employee_role
-  status                       employee_status               @default(unassigned)
-  created_at                   DateTime                      @default(now())
-  updated_at                   DateTime                      @updatedAt
+  status                       employee_status              @default(unassigned)
+  created_at                   DateTime                     @default(now())
+  updated_at                   DateTime                     @updatedAt
   profile_pic                  String?
-  connected_boxes              box[]                         @relation("box_connection")
-  client                       client?                       @relation(fields: [client_id], references: [id])
-  restaurant                   restaurant?                   @relation(fields: [restaurant_id], references: [id])
-  vertical_food_employee_boxes vertical_food_employee_box[]  @relation("vertical_food_employee_boxes")
-
+  connected_boxes              box[]                        @relation("box_connection")
+  client                       client?                      @relation(fields: [client_id], references: [id])
+  restaurant                   restaurant?                  @relation(fields: [restaurant_id], references: [id])
+  vertical_food_employee_boxes vertical_food_employee_box[] @relation("vertical_food_employee_boxes")
 
   @@unique([country_code, mobile_number])
   @@index([client_id], map: "vertical_food_employee_client_id_fkey")
@@ -395,8 +395,6 @@ model box_lock {
   box            box             @relation(fields: [box_id], references: [id], onDelete: Cascade)
 }
 
-
-
 model notification {
   id              String            @id @default(ulid())
   client_id       String
@@ -498,13 +496,11 @@ enum employee_box_access {
   all_employees
 }
 
-
 enum hardware_state {
   on
   off
   unknown
 }
-
 
 model box_telemetry_latest {
   id                    String                 @id @default(ulid())
@@ -549,4 +545,9 @@ enum notification_type {
   error
   success
   notification
+}
+
+enum vertical_status {
+  active
+  deleted
 }

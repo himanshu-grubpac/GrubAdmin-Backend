@@ -38,12 +38,10 @@ export class AdminNotificationService {
 		console.log(admins);
 
 		await createAdminNotifications(
-			admins.admins
-				.filter((a) => a.id !== args.employee_id)
-				.map((admin) => ({
-					...args,
-					recipient_id: admin.id,
-				})),
+			admins.admins.map((admin) => ({
+				...args,
+				recipient_id: admin.id,
+			})),
 		);
 	}
 

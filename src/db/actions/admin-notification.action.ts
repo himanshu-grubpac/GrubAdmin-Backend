@@ -70,7 +70,9 @@ export const getAdminNotifications = async (
 		};
 	}
 
-	const notificationsQuery = AdminNotification.find(query);
+	const notificationsQuery = AdminNotification.find(query).sort({
+		createdAt: -1,
+	});
 
 	if (args.minified) {
 		notificationsQuery.limit(4);
