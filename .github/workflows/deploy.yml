@@ -32,6 +32,7 @@ jobs:
             echo "=== Installing dependencies ==="
             bun install
             echo "=== Running database migrations ==="
+            bun run db:fix-duplicate-employee-emails
             bun db:push
             bun db:generate
             echo "=== Restarting PM2 process ==="
