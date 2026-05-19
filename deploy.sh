@@ -7,6 +7,7 @@ echo "=== GrubPac Backend Production Deployment ==="
 COMPOSE_FILE="docker-compose.prod.yml"
 ENV_FILE=".env.production"
 PROJECT_NAME="grubpac"
+GHCR_PAT="${GHCR_PAT:-}"
 
 # Check prerequisites
 command -v docker >/dev/null 2>&1 || { echo "Docker is required but not installed."; exit 1; }
@@ -19,13 +20,19 @@ if [ ! -f "$ENV_FILE" ]; then
     exit 1
 fi
 
-# Pull latest images
-echo "Pulling latest images..."
-docker compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" pull
+# Login to GHCR if PAT is provided (CI/CD mode)
+if [ -n "$GHCR_PAT" ]; then
+    echo "Logging in to GitHub Container Registry..."
+    echo "$GHCR_PAT" | docker login ghcr.io -u atulgp26 --password-stdin
+fi
 
-# Build and start services
-echo "Building and starting services..."
-docker compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" up --build -d
+# Pull latest images (from GHCR if configured, otherwise builds locally)
+echo "Pulling latest images..."
+docker compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" pull || true
+
+# Build (if image not in GHCR) and start services
+echo "Starting services..."
+docker compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" up -d
 
 # Wait for health check
 echo "Waiting for API to be healthy..."

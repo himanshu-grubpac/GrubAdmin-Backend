@@ -36,6 +36,7 @@ services:
       - db_net
 
   api:
+    image: ghcr.io/atulgp26/grubadmin-backend/backend-api:latest
     build: .
     container_name: grub-api
     restart: unless-stopped
