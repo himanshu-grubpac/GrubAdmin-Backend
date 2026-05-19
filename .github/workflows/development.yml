@@ -37,6 +37,7 @@ jobs:
                     export PATH="$BUN_INSTALL/bin:$PATH" && \
                     source ~/.bashrc && \
                     /home/ubuntu/.bun/bin/bun install && \
+                    /home/ubuntu/.bun/bin/bun run db:fix-duplicate-employee-emails && \
                     /home/ubuntu/.bun/bin/bun db:push && \
                     /home/ubuntu/.bun/bin/bun db:generate && \
                     /home/ubuntu/.nvm/versions/node/v22.20.0/bin/pm2 list && \

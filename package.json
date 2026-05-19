@@ -12,6 +12,7 @@
 		"db:pull": "bun prisma db pull",
 		"db:seed": "bun src/cmd/seed.ts",
 		"reset": "bun src/cmd/reset-db.ts",
+		"db:fix-duplicate-employee-emails": "bun src/cmd/fix-duplicate-employee-emails.ts",
 		"db:inject-box-config": "bun src/cmd/inject-box-config.ts"
 	},
 	"devDependencies": {
