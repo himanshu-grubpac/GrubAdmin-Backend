@@ -4,54 +4,12 @@ on:
   push:
     branches: [main]
 
-env:
-  REGISTRY: ghcr.io
-  IMAGE_BASE: ghcr.io/${{ github.repository_owner }}/grubadmin-backend
-
 jobs:
-  build-and-push:
-    if: github.ref == 'refs/heads/main'
+  deploy:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Extract metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.IMAGE_BASE }}/backend-api
-          tags: |
-            type=sha,format=short
-            type=raw,value=latest,enable={{is_default_branch}}
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-  deploy:
-    needs: build-and-push
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    steps:
       - name: Setup SSH key
         run: |
           mkdir -p ~/.ssh
@@ -62,26 +20,34 @@ jobs:
         run: |
           ssh-keyscan -t ed25519 -H ${{ secrets.SSH_PRODUCTION_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Deploy to EC2 via Docker Compose
+      - name: Deploy to EC2 via PM2
         run: |
           ssh -i ~/.ssh/id_ed25519 ${{ secrets.SSH_PRODUCTION_USER_NAME }}@${{ secrets.SSH_PRODUCTION_HOST }} << 'EOF'
             set -e
-            IMAGE_BASE="ghcr.io/${{ github.repository_owner }}/grubadmin-backend"
-
-            echo "=== Logging in to GHCR ==="
-            echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
-
-            echo "=== Pulling latest images ==="
+            echo "=== Pulling latest code ==="
             cd grubadmin-backend/GrubAdmin-Backend
+            git stash
+            git pull origin main
 
-            docker compose -f docker-compose.prod.yml pull
-            docker compose -p grubpac -f docker-compose.prod.yml up -d --remove-orphans
+            echo "=== Installing dependencies ==="
+            export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            export BUN_INSTALL="$HOME/.bun"
+            export PATH="$BUN_INSTALL/bin:$PATH"
+            source ~/.bashrc
+            /home/ubuntu/.bun/bin/bun install
 
-            echo "=== Cleaning up old images ==="
-            docker image prune -af --filter "until=24h"
+            echo "=== Running database migrations ==="
+            /home/ubuntu/.bun/bin/bun db:push
+            /home/ubuntu/.bun/bin/bun db:generate
+
+            echo "=== Restarting PM2 process ==="
+            /home/ubuntu/.nvm/versions/node/v22.20.0/bin/pm2 list
+            /home/ubuntu/.nvm/versions/node/v22.20.0/bin/pm2 restart "${{ secrets.PRODUCTION_PM2_ID }}"
+            /home/ubuntu/.nvm/versions/node/v22.20.0/bin/pm2 list
 
             echo "=== Deployment complete ==="
-            docker compose -p grubpac -f docker-compose.prod.yml ps
+EOF
 
       - name: Done
         run: echo "Backend deployed successfully to EC2"

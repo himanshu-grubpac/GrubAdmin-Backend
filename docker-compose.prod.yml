@@ -1,50 +1,9 @@
-# docker-compose.prod.yml
 services:
-  mysql:
-    image: mysql:8.0
-    container_name: grub-mysql
-    restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_password_here}
-      MYSQL_DATABASE: ${MYSQL_DATABASE:-grub_db}
-      MYSQL_USER: ${MYSQL_USER:-grub_user}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-StrongUserPass@123}
-    ports:
-      - "127.0.0.1:3307:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
-    networks:
-      - db_net
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  mongo:
-    image: mongo:6.0
-    container_name: grub-mongo
-    restart: unless-stopped
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER:-mongo_root}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-StrongMongoRoot@123}
-    ports:
-      - "127.0.0.1:27017:27017"
-    volumes:
-      - mongo_data:/data/db
-    networks:
-      - db_net
-
   api:
     image: ghcr.io/${GHCR_OWNER:-piyushgrubpac}/grubadmin-backend/backend-api:latest
     build: .
     container_name: grub-api
     restart: unless-stopped
-    depends_on:
-      mysql:
-        condition: service_healthy
-      mongo:
-        condition: service_started
     env_file:
       - .env.production
     environment:
@@ -52,40 +11,3 @@ services:
       PORT: 8000
     ports:
       - "127.0.0.1:8000:8000"
-    networks:
-      - frontend_net
-      - backend_net
-      - db_net
-
-  nginx:
-    build: ./nginx
-    container_name: grub-nginx
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-    depends_on:
-      - api
-    networks:
-      - frontend_net
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
-      - ./ssl:/etc/nginx/ssl:ro
-
-volumes:
-  mysql_data:
-  mongo_data:
-
-networks:
-  frontend_net:
-    driver: bridge
-    driver_opts:
-      com.docker.network.driver.mtu: 1400
-  backend_net:
-    driver: bridge
-    driver_opts:
-      com.docker.network.driver.mtu: 1400
-  db_net:
-    driver: bridge
-    driver_opts:
-      com.docker.network.driver.mtu: 1400
