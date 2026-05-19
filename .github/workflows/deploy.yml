@@ -24,21 +24,20 @@ jobs:
         run: |
           ssh -i ~/.ssh/id_ed25519 ${{ secrets.SSH_PRODUCTION_USER_NAME }}@${{ secrets.SSH_PRODUCTION_HOST }} << 'EOF'
             set -e
+            export PATH="/home/ubuntu/.local/share/fnm/node-versions/v22.22.3/installation/bin:/home/ubuntu/.bun/bin:$PATH"
             echo "=== Pulling latest code ==="
             cd ~/grubadmin-backend/GrubAdmin-Backend
             git stash
             git pull origin main
             echo "=== Installing dependencies ==="
-            export BUN_INSTALL="$HOME/.bun"
-            export PATH="$BUN_INSTALL/bin:$PATH"
-            /home/ubuntu/.bun/bin/bun install
+            bun install
             echo "=== Running database migrations ==="
-            /home/ubuntu/.bun/bin/bun db:push
-            /home/ubuntu/.bun/bin/bun db:generate
+            bun db:push
+            bun db:generate
             echo "=== Restarting PM2 process ==="
-            /home/ubuntu/.local/share/fnm/node-versions/v22.22.3/installation/lib/node_modules/pm2/bin/pm2 list
-            /home/ubuntu/.local/share/fnm/node-versions/v22.22.3/installation/lib/node_modules/pm2/bin/pm2 restart "${{ secrets.PRODUCTION_PM2_ID }}" --update-env
-            /home/ubuntu/.local/share/fnm/node-versions/v22.22.3/installation/lib/node_modules/pm2/bin/pm2 list
+            pm2 list
+            pm2 restart "${{ secrets.PRODUCTION_PM2_ID }}" --update-env
+            pm2 list
             echo "=== Deployment complete ==="
           EOF
 
