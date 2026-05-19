@@ -63,5 +63,5 @@ echo "  docker compose -p $PROJECT_NAME -f $COMPOSE_FILE down"
 
 echo ""
 echo "=== Next Step ==="
-echo "Run ./setup-ssl.sh to get a Let's Encrypt certificate for your DuckDNS domain."
-echo "See: https://duckdns.org"
+echo "Run ./setup-ssl.sh to get a Let's Encrypt certificate for your Dynu DDNS domain."
+echo "See: https://www.dynu.com"

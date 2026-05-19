@@ -1,46 +1,38 @@
 #!/bin/bash
 set -euo pipefail
 
-DOMAIN="${1:-grubpac.duckdns.org}"
-DUCKDNS_TOKEN="${2:-}"
+DOMAIN="${1:-grubpac.dynu.net}"
+Dynu_ClientId="${2:-}"
+Dynu_Secret="${3:-}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-if [ -z "$DUCKDNS_TOKEN" ]; then
-    echo "Usage: $0 [domain] <duckdns-token>"
+if [ -z "$Dynu_ClientId" ] || [ -z "$Dynu_Secret" ]; then
+    echo "Usage: $0 [domain] <dynu-client-id> <dynu-secret>"
     echo ""
     echo "Steps:"
-    echo "  1. Go to https://duckdns.org"
-    echo "  2. Sign in (GitHub/Google/Twitter/Reddit)"
-    echo "  3. Create domain 'grubpac' (or your preferred name)"
-    echo "  4. Copy the token"
+    echo "  1. Go to https://www.dynu.com and create a free account"
+    echo "  2. Create a DDNS hostname (Control Panel -> DDNS/DNS Services -> Add)"
+    echo "  3. Set the A record to your EC2 IP: 43.204.34.10"
+    echo "  4. Generate API credentials (Account -> API Credentials -> Create)"
     echo ""
-    echo "Example: $0 grubpac.duckdns.org a1b2c3d4-e5f6-...-abcdef"
+    echo "Example: $0 grubpac.dynu.net abc123... xyz789..."
     exit 1
 fi
 
-# Get subdomain name from domain (grubpac.duckdns.org -> grubpac)
-SUBDOMAIN="${DOMAIN%%.*}"
-
-# 1. Update DuckDNS with our IP
-echo "[1/4] Updating DuckDNS IP..."
-curl -s "https://www.duckdns.org/update?domains=$SUBDOMAIN&token=$DUCKDNS_TOKEN&ip="
-echo ""
-
-# 2. Install acme.sh
-echo "[2/4] Installing acme.sh..."
+echo "[1/3] Installing acme.sh..."
 if [ ! -f "$HOME/.acme.sh/acme.sh" ]; then
     curl -fsSL https://get.acme.sh | sh
 fi
-export DUCKDNS_TOKEN
 
-# 3. Issue Let's Encrypt cert via DuckDNS DNS API
-echo "[3/4] Issuing Let's Encrypt certificate..."
+export Dynu_ClientId
+export Dynu_Secret
+
+echo "[2/3] Issuing Let's Encrypt certificate for $DOMAIN..."
 mkdir -p "$SCRIPT_DIR/ssl"
 
-"$HOME/.acme.sh/acme.sh" --issue --dns dns_duckdns -d "$DOMAIN"
+"$HOME/.acme.sh/acme.sh" --issue --dns dns_dynu -d "$DOMAIN"
 
-# 4. Install cert to nginx ssl directory with auto-renewal hook
-echo "[4/4] Installing certificate to ./ssl/..."
+echo "[3/3] Installing certificate to ./ssl/..."
 "$HOME/.acme.sh/acme.sh" --install-cert -d "$DOMAIN" \
     --fullchain-file "$SCRIPT_DIR/ssl/fullchain.pem" \
     --key-file "$SCRIPT_DIR/ssl/privkey.pem" \
@@ -48,6 +40,6 @@ echo "[4/4] Installing certificate to ./ssl/..."
 
 echo ""
 echo "Done! Certificate installed at $SCRIPT_DIR/ssl/"
-echo "Auto-renewal is handled by acme.sh (installed as a cron job)."
+echo "Auto-renewal handled by acme.sh (cron)."
 echo ""
 echo "Next: docker compose -p grubpac -f docker-compose.prod.yml up -d --build"
