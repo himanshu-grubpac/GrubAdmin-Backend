@@ -36,7 +36,10 @@ jobs:
             bun db:generate
             echo "=== Restarting PM2 process ==="
             pm2 list
-            pm2 restart "${{ secrets.PRODUCTION_PM2_ID }}" --update-env
+            pm2 delete "${{ secrets.PRODUCTION_PM2_ID }}" || true
+            cd ~/grubadmin-backend/GrubAdmin-Backend
+            pm2 start bun --name "${{ secrets.PRODUCTION_PM2_ID }}" -- start
+            pm2 save
             pm2 list
             echo "=== Deployment complete ==="
           EOF
