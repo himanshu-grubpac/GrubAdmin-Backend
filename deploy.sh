@@ -1,74 +1,9 @@
-#!/bin/bash
-set -euo pipefail
-
-echo "=== GrubPac Backend Production Deployment ==="
-
-# Configuration
-COMPOSE_FILE="docker-compose.prod.yml"
-ENV_FILE=".env.production"
-PROJECT_NAME="grubpac"
-GHCR_PAT="${GHCR_PAT:-}"
-
-# Check prerequisites
-command -v docker >/dev/null 2>&1 || { echo "Docker is required but not installed."; exit 1; }
-command -v docker compose >/dev/null 2>&1 || { echo "Docker Compose is required but not installed."; exit 1; }
-
-# Check env file
-if [ ! -f "$ENV_FILE" ]; then
-    echo "ERROR: $ENV_FILE not found. Copy .env.production.example and fill in values."
-    echo "  cp .env.production.example $ENV_FILE"
-    exit 1
-fi
-
-# Login to GHCR if PAT is provided (CI/CD mode)
-if [ -n "$GHCR_PAT" ]; then
-    echo "Logging in to GitHub Container Registry..."
-    echo "$GHCR_PAT" | docker login ghcr.io -u atulgp26 --password-stdin
-fi
-
-# Pull latest images (from GHCR if configured, otherwise builds locally)
-echo "Pulling latest images..."
-docker compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" pull || true
-
-# Build (if image not in GHCR) and start services
-echo "Starting services..."
-docker compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" up -d
-
-# Wait for health check
-echo "Waiting for API to be healthy..."
-for i in {1..30}; do
-    if curl -sf http://localhost:8000/api/v1/common/health > /dev/null 2>&1; then
-        echo "API is healthy!"
-        break
-    fi
-    echo "Attempt $i/30: API not ready yet..."
-    sleep 3
-done
-
-# Verify Nginx
-echo "Verifying Nginx proxy..."
-if curl -sf http://localhost:8000/api/v1/common/health > /dev/null 2>&1; then
-    echo "API is healthy!"
-else
-    echo "WARNING: API health check failed. Check api logs."
-    docker compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" logs api --tail=20
-fi
-
-echo ""
-echo "=== Deployment complete ==="
-echo ""
-echo "Services:"
-docker compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" ps
-
-echo ""
-echo "To view logs:"
-echo "  docker compose -p $PROJECT_NAME -f $COMPOSE_FILE logs -f api"
-echo "  docker compose -p $PROJECT_NAME -f $COMPOSE_FILE logs -f nginx"
-echo ""
-echo "To stop:"
-echo "  docker compose -p $PROJECT_NAME -f $COMPOSE_FILE down"
-
-echo ""
-echo "=== Next Step ==="
-echo "Run ./setup-ssl.sh to get a Let's Encrypt certificate for your Dynu DDNS domain."
-echo "See: https://www.dynu.com"
+# curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+# export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
+# [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+# export BUN_INSTALL="$HOME/.bun"
+# export PATH="$BUN_INSTALL/bin:$PATH"
+# source ~/.bashrc
+# /home/ubuntu/.bun/bin/bun install
+# /home/ubuntu/.bun/bin/bun run db:fix-duplicate-employee-emails
+# /home/ubuntu/.bun/bin/bun db:push
