@@ -60,7 +60,6 @@ jobs:
     env:
       GHCR_PAT: ${{ secrets.GHCR_PAT }}
       GITHUB_ACTOR: ${{ github.actor }}
-      IMAGE_BASE: ${{ env.IMAGE_BASE }}
     steps:
       - name: Deploy to EC2 via Docker Compose
         uses: appleboy/ssh-action@v1.1.0
@@ -68,9 +67,11 @@ jobs:
           host: ${{ secrets.SSH_PRODUCTION_HOST }}
           username: ${{ secrets.SSH_PRODUCTION_USER_NAME }}
           key: ${{ secrets.SSH_PRODUCTION_PRIVATE_KEY }}
-          envs: IMAGE_BASE,GHCR_PAT,GITHUB_ACTOR
+          envs: GHCR_PAT,GITHUB_ACTOR
           script: |
             set -e
+            IMAGE_BASE="ghcr.io/${{ github.repository_owner }}/grubadmin-backend"
+
             echo "=== Logging in to GHCR ==="
             echo "$GHCR_PAT" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
 
