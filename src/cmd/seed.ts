@@ -10,6 +10,7 @@ import { connectMongoDB, prisma } from "@/db";
 import { Bcrypt } from "@/utils/bcrypt";
 import { logger } from "@/utils/logger";
 import seedSystemConfigs from "./seed-system-configs";
+import { seedMongoData } from "./seed-mongo";
 
 const STANDARD_ROLES = [
 	{
@@ -235,12 +236,12 @@ export const seed = async () => {
 		logger.error(`Failed to seed super admin user: ${err}`);
 	}
 
-	// 6. Verify MongoDB Connection
+	// 6. Seed MongoDB Data (Notifications + System Logs)
 	try {
-		await connectMongoDB();
-		logger.info("MongoDB connection verified successfully.");
+		await seedMongoData();
+		logger.info("MongoDB seed data completed.");
 	} catch (err) {
-		logger.error(`Failed to connect to MongoDB: ${err}`);
+		logger.error(`Failed to seed MongoDB data: ${err}`);
 	}
 
 	const endTime = Date.now();

@@ -11,6 +11,7 @@
 		"db:push-dev": "bun prisma db push",
 		"db:pull": "bun prisma db pull",
 		"db:seed": "bun src/cmd/seed.ts",
+		"db:seed-mongo": "bun src/cmd/seed-mongo.ts",
 		"reset": "bun src/cmd/reset-db.ts",
 		"db:inject-box-config": "bun src/cmd/inject-box-config.ts"
 	},
