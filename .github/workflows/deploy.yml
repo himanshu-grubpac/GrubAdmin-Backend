@@ -51,26 +51,28 @@ jobs:
     needs: build-and-push
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    env:
-      GHCR_PAT: ${{ secrets.GHCR_PAT }}
-      GITHUB_ACTOR: ${{ github.actor }}
     steps:
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRODUCTION_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+
+      - name: Add EC2 host to known_hosts
+        run: |
+          ssh-keyscan -t ed25519 -H ${{ secrets.SSH_PRODUCTION_HOST }} >> ~/.ssh/known_hosts
+
       - name: Deploy to EC2 via Docker Compose
-        uses: appleboy/ssh-action@v1.1.0
-        with:
-          host: ${{ secrets.SSH_PRODUCTION_HOST }}
-          username: ${{ secrets.SSH_PRODUCTION_USER_NAME }}
-          key: ${{ secrets.SSH_PRODUCTION_PRIVATE_KEY }}
-          envs: GHCR_PAT,GITHUB_ACTOR
-          script: |
+        run: |
+          ssh -i ~/.ssh/id_ed25519 ${{ secrets.SSH_PRODUCTION_USER_NAME }}@${{ secrets.SSH_PRODUCTION_HOST }} << 'EOF'
             set -e
             IMAGE_BASE="ghcr.io/${{ github.repository_owner }}/grubadmin-backend"
 
             echo "=== Logging in to GHCR ==="
-            echo "$GHCR_PAT" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+            echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
 
             echo "=== Pulling latest images ==="
-            cd grubpac_api
+            cd grubadmin-backend/GrubAdmin-Backend
 
             docker compose -f docker-compose.prod.yml pull
             docker compose -p grubpac -f docker-compose.prod.yml up -d --remove-orphans
