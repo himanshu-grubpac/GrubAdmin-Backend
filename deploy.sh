@@ -40,16 +40,12 @@ done
 
 # Verify Nginx
 echo "Verifying Nginx proxy..."
-if curl -sf http://localhost/api/v1/common/health > /dev/null 2>&1; then
-    echo "Nginx proxy is working!"
+if curl -sf http://localhost:8000/api/v1/common/health > /dev/null 2>&1; then
+    echo "API is healthy!"
 else
-    echo "WARNING: Nginx proxy check failed. Check nginx logs."
-    docker compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" logs nginx --tail=20
+    echo "WARNING: API health check failed. Check api logs."
+    docker compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" logs api --tail=20
 fi
-
-echo ""
-echo "Getting Cloudflare Tunnel URL..."
-bash tunnel-url.sh
 
 echo ""
 echo "=== Deployment complete ==="
@@ -61,7 +57,11 @@ echo ""
 echo "To view logs:"
 echo "  docker compose -p $PROJECT_NAME -f $COMPOSE_FILE logs -f api"
 echo "  docker compose -p $PROJECT_NAME -f $COMPOSE_FILE logs -f nginx"
-echo "  docker compose -p $PROJECT_NAME -f $COMPOSE_FILE logs -f cloudflared"
 echo ""
 echo "To stop:"
 echo "  docker compose -p $PROJECT_NAME -f $COMPOSE_FILE down"
+
+echo ""
+echo "=== Next Step ==="
+echo "Run ./setup-ssl.sh to get a Let's Encrypt certificate for your DuckDNS domain."
+echo "See: https://duckdns.org"

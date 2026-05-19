@@ -61,23 +61,15 @@ services:
     container_name: grub-nginx
     restart: unless-stopped
     ports:
-      - "127.0.0.1:80:80"
+      - "80:80"
+      - "443:443"
     depends_on:
       - api
     networks:
       - frontend_net
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
-
-  cloudflared:
-    image: cloudflare/cloudflared:latest
-    container_name: grub-cloudflared
-    restart: unless-stopped
-    command: tunnel --url http://nginx:80
-    depends_on:
-      - nginx
-    networks:
-      - frontend_net
+      - ./ssl:/etc/nginx/ssl:ro
 
 volumes:
   mysql_data:
