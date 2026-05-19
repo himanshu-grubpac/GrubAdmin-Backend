@@ -47,6 +47,11 @@ else
     docker compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" logs nginx --tail=20
 fi
 
+echo ""
+echo "Getting Cloudflare Tunnel URL..."
+bash tunnel-url.sh
+
+echo ""
 echo "=== Deployment complete ==="
 echo ""
 echo "Services:"
@@ -56,6 +61,7 @@ echo ""
 echo "To view logs:"
 echo "  docker compose -p $PROJECT_NAME -f $COMPOSE_FILE logs -f api"
 echo "  docker compose -p $PROJECT_NAME -f $COMPOSE_FILE logs -f nginx"
+echo "  docker compose -p $PROJECT_NAME -f $COMPOSE_FILE logs -f cloudflared"
 echo ""
 echo "To stop:"
 echo "  docker compose -p $PROJECT_NAME -f $COMPOSE_FILE down"
