@@ -14,21 +14,22 @@ loadEnv();
 server.use(
     cors({
         origin: (origin) => {
-            if (!origin) return null;
+            if (!origin) return origin;
 
-            
             if (ALLOWED_ORIGINS.includes(origin)) {
                 return origin;
             }
 
-           
-            if (NODE_ENV === "development" && origin === "http://localhost:3000") {
+            if (NODE_ENV === "development" && origin.startsWith("http://localhost")) {
                 return origin;
             }
 
             return null;
         },
         allowMethods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+        allowHeaders: ["Content-Type", "Authorization", "X-Requested-With", "X-UID", "X-Browser", "X-Device"],
+        exposeHeaders: ["Content-Length", "X-Request-Id"],
+        maxAge: 86400,
         credentials: true,
     }),
 );
