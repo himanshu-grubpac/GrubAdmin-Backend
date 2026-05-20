@@ -80,14 +80,24 @@ export const getSystemLogs = async (args: GetLogsArgs) => {
 	}
 
 	if (search) {
-		andConditions.push({
-			$or: [
-				{ description: { $regex: search, $options: "i" } },
-				{ "actor.name": { $regex: search, $options: "i" } },
-				{ "actor.ip": { $regex: search, $options: "i" } },
-				{ "subject.name": { $regex: search, $options: "i" } },
-			]
-		});
+		const tokens = search
+			.trim()
+			.replace(/\s+/g, " ")
+			.split(" ")
+			.filter(Boolean);
+		if (tokens.length > 0) {
+			const tokenConditions = tokens.map((token) => ({
+				$or: [
+					{ description: { $regex: token, $options: "i" } },
+					{ type: { $regex: token, $options: "i" } },
+					{ category: { $regex: token, $options: "i" } },
+					{ "actor.name": { $regex: token, $options: "i" } },
+					{ "actor.ip": { $regex: token, $options: "i" } },
+					{ "subject.name": { $regex: token, $options: "i" } },
+				],
+			}));
+			andConditions.push({ $and: tokenConditions });
+		}
 	}
 
 	if (start_date || end_date) {
