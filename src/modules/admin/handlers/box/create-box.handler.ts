@@ -21,21 +21,49 @@ interface ResponseData {
 	box: box;
 }
 
-const enumValues = {
-	hardware_state: ["on", "off", "unknown"] as const,
-	box_health_status: ["healthy", "critical", "attention"] as const,
-	box_status: ["active", "suspended"] as const,
+/**
+ * Normalize and validate an enum-like string field.
+ * - Case-insensitive (lowercases the input)
+ * - Maps common aliases (e.g. "inactive" -> "suspended", "good" -> "healthy")
+ * - Returns the normalized value or throws a descriptive APIError
+ */
+const VALID_STATUS = ["active", "suspended"] as const;
+const VALID_HARDWARE_STATE = ["on", "off", "unknown"] as const;
+const VALID_HEALTH_STATUS = ["healthy", "critical", "attention"] as const;
+
+const STATUS_ALIASES: Record<string, string> = {
+	inactive: "suspended",
 };
 
-const normalizeEnum = <T extends string>(
-	val: unknown,
-	allowed: readonly T[],
-	defaultVal?: T,
-): T | null | undefined => {
-	if (val === undefined || val === null) return val ?? null ?? undefined;
-	const str = String(val).toLowerCase() as T;
-	return allowed.includes(str) ? str : defaultVal;
+const HEALTH_ALIASES: Record<string, string> = {
+	good: "healthy",
 };
+
+function normalizeStatus(
+	val: unknown,
+	fieldName: string,
+	allowed: readonly string[],
+	aliases: Record<string, string> = {},
+	defaultVal?: string,
+): string | null {
+	if (val === undefined || val === null) {
+		if (defaultVal !== undefined) return defaultVal;
+		return null;
+	}
+	const str = String(val).toLowerCase().trim();
+	const mapped = aliases[str] ?? str;
+	if ((allowed as readonly string[]).includes(mapped)) return mapped;
+	const allowedStr = allowed.map((v) => `'${v}'`).join(", ");
+	const aliasStr = Object.keys(aliases).length
+		? ` (or ${Object.keys(aliases).map((v) => `'${v}'`).join(", ")})`
+		: "";
+	throw new APIError(
+		`${fieldName} must be one of ${allowedStr}${aliasStr}, got '${String(val)}'`,
+		undefined,
+		undefined,
+		400,
+	);
+}
 
 export const createBoxHandler = createHandlers(
 	authGuard(["admin", "employee"]),
@@ -60,10 +88,10 @@ export const createBoxHandler = createHandlers(
 			vehicle_number,
 		} = body;
 
-		const status = normalizeEnum(body.status, enumValues.box_status, "active") as box_status;
-		const power_status = normalizeEnum(body.power_status, enumValues.hardware_state) as hardware_state | null | undefined;
-		const health_status = normalizeEnum(body.health_status, enumValues.box_health_status) as box_health_status | null | undefined;
-		const ioniser_status = normalizeEnum(body.ioniser_status, enumValues.hardware_state) as hardware_state | null | undefined;
+		const status = normalizeStatus(body.status, "Status", VALID_STATUS, STATUS_ALIASES, "active") as box_status;
+		const power_status = normalizeStatus(body.power_status, "Power status", VALID_HARDWARE_STATE) as hardware_state;
+		const ioniser_status = normalizeStatus(body.ioniser_status, "Ioniser status", VALID_HARDWARE_STATE) as hardware_state;
+		const health_status = normalizeStatus(body.health_status, "Health status", VALID_HEALTH_STATUS, HEALTH_ALIASES) as box_health_status;
 		const battery_percentage = body.battery_percentage;
 
 		const verticalData = await getVertical(vertical);

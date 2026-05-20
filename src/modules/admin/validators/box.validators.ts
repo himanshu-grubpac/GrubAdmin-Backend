@@ -24,13 +24,7 @@ export const createBoxRequestBodyValidator = zValidator(
 			error: "Please provide a valid vertical id (ULID format expected, e.g. 01KBQDHRG48S8MTJ3JWS1E00PD)",
 		}),
 		vehicle_number: z.string().trim().optional().nullable(),
-		status: z
-			.union(
-				[z.literal("active"), z.literal("suspended")],
-				{ error: "Status must be 'active' or 'suspended'" },
-			)
-			.optional()
-			.default("active"),
+		status: z.string().trim().optional().default("active"),
 		power_status: z.string().trim().optional().nullable(),
 		health_status: z.string().trim().optional().nullable(),
 		ioniser_status: z.string().trim().optional().nullable(),
@@ -69,12 +63,7 @@ export const updateBoxRequestBodyValidator = zValidator(
 			.optional()
 			.nullable(),
 		vehicle_number: z.string().trim().optional().nullable(),
-		status: z
-			.union(
-				[z.literal("active"), z.literal("suspended")],
-				{ error: "Status must be 'active' or 'suspended'" },
-			)
-			.optional(),
+		status: z.string().trim().optional(),
 		power_status: z.string().trim().optional().nullable(),
 		health_status: z.string().trim().optional().nullable(),
 		ioniser_status: z.string().trim().optional().nullable(),
