@@ -79,14 +79,13 @@ export const getSystemLogs = async (args: GetLogsArgs) => {
 		});
 	}
 
-	if (search) {
-		const tokens = search
-			.trim()
-			.replace(/\s+/g, " ")
-			.split(" ")
-			.filter(Boolean);
-		if (tokens.length > 0) {
-			const tokenConditions = tokens.map((token) => ({
+	const searchTokens = search
+		? search.trim().replace(/\s+/g, " ").split(" ").filter(Boolean)
+		: [];
+	const hasSearch = searchTokens.length > 0;
+
+	const searchTextConditions = hasSearch
+		? searchTokens.map((token) => ({
 				$or: [
 					{ description: { $regex: token, $options: "i" } },
 					{ type: { $regex: token, $options: "i" } },
@@ -95,10 +94,8 @@ export const getSystemLogs = async (args: GetLogsArgs) => {
 					{ "actor.ip": { $regex: token, $options: "i" } },
 					{ "subject.name": { $regex: token, $options: "i" } },
 				],
-			}));
-			andConditions.push({ $and: tokenConditions });
-		}
-	}
+		  }))
+		: [];
 
 	if (start_date || end_date) {
 		filter.createdAt = {};
@@ -137,10 +134,16 @@ export const getSystemLogs = async (args: GetLogsArgs) => {
 
 	Models = [...new Set(Models)]; // unique models
 
-	if (Models.length === 1) {
-		// Single model query
+	// Aggregation is required when hasSearch is true (need $expr + $dateToString for date search)
+	const useAggregation = hasSearch || Models.length > 1;
+
+	if (!useAggregation) {
+		// Single model query, no search — use faster find()
+		if (searchTextConditions.length > 0) {
+			filter.$and = [...(filter.$and || []), { $and: searchTextConditions }];
+		}
 		let logQuery = Models[0].find(filter).sort({ createdAt: -1 });
-		
+
 		if (page && page_size) {
 			logQuery = logQuery.skip((page - 1) * page_size).limit(page_size);
 		}
@@ -157,56 +160,97 @@ export const getSystemLogs = async (args: GetLogsArgs) => {
 			page_count: logs.length,
 			total_count: count,
 		};
-	} else {
-		// Multiple models query via aggregate $unionWith
-		const limitVal = page && page_size ? page_size : undefined;
-		const skipVal = page && page_size ? (page - 1) * page_size : undefined;
+	}
 
-		const aggregatePipeline: any[] = [];
-		aggregatePipeline.push({ $match: filter });
+	// Build aggregation pipeline (used for search-with-dates and/or multiple models)
+	const limitVal = page && page_size ? page_size : undefined;
+	const skipVal = page && page_size ? (page - 1) * page_size : undefined;
 
-		const initialModel = Models[0];
+	const initialModel = Models[0];
 
-		for (let i = 1; i < Models.length; i++) {
-			aggregatePipeline.push({
-				$unionWith: {
-					coll: Models[i].collection.name,
-					pipeline: [{ $match: filter }]
-				}
+	const buildSearchPipeline = () => {
+		const pipe: any[] = [];
+		if (hasSearch) {
+			pipe.push({
+				$addFields: {
+					_searchableDate: {
+						$dateToString: {
+							format: "%d %b %y, %H:%M:%S",
+							date: "$createdAt",
+						},
+					},
+				},
 			});
 		}
-
-		aggregatePipeline.push({ $sort: { createdAt: -1 } });
-
-		// Count total
-		const countPipeline = [...aggregatePipeline, { $count: "total" }];
-		try {
-			const countResult = await initialModel.aggregate(countPipeline);
-			const count = countResult[0]?.total || 0;
-
-			if (skipVal !== undefined && limitVal !== undefined) {
-				aggregatePipeline.push({ $skip: skipVal });
-				aggregatePipeline.push({ $limit: limitVal });
-			}
-
-			let logs = await initialModel.aggregate(aggregatePipeline);
-			
-			// Maps _id to id to match schema transform
-			logs = logs.map((l: any) => {
-				const { _id, ...rest } = l;
-				return { id: _id, ...rest };
-			});
-
-			return {
-				logs,
-				page,
-				page_size,
-				page_count: logs.length,
-				total_count: count,
-			};
-		} catch (error) {
-			console.error("Aggregation error in multiple logs query:", error);
-			return { logs: [], page, page_size, page_count: 0, total_count: 0 };
+		pipe.push({ $match: filter });
+		if (hasSearch) {
+			// For each token, require match in EITHER text fields OR date field
+			const combinedConditions = searchTokens.map((token) => ({
+				$or: [
+					{ description: { $regex: token, $options: "i" } },
+					{ type: { $regex: token, $options: "i" } },
+					{ category: { $regex: token, $options: "i" } },
+					{ "actor.name": { $regex: token, $options: "i" } },
+					{ "actor.ip": { $regex: token, $options: "i" } },
+					{ "subject.name": { $regex: token, $options: "i" } },
+					{
+						$expr: {
+							$regexMatch: {
+								input: "$_searchableDate",
+								regex: token,
+								options: "i",
+							},
+						},
+					},
+				],
+			}));
+			pipe.push({ $match: { $and: combinedConditions } });
+			pipe.push({ $project: { _searchableDate: 0 } });
 		}
+		return pipe;
+	};
+
+	const aggregatePipeline: any[] = buildSearchPipeline();
+
+	for (let i = 1; i < Models.length; i++) {
+		aggregatePipeline.push({
+			$unionWith: {
+				coll: Models[i].collection.name,
+				pipeline: buildSearchPipeline(),
+			},
+		});
+	}
+
+	aggregatePipeline.push({ $sort: { createdAt: -1 } });
+
+	// Count total
+	const countPipeline = [...aggregatePipeline, { $count: "total" }];
+	try {
+		const countResult = await initialModel.aggregate(countPipeline);
+		const count = countResult[0]?.total || 0;
+
+		if (skipVal !== undefined && limitVal !== undefined) {
+			aggregatePipeline.push({ $skip: skipVal });
+			aggregatePipeline.push({ $limit: limitVal });
+		}
+
+		let logs = await initialModel.aggregate(aggregatePipeline);
+
+		// Maps _id to id to match schema transform
+		logs = logs.map((l: any) => {
+			const { _id, ...rest } = l;
+			return { id: _id, ...rest };
+		});
+
+		return {
+			logs,
+			page,
+			page_size,
+			page_count: logs.length,
+			total_count: count,
+		};
+	} catch (error) {
+		console.error("Aggregation error in logs query:", error);
+		return { logs: [], page, page_size, page_count: 0, total_count: 0 };
 	}
 };
