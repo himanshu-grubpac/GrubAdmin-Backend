@@ -26,7 +26,7 @@ export const resendOtpHandler = createHandlers(
 				await saveOtp({
 					email: normalizedEmail,
 					otp,
-					role: admin.type,
+					role: admin.type ?? "admin",
 					for_what: sentOtp.for_what,
 				});
 
