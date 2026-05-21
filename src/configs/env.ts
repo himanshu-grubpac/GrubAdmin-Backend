@@ -37,6 +37,7 @@ export const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || "").split(",").ma
 export const loadEnv = (): void => {
 	const requiredEnvVars = [
 		"PORT",
+		"DATABASE_URL",
 		"MONGO_URI",
 		"MAIL",
 		"MAIL_PASS",

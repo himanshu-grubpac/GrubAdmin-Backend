@@ -7,7 +7,9 @@ export interface SetAuthCookieOptions {
 }
 
 /**
- * Set JWT token as HttpOnly Secure cookie
+ * Set JWT token as HttpOnly Secure cookie.
+ * For cross-origin requests, SameSite must be "None" and the cookie must be Secure.
+ * Browsers may reject SameSite=None cookies unless Secure is enabled, even during local development.
  * @param context - Hono context
  * @param token - JWT token to store
  * @param options - Cookie options
@@ -37,5 +39,7 @@ export const setAuthCookie = (
 export const deleteAuthCookie = (context: Context) => {
 	deleteCookie(context, "auth_token", {
 		path: "/",
+		secure: true,
+		sameSite: "None",
 	});
 };
