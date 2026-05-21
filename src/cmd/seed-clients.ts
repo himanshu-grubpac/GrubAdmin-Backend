@@ -22,7 +22,7 @@ const CLIENTS = [
     mobile_number: "5551112233",
     country_code: "+1",
     status: "active" as const,
-    vertical_id: VERTICAL_IDS.FOOD,
+    vertical_id: VERTICAL_IDS.DELIVERY,
   },
   {
     id: CLIENT_IDS.ACTIVE_2,
@@ -35,7 +35,7 @@ const CLIENTS = [
     mobile_number: "5552223344",
     country_code: "+1",
     status: "active" as const,
-    vertical_id: VERTICAL_IDS.FOOD,
+    vertical_id: VERTICAL_IDS.DELIVERY,
   },
   {
     id: CLIENT_IDS.ACTIVE_3,
@@ -74,7 +74,7 @@ const CLIENTS = [
     mobile_number: "5555556677",
     country_code: "+1",
     status: "inactive" as const,
-    vertical_id: VERTICAL_IDS.FOOD,
+    vertical_id: VERTICAL_IDS.DELIVERY,
   },
 ];
 

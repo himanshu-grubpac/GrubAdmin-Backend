@@ -1,7 +1,7 @@
 import { logger } from "@/utils/logger";
 import seedSystemConfigs from "./seed-system-configs";
 import { seedMongoData } from "./seed-mongo";
-import { seedVerticals, VERTICAL_IDS } from "./seed-verticals";
+import { seedVerticals, migrateFoodVerticalToDelivery } from "./seed-verticals";
 import { seedRoles, ROLE_IDS } from "./seed-roles";
 import { seedAdmins } from "./seed-admins";
 import { seedClients } from "./seed-clients";
@@ -32,7 +32,15 @@ export const seed = async () => {
 		logger.error(`Failed to seed verticals: ${err}`);
 	}
 
-	// 3. Roles
+	// 3. Migrate legacy Food vertical → Delivery
+	try {
+		await migrateFoodVerticalToDelivery();
+		logger.info("Food → Delivery vertical migration completed.");
+	} catch (err) {
+		logger.error(`Failed to migrate Food → Delivery: ${err}`);
+	}
+
+	// 4. Roles
 	let roleIds: Record<string, string> = {};
 	try {
 		roleIds = await seedRoles();
@@ -41,7 +49,7 @@ export const seed = async () => {
 		logger.error(`Failed to seed roles: ${err}`);
 	}
 
-	// 4. Admin Users
+	// 5. Admin Users
 	try {
 		await seedAdmins({ roleIds });
 		logger.info("Admin users seeding completed.");
@@ -49,7 +57,7 @@ export const seed = async () => {
 		logger.error(`Failed to seed admin users: ${err}`);
 	}
 
-	// 5. Clients
+	// 6. Clients
 	try {
 		await seedClients();
 		logger.info("Clients seeding completed.");
@@ -57,7 +65,7 @@ export const seed = async () => {
 		logger.error(`Failed to seed clients: ${err}`);
 	}
 
-	// 6. Restaurants
+	// 7. Restaurants
 	try {
 		await seedRestaurants();
 		logger.info("Restaurants seeding completed.");
@@ -65,7 +73,7 @@ export const seed = async () => {
 		logger.error(`Failed to seed restaurants: ${err}`);
 	}
 
-	// 7. Boxes (telemetry, locks, configs, restaurant assignments)
+	// 8. Boxes (telemetry, locks, configs, restaurant assignments)
 	try {
 		await seedBoxes();
 		logger.info("Boxes seeding completed.");
@@ -73,7 +81,7 @@ export const seed = async () => {
 		logger.error(`Failed to seed boxes: ${err}`);
 	}
 
-	// 8. Food Employees + box assignments
+	// 9. Delivery Employees + box assignments
 	try {
 		await seedEmployees();
 		logger.info("Employees seeding completed.");
@@ -81,7 +89,7 @@ export const seed = async () => {
 		logger.error(`Failed to seed employees: ${err}`);
 	}
 
-	// 9. FAQ
+	// 10. FAQ
 	try {
 		await seedFaq();
 		logger.info("FAQ seeding completed.");
@@ -89,7 +97,7 @@ export const seed = async () => {
 		logger.error(`Failed to seed FAQ: ${err}`);
 	}
 
-	// 10. Notifications (MySQL)
+	// 11. Notifications (MySQL)
 	try {
 		await seedNotifications();
 		logger.info("Notifications seeding completed.");
@@ -97,7 +105,7 @@ export const seed = async () => {
 		logger.error(`Failed to seed notifications: ${err}`);
 	}
 
-	// 11. Archival / Deleted entities
+	// 12. Archival / Deleted entities
 	try {
 		await seedArchived();
 		logger.info("Archived entities seeding completed.");
@@ -105,7 +113,7 @@ export const seed = async () => {
 		logger.error(`Failed to seed archived entities: ${err}`);
 	}
 
-	// 12. MongoDB seed (system logs, etc.)
+	// 13. MongoDB seed (system logs, etc.)
 	try {
 		await seedMongoData();
 		logger.info("MongoDB seed data completed.");

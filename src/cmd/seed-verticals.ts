@@ -2,7 +2,6 @@ import { prisma } from "@/db";
 import { logger } from "@/utils/logger";
 
 export const VERTICAL_IDS = {
-  FOOD: "01KR0DHRG48S8MT3J3WS1E00PD",
   MEDICAL: "seed-vertical-medical",
   CAMPING: "seed-vertical-camping",
   HOSPITALITY: "seed-vertical-hospitality",
@@ -18,7 +17,6 @@ export const ICON_IDS = {
 } as const;
 
 const VERTICALS = [
-  { id: VERTICAL_IDS.FOOD, name: "Food" },
   { id: VERTICAL_IDS.MEDICAL, name: "Medical" },
   { id: VERTICAL_IDS.CAMPING, name: "Camping" },
   { id: VERTICAL_IDS.HOSPITALITY, name: "Hospitality" },
@@ -56,4 +54,83 @@ export const seedIcons = async (): Promise<void> => {
     }
   }
   logger.info(`Seeded ${ICONS.length} icons.`);
+};
+
+export const migrateFoodVerticalToDelivery = async (): Promise<void> => {
+  const foodVertical = await prisma.vertical.findFirst({
+    where: { name: { equals: "food" } },
+  });
+
+  if (!foodVertical) {
+    logger.info("  No legacy 'Food' vertical found. Nothing to migrate.");
+    return;
+  }
+
+  const deliveryVertical = await prisma.vertical.findFirst({
+    where: { id: VERTICAL_IDS.DELIVERY },
+  });
+
+  if (!deliveryVertical) {
+    logger.warn("  Delivery vertical not found; skipping migration.");
+    return;
+  }
+
+  const foodId = foodVertical.id;
+  const deliveryId = deliveryVertical.id;
+
+  if (foodId === deliveryId) {
+    logger.info("  Food and Delivery are the same vertical; nothing to migrate.");
+    return;
+  }
+
+  const results: string[] = [];
+
+  // 1. Migrate clients
+  const clientsMigrated = await prisma.client.updateMany({
+    where: { vertical_id: foodId },
+    data: { vertical_id: deliveryId },
+  });
+  if (clientsMigrated.count > 0) results.push(`  Migrated ${clientsMigrated.count} client(s)`);
+
+  // 2. Migrate boxes
+  const boxesMigrated = await prisma.box.updateMany({
+    where: { vertical_id: foodId },
+    data: { vertical_id: deliveryId },
+  });
+  if (boxesMigrated.count > 0) results.push(`  Migrated ${boxesMigrated.count} box(es)`);
+
+  // 3. Migrate FAQ categories
+  const faqMigrated = await prisma.faq_category.updateMany({
+    where: { vertical_id: foodId },
+    data: { vertical_id: deliveryId },
+  });
+  if (faqMigrated.count > 0) results.push(`  Migrated ${faqMigrated.count} FAQ categor(ies)`);
+
+  // 4. Migrate deleted clients (archived)
+  const deletedClientsMigrated = await prisma.client_deleted.updateMany({
+    where: { vertical_id: foodId },
+    data: { vertical_id: deliveryId },
+  });
+  if (deletedClientsMigrated.count > 0) results.push(`  Migrated ${deletedClientsMigrated.count} deleted client(s)`);
+
+  // 5. Migrate deleted boxes
+  const deletedBoxesMigrated = await prisma.box_deleted.updateMany({
+    where: { vertical_id: foodId },
+    data: { vertical_id: deliveryId },
+  });
+  if (deletedBoxesMigrated.count > 0) results.push(`  Migrated ${deletedBoxesMigrated.count} deleted box(es)`);
+
+  // 6. Soft-delete the Food vertical
+  await prisma.vertical.update({
+    where: { id: foodId },
+    data: { status: "deleted" },
+  });
+  results.push(`  Soft-deleted legacy 'Food' vertical (${foodId})`);
+
+  if (results.length > 0) {
+    logger.info("Food → Delivery migration complete:");
+    for (const r of results) logger.info(r);
+  } else {
+    logger.info("  No Food-referencing records found to migrate.");
+  }
 };

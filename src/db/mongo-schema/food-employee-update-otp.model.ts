@@ -1,6 +1,6 @@
 import { type Date, type Document, model, Schema } from "mongoose";
 import type { VerticalFoodEmployeeRoleType } from "@/types/common";
-import { FOOD_EMPLOYEE_CLIENT_ROLE } from "@/configs/constants.ts";
+import { EMPLOYEE_CLIENT_ROLE } from "@/configs/constants.ts";
 
 export type FoodEmployeeUpdateOtpModel = Document & {
 	role: VerticalFoodEmployeeRoleType;
@@ -50,7 +50,7 @@ const foodEmployeeUpdateOtpSchema = new Schema<FoodEmployeeUpdateOtpModel>(
 		},
 		role: {
 			type: String,
-			enum: FOOD_EMPLOYEE_CLIENT_ROLE,
+			enum: EMPLOYEE_CLIENT_ROLE,
 			required: true,
 			trim: true,
 		},

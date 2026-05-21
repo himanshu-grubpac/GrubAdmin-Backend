@@ -5,7 +5,7 @@ export const BOX_VERTICALS = [
 	"hospitality",
 ] as const;
 
-export const FOOD_VERTICAL_NAME = "delivery";
+export const DELIVERY_VERTICAL_NAME = "delivery";
 
 export const PAGE_SIZE = 40 as const;
 export const LONG_PAGE_SIZE = 100 as const;
@@ -161,7 +161,7 @@ export const NOTIFICATION_GOAL = [
 	"export",
 ] as const;
 
-export const FOOD_EMPLOYEE_CLIENT_ROLE = [
+export const EMPLOYEE_CLIENT_ROLE = [
 	"admin",
 	"manager",
 	"delivery",

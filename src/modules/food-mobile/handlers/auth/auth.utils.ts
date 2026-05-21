@@ -36,7 +36,7 @@ export const sendOtpToEmployee = async (
         for_what: for_what,
     });
 
-    const subject = for_what === "login" ? "Food - Login OTP" : "Food Mobile - Reset Password OTP";
+    const subject = for_what === "login" ? "Delivery Portal - Login OTP" : "Delivery Portal - Reset Password OTP";
     const text = for_what === "login"
         ? `Your OTP to log into your food platform is ${otp}`
         : `Your OTP for resetting your password is ${otp}`;

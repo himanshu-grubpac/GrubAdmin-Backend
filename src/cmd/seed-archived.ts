@@ -60,7 +60,7 @@ export const seedArchived = async (): Promise<void> => {
           email: "defunct@example.com",
           mobile_number: "5559998877",
           country_code: "+1",
-          vertical_id: VERTICAL_IDS.FOOD,
+          vertical_id: VERTICAL_IDS.DELIVERY,
         },
       });
     }
@@ -77,7 +77,7 @@ export const seedArchived = async (): Promise<void> => {
           id: ARCHIVED_IDS.DELETED_BOX,
           box_display_id: "GRUB-DEL-001",
           name: "Decommissioned Box",
-          vertical_id: VERTICAL_IDS.FOOD,
+          vertical_id: VERTICAL_IDS.DELIVERY,
           vehicle_number: "CA-DEL-0000",
         },
       });

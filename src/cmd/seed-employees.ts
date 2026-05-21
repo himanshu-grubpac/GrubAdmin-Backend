@@ -133,7 +133,7 @@ const EMPLOYEES: EmployeeSeedDef[] = [
 ];
 
 export const seedEmployees = async (): Promise<void> => {
-  logger.info("Seeding food employees...");
+  logger.info("Seeding delivery employees...");
 
   for (const empDef of EMPLOYEES) {
     const byId = await prisma.vertical_food_employee.findUnique({ where: { id: empDef.id } });
@@ -170,5 +170,5 @@ export const seedEmployees = async (): Promise<void> => {
     logger.info(`  Employee "${empDef.first_name} ${empDef.last_name}" created with assignments.`);
   }
 
-  logger.info(`Seeded ${EMPLOYEES.length} food employees.`);
+  logger.info(`Seeded ${EMPLOYEES.length} delivery employees.`);
 };

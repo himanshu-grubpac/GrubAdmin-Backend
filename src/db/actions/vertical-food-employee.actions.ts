@@ -6,7 +6,7 @@ import type {
 	Prisma,
 } from "@/db/types";
 import { prisma } from "@/db";
-import { FOOD_VERTICAL_NAME } from "@/configs/constants.ts";
+import { DELIVERY_VERTICAL_NAME } from "@/configs/constants.ts";
 import { withFullAddress } from "@/utils/restaurant.ts";
 import { resolveEmployeeName } from "@/utils/employee.ts";
 import { APIError } from "@/types/error";
@@ -41,7 +41,7 @@ export const getUniqueVerticalFoodEmployee = async (
 
 	const foodVertical = await prisma.vertical.findUnique({
 		where: {
-			name: FOOD_VERTICAL_NAME,
+			name: DELIVERY_VERTICAL_NAME,
 		},
 	});
 
@@ -101,7 +101,7 @@ export const activateVerticalFoodEmployee = async (
 
 	const foodVertical = await prisma.vertical.findUnique({
 		where: {
-			name: FOOD_VERTICAL_NAME,
+			name: DELIVERY_VERTICAL_NAME,
 		},
 	});
 
@@ -180,7 +180,7 @@ export const updateVerticalFoodEmployee = async (
 
 		const foodVertical = await prisma.vertical.findUnique({
 			where: {
-				name: FOOD_VERTICAL_NAME,
+				name: DELIVERY_VERTICAL_NAME,
 			},
 		});
 
