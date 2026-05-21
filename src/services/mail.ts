@@ -29,9 +29,6 @@ export class Mail {
 				user: MAIL,
 				pass: MAIL_PASS,
 			},
-			tls: {
-		rejectUnauthorized: false,
-	},
 
 		});
 
@@ -42,9 +39,6 @@ export class Mail {
 					user: MAIL_MIRROR,
 					pass: MAIL_MIRROR_PASS,
 				},
-				tls: {
-		rejectUnauthorized: false,
-	},
 
 			});
 		}

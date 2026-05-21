@@ -1,4 +1,5 @@
 import { AdminUpdateOtp } from "@/db/mongo-schema";
+import { Bcrypt } from "@/utils/bcrypt.ts";
 
 interface UpsertAdminUpdateOtpArgs {
 	email?: string;
@@ -9,6 +10,7 @@ interface UpsertAdminUpdateOtpArgs {
 }
 
 export const upsertAdminUpdateOtp = async (args: UpsertAdminUpdateOtpArgs) => {
+	const hashedOtp = await Bcrypt.generateHash({ data: args.otp });
 	const adminUpdateOtp = await AdminUpdateOtp.findOneAndUpdate(
 		{
 			user_id: args.user_id,
@@ -16,7 +18,7 @@ export const upsertAdminUpdateOtp = async (args: UpsertAdminUpdateOtpArgs) => {
 		{
 			user_id: args.user_id,
 			email: args.email ?? undefined,
-			otp: args.otp,
+			otp: hashedOtp,
 			mobile_number: args.mobile_number ?? undefined,
 			country_code: args.country_code ?? undefined,
 			createdAt: "system",

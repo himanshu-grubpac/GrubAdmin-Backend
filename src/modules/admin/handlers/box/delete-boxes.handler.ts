@@ -34,7 +34,7 @@ export const deleteBoxesHandler = createHandlers(
 			box_ids,
 		});
 
-		Promise.allSettled(
+		await Promise.allSettled(
 			boxes.boxes.map((box) =>
 				services.adminNotifications.notifyDeletion({
 					itemType: "Box",
@@ -44,9 +44,9 @@ export const deleteBoxesHandler = createHandlers(
 					employeeId: admin?.id ?? "",
 				}),
 			),
-		).then((r) => logger.info(r));
+		);
 
-		Promise.allSettled(
+		await Promise.allSettled(
 			boxes.boxes.map((box) =>
 				services.adminLogger.log({
 					module: "grubpac",
@@ -60,7 +60,7 @@ export const deleteBoxesHandler = createHandlers(
 					effected_name: box.name ?? undefined,
 				}),
 			),
-		).then((r) => logger.info(r));
+		);
 
 		return context.json<APIResponse>(
 			{

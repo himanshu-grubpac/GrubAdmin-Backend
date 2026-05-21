@@ -26,7 +26,7 @@ export const loginHandler = createHandlers(
 		}
 
 		if (!admin.user.password) {
-			throw new APIError("Please try to login using OTP instead of password!", undefined, undefined, 400);
+			throw new APIError("Please try logging in using OTP instead of password!", undefined, undefined, 400);
 		}
 
 		if (admin.user.status === "suspended") {
