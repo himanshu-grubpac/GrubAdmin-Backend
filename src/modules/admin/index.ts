@@ -134,6 +134,8 @@ adminRouter.post("/config", ...createConfigHandler);
  * Base route: /api/v1/admin/account
  */
 adminRouter.patch("/account", ...updateAccountHandler);
+adminRouter.put("/account/update", ...updateAccountHandler);
+adminRouter.patch("/account/update", ...updateAccountHandler);
 adminRouter.patch(
 	"/account/update/resend-otp",
 	...updateAccountResendOtpHandler,

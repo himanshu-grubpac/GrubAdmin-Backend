@@ -9,18 +9,44 @@ interface UpsertAdminUpdateOtpArgs {
 }
 
 export const upsertAdminUpdateOtp = async (args: UpsertAdminUpdateOtpArgs) => {
-	const adminUpdateOtp = await AdminUpdateOtp.findOneAndUpdate(
-		{
+	const update: any = {
+		$set: {
 			user_id: args.user_id,
-		},
-		{
-			user_id: args.user_id,
-			email: args.email ?? undefined,
 			otp: args.otp,
-			mobile_number: args.mobile_number ?? undefined,
-			country_code: args.country_code ?? undefined,
-			createdAt: "system",
+			updatedAt: new Date(),
 		},
+		$setOnInsert: {
+			createdAt: new Date(),
+		},
+	};
+
+	if (args.email !== undefined) {
+		update.$set.email = args.email;
+		update.$unset = {
+			...update.$unset,
+			mobile_number: "",
+			country_code: "",
+		};
+	}
+
+	if (args.mobile_number !== undefined) {
+		update.$set.mobile_number = args.mobile_number;
+		update.$set.country_code = args.country_code;
+		update.$unset = {
+			...update.$unset,
+			email: "",
+		};
+	}
+
+	if (update.$unset && Object.keys(update.$unset).length === 0) {
+		delete update.$unset;
+	}
+
+	await AdminUpdateOtp.findOneAndUpdate(
+		{
+			user_id: args.user_id,
+		},
+		update,
 		{
 			new: true,
 			upsert: true,
