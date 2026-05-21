@@ -7,6 +7,7 @@ import {
 } from "@/db/actions/admin-update-otp.actions.ts";
 import { APIError } from "@/types/error";
 import { updateAdmin } from "@/db/actions/admin.actions.ts";
+import { Bcrypt } from "@/utils/bcrypt.ts";
 import type { APIResponse } from "@/types/api";
 
 export const confirmUpdateAccountHandler = createHandlers(
@@ -27,7 +28,12 @@ export const confirmUpdateAccountHandler = createHandlers(
 			);
 		}
 
-		if (otp !== updateDetails.otp) {
+		const isOtpValid = await Bcrypt.compareHash({
+			data: otp,
+			hashedValue: updateDetails.otp,
+		});
+
+		if (!isOtpValid) {
 			throw new APIError("Invalid OTP", undefined, undefined, 400);
 		}
 

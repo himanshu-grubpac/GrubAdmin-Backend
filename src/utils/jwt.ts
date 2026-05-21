@@ -55,6 +55,9 @@ export class JWT {
 				user: payload,
 			},
 			AUTH_SECRET,
+			{
+				expiresIn: JWT_ACCESS_TOKEN_EXPIRY,
+			},
 		);
 	}
 }
