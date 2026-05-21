@@ -16,7 +16,7 @@ const bodyValidator = zValidator(
         first_name: z.string().trim().min(1).optional(),
         last_name: z.string().trim().optional(),
         country_code: z.string().trim().min(1).optional(),
-        mobile_number: z.string().trim().min(10).max(10).optional(),
+        mobile_number: z.string().trim().min(7).max(20).optional(),
         email: z.string().trim().email().optional(),
         employee_id: z.string().trim().min(1).optional(),
         joining_date: z.coerce.date().optional(),

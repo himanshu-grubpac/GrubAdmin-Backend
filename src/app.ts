@@ -36,12 +36,12 @@ server.use(
 );
 server.use(networkLogger);
 server.use("*", async (c, next) => {
-	const originalJson = c.json.bind(c);
-	(c as any).json = (data: any, ...args: any[]) => {
-		const cleanedData = nullifyEmptyStrings(data);
-		return originalJson(cleanedData, ...args);
-	};
-	await next();    
+    const originalJson = c.json.bind(c);
+    (c as any).json = (data: any, ...args: any[]) => {
+        const cleanedData = nullifyEmptyStrings(data);
+        return originalJson(cleanedData, ...args);
+    };
+    await next();
 });
 
 server.onError(globalErrorHandler);

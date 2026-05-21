@@ -24,6 +24,10 @@ export const suspendEmployeesHandler = createHandlers(
 			select: { id: true, first_name: true, last_name: true },
 		});
 
+		if (employeesData.length !== ids.length) {
+			throw new APIError("One or more employee IDs are invalid or unauthorized", undefined, undefined, 403);
+		}
+
 		const result = await toggleSuspendVerticalFoodEmployees({
 			ids,
 			client_id,

@@ -10,7 +10,7 @@ import { validatorErrorHandler } from "@/utils/zod.ts";
 const queryValidator = zValidator(
     "query",
     z.object({
-        query: z.string().trim().min(1, "Please provide a valid search term"),
+        query: z.string().trim().min(3, "Search term must be at least 3 characters"),
         limit: z.coerce.number().optional(),
         status: z.string().optional().default("all"),
         restaurant_id: z.string().ulid().optional().nullable().or(z.literal("")),

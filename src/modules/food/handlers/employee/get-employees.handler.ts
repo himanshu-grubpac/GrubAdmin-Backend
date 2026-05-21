@@ -10,6 +10,7 @@ import { calculatePagination } from "@/utils/pagination.ts";
 import { withFullNames } from "@/utils/employee.ts";
 import { prisma } from "@/db";
 import { cleanQueryObject } from "@/utils/clean-query.ts";
+import { APIError } from "@/types/error";
 
 export const getEmployeesHandler = createHandlers(
 	foodAuthGuard(),
@@ -31,6 +32,19 @@ export const getEmployeesHandler = createHandlers(
 			with_connected_boxes,
 			group_by_selected_table,
 		} = context.req.valid("query") as any;
+
+		// 1. Fix BOLA / IDOR: Verify that the provided with_permission_for_box_id actually belongs to the active tenant.
+		if (with_permission_for_box_id) {
+			const box = await prisma.box.findFirst({
+				where: {
+					id: with_permission_for_box_id,
+					client_id, // Scope strictly to active tenant!
+				},
+			});
+			if (!box) {
+				throw new APIError("No box found or unauthorized!", undefined, undefined, 404);
+			}
+		}
 
 		const finalPageSize = limit;
 		const finalPageNumber = page;
@@ -63,8 +77,8 @@ export const getEmployeesHandler = createHandlers(
 		let dbStatus: any = undefined;
 		if (status === "unassigned") {
 			dbStatus = "unassigned";
-		} else if (status === "active" || status === "suspended") {
-			dbStatus = status;
+		} else if (status === "suspended") {
+			dbStatus = "suspended";
 		}
 
 		let finalFilteredRestaurantIds = allRestaurantIds;
@@ -82,6 +96,40 @@ export const getEmployeesHandler = createHandlers(
 			}
 		}
 
+		// 2. Fix DoS / Memory Bloat: Set fetchAll to false and apply dynamic filters when a single table is selected for grouping
+		let filterUnassigned = false;
+		let dbWithConnectedBoxes = with_connected_boxes;
+		let queryRoles = allRoles;
+
+		if (group_by === "restaurants" && group_by_selected_table) {
+			if (group_by_selected_table === "unassigned") {
+				filterUnassigned = true;
+				finalFilteredRestaurantIds = undefined;
+			} else {
+				const targetRes = await prisma.restaurant.findFirst({
+					where: { name: group_by_selected_table, client_id },
+					select: { id: true }
+				});
+				if (targetRes) {
+					finalFilteredRestaurantIds = [targetRes.id];
+				} else {
+					finalFilteredRestaurantIds = ["non_existent_id"];
+				}
+			}
+		} else if (group_by === "boxes" && group_by_selected_table) {
+			if (group_by_selected_table === "managers") {
+				queryRoles = ["manager"];
+			} else if (group_by_selected_table === "connected") {
+				queryRoles = ["delivery"];
+				dbWithConnectedBoxes = true;
+			} else if (group_by_selected_table === "disconnected") {
+				queryRoles = ["delivery"];
+				dbWithConnectedBoxes = false;
+			}
+		}
+
+		const fetchAll = !!group_by && !group_by_selected_table;
+
 		let forceIncludeIds: string[] = [];
 		if (with_permission_for_box_id) {
 			const blockedPerms = await prisma.vertical_food_employee_box.findMany({
@@ -94,8 +142,6 @@ export const getEmployeesHandler = createHandlers(
 			});
 			forceIncludeIds = blockedPerms.map((p) => p.employee_id).filter((id): id is string => !!id);
 		}
-
-		const fetchAll = !!group_by;
 		
 		const employeesData =
 			status === "deleted"
@@ -107,7 +153,7 @@ export const getEmployeesHandler = createHandlers(
 						fetchAll,
 					})
 				: await getVerticalFoodEmployees({
-						roles: allRoles as any,
+						roles: queryRoles as any,
 						query: query as string | undefined,
 						status: dbStatus,
 						restaurant_ids: finalFilteredRestaurantIds,
@@ -119,7 +165,8 @@ export const getEmployeesHandler = createHandlers(
 						include_restaurant: true,
 						force_include_ids: forceIncludeIds,
 						include_all_managers: group_by === "boxes",
-						with_connected_boxes,
+						with_connected_boxes: dbWithConnectedBoxes,
+						filter_unassigned: filterUnassigned,
 					});
 
 		const finalLimit = (finalPageSize ?? employeesData.count);
@@ -211,36 +258,39 @@ export const getEmployeesHandler = createHandlers(
 					if (group_by_restaurants_has_driver === 1) {
 						if (!items.some((emp) => emp.role === "delivery")) return;
 					}
-					const sliced = items.slice(startIndex, endIndex);
+					const sliced = fetchAll ? items.slice(startIndex, endIndex) : items;
+					const groupCount = fetchAll ? items.length : employeesData.count;
 					orderedGroups[k] = {
 						array: sliced,
 						address: (items[0] as any).restaurant?.full_address,
-						count: items.length,
-						pagination: calculatePagination(finalPage, finalLimit ?? items.length, items.length),
+						count: groupCount,
+						pagination: calculatePagination(finalPage, finalLimit ?? groupCount, groupCount),
 					};
-					totalCount += items.length;
+					totalCount += groupCount;
 				});
 
 			if (groups["unassigned"] && (!group_by_selected_table || group_by_selected_table === "unassigned")) {
 				const items = groups["unassigned"] || [];
 				if (group_by_restaurants_has_driver === 1) {
 					if (items.some((emp) => emp.role === "delivery")) {
-						const sliced = items.slice(startIndex, endIndex);
+						const sliced = fetchAll ? items.slice(startIndex, endIndex) : items;
+						const groupCount = fetchAll ? items.length : employeesData.count;
 						orderedGroups["unassigned"] = { 
 							array: sliced, 
-							count: items.length,
-							pagination: calculatePagination(finalPage, finalLimit ?? items.length, items.length),
+							count: groupCount,
+							pagination: calculatePagination(finalPage, finalLimit ?? groupCount, groupCount),
 						};
-						totalCount += items.length;
+						totalCount += groupCount;
 					}
 				} else {
-					const sliced = items.slice(startIndex, endIndex);
+					const sliced = fetchAll ? items.slice(startIndex, endIndex) : items;
+					const groupCount = fetchAll ? items.length : employeesData.count;
 					orderedGroups["unassigned"] = { 
 						array: sliced, 
-						count: items.length,
-						pagination: calculatePagination(finalPage, finalLimit ?? items.length, items.length),
+						count: groupCount,
+						pagination: calculatePagination(finalPage, finalLimit ?? groupCount, groupCount),
 					};
-					totalCount += items.length;
+					totalCount += groupCount;
 				}
 			}
 
@@ -284,31 +334,34 @@ export const getEmployeesHandler = createHandlers(
 			let totalCount = 0;
 
 			if (!group_by_selected_table || group_by_selected_table === "connected") {
-				const sliced = connected.slice(startIndex, endIndex);
+				const sliced = fetchAll ? connected.slice(startIndex, endIndex) : connected;
+				const groupCount = fetchAll ? connected.length : employeesData.count;
 				groups.connected = { 
 					array: sliced, 
-					count: connected.length,
-					pagination: calculatePagination(finalPage, finalLimit ?? connected.length, connected.length),
+					count: groupCount,
+					pagination: calculatePagination(finalPage, finalLimit ?? groupCount, groupCount),
 				};
-				totalCount += connected.length;
+				totalCount += groupCount;
 			}
 			if (!group_by_selected_table || group_by_selected_table === "disconnected") {
-				const sliced = disconnected.slice(startIndex, endIndex);
+				const sliced = fetchAll ? disconnected.slice(startIndex, endIndex) : disconnected;
+				const groupCount = fetchAll ? disconnected.length : employeesData.count;
 				groups.disconnected = { 
 					array: sliced, 
-					count: disconnected.length,
-					pagination: calculatePagination(finalPage, finalLimit ?? disconnected.length, disconnected.length),
+					count: groupCount,
+					pagination: calculatePagination(finalPage, finalLimit ?? groupCount, groupCount),
 				};
-				totalCount += disconnected.length;
+				totalCount += groupCount;
 			}
 			if (!group_by_selected_table || group_by_selected_table === "managers") {
-				const sliced = managers.slice(startIndex, endIndex);
+				const sliced = fetchAll ? managers.slice(startIndex, endIndex) : managers;
+				const groupCount = fetchAll ? managers.length : employeesData.count;
 				groups.managers = { 
 					array: sliced, 
-					count: managers.length,
-					pagination: calculatePagination(finalPage, finalLimit ?? managers.length, managers.length),
+					count: groupCount,
+					pagination: calculatePagination(finalPage, finalLimit ?? groupCount, groupCount),
 				};
-				totalCount += managers.length;
+				totalCount += groupCount;
 			}
 
 			return context.json<APIResponse<{ groups: typeof groups; count: number; total_count: number }>>(
@@ -337,4 +390,5 @@ export const getEmployeesHandler = createHandlers(
 		);
 	},
 );
+
 
