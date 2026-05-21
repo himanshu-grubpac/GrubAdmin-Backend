@@ -16,12 +16,12 @@ server.use(
         origin: (origin) => {
             if (!origin) return null;
 
-            
+
             if (ALLOWED_ORIGINS.includes(origin)) {
                 return origin;
             }
 
-           
+
             if (NODE_ENV === "development" && origin === "http://localhost:3000") {
                 return origin;
             }
@@ -34,12 +34,12 @@ server.use(
 );
 server.use(networkLogger);
 server.use("*", async (c, next) => {
-	const originalJson = c.json.bind(c);
-	(c as any).json = (data: any, ...args: any[]) => {
-		const cleanedData = nullifyEmptyStrings(data);
-		return originalJson(cleanedData, ...args);
-	};
-	await next();    
+    const originalJson = c.json.bind(c);
+    (c as any).json = (data: any, ...args: any[]) => {
+        const cleanedData = nullifyEmptyStrings(data);
+        return originalJson(cleanedData, ...args);
+    };
+    await next();
 });
 
 server.onError(globalErrorHandler);

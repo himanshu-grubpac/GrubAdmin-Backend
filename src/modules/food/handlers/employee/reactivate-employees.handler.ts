@@ -21,6 +21,10 @@ export const reactivateEmployeesHandler = createHandlers(
 			select: { id: true, first_name: true, last_name: true, status: true },
 		});
 
+		if (employeesData.length !== ids.length) {
+			throw new APIError("One or more employee IDs are invalid or unauthorized", undefined, undefined, 403);
+		}
+
 		const result = await reactivateVerticalFoodEmployees({
 			ids,
 			client_id,
