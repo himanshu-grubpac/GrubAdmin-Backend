@@ -79,6 +79,7 @@ export class AdminLogService {
 				"re-order": "Updation",
 				assignment: "Assignment",
 				login: "Access",
+				impersonation: "Access",
 			};
 
 			await loggerService.log({

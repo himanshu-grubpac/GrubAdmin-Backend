@@ -29,6 +29,7 @@ export const AWS_REGION = process.env.AWS_REGION as string;
 export const AWS_BUCKET_NAME = process.env.AWS_BUCKET_NAME as string;
 
 export const FRONTEND_URL = process.env.FRONTEND_URL as string;
+export const CLIENT_DASHBOARD_URL = process.env.CLIENT_DASHBOARD_URL as string;
 
 export const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY as string;
 export const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || "").split(",").map(o => o.trim()).filter(Boolean);

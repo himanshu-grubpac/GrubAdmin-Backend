@@ -25,4 +25,12 @@ export const adminMessageTemplates: MessageTemplateMap = {
 			message_toast_description: "A verification code has been sent to your new email.",
 		},
 	},
+	client: {
+		IMPERSONATION_SUCCESS: {
+			message: "Client account access granted successfully!",
+			code: 200,
+			message_toast_title: "Access Granted",
+			message_toast_description: "You now have full access to the client's account for troubleshooting and support.",
+		},
+	},
 };

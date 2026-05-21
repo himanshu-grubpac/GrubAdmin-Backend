@@ -147,6 +147,7 @@ export const LOG_ACTIONS = [
 	"re-order",
 	"assignment",
 	"login",
+	"impersonation",
 ] as const;
 
 export const NOTIFICATIONS_STATUS = ["read", "unread"] as const;
