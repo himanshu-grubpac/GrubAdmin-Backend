@@ -10,6 +10,13 @@ const defaultConfigs = [
     { key: "imageUrls", value: "https://cdn.example.com" },
     { key: "privacyPolicyLink", value: "https://example.com/privacy" },
     { key: "termsAndConditionsLink", value: "https://example.com/terms" },
+    { key: "jwtAccessTokenExpiry", value: "86400" },
+    { key: "jwtRefreshTokenExpiry", value: "604800" },
+    { key: "defaultPageSize", value: "40" },
+    { key: "appName", value: "GrubPac Admin" },
+    { key: "supportEmail", value: "support@grubpac.com" },
+    { key: "maxLoginAttempts", value: "5" },
+    { key: "otpExpirySeconds", value: "300" },
 ];
 
 const seed = async () => {

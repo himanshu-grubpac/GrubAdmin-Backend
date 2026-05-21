@@ -8,29 +8,33 @@ export const createBoxRequestBodyValidator = zValidator(
 	z.object({
 		box_id: z
 			.string({
-				error: "Please provide a box id",
+				error: "box_id is required",
 			})
 			.trim()
-			.min(1, "Box id is required"),
+			.min(1, "Box ID cannot be empty"),
 		name: z
 			.string({
-				error: "Please provide a name",
+				error: "name is required",
 			})
 			.trim()
-			.min(1, "Name is required")
-			.max(30, "Name must not be greater than 20 characters")
+			.min(1, "Name cannot be empty")
+			.max(30, "Name must not be greater than 30 characters")
 			.optional(),
 		vertical: z.ulid({
-			error: "Please provide a valid vertical id",
+			error: "Please provide a valid vertical id (ULID format expected, e.g. 01KBQDHRG48S8MTJ3JWS1E00PD)",
 		}),
-		vehicle_number: z.string().optional().nullable(),
-		status: z.union([z.literal("active")], {
-			error: "Please provide a valid status",
-		}),
-		power_status: z.string().optional().nullable(),
-		health_status: z.string().optional().nullable(),
-		ioniser_status: z.string().optional().nullable(),
-		battery_percentage: z.coerce.number().optional().nullable(),
+		vehicle_number: z.string().trim().optional().nullable(),
+		status: z.string().trim().optional().default("active"),
+		power_status: z.string().trim().optional().nullable(),
+		health_status: z.string().trim().optional().nullable(),
+		ioniser_status: z.string().trim().optional().nullable(),
+		battery_percentage: z.coerce
+			.number({ error: "Battery percentage must be a number" })
+			.int("Battery percentage must be an integer between 0 and 100")
+			.min(0, "Battery percentage must be between 0 and 100")
+			.max(100, "Battery percentage must be between 0 and 100")
+			.optional()
+			.nullable(),
 	}),
 	(response) => {
 		if (!response.success) {
@@ -44,30 +48,32 @@ export const updateBoxRequestBodyValidator = zValidator(
 	z.object({
 		box_id: z
 			.string({
-				error: "Please provide a box id",
+				error: "box_id is required",
 			})
 			.trim()
-			.min(1, "Box id is required")
+			.min(1, "Box ID cannot be empty")
 			.optional(),
 		name: z
 			.string({
-				error: "Please provide a name",
+				error: "name is required",
 			})
 			.trim()
-			.min(1, "Name is required")
-			.max(30, "Name must not be greater than 20 characters")
+			.min(1, "Name cannot be empty")
+			.max(30, "Name must not be greater than 30 characters")
 			.optional()
 			.nullable(),
-		vehicle_number: z.string().optional().nullable(),
-		status: z
-			.union([z.literal("active"), z.literal("suspended")], {
-				error: "Please provide a valid status",
-			})
-			.optional(),
-		power_status: z.string().optional().nullable(),
-		health_status: z.string().optional().nullable(),
-		ioniser_status: z.string().optional().nullable(),
-		battery_percentage: z.coerce.number().optional().nullable(),
+		vehicle_number: z.string().trim().optional().nullable(),
+		status: z.string().trim().optional(),
+		power_status: z.string().trim().optional().nullable(),
+		health_status: z.string().trim().optional().nullable(),
+		ioniser_status: z.string().trim().optional().nullable(),
+		battery_percentage: z.coerce
+			.number({ error: "Battery percentage must be a number" })
+			.int("Battery percentage must be an integer between 0 and 100")
+			.min(0, "Battery percentage must be between 0 and 100")
+			.max(100, "Battery percentage must be between 0 and 100")
+			.optional()
+			.nullable(),
 	}),
 	(response) => {
 		if (!response.success) {

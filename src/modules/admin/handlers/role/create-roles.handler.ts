@@ -4,6 +4,7 @@ import { createRoleRequestBodyValidator } from "@/modules/admin/validators/role.
 import { createRole } from "@/db/actions/roles.actions.ts";
 import type { role } from "@/db/types";
 import type { APIResponse } from "@/types/api";
+import { APIError } from "@/types/error";
 import { CustomValidator } from "@/utils/custom-validator.ts";
 import { Permission } from "@/utils/permission.ts";
 import { services } from "@/services";
@@ -29,13 +30,17 @@ export const createRoleHandler = createHandlers(
 
 		const { name, permissions, is_super_admin } = context.req.valid("json");
 
+		if (is_super_admin && !adminRole?.is_super_admin) {
+			throw new APIError("Unauthorized: Only a Super Admin can create a Super Admin role", undefined, undefined, 403);
+		}
+
 		const role = await createRole({
 			name,
 			permissions,
 			isSuperAdmin: is_super_admin,
 		});
 
-		services.adminLogger.log({
+		await services.adminLogger.log({
 			module: "role",
 			action: "create",
 			admin_id: admin?.id,

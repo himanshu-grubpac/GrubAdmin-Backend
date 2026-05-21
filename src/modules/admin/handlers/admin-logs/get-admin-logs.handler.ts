@@ -18,6 +18,7 @@ export const getAdminLogsHandler = createHandlers(
 			category,
 			type,
 			admin_id,
+			subject_id,
 		} = context.req.valid("query");
 
 		const result = await getSystemLogs({
@@ -29,6 +30,7 @@ export const getAdminLogsHandler = createHandlers(
 			start_date,
 			end_date,
 			actor_id: admin_id,
+			subject_id,
 		});
 
 		return context.json<APIResponse<any>>(

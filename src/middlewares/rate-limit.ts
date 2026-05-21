@@ -1,7 +1,18 @@
-import { MiddlewareHandler } from "hono";
+import type { MiddlewareHandler } from "hono";
 
 
 const rateLimitStore = new Map<string, { count: number; last: number }>();
+
+const CLEANUP_INTERVAL_MS = 60_000;
+
+const cleanupExpired = (windowMs: number) => {
+  const cutoff = Date.now() - windowMs;
+  for (const [key, entry] of rateLimitStore) {
+    if (entry.last < cutoff) {
+      rateLimitStore.delete(key);
+    }
+  }
+};
 
 export interface RateLimitOptions {
   windowMs: number; 
@@ -11,7 +22,17 @@ export interface RateLimitOptions {
 
 export function rateLimit(options: RateLimitOptions): MiddlewareHandler {
   const { windowMs, max, keyGenerator } = options;
+
+  let cleanupTimer: ReturnType<typeof setInterval> | null = null;
+
   return async (c, next) => {
+    if (!cleanupTimer) {
+      cleanupTimer = setInterval(() => cleanupExpired(windowMs), CLEANUP_INTERVAL_MS);
+      if (cleanupTimer.unref) {
+        cleanupTimer.unref();
+      }
+    }
+
     const key = keyGenerator
       ? keyGenerator(c)
       : `${c.req.header("x-forwarded-for") || c.req.header("x-real-ip") || c.req.header("host") || c.req.header("user-agent")}`;

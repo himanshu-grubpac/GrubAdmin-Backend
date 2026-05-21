@@ -17,37 +17,28 @@ export const sentResetPasswordOtpHandler = createHandlers(
 			email: normalizedEmail,
 		});
 
-		if (!admin) {
-			throw new APIError("No such admin exists!", undefined, undefined, 404);
+		if (admin) {
+			const sentOtp = await getSavedOtp(normalizedEmail);
+
+			if (!sentOtp) {
+				const otp = Otp.generateOtp(4);
+
+				await saveOtp({
+					email: normalizedEmail,
+					otp,
+					role: admin.type,
+					for_what: "forget_password",
+					is_password_reset: true,
+				});
+
+				await services.mailer.sendEmail({
+					from: "ankan@sqaby.com",
+					subject: "Reset Password OTP",
+					to: normalizedEmail,
+					text: `Your OTP for resetting your password is ${otp}`,
+				});
+			}
 		}
-
-		const sentOtp = await getSavedOtp(normalizedEmail);
-
-		if (sentOtp) {
-			throw new APIError(
-				"Otp has already been sent try resending the otp",
-				undefined,
-				undefined,
-				400,
-			);
-		}
-
-		const otp = Otp.generateOtp(4);
-
-		await saveOtp({
-			email: normalizedEmail,
-			otp,
-			role: admin.type,
-			for_what: "forget_password",
-			is_password_reset: true,
-		});
-
-		await services.mailer.sendEmail({
-			from: "ankan@sqaby.com",
-			subject: "Reset Password OTP",
-			to: normalizedEmail,
-			text: `Your OTP for resetting your password is ${otp}`,
-		});
 
 		return context.json<APIResponse>({
 			success: true,

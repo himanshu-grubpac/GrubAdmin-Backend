@@ -558,6 +558,7 @@ export const deleteAdmins = async (adminIds: string[]) => {
 				joining_date: a.joining_date,
 				role: a.role?.name,
 				employee_id: a.employee_id,
+				x_primary_key: a.id,
 			})),
 		});
 

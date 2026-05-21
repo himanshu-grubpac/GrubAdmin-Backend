@@ -71,7 +71,7 @@ export const suspendAdminsHandler = createHandlers(
 			state: "suspended",
 		});
 
-		Promise.allSettled(
+		await Promise.allSettled(
 			adminsToBeSuspended.admins.map((admin) =>
 				services.adminLogger.log({
 					module: "employee",
@@ -85,7 +85,7 @@ export const suspendAdminsHandler = createHandlers(
 					effected_name: `${admin?.first_name} ${admin?.last_name}`,
 				}),
 			),
-		).then((r) => logger.info(r));
+		);
 
 		return context.json<APIResponse>(
 			{

@@ -1,0 +1,49 @@
+name: Backend CI/CD
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRODUCTION_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+
+      - name: Add EC2 host to known_hosts
+        run: |
+          ssh-keyscan -t ed25519 -H ${{ secrets.SSH_PRODUCTION_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to EC2 via PM2
+        run: |
+          ssh -i ~/.ssh/id_ed25519 ${{ secrets.SSH_PRODUCTION_USER_NAME }}@${{ secrets.SSH_PRODUCTION_HOST }} << 'EOF'
+            set -e
+            export PATH="/home/ubuntu/.local/share/fnm/node-versions/v22.22.3/installation/bin:/home/ubuntu/.bun/bin:$PATH"
+            echo "=== Pulling latest code ==="
+            cd ~/grubadmin-backend/GrubAdmin-Backend
+            git stash
+            git pull origin main
+            echo "=== Installing dependencies ==="
+            bun install
+            echo "=== Running database migrations ==="
+            bun run db:fix-duplicate-employee-emails
+            bun db:push
+            bun db:generate
+            echo "=== Restarting PM2 process ==="
+            pm2 list
+            pm2 delete "${{ secrets.PRODUCTION_PM2_ID }}" || true
+            cd ~/grubadmin-backend/GrubAdmin-Backend
+            pm2 start bun --name "${{ secrets.PRODUCTION_PM2_ID }}" -- start
+            pm2 save
+            pm2 list
+            echo "=== Deployment complete ==="
+          EOF
+
+      - name: Done
+        run: echo "Backend deployed successfully to EC2"

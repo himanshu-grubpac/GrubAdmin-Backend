@@ -32,8 +32,18 @@ export const updateAdminHandler = createHandlers(
 		if (data.email) data.email = data.email.toLowerCase().trim();
 		if (data.employee_id) data.employee_id = data.employee_id.trim();
 
-		if (data.role && data.id === loggedInAdmin.id) {
-			throw new APIError("You cannot change your own role", undefined, undefined, 403);
+		if (data.id === loggedInAdmin?.id) {
+			throw new APIError("You cannot update your own account", undefined, undefined, 403);
+		}
+
+		if (!loggedInAdminRole?.is_super_admin) {
+			const targetAdmin = await prisma.admin.findUnique({
+				where: { id: data.id },
+				include: { role: true },
+			});
+			if (targetAdmin?.role?.is_super_admin) {
+				throw new APIError("Unauthorized: You cannot modify a Super Admin account", undefined, undefined, 403);
+			}
 		}
 
 		if (data.role) {
@@ -74,7 +84,7 @@ export const updateAdminHandler = createHandlers(
 			});
 		} catch (error: any) {
 			if (error.code === 409) {
-				services.adminLogger.log({
+				await services.adminLogger.log({
 					module: "employee",
 					action: "update",
 					admin_id: loggedInAdmin?.id,
@@ -88,7 +98,7 @@ export const updateAdminHandler = createHandlers(
 			throw error;
 		}
 
-		services.adminLogger.log({
+		await services.adminLogger.log({
 			module: "employee",
 			action: "update",
 			admin_id: loggedInAdmin?.id,

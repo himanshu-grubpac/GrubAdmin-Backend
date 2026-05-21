@@ -56,7 +56,7 @@ export const deleteAdminsHandler = createHandlers(
 
 		await deleteAdmins(uniqueAdmins);
 
-		Promise.allSettled(
+		await Promise.allSettled(
 			adminsToBeDeleted.admins.map((admin) =>
 				services.adminNotifications.notifyDeletion({
 					itemType: "Employee",
@@ -66,9 +66,9 @@ export const deleteAdminsHandler = createHandlers(
 					employeeId: loggedInAdmin?.id ?? "",
 				}),
 			),
-		).then((r) => logger.info(r));
+		);
 
-		Promise.allSettled(
+		await Promise.allSettled(
 			adminsToBeDeleted.admins.map((admin) =>
 				services.adminLogger.log({
 					module: "employee",
@@ -82,7 +82,7 @@ export const deleteAdminsHandler = createHandlers(
 					effected_name: `${admin?.first_name} ${admin?.last_name}`,
 				}),
 			),
-		).then((r) => logger.info(r));
+		);
 
 		return context.json<APIResponse>(
 			{

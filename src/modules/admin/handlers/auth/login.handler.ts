@@ -26,7 +26,7 @@ export const loginHandler = createHandlers(
 		}
 
 		if (!admin.user.password) {
-			throw new APIError("Please try to login using OTP instead of password!", undefined, undefined, 400);
+			throw new APIError("Please try logging in using OTP instead of password!", undefined, undefined, 400);
 		}
 
 		if (admin.user.status === "suspended") {
@@ -74,11 +74,12 @@ export const loginHandler = createHandlers(
 			effected_name: "Self",
 		});
 
-		// Set JWT token as HttpOnly Secure cookie instead of returning in body
+		// Set JWT token as HttpOnly Secure cookie
 		setAuthCookie(context, token, { expiresIn: JWT_ACCESS_TOKEN_EXPIRY });
 
 		const response = {
 			success: true as const,
+			data: { token },
 			...resolveMessageTemplate("admin.auth.login.SUCCESS"),
 		};
 
