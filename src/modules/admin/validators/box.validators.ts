@@ -162,6 +162,9 @@ export const getBoxesRequestQueryValidator = zValidator(
 				z.ulid("Please provide a valid ids").array(),
 			])
 			.optional(),
+		customer: z
+			.ulid("Please provide a valid customer id")
+			.optional(),
 	}),
 	(response) => {
 		if (!response.success) {

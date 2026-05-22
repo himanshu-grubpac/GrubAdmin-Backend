@@ -15,7 +15,7 @@ export const getBoxesHandler = createHandlers(
 	authGuard(["admin", "employee"]),
 	getBoxesRequestQueryValidator,
 	async (context) => {
-		const { query, page_size, page_number, state, verticals } =
+		const { query, page_size, page_number, state, verticals, customer } =
 			context.req.valid("query");
 
 		const boxesData = await getBoxes({
@@ -24,6 +24,7 @@ export const getBoxesHandler = createHandlers(
 			pageNumber: page_number,
 			state,
 			verticals: typeof verticals === "string" ? [verticals] : verticals,
+			customerId: customer,
 		});
 
 		return context.json<APIResponse<ResponseData>>(
