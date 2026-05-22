@@ -27,7 +27,13 @@ const permissionSchema = z
 			if (!values) continue;
 
 			for (const value of values) {
-				if (!allowedSet.has(value as never)) {
+				const normalized =
+					value.trim().toLowerCase();
+				const hasMatch = [...allowedSet].some(
+					(a) =>
+						a.trim().toLowerCase() === normalized,
+				);
+				if (!hasMatch) {
 					ctx.addIssue({
 						code: z.ZodIssueCode.custom,
 						message: `Invalid permission '${value}' under topic '${topic}'`,
