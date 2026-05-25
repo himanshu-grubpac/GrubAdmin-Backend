@@ -24,8 +24,8 @@ export const setAuthCookie = (
 
 	setCookie(context, "auth_token", token, {
 		httpOnly: true,
-		secure: true,
-		sameSite: "None",
+		secure: NODE_ENV === "production",
+		sameSite: NODE_ENV === "production" ? "None" : "Lax",
 		path: "/",
 		maxAge: expiresIn,
 		expires: expiresAt,
