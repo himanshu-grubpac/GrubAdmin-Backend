@@ -5,6 +5,7 @@ import { getVerticalFoodBoxes } from "@/db/actions/box.actions.ts";
 import type { APIResponse } from "@/types/api";
 import { calculatePagination } from "@/utils/pagination.ts";
 import { resolveMessageTemplate } from "@/utils/message";
+import { prisma } from "@/db";
 
 export const getGrubpacHandler = createHandlers(
     foodAuthGuard(),
@@ -38,22 +39,55 @@ export const getGrubpacHandler = createHandlers(
             query,
         } = context.req.valid("query") as any;
 
-        const fetchAll = !!group_by || (limit === undefined && page === undefined);
+        let fetchAll = !!group_by || (limit === undefined && page === undefined);
+        let resolvedRestaurantId = restaurant_id;
+        let resolvedPowerStatus = power_status;
+        let resolvedGrublockStatus = grublock_status;
+        let resolvedRestaurantAssigned = restaurant_assigned;
+
+        if (group_by_selected_table) {
+            if (group_by === "power_status") {
+                if (group_by_selected_table === "on" || group_by_selected_table === "off") {
+                    resolvedPowerStatus = group_by_selected_table;
+                    fetchAll = false;
+                }
+            } else if (group_by === "lock_status") {
+                if (group_by_selected_table === "locked" || group_by_selected_table === "unlocked") {
+                    resolvedGrublockStatus = group_by_selected_table;
+                    fetchAll = false;
+                }
+            } else if (group_by === "restaurants" || group_by === "restaurant") {
+                if (group_by_selected_table === "unassigned") {
+                    resolvedRestaurantAssigned = "off";
+                    fetchAll = false;
+                } else {
+                    const allRestaurants = await prisma.restaurant.findMany({
+                        where: { client_id },
+                        select: { id: true, name: true }
+                    });
+                    const matchedRest = allRestaurants.find(r => r.name.toLowerCase().replace(/\s+/g, "_") === group_by_selected_table || r.name === group_by_selected_table);
+                    if (matchedRest) {
+                        resolvedRestaurantId = matchedRest.id;
+                        fetchAll = false;
+                    }
+                }
+            }
+        }
 
         const { boxes, count } = await getVerticalFoodBoxes({
             client_id,
             status: status as any,
-            restaurant_id: restaurant_id as string | null | undefined,
+            restaurant_id: resolvedRestaurantId as string | null | undefined,
             employee_id: employee_id as string | null | undefined,
             page_number: page,
             page_size: limit,
             fetchAll,
             include_configs: group_by === "power_status",
             connection_status: connection_status as string,
-            power_status: power_status as string,
+            power_status: resolvedPowerStatus as string,
             health_status: health_status as string,
-            grublock_status: grublock_status as string,
-            restaurant_assigned: restaurant_assigned === "on" ? true : restaurant_assigned === "off" ? false : undefined,
+            grublock_status: resolvedGrublockStatus as string,
+            restaurant_assigned: resolvedRestaurantAssigned === "on" ? true : resolvedRestaurantAssigned === "off" ? false : undefined,
             vehicle_assigned: vehicle_assigned === "on" ? true : vehicle_assigned === "off" ? false : undefined,
             ioniser_status: ioniser_status as string,
             dual_zone_status: dual_zone_status as string,
@@ -69,8 +103,8 @@ export const getGrubpacHandler = createHandlers(
 
         const finalPage = page ?? 1;
         const finalLimit = limit ?? count;
-        const startIndex = (finalPage - 1) * (finalLimit || 1);
-        const endIndex = startIndex + finalLimit;
+        const startIndex = fetchAll ? (finalPage - 1) * (finalLimit || 1) : 0;
+        const endIndex = fetchAll ? startIndex + finalLimit : undefined;
 
         const formattedBoxes = boxes.map((b: any) => ({
             ...b,
@@ -86,22 +120,22 @@ export const getGrubpacHandler = createHandlers(
             let totalCount = 0;
 
             if (!group_by_selected_table || group_by_selected_table === "on") {
-                const sliced = on.slice(startIndex, endIndex);
+                const sliced = fetchAll ? on.slice(startIndex, endIndex) : on;
                 groups.on = { 
                     array: sliced, 
-                    count: on.length,
-                    pagination: calculatePagination(finalPage, finalLimit ?? on.length, on.length),
+                    count: fetchAll ? on.length : count,
+                    pagination: calculatePagination(finalPage, finalLimit ?? (fetchAll ? on.length : count), fetchAll ? on.length : count),
                 };
-                totalCount += on.length;
+                totalCount += fetchAll ? on.length : count;
             }
             if (!group_by_selected_table || group_by_selected_table === "off") {
-                const sliced = off.slice(startIndex, endIndex);
+                const sliced = fetchAll ? off.slice(startIndex, endIndex) : off;
                 groups.off = { 
                     array: sliced, 
-                    count: off.length,
-                    pagination: calculatePagination(finalPage, finalLimit ?? off.length, off.length),
+                    count: fetchAll ? off.length : count,
+                    pagination: calculatePagination(finalPage, finalLimit ?? (fetchAll ? off.length : count), fetchAll ? off.length : count),
                 };
-                totalCount += off.length;
+                totalCount += fetchAll ? off.length : count;
             }
 
             return context.json<APIResponse<{ groups: typeof groups; count: number; total_count: number }>>(
@@ -128,22 +162,22 @@ export const getGrubpacHandler = createHandlers(
             let totalCount = 0;
 
             if (!group_by_selected_table || group_by_selected_table === "locked") {
-                const sliced = locked.slice(startIndex, endIndex);
+                const sliced = fetchAll ? locked.slice(startIndex, endIndex) : locked;
                 groups.locked = { 
                     array: sliced, 
-                    count: locked.length,
-                    pagination: calculatePagination(finalPage, finalLimit ?? locked.length, locked.length),
+                    count: fetchAll ? locked.length : count,
+                    pagination: calculatePagination(finalPage, finalLimit ?? (fetchAll ? locked.length : count), fetchAll ? locked.length : count),
                 };
-                totalCount += locked.length;
+                totalCount += fetchAll ? locked.length : count;
             }
             if (!group_by_selected_table || group_by_selected_table === "unlocked") {
-                const sliced = unlocked.slice(startIndex, endIndex);
+                const sliced = fetchAll ? unlocked.slice(startIndex, endIndex) : unlocked;
                 groups.unlocked = { 
                     array: sliced, 
-                    count: unlocked.length,
-                    pagination: calculatePagination(finalPage, finalLimit ?? unlocked.length, unlocked.length),
+                    count: fetchAll ? unlocked.length : count,
+                    pagination: calculatePagination(finalPage, finalLimit ?? (fetchAll ? unlocked.length : count), fetchAll ? unlocked.length : count),
                 };
-                totalCount += unlocked.length;
+                totalCount += fetchAll ? unlocked.length : count;
             }
 
             return context.json<APIResponse<{ groups: typeof groups; count: number; total_count: number }>>(
@@ -192,28 +226,28 @@ export const getGrubpacHandler = createHandlers(
                     const groupItems = (groups[k] as any[]) || [];
                     if (groupItems.length === 0) return;
 
-                    const sliced = groupItems.slice(startIndex, endIndex);
+                    const sliced = fetchAll ? groupItems.slice(startIndex, endIndex) : groupItems;
                     orderedGroups[slug] = {
                         array: sliced,
                         name: k,
                         address: groupItems[0]?.restaurants?.[0]?.full_address,
-                        count: groupItems.length,
-                        pagination: calculatePagination(finalPage, finalLimit ?? groupItems.length, groupItems.length),
+                        count: fetchAll ? groupItems.length : count,
+                        pagination: calculatePagination(finalPage, finalLimit ?? (fetchAll ? groupItems.length : count), fetchAll ? groupItems.length : count),
                     };
-                    totalCountAcrossGroups += groupItems.length;
+                    totalCountAcrossGroups += fetchAll ? groupItems.length : count;
                 });
 
             if (groups["unassigned"] && (!group_by_selected_table || group_by_selected_table === "unassigned")) {
                 const unassignedItems = (groups["unassigned"] as any[]) || [];
                 if (unassignedItems.length > 0) {
-                    const sliced = unassignedItems.slice(startIndex, endIndex);
+                    const sliced = fetchAll ? unassignedItems.slice(startIndex, endIndex) : unassignedItems;
                     orderedGroups["unassigned"] = {
                         array: sliced,
                         name: "Unassigned",
-                        count: unassignedItems.length,
-                        pagination: calculatePagination(finalPage, finalLimit ?? unassignedItems.length, unassignedItems.length),
+                        count: fetchAll ? unassignedItems.length : count,
+                        pagination: calculatePagination(finalPage, finalLimit ?? (fetchAll ? unassignedItems.length : count), fetchAll ? unassignedItems.length : count),
                     };
-                    totalCountAcrossGroups += unassignedItems.length;
+                    totalCountAcrossGroups += fetchAll ? unassignedItems.length : count;
                 }
             }
 

@@ -10,9 +10,9 @@ export const reactivateGrubpacHandler = createHandlers(
 	reactivateBoxesRequestBodyValidator,
 	async (context) => {
 		const { client_id } = context.var;
-		const { ids } = context.req.valid("json");
+		const { ids, reassign } = context.req.valid("json");
 
-		const result = await reactivateVerticalFoodBoxes(ids, client_id);
+		const result = await reactivateVerticalFoodBoxes(ids, client_id, reassign);
 
 		const updatedCount = result.updated_boxes.length;
 		const alreadyCount = result.already_in_state_count;

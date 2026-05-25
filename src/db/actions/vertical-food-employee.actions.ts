@@ -294,6 +294,7 @@ export const createVerticalFoodEmployee = async (
 				employees: {
 					where: {
 						role: "manager",
+						status: "active", // Only check for active managers
 					},
 				},
 			},
@@ -328,6 +329,7 @@ export const createVerticalFoodEmployee = async (
 
 	const existingEmployee = await prisma.vertical_food_employee.findFirst({
 		where: {
+			client_id, // Scope uniqueness checks strictly to the active tenant
 			OR: [
 				{ email },
 				{ employee_display_id },
@@ -384,6 +386,7 @@ interface GetVerticalFoodEmployeesArgs {
 	force_include_ids?: string[];
 	include_all_managers?: boolean;
 	with_connected_boxes?: boolean;
+	filter_unassigned?: boolean;
 }
 interface GetVerticalFoodEmployeeResponse {
 	employees: vertical_food_employee[];
@@ -408,6 +411,7 @@ export const getVerticalFoodEmployees = async (
 		force_include_ids,
 		include_all_managers,
 		with_connected_boxes,
+		filter_unassigned,
 	} = args;
 
 	const whereClause: Prisma.vertical_food_employeeWhereInput = {
@@ -453,11 +457,13 @@ export const getVerticalFoodEmployees = async (
 			]
 			: undefined,
 		status: status || { not: "suspended" },
-		restaurant_id: restaurant_ids
-			? {
-				in: restaurant_ids,
-			}
-			: undefined,
+		restaurant_id: filter_unassigned
+			? null
+			: restaurant_ids
+				? {
+					in: restaurant_ids,
+				}
+				: undefined,
 		role: roles
 			? {
 				in: roles,
@@ -495,10 +501,15 @@ export const getVerticalFoodEmployees = async (
 		};
 	}
 
-	if (with_connected_boxes) {
-        // Ensuring it's applied correctly to finalWhere by appending to AND
-        const currentAnd = Array.isArray((finalWhere as any).AND) ? (finalWhere as any).AND : ((finalWhere as any).AND ? [(finalWhere as any).AND] : []);
-        (finalWhere as any).AND = [...currentAnd, { connected_boxes: { some: {} } }];
+	if (with_connected_boxes !== undefined) {
+		// Ensuring it's applied correctly to finalWhere by appending to AND
+		const currentAnd = Array.isArray((finalWhere as any).AND) ? (finalWhere as any).AND : ((finalWhere as any).AND ? [(finalWhere as any).AND] : []);
+		(finalWhere as any).AND = [
+			...currentAnd,
+			with_connected_boxes
+				? { connected_boxes: { some: {} } }
+				: { connected_boxes: { none: {} } }
+		];
 	}
 
 	const queryArgs: Prisma.vertical_food_employeeFindManyArgs = {
@@ -512,32 +523,32 @@ export const getVerticalFoodEmployees = async (
 		include: {
 			restaurant: !!include_restaurant || !!include_boxes
 				? {
-						include: {
-							restaurant_boxes: !!include_boxes
-								? {
+					include: {
+						restaurant_boxes: !!include_boxes
+							? {
+								include: {
+									box: {
 										include: {
-											box: {
-												include: {
-													telemetry: true
-												}
-											},
-										},
-									}
-								: false,
-						},
-					}
+											telemetry: true
+										}
+									},
+								},
+							}
+							: false,
+					},
+				}
 				: false,
 			connected_boxes: !!include_boxes ? { include: { telemetry: true } } : false,
 			vertical_food_employee_boxes: !!include_boxes
 				? {
-						include: {
-							box: {
-								include: {
-									telemetry: true
-								}
-							},
+					include: {
+						box: {
+							include: {
+								telemetry: true
+							}
 						},
-					}
+					},
+				}
 				: false,
 			_count: {
 				select: {
@@ -680,7 +691,9 @@ export const searchVerticalFoodEmployees = async (
 			status:
 				status === "all"
 					? undefined
-					: (status as "active" | "suspended" | "unassigned"),
+					: status === "active"
+						? { in: ["active", "unassigned"] }
+						: (status as "suspended" | "unassigned"),
 			OR: query
 				? [
 					{ first_name: { contains: query } },
@@ -771,6 +784,22 @@ export const reactivateVerticalFoodEmployees = async (
 	if (!reassign_back_to_restaurants) {
 		idsToInactive = employees.map((e) => e.id);
 	} else {
+		// Check if the input list itself contains multiple managers for the same restaurant
+		const managerRestaurantCounts: Record<string, number> = {};
+		for (const emp of employees) {
+			if (emp.role === "manager" && emp.restaurant_id) {
+				managerRestaurantCounts[emp.restaurant_id] = (managerRestaurantCounts[emp.restaurant_id] || 0) + 1;
+				if (managerRestaurantCounts[emp.restaurant_id] > 1) {
+					throw new APIError(
+						"You cannot reactivate multiple managers for the same restaurant. Only one manager can be reactivated and reassigned to the same restaurant.",
+						undefined,
+						undefined,
+						400
+					);
+				}
+			}
+		}
+
 		// We want them active, but check for manager conflicts
 		const restaurantIds = employees
 			.map((e) => e.restaurant_id)
@@ -820,7 +849,7 @@ export const reactivateVerticalFoodEmployees = async (
 			where: { id: { in: idsToInactive }, client_id },
 			data: {
 				status: "unassigned",
-				restaurant_id: reassign_back_to_restaurants ? null : undefined,
+				restaurant_id: null,
 			},
 		});
 	}
@@ -904,25 +933,17 @@ export const getVerticalFoodEmployeeById = async (
 ) => {
 	const { id, client_id } = args;
 
-	const employeeExists = await prisma.vertical_food_employee.findUnique({
-		where: { id },
-		select: { client_id: true },
-	});
-
-	if (!employeeExists) {
-		throw new APIError("Employee not found", undefined, undefined, 404);
-	}
-
-	if (employeeExists.client_id !== client_id) {
-		throw new APIError("Access denied: The requested resource is outside your vertical's scope.", undefined, undefined, 403);
-	}
-
-	const employee = await prisma.vertical_food_employee.findUnique({
-		where: { id },
+	const employee = await prisma.vertical_food_employee.findFirst({
+		where: {
+			id,
+			client_id, // Direct enforcement of multi-tenant scoping
+		},
 		omit: { password: true },
 		include: {
 			restaurant: true,
 			vertical_food_employee_boxes: {
+				take: 20, // Strict limit on relationship serialization
+				orderBy: { created_at: "desc" },
 				include: { box: true },
 			},
 		},
@@ -988,6 +1009,7 @@ export const updateVerticalFoodEmployeeById = async (
 				employees: {
 					where: {
 						role: "manager",
+						status: "active", // Only check for active managers
 					},
 				},
 			},
@@ -1022,7 +1044,7 @@ export const updateVerticalFoodEmployeeById = async (
 	} else if (role === "manager" && restaurant_id === undefined && employee.restaurant_id) {
 		const restaurant = await prisma.restaurant.findUnique({
 			where: { id: employee.restaurant_id },
-			include: { employees: { where: { role: "manager" } } },
+			include: { employees: { where: { role: "manager", status: "active" } } },
 		});
 		if (restaurant && restaurant.employees) {
 			const otherManagers = restaurant.employees.filter((emp) => emp.id !== employee.id);
@@ -1126,7 +1148,7 @@ export const reassignVerticalFoodEmployee = async (
 		const targetManager = await prisma.vertical_food_employee.findFirst({
 			where: { restaurant_id: restaurant_id, role: "manager" }
 		});
-		
+
 		if (targetManager) {
 			const incomingManagers = employees.filter((e) => e.role === "manager");
 			if (incomingManagers.length > 0) {
@@ -1154,9 +1176,9 @@ export const reassignVerticalFoodEmployee = async (
 
 	if (newlyAssigned.length === 0 && idsToProcess.length > 0) {
 		throw new APIError(
-			restaurant_id 
-				? "All selected employees are already assigned to this restaurant." 
-				: "All selected employees are already unassigned.", 
+			restaurant_id
+				? "All selected employees are already assigned to this restaurant."
+				: "All selected employees are already unassigned.",
 			undefined,
 			undefined,
 			400
@@ -1198,11 +1220,11 @@ export const getDeletedVerticalFoodEmployees = async (
 		client_id: client_id,
 		OR: query
 			? [
-					{ first_name: { contains: query } },
-					{ last_name: { contains: query } },
-					{ email: { contains: query } },
-					{ employee_display_id: { contains: query } },
-				]
+				{ first_name: { contains: query } },
+				{ last_name: { contains: query } },
+				{ email: { contains: query } },
+				{ employee_display_id: { contains: query } },
+			]
 			: undefined,
 	};
 
