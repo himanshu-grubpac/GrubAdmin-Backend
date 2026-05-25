@@ -58,6 +58,7 @@ export const reactivateBoxesRequestBodyValidator = zValidator(
 	"json",
 	z.object({
 		ids: z.string().ulid("Please provide valid box ids").array().min(1, "Please provide at least one box id"),
+		reassign: z.boolean().optional(),
 	}),
 	(r) => {
 		if (!r.success) validatorErrorHandler(r.error);
