@@ -14,7 +14,8 @@
 		"db:seed-mongo": "bun src/cmd/seed-mongo.ts",
 		"reset": "bun src/cmd/reset-db.ts",
 		"db:fix-duplicate-employee-emails": "bun src/cmd/fix-duplicate-employee-emails.ts",
-		"db:inject-box-config": "bun src/cmd/inject-box-config.ts"
+		"db:inject-box-config": "bun src/cmd/inject-box-config.ts",
+"db:backfill-super-admin-permissions": "bun src/cmd/backfill-super-admin-permissions.ts"
 	},
 	"devDependencies": {
 		"@types/bcrypt": "^6.0.0",

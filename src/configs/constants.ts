@@ -123,6 +123,27 @@ export const PERMISSION_SETS = {
 	verticals: new Set([...BOX_VERTICALS, ...Object.values(VERTICALS_PERMISSIONS)]),
 } as const;
 
+export const getAllPermissions = (): Record<string, string[] | Record<string, string>> => {
+	const verticalsObj: Record<string, string> = {};
+	for (const v of BOX_VERTICALS) {
+		verticalsObj[v] = v;
+	}
+	for (const [key, value] of Object.entries(VERTICALS_PERMISSIONS)) {
+		verticalsObj[key] = value;
+	}
+
+	return {
+		[PERMISSION_TOPICS.DASHBOARD]: [...PERMISSION_SETS[PERMISSION_TOPICS.DASHBOARD]],
+		[PERMISSION_TOPICS.EMPLOYEES]: [...PERMISSION_SETS[PERMISSION_TOPICS.EMPLOYEES]],
+		[PERMISSION_TOPICS.ROLES]: [...PERMISSION_SETS[PERMISSION_TOPICS.ROLES]],
+		[PERMISSION_TOPICS.CLIENTS]: [...PERMISSION_SETS[PERMISSION_TOPICS.CLIENTS]],
+		[PERMISSION_TOPICS.SUPPORT]: [...PERMISSION_SETS[PERMISSION_TOPICS.SUPPORT]],
+		[PERMISSION_TOPICS.GRUBPACS]: [...PERMISSION_SETS[PERMISSION_TOPICS.GRUBPACS]],
+		[PERMISSION_TOPICS.SYSTEM_SETTINGS]: [...PERMISSION_SETS[PERMISSION_TOPICS.SYSTEM_SETTINGS]],
+		[PERMISSION_TOPICS.VERTICALS]: verticalsObj,
+	};
+};
+
 export const LOG_MODULES = [
 	"employee",
 	"role",

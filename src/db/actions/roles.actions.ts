@@ -2,10 +2,11 @@ import { prisma } from "@/db";
 import { type Prisma, type role } from "@/db/types";
 import { APIError } from "@/types/error";
 import { normalizeRoleName } from "@/utils/string.ts";
+import { getAllPermissions } from "@/configs/constants.ts";
 
 interface CreateRoleArgs {
 	name: string;
-	permissions: Record<string, string[]>;
+	permissions?: Record<string, string[] | Record<string, string>>;
 	isSuperAdmin?: boolean;
 }
 
@@ -17,7 +18,9 @@ export const createRole = async (args: CreateRoleArgs) => {
 			data: {
 				name: args.name.trim(),
 				name_normalized: normalizedName,
-				permissions_json: args.permissions,
+				permissions_json: args.isSuperAdmin
+					? getAllPermissions()
+					: (args.permissions ?? {}),
 				is_super_admin: args.isSuperAdmin ?? false,
 			},
 		});
@@ -97,7 +100,7 @@ export const getRoles = async (
 interface UpdateRoleArgs {
 	id: string;
 	name?: string;
-	permissions?: Record<string, string[]>;
+	permissions?: Record<string, string[] | Record<string, string>>;
 	isSuperAdmin?: boolean;
 }
 
@@ -117,9 +120,15 @@ export const updateRole = async (args: UpdateRoleArgs) => {
 		}
 	}
 
-	const data: Prisma.roleUpdateInput = {
-		permissions_json: args.permissions,
-	};
+	const isOrWillBeSuperAdmin = existingRole.is_super_admin || args.isSuperAdmin === true;
+
+	const data: Prisma.roleUpdateInput = {};
+
+	if (isOrWillBeSuperAdmin) {
+		data.permissions_json = getAllPermissions();
+	} else if (args.permissions !== undefined) {
+		data.permissions_json = args.permissions;
+	}
 
 	if (args.name) {
 		data.name = args.name.trim();

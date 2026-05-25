@@ -1,5 +1,6 @@
 import { prisma } from "@/db";
 import { logger } from "@/utils/logger";
+import { getAllPermissions } from "@/configs/constants.ts";
 
 export const ROLE_IDS = {
   SUPER_ADMIN: "seed-role-super-admin",
@@ -14,7 +15,7 @@ const ROLES = [
     name: "Super Admin",
     name_normalized: "super admin",
     is_super_admin: true,
-    permissions_json: {},
+    permissions_json: getAllPermissions(),
   },
   {
     id: ROLE_IDS.ADMIN,
