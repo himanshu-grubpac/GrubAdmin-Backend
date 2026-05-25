@@ -63,8 +63,10 @@ export const getEmployeesHandler = createHandlers(
 		let dbStatus: any = undefined;
 		if (status === "unassigned") {
 			dbStatus = "unassigned";
-		} else if (status === "active" || status === "suspended") {
-			dbStatus = status;
+		} else if (status === "active") {
+			dbStatus = { in: ["active", "unassigned"] };
+		} else if (status === "suspended") {
+			dbStatus = "suspended";
 		}
 
 		let finalFilteredRestaurantIds = allRestaurantIds;

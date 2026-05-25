@@ -1,4 +1,5 @@
 import { prisma } from "@/db";
+import { ulid } from "ulid";
 import { logger } from "@/utils/logger";
 import { APIError } from "@/types/error";
 import {
@@ -20,7 +21,7 @@ import { nullifyEmptyFKs } from "@/utils/clean-query.ts";
 
 export const calculateAccessMode = (
 	sharedPermissions: { employee_id: string | null; access: string }[],
-	allEmployees: { id: string; restaurant_id: string | null; [key: string]: any }[],
+	allEmployees: { id: string; restaurant_id: string | null;[key: string]: any }[],
 	restaurantIds: string[]
 ) => {
 	if (sharedPermissions.some(p => p.access === "public")) {
@@ -300,7 +301,7 @@ export const toggleAssignBoxes = async (args: ToggleAssignBoxesArgs) => {
 		const foundBoxIds = new Set(boxes.map((b) => b.id));
 		const missing = box_ids.filter((id) => !foundBoxIds.has(id));
 		if (missing.length > 0) {
-			throw new APIError(`Some boxes were not found: ${missing.slice(0, 5).join(", ")}` , undefined, undefined, 404);
+			throw new APIError(`Some boxes were not found: ${missing.slice(0, 5).join(", ")}`, undefined, undefined, 404);
 		}
 
 		if (client_id) {
@@ -625,7 +626,7 @@ export const getVerticalFoodBoxes = async (args: GetVerticalFoodBoxesArgs) => {
 	if (health_status) telemetryFilter.health_status = health_status as box_health_status;
 	if (ioniser_status) telemetryFilter.ioniser_status = ioniser_status as hardware_state;
 	if (dual_zone_status) telemetryFilter.dual_zone_status = dual_zone_status as hardware_state;
-	
+
 	if (zone1_min !== undefined || zone1_max !== undefined) {
 		telemetryFilter.zone1_temp = { gte: zone1_min, lte: zone1_max };
 	}
@@ -893,7 +894,7 @@ export const deleteVerticalFoodBoxes = async (ids: string[], client_id: string) 
 			id: { in: ids },
 			client_id: client_id,
 		},
-		include: { 
+		include: {
 			client: true,
 			vertical: true,
 		},
@@ -1009,9 +1010,9 @@ export const reassignVerticalFoodBoxes = async (
 
 		if (updatedCount === 0) {
 			throw new APIError(
-				restaurant_id 
-					? "All selected boxes are already assigned to this restaurant." 
-					: "All selected boxes are already unassigned.", 
+				restaurant_id
+					? "All selected boxes are already assigned to this restaurant."
+					: "All selected boxes are already unassigned.",
 				undefined,
 				undefined,
 				400
@@ -1120,11 +1121,15 @@ export const createVerticalFoodGrubpac = async (args: CreateVerticalFoodGrubpacA
 			});
 
 			if (employees.length > 0) {
-				for (const emp of employees) {
-					await tx.vertical_food_employee_box.create({
-						data: { box_id: box.id, employee_id: emp.id, status: "shared", access: "direct" }
-					});
-				}
+				await tx.vertical_food_employee_box.createMany({
+					data: employees.map((emp) => ({
+						id: ulid(),
+						box_id: box.id,
+						employee_id: emp.id,
+						status: "shared",
+						access: "direct",
+					})),
+				});
 			}
 		} else {
 			// Default is direct if not specified or "private"
@@ -1299,16 +1304,23 @@ export const updateVerticalFoodGrubpac = async (args: UpdateVerticalFoodGrubpacA
 				});
 
 				if (employees.length > 0) {
-					for (const emp of employees) {
-						await tx.vertical_food_employee_box.create({
-							data: {
-								box_id: id,
-								employee_id: emp.id,
-								status: "shared",
-								access: "direct",
-							},
-						});
-					}
+					const empIds = employees.map((emp) => emp.id);
+					await tx.vertical_food_employee_box.deleteMany({
+						where: {
+							box_id: id,
+							employee_id: { in: empIds },
+						},
+					});
+
+					await tx.vertical_food_employee_box.createMany({
+						data: employees.map((emp) => ({
+							id: ulid(),
+							box_id: id,
+							employee_id: emp.id,
+							status: "shared",
+							access: "direct",
+						})),
+					});
 				}
 			}
 		}

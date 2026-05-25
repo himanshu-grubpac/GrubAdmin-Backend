@@ -20,9 +20,7 @@ export const getMyGrubpacsHandler = createHandlers(
 
 		if (power_status) {
 			whereClause.telemetry = {
-				is: {
-					power_status: power_status,
-				},
+				power_status: power_status,
 			};
 		}
 

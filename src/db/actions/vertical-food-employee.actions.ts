@@ -691,7 +691,9 @@ export const searchVerticalFoodEmployees = async (
 			status:
 				status === "all"
 					? undefined
-					: (status as "active" | "suspended" | "unassigned"),
+					: status === "active"
+						? { in: ["active", "unassigned"] }
+						: (status as "suspended" | "unassigned"),
 			OR: query
 				? [
 					{ first_name: { contains: query } },
