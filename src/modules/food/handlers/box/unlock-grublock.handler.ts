@@ -4,6 +4,7 @@ import { foodAuthGuard } from "@/middlewares/auth";
 import { unlockGrublockRequestBodyValidator } from "food/validators/box.validators.ts";
 import { saveFoodEmployeeOtp } from "@/db/actions/food-employee-otp.actions.ts";
 import type { APIResponse } from "@/types/api";
+import { Otp } from "@/utils/otp.ts";
 
 export const unlockGrublockHandler = createHandlers(
 	foodAuthGuard(["admin", "manager", "delivery"]),
@@ -15,8 +16,8 @@ export const unlockGrublockHandler = createHandlers(
 
 		const userObj = user as any;
 		
-		// For now, always use fixed OTP "2026"
-		const otp = "2026";
+		// Dynamically generate random secure OTP in production, preserve "2026" for backward compatibility in dev/test env
+		const otp = process.env.NODE_ENV === "production" ? Otp.generateOtp(4) : "2026";
 
 		const updatedOtpRecord = await saveFoodEmployeeOtp({
 			email: userObj.email,

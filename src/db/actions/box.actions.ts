@@ -1609,7 +1609,7 @@ export const suspendVerticalFoodBoxes = async (ids: string[], client_id: string)
 	};
 };
 
-export const reactivateVerticalFoodBoxes = async (ids: string[], client_id: string) => {
+export const reactivateVerticalFoodBoxes = async (ids: string[], client_id: string, reassign?: boolean) => {
 	const currentBoxes = await prisma.box.findMany({
 		where: { id: { in: ids }, client_id: client_id },
 		select: { id: true, status: true, name: true, box_display_id: true, created_at: true, updated_at: true },
@@ -1624,6 +1624,12 @@ export const reactivateVerticalFoodBoxes = async (ids: string[], client_id: stri
 
 	if (toUpdate.length === 0) {
 		throw new APIError("All selected boxes are already active.", undefined, undefined, 400);
+	}
+
+	if (reassign === false) {
+		await prisma.restaurant_box.deleteMany({
+			where: { box_id: { in: toUpdate.map((b) => b.id) } },
+		});
 	}
 
 	await prisma.box.updateMany({
