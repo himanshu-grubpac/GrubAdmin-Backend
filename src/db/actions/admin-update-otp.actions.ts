@@ -10,10 +10,12 @@ interface UpsertAdminUpdateOtpArgs {
 }
 
 export const upsertAdminUpdateOtp = async (args: UpsertAdminUpdateOtpArgs) => {
+	const hashedOtp = await Bcrypt.generateHash({ data: args.otp });
+
 	const update: any = {
 		$set: {
 			user_id: args.user_id,
-			otp: args.otp,
+			otp: hashedOtp,
 			updatedAt: new Date(),
 		},
 		$setOnInsert: {
