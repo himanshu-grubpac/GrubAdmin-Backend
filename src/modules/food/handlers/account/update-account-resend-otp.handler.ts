@@ -8,6 +8,7 @@ import { APIError } from "@/types/error";
 import { Otp } from "@/utils/otp.ts";
 import { services } from "@/services";
 import type { APIResponse } from "@/types/api";
+import { Bcrypt } from "@/utils/bcrypt.ts";
 
 import { resendUpdateAccountOtpRequestBodyValidator } from "food/validators/account.validators.ts";
 import { getCookie, setCookie } from "hono/cookie";
@@ -32,12 +33,26 @@ export const updateAccountResendOtpHandler = createHandlers(
 			);
 		}
 
+		// Cooldown check: 60 seconds
+		const updatedAt = (oldEmployeeUpdateOtp as any).updatedAt || (oldEmployeeUpdateOtp as any).updated_at || oldEmployeeUpdateOtp.createdAt;
+		const secondsSinceLastSend = (Date.now() - new Date(updatedAt).getTime()) / 1000;
+		if (secondsSinceLastSend < 60) {
+			throw new APIError(
+				`Please wait ${Math.ceil(60 - secondsSinceLastSend)} seconds before resending another OTP.`,
+				"food.auth.login.OTP_COOLDOWN",
+				undefined,
+				429
+			);
+		}
+
+		// 4-digit OTP and hash it before saving
 		const otp = Otp.generateOtp(4);
+		const hashedOtp = await Bcrypt.generateHash({ data: otp });
 
 		const updatedOtpRecord = await upsertVerticalFoodUpdateOtp({
 			otp_id: oldEmployeeUpdateOtp.otp_id,
 			user_id: user.id,
-			otp,
+			otp: hashedOtp,
 			email: oldEmployeeUpdateOtp.email ?? undefined,
 			role: oldEmployeeUpdateOtp.role,
 		});
@@ -56,17 +71,18 @@ export const updateAccountResendOtpHandler = createHandlers(
 		});
 
 		let otpSendFailed = false;
-		if (oldEmployeeUpdateOtp.email) {
-			try {
-				await services.mailer.sendEmail({
-					from: "ankan@sqaby.com",
-					subject: "OTP for Account Update",
-					to: oldEmployeeUpdateOtp.email,
-					text: `Your OTP to update Delivery Employee account is ${otp} (OTP Session ID: ${otp_id})`,
-				});
-			} catch (error) {
-				otpSendFailed = true;
-			}
+		if (process.env.NODE_ENV !== "production") {
+			console.log(`\n🔑 [DEV ONLY] Resent Account Update OTP: ${otp} (Session ID: ${otp_id})\n`);
+		}
+		try {
+			await services.mailer.sendEmail({
+				from: process.env.MAIL || "ankan@sqaby.com",
+				subject: "OTP for Account Update",
+				to: oldEmployeeUpdateOtp.email || user.email || "", // send to updated email if exists, else fallback to current email
+				text: `Your OTP to update Food Employee account is ${otp} (OTP Session ID: ${otp_id})`,
+			});
+		} catch (error) {
+			otpSendFailed = true;
 		}
 
 		let message_debug = "A new verification OTP has been generated, and the OTP has been successfully delivered.";

@@ -3,7 +3,9 @@ import { verifyOtpRequestBodyValidator } from "food/validators/auth.validators.t
 import {
 	deleteSavedFoodEmployeeOtp,
 	getSavedFoodEmployeeOtp,
+	compareOtp,
 } from "@/db/actions/food-employee-otp.actions.ts";
+import { FoodEmployeeOtp } from "@/db/mongo-schema/food-employee-otp.model.ts";
 import { APIError } from "@/types/error";
 import {
 	activateVerticalFoodEmployee,
@@ -34,8 +36,17 @@ export const verifyOtpHandler = createHandlers(
 			throw new APIError(undefined, "food.auth.login.OTP_EXPIRED");
 		}
 
-		if (savedOtp.otp !== otp || savedOtp.for_what !== "login") {
-			throw new APIError(undefined, "food.auth.login.OTP_INVALID");
+		const isMatch = await compareOtp(otp, savedOtp.otp);
+
+		if (!isMatch || savedOtp.for_what !== "login") {
+			const attempts = (savedOtp.failed_attempts ?? 0) + 1;
+			if (attempts >= 3) {
+				await deleteSavedFoodEmployeeOtp(email);
+				throw new APIError(undefined, "food.auth.login.OTP_EXPIRED");
+			} else {
+				await FoodEmployeeOtp.updateOne({ _id: savedOtp._id }, { failed_attempts: attempts });
+				throw new APIError(undefined, "food.auth.login.OTP_INVALID");
+			}
 		}
 
 		const for_what = savedOtp.for_what;

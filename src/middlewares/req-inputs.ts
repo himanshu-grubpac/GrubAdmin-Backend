@@ -2,12 +2,34 @@ import { NODE_ENV } from "@/configs/env.ts";
 import { createMiddleware } from "@/utils/hono-factory.ts";
 
 /**
+ * Fields that must NEVER appear in req_inputs debug output.
+ * Prevents plaintext passwords / tokens leaking into API responses.
+ */
+const SENSITIVE_KEYS = new Set([
+	"password",
+	"otp",
+	"token",
+	"secret",
+	"auth_token",
+	"new_password",
+	"confirm_password",
+	"current_password",
+]);
+
+function sanitizeInputs(inputs: Record<string, any>): Record<string, any> {
+	return Object.fromEntries(
+		Object.entries(inputs).filter(([key]) => !SENSITIVE_KEYS.has(key.toLowerCase())),
+	);
+}
+
+/**
  * Middleware that automatically injects `req_inputs` into every JSON response.
  *
  * It collects all validated query params and JSON body fields (after validators
  * have run via await next()), then merges them into the response JSON body
  * under the key `req_inputs`.
  *
+ * Sensitive fields (password, otp, token, etc.) are stripped before injection.
  * This runs globally on the food router so no individual handler needs to be
  * modified.
  */
@@ -53,7 +75,7 @@ export const reqInputsMiddleware = createMiddleware(async (c, next) => {
         return; // not valid JSON, leave as-is
     }
 
-    const modifiedBody = JSON.stringify({ ...json, req_inputs: inputs });
+    const modifiedBody = JSON.stringify({ ...json, req_inputs: sanitizeInputs(inputs) });
 
     // Rebuild response preserving status and headers
     const newHeaders = new Headers(c.res.headers);

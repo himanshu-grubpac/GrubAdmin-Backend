@@ -2,10 +2,12 @@ import { createHandlers } from "@/utils/hono-factory";
 import type { APIResponse } from "@/types/api";
 import { foodAuthGuard } from "@/middlewares/auth";
 import { loggerService } from "@/services/system-log.ts";
+import { deleteCookie } from "hono/cookie";
 
 export const logoutHandler = createHandlers(
     foodAuthGuard(),
     async (context) => {
+        deleteCookie(context, "otp_id");
         const { client_id, user_id, user, type } = context.var;
 
         // Log access

@@ -3,6 +3,8 @@ import { foodAuthGuard } from "@/middlewares/auth";
 import { APIError } from "@/types/error";
 import { deleteVerticalFoodEmployees } from "@/db/actions/vertical-food-employee.actions";
 import type { APIResponse } from "@/types/api";
+import { prisma } from "@/db";
+import { deleteCookie } from "hono/cookie";
 
 export const deleteAccountHandler = createHandlers(
 	foodAuthGuard(),
@@ -10,13 +12,42 @@ export const deleteAccountHandler = createHandlers(
 		const { type, user, client_id } = context.var;
 
 		if (type === "admin") {
-			throw new APIError("can not delete", undefined, undefined, 400);
+			throw new APIError("Administrators cannot delete their accounts through this API.", "food.account.ADMIN_DELETE_BLOCKED", undefined, 400);
+		}
+
+		// 1. Check if assigned as connection_employee on any active box
+		const connectionBoxCount = await prisma.box.count({
+			where: {
+				connection_employee_id: user.id,
+				status: "active",
+			},
+		});
+
+		// 2. Check if assigned to any shared employee boxes
+		const sharedBoxCount = await prisma.vertical_food_employee_box.count({
+			where: {
+				employee_id: user.id,
+				box: { status: "active" },
+			},
+		});
+
+		if (connectionBoxCount > 0 || sharedBoxCount > 0) {
+			throw new APIError(
+				"Cannot delete account: you are still assigned as an active manager/employee of active Grubpacs.",
+				"food.account.DELETE_BLOCKED",
+				undefined,
+				400
+			);
 		}
 
 		await deleteVerticalFoodEmployees({
 			ids: [user.id],
 			client_id,
 		});
+
+		// Invalidate session cookies cleanly
+		deleteCookie(context, "auth_token", { path: "/" });
+		deleteCookie(context, "otp_id", { path: "/" });
 
 		return context.json<APIResponse>(
 			{

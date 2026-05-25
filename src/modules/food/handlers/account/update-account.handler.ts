@@ -16,6 +16,7 @@ import { services } from "@/services";
 import type { client, vertical_food_employee } from "@/db/types";
 import { getCookie, setCookie } from "hono/cookie";
 import { resolveMessageTemplate } from "@/utils/message.ts";
+import { prisma } from "@/db";
 
 export const updateAccountHandler = createHandlers(
 	foodAuthGuard(),
@@ -125,6 +126,29 @@ export const updateAccountHandler = createHandlers(
 
 		const is_otp = isEmailChanged || isPhoneChanged;
 
+		// ── Validate email and phone uniqueness BEFORE sending OTP ─────────
+		if (isEmailChanged && newEmail) {
+			const existingEmail = await prisma.client.findFirst({
+				where: { email: newEmail, id: { not: user.id } },
+			}) || await prisma.vertical_food_employee.findFirst({
+				where: { email: newEmail, id: { not: user.id } },
+			});
+			if (existingEmail) {
+				throw new APIError("This email is already in use by another account.", "food.account.EMAIL_EXISTS", undefined, 409);
+			}
+		}
+
+		if (isPhoneChanged && newPhone) {
+			const existingPhone = await prisma.client.findFirst({
+				where: { mobile_number: newPhone, id: { not: user.id } },
+			}) || await prisma.vertical_food_employee.findFirst({
+				where: { mobile_number: newPhone, id: { not: user.id } },
+			});
+			if (existingPhone) {
+				throw new APIError("This phone number is already in use by another account.", "food.account.PHONE_EXISTS", undefined, 409);
+			}
+		}
+
 		const lastChangeDiscarded = !!(await getFoodEmployeeUpdateOtp(user.id, target_otp_id));
 
 		if (!has_changed) {
@@ -141,8 +165,26 @@ export const updateAccountHandler = createHandlers(
 		}
 
 		if (is_otp) {
-			// OTP Flow — save all pending changes and send OTP to current email
+			// Perform non-contact immediate updates immediately (so they are not silently dropped)
+			if (isNameChanged || isOrgChanged || isPasswordActuallyChanged) {
+				const immediateUpdateData: any = {
+					id: user.id,
+					type,
+				};
+				if (firstName !== undefined) immediateUpdateData.first_name = firstName;
+				if (lastName !== undefined) immediateUpdateData.last_name = lastName;
+				if (organization_name !== undefined) {
+					immediateUpdateData.organization = organization_name;
+				}
+				if (hashedPassword) {
+					immediateUpdateData.password = hashedPassword;
+				}
+				await updateVerticalFoodEmployee(immediateUpdateData);
+			}
+
+			// Generate 4-digit OTP and hash it before storing
 			const otp = Otp.generateOtp(4);
+			const hashedOtp = await Bcrypt.generateHash({ data: otp });
 
 			const savedOtpRecord = await getFoodEmployeeUpdateOtp(user.id, target_otp_id);
 
@@ -150,13 +192,10 @@ export const updateAccountHandler = createHandlers(
 				otp_id: savedOtpRecord?.otp_id,
 				user_id: user.id,
 				role: type,
-				otp,
+				otp: hashedOtp,
 				email: newEmail || (user.email ?? undefined),
 				mobile_number: newPhone,
 				country_code: newCountryCode,
-				first_name: firstName,
-				last_name: lastName,
-				organization_name,
 			});
 
 			if (!updatedOtpRecord) {
@@ -173,11 +212,14 @@ export const updateAccountHandler = createHandlers(
 			});
 
 			let otpSendFailed = false;
+			if (process.env.NODE_ENV !== "production") {
+				console.log(`\n🔑 [DEV ONLY] Generated Account Update OTP: ${otp} (Session ID: ${otp_id})\n`);
+			}
 			try {
 				await services.mailer.sendEmail({
-					from: "ankan@sqaby.com",
+					from: process.env.MAIL || "ankan@sqaby.com",
 					subject: "OTP for Account Update",
-					to: newEmail || user.email || "", // Send to new email if provided, otherwise current email
+					to: newEmail || user.email || "", // send to the new email address being updated, or fallback to current
 					text: `Your OTP to update your food account is ${otp} (OTP Session ID: ${otp_id})`,
 				});
 			} catch (error) {
@@ -202,7 +244,7 @@ export const updateAccountHandler = createHandlers(
 					otp_id,
 					otp_details: {
 						type: "email",
-						values: [newEmail || user.email || ""],
+						values: [user.email || ""], // Send to current verified email
 					},
 				},
 			};

@@ -54,6 +54,9 @@ import {
 	reassignRestaurantHandler,
 	assignEmployeesHandler,
 	searchRestaurantsHandler,
+	getDeleteSummaryHandler,
+	getReassignmentCandidatesHandler,
+	validateReassignmentHandler,
 } from "food/handlers/restaurant";
 import { getDashboardHandler } from "food/handlers/dashboard";
 import {
@@ -177,6 +180,9 @@ foodRouter.post("/restaurant", ...createRestaurantHandler);
 foodRouter.get("/restaurant", ...getRestaurantsHandler);                    // ?query&status etc.
 foodRouter.get("/restaurant/details", ...getRestaurantByIdHandler);         // ?id=...
 foodRouter.get("/restaurant/employees", ...getRestaurantEmployeesHandler);  // ?id=...&status=...
+foodRouter.get("/restaurant/delete-summary", ...getDeleteSummaryHandler);
+foodRouter.get("/restaurant/reassignment-candidates", ...getReassignmentCandidatesHandler);
+foodRouter.post("/restaurant/reassign/validate", ...validateReassignmentHandler);
 foodRouter.patch("/restaurant/resource/suspend", ...suspendRestaurantResourcesHandler);
 foodRouter.patch("/restaurant/suspend", ...suspendRestaurantResourcesHandler);
 foodRouter.patch("/restaurant/reactivate", ...reactivateRestaurantsHandler);

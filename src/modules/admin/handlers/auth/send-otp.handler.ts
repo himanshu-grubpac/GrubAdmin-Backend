@@ -18,11 +18,33 @@ export const sendOtpHandler = createHandlers(
 			email: normalizedEmail,
 		});
 
-		if (admin && admin.user.status !== "suspended") {
-			const sentOtp = await getSavedOtp(normalizedEmail);
+		if (!admin) {
+			// Return a generic success — do NOT reveal whether this email exists.
+			// Returning 404 allows attackers to enumerate valid admin email addresses.
+			return context.json<APIResponse>({ success: true, code: 200 }, 200);
+		}
 
-			if (!sentOtp) {
-				const otp = Otp.generateOtp(4);
+		if (admin.user.status === "suspended") {
+			throw new APIError(
+				"Your account has been suspended!",
+				undefined,
+				undefined,
+				400,
+			);
+		}
+
+		const sentOtp = await getSavedOtp(normalizedEmail);
+
+		if (sentOtp) {
+			throw new APIError(
+				"An otp has has already been sent, try re-sending the OTP!",
+				undefined,
+				undefined,
+				400,
+			);
+		}
+
+		const otp = Otp.generateOtp(4); // 4 digits = 10,000 combinations
 
 				await saveOtp({
 					email: normalizedEmail,

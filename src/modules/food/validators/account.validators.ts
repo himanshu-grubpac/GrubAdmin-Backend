@@ -36,8 +36,9 @@ export const updateAccountRequestBodyValidator = zValidator(
 					error: "Please provide a valid phone number",
 				})
 				.trim()
-				.min(10, "Phone number must be at least 10 digits long!")
-				.max(10, "Phone number must be at most 10 digits long!")
+				.min(7, "Phone number must be at least 7 digits long!")
+				.max(15, "Phone number must be at most 15 digits long!")
+				.regex(/^\d+$/, "Phone number must contain only digits!")
 				.optional(),
 			old_password: z
 				.string({
@@ -45,7 +46,7 @@ export const updateAccountRequestBodyValidator = zValidator(
 				})
 				.trim()
 				.min(8, "Old password must be at least 8 characters long!")
-				.max(20, "Old password can be at most 20 characters long!")
+				.max(72, "Old password can be at most 72 characters long!")
 				.optional(),
 			new_password: z
 				.string({
@@ -53,7 +54,11 @@ export const updateAccountRequestBodyValidator = zValidator(
 				})
 				.trim()
 				.min(8, "New password must be at least 8 characters long!")
-				.max(20, "New password can be at most 20 characters long!")
+				.max(72, "New password can be at most 72 characters long!")
+				.regex(/[A-Z]/, "New password must contain at least one uppercase letter!")
+				.regex(/[a-z]/, "New password must contain at least one lowercase letter!")
+				.regex(/[0-9]/, "New password must contain at least one number!")
+				.regex(/[^A-Za-z0-9]/, "New password must contain at least one special character!")
 				.optional(),
 			confirm_new_password: z
 				.string({
@@ -61,10 +66,21 @@ export const updateAccountRequestBodyValidator = zValidator(
 				})
 				.trim()
 				.min(8, "Confirm password must be at least 8 characters long!")
-				.max(20, "Confirm password can be at most 20 characters long!")
+				.max(72, "Confirm password can be at most 72 characters long!")
 				.optional(),
 			otp_id: z.string().optional(),
 		})
+		.refine(
+			(data) => {
+				// if confirm_new_password is provided, new_password must also be provided
+				if (data.confirm_new_password && !data.new_password) return false;
+				return true;
+			},
+			{
+				message: "New password is required when confirm password is provided.",
+				path: ["new_password"],
+			},
+		)
 		.refine(
 			(data) => {
 				// if old_password exists, new_password and confirm_new_password are required

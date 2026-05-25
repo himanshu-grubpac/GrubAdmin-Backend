@@ -26,16 +26,16 @@ export function rateLimit(options: RateLimitOptions): MiddlewareHandler {
   let cleanupTimer: ReturnType<typeof setInterval> | null = null;
 
   return async (c, next) => {
-    if (!cleanupTimer) {
-      cleanupTimer = setInterval(() => cleanupExpired(windowMs), CLEANUP_INTERVAL_MS);
-      if (cleanupTimer.unref) {
-        cleanupTimer.unref();
-      }
-    }
-
-    const key = keyGenerator
-      ? keyGenerator(c)
-      : `${c.req.header("x-forwarded-for") || c.req.header("x-real-ip") || c.req.header("host") || c.req.header("user-agent")}`;
+		// Use the real client IP as the rate limit key.
+		// x-forwarded-for may contain a chain of IPs — take only the first (original client).
+		// Never fall back to User-Agent — it is trivially spoofed.
+		const key = keyGenerator
+			? keyGenerator(c)
+			: (
+					c.req.header("x-forwarded-for")?.split(",")[0].trim() ||
+					c.req.header("x-real-ip") ||
+					"unknown"
+			  );
     const now = Date.now();
     let entry = rateLimitStore.get(key);
     if (!entry || now - entry.last > windowMs) {

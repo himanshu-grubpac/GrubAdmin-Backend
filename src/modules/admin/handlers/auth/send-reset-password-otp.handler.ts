@@ -17,11 +17,24 @@ export const sentResetPasswordOtpHandler = createHandlers(
 			email: normalizedEmail,
 		});
 
-		if (admin) {
-			const sentOtp = await getSavedOtp(normalizedEmail);
+		if (!admin) {
+			// Return a generic success — do NOT reveal whether this email exists.
+			// Returning 404 allows attackers to enumerate valid admin email addresses.
+			return context.json<APIResponse>({ success: true, code: 200 }, 200);
+		}
 
-			if (!sentOtp) {
-				const otp = Otp.generateOtp(4);
+		const sentOtp = await getSavedOtp(normalizedEmail);
+
+		if (sentOtp) {
+			throw new APIError(
+				"Otp has already been sent try resending the otp",
+				undefined,
+				undefined,
+				400,
+			);
+		}
+
+		const otp = Otp.generateOtp(4); // 4 digits = 10,000 combinations
 
 				await saveOtp({
 					email: normalizedEmail,
@@ -31,14 +44,12 @@ export const sentResetPasswordOtpHandler = createHandlers(
 					is_password_reset: true,
 				});
 
-				await services.mailer.sendEmail({
-					from: "ankan@sqaby.com",
-					subject: "Reset Password OTP",
-					to: normalizedEmail,
-					text: `Your OTP for resetting your password is ${otp}`,
-				});
-			}
-		}
+		await services.mailer.sendEmail({
+			from: process.env.MAIL,  // Use configured mail env var, not a hardcoded personal address
+			subject: "Reset Password OTP",
+			to: normalizedEmail,
+			text: `Your OTP for resetting your password is ${otp}`,
+		});
 
 		return context.json<APIResponse>({
 			success: true,
