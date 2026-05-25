@@ -158,43 +158,68 @@ interface DeleteRoleArgs {
 }
 
 export const deleteRole = async (args: DeleteRoleArgs) => {
-	const role = await prisma.role.findUnique({
-		where: {
-			id: args.id,
-			NOT: {
-				status: "deleted",
-			},
-		},
-		include: {
-			_count: {
-				select: {
-					admins: true,
+	try {
+		return await prisma.$transaction(async (tx) => {
+			const role = await tx.role.findUnique({
+				where: {
+					id: args.id,
+					NOT: {
+						status: "deleted",
+					},
 				},
-			},
-		},
-	});
+				include: {
+					_count: {
+						select: {
+							admins: true,
+						},
+					},
+				},
+			});
 
-	if (!role) {
-		throw new APIError("Role not found", undefined, undefined, 404);
+			if (!role) {
+				throw new APIError("Role not found", undefined, undefined, 404);
+			}
+
+			if (role.is_super_admin) {
+				const activeSuperAdminCount = await tx.role.count({
+					where: {
+						is_super_admin: true,
+						NOT: {
+							status: "deleted",
+						},
+					},
+				});
+
+				if (activeSuperAdminCount <= 1) {
+					throw new APIError(
+						"At least one Super Admin role must exist",
+						undefined,
+						undefined,
+						400,
+					);
+				}
+			}
+
+			if (role._count.admins > 0) {
+				throw new APIError(
+					"Cannot delete role while its still assigned",
+					undefined,
+					undefined,
+					400,
+				);
+			}
+
+			return tx.role.update({
+				where: {
+					id: args.id,
+				},
+				data: {
+					status: "deleted",
+				},
+			});
+		});
+	} catch (error: any) {
+		if (error instanceof APIError) throw error;
+		throw error;
 	}
-
-	if (role.is_super_admin) {
-		throw new APIError("Super Admin role cannot be deleted", undefined, undefined, 403);
-	}
-
-	if (role._count.admins > 0) {
-		throw new APIError("Cannot delete role while its still assigned", undefined, undefined, 400);
-	}
-
-	return prisma.role.update({
-		where: {
-			id: args.id,
-			NOT: {
-				status: "deleted",
-			},
-		},
-		data: {
-			status: "deleted",
-		},
-	});
 };
