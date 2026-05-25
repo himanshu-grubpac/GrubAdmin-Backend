@@ -11,6 +11,7 @@ import { z } from "zod";
 import { validatorErrorHandler } from "@/utils/zod.ts";
 import { loggerService } from "@/services/system-log.ts";
 import { resolveMessageTemplate } from "@/utils/message";
+import { APIError } from "@/types/error";
 
 interface ResponseData {
 	restaurant: restaurant & { full_address: string };
@@ -30,6 +31,18 @@ export const editRestaurantHandler = createHandlers(
 
 		const body = context.req.valid("json");
 		const { id, name, state, city, pincode, line_one, line_two, google_place_id, latitude, longitude, lattitude, longtitude, status } = body as any;
+
+		if (type === "manager") {
+			const managerObj = user as any;
+			if (managerObj.restaurant_id !== id) {
+				throw new APIError(
+					"You are not authorized to edit this restaurant.",
+					"food.restaurant.update.ACCESS_DENIED",
+					undefined,
+					403
+				);
+			}
+		}
 
 		const oldRestaurant = await getRestaurantById({ id, client_id });
 

@@ -17,9 +17,15 @@ export const getMyAccountHandler = createHandlers(
 		const { type, user, client_id } = context.var;
 
 		let employee: Record<string, any> = {
-			...user,
+			id: user.id,
+			email: user.email,
+			mobile_number: user.mobile_number,
+			country_code: user.country_code,
+			status: user.status,
+			profile_pic: user.profile_pic,
+			created_at: user.created_at,
+			updated_at: user.updated_at,
 			is_password_set: !!user.password,
-			password: undefined, // never expose password
 		};
 
 		if (type === "admin") {
@@ -28,9 +34,10 @@ export const getMyAccountHandler = createHandlers(
 			employee.full_name = fullName;
 			employee.first_name = spaceIdx === -1 ? fullName : fullName.slice(0, spaceIdx).trim();
 			employee.last_name = spaceIdx === -1 ? "" : fullName.slice(spaceIdx + 1).trim();
-			delete employee.name; // remove raw client.name from spread
 			employee.client_id = (user as any).client_display_id;
 			employee.organization_name = (user as client).organization_name || null;
+			employee.country = (user as client).country || null;
+			employee.state = (user as client).state || null;
 			employee.restaurant_id = null;
 			employee.restaurant_name = null;
 		} else {
@@ -43,6 +50,8 @@ export const getMyAccountHandler = createHandlers(
 			employee.full_name = [first, last].filter(Boolean).join(" ");
 			employee.employee_id = (emp as any).employee_display_id;
 			employee.client_id = emp.client_id;
+			employee.role = emp.role;
+			employee.joining_date = emp.joining_date;
 
 			// Fetch organization_name from parent client via client_id
 			const clientRecord = await prisma.client.findUnique({

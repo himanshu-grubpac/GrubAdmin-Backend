@@ -23,8 +23,22 @@ export const deleteSuspendedRestaurantsHandler = createHandlers(
 
         const result = await deleteSuspendedRestaurants({ ids, client_id });
 
-        return context.json<APIResponse<{ deleted_count: number }>>(
-            { success: true, code: 200, data: { deleted_count: result.count } },
+        return context.json<APIResponse<{
+            deleted_count: number;
+            deleted_restaurant_ids: string[];
+            affected_box_ids: string[];
+            affected_employee_count: number;
+        }>>(
+            {
+                success: true,
+                code: 200,
+                data: {
+                    deleted_count: result.count,
+                    deleted_restaurant_ids: result.deleted_restaurant_ids,
+                    affected_box_ids: result.affected_box_ids,
+                    affected_employee_count: result.affected_employee_count,
+                },
+            },
             { status: 200 },
         );
     },

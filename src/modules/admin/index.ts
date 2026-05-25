@@ -117,7 +117,7 @@ adminRouter.post(
 );
 adminRouter.post(
 	"/auth/reset-password/confirm",
-	
+	otpRateLimit,   // Brute-force protection: 4-digit OTP has only 10,000 combinations
 	...confirmResetPasswordHandler,
 );
 

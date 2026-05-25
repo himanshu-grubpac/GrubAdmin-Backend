@@ -10,6 +10,7 @@ export const MAIL_PASS = process.env.MAIL_PASS as string;
 export const MAIL_MIRROR = process.env.MAIL_MIRROR as string;
 export const MAIL_MIRROR_PASS = process.env.MAIL_MIRROR_PASS as string;
 export const AUTH_SECRET = process.env.AUTH_SECRET as string;
+export const FOOD_AUTH_SECRET = process.env.FOOD_AUTH_SECRET as string;
 
 // JWT Token Expiration Settings (in seconds)
 export const JWT_ACCESS_TOKEN_EXPIRY = parseInt(process.env.JWT_ACCESS_TOKEN_EXPIRY || "86400"); // Default: 24 hours
@@ -42,6 +43,7 @@ export const loadEnv = (): void => {
 		"MAIL",
 		"MAIL_PASS",
 		"AUTH_SECRET",
+		"FOOD_AUTH_SECRET",
 		"AWS_KEY",
 		"AWS_REGION",
 		"AWS_BUCKET_NAME",

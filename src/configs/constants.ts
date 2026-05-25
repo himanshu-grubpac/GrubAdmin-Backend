@@ -5,7 +5,7 @@ export const BOX_VERTICALS = [
 	"hospitality",
 ] as const;
 
-export const DELIVERY_VERTICAL_NAME = "delivery";
+export const FOOD_VERTICAL_NAME = "Food";
 
 export const PAGE_SIZE = 40 as const;
 export const LONG_PAGE_SIZE = 100 as const;
@@ -154,6 +154,7 @@ export const LOG_MODULES = [
 	"grubpac",
 	"grublock",
 	"authentication",
+	"verticals",
 ] as const;
 
 export const LOG_ACTIONS = [

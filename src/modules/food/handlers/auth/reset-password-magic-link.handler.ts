@@ -18,9 +18,20 @@ export const resetPasswordMagicLinkHandler = createHandlers(
 	async (context) => {
 		const { email, token, password } = context.req.valid("json");
 
-		const savedToken = await getOtpByToken(email, token);
+		// Fetch all active forgot_password tokens for the email
+		const { Otp: OtpModel } = await import("@/db/mongo-schema/otp.model.ts");
+		const activeTokens = await OtpModel.find({ email: email.trim().toLowerCase(), for_what: "forget_password" });
 
-		if (!savedToken || savedToken.for_what !== "forget_password") {
+		let savedToken = null;
+		const { compareOtp } = await import("@/db/actions/otp.actions.ts");
+		for (const activeToken of activeTokens) {
+			if (await compareOtp(token, activeToken.otp)) {
+				savedToken = activeToken;
+				break;
+			}
+		}
+
+		if (!savedToken) {
 			throw new APIError(undefined, "food.auth.login.MAGIC_LINK_EXPIRED");
 		}
 

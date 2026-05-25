@@ -73,7 +73,8 @@ export const setNewPasswordHandler = createHandlers(
 
                 const savedOtp = await getSavedOtp(employeeForOtp.employee.email, target_otp_id);
 
-                if (!savedOtp || savedOtp.otp !== bodyToken) {
+                const { compareOtp } = await import("@/db/actions/otp.actions.ts");
+                if (!savedOtp || !(await compareOtp(bodyToken, savedOtp.otp))) {
                     throw new APIError(undefined, "food.auth.login.INVALID_OTP_TOKEN");
                 }
 

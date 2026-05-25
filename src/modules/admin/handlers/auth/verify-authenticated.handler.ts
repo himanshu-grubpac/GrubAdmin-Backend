@@ -25,7 +25,7 @@ export const verifyAuthenticatedHandler = createHandlers(
 			throw new APIError("No admin found!", undefined, undefined, 400);
 		}
 
-		logger.debug("Verified admin:", { id: admin.user.id, email: admin.user.email });
+
 
 		if (admin.user.status === "suspended") {
 			throw new APIError(

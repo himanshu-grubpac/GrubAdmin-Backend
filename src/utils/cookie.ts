@@ -21,11 +21,12 @@ export const setAuthCookie = (
 ) => {
 	const { expiresIn = 86400 } = options;
 	const expiresAt = new Date(Date.now() + expiresIn * 1000);
+	const isProduction = NODE_ENV === "production";
 
 	setCookie(context, "auth_token", token, {
 		httpOnly: true,
-		secure: true,
-		sameSite: "None",
+		secure: isProduction,   // Only require HTTPS in production — dev uses http://localhost
+		sameSite: isProduction ? "None" : "Lax",
 		path: "/",
 		maxAge: expiresIn,
 		expires: expiresAt,
@@ -33,13 +34,15 @@ export const setAuthCookie = (
 };
 
 /**
- * Clear the auth cookie (for logout)
+ * Clear the auth cookie (for logout).
+ * Must use the same attributes as setAuthCookie so the browser actually clears it.
  * @param context - Hono context
  */
 export const deleteAuthCookie = (context: Context) => {
+	const isProduction = NODE_ENV === "production";
 	deleteCookie(context, "auth_token", {
 		path: "/",
-		secure: true,
-		sameSite: "None",
+		secure: isProduction,
+		sameSite: isProduction ? "None" : "Lax",
 	});
 };
