@@ -5,6 +5,7 @@ generator client {
 
 datasource db {
   provider = "mysql"
+  url      = env("DATABASE_URL")
 }
 
 model admin {
@@ -249,9 +250,9 @@ model vertical_food_employee {
   last_name                    String
   country_code                 String
   mobile_number                String
-  email                        String
+  email                        String                       // 1. Remove @unique
   password                     String?
-  employee_display_id          String
+  employee_display_id          String                       // 2. Remove @unique
   joining_date                 DateTime                     @default(now())
   client_id                    String?
   restaurant_id                String?
@@ -264,15 +265,17 @@ model vertical_food_employee {
   client                       client?                      @relation(fields: [client_id], references: [id])
   restaurant                   restaurant?                  @relation(fields: [restaurant_id], references: [id])
   vertical_food_employee_boxes vertical_food_employee_box[] @relation("vertical_food_employee_boxes")
- 
- 
+
+  // 3. Define composite uniqueness rules scoped under tenant client_id
   @@unique([client_id, email])
   @@unique([client_id, employee_display_id])
-  @@unique([client_id, country_code, mobile_number])
+  @@unique([client_id, country_code, mobile_number]) // Optional: if mobile must be unique per client
+  
   @@index([client_id], map: "vertical_food_employee_client_id_fkey")
   @@index([restaurant_id], map: "vertical_food_employee_restaurant_id_fkey")
   @@map("vertical_food_employee")
 }
+
 
 model vertical_food_employee_box {
   id          String                  @id @default(ulid())
