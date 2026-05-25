@@ -142,7 +142,7 @@ export const getFaqsRequestQueryValidators = zValidator(
 				},
 			)
 			.default("active"),
-		category_id: z.ulid("Please provide a valid category_id").optional(),
+		category_id: z.string("Please provide a valid category_id").optional(),
 	}),
 	(response) => {
 		if (!response.success) {
@@ -162,7 +162,7 @@ export const exportFaqsRequestQueryValidators = zValidator(
 				},
 			)
 			.default("all"),
-		category_id: z.ulid("Please provide a valid category_id").optional(),
+		category_id: z.string("Please provide a valid category_id").optional(),
 	}),
 	(response) => {
 		if (!response.success) {
@@ -224,8 +224,8 @@ export const changeBulkFaqCategoryRequestBodyValidator = zValidator(
 	"json",
 	z.object({
 		ids: z.ulid("Please provide a valid ids").array(),
-		old_category: z.ulid("Please provide a valid category_id"),
-		new_category: z.ulid("Please provide a valid category_id"),
+		old_category: z.string("Please provide a valid category_id"),
+		new_category: z.string("Please provide a valid category_id"),
 	}),
 	(response) => {
 		if (!response.success) {

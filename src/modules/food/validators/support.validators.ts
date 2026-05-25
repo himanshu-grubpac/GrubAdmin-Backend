@@ -31,7 +31,7 @@ export const getSupportQuestionsRequestQueryValidator = zValidator(
 		query: z.string().trim().optional(),
 		search: z.string().trim().optional(),
 		term: z.string().trim().optional(),
-		category_id: z.ulid("Please provide a valid category_id").optional(),
+		category_id: z.string("Please provide a valid category_id").optional(),
 		page: z.coerce.number().int().min(1).optional(),
 		limit: z.coerce.number().int().min(1).optional(),
 		page_number: z.coerce.number().int().min(1).optional(),
@@ -54,7 +54,7 @@ export const searchSupportQuestionsRequestQueryValidator = zValidator(
 		query: z.string().trim().optional(),
 		search: z.string().trim().optional(),
 		limit: z.coerce.number().int().min(1).optional(),
-		category_id: z.ulid("Please provide a valid category_id").optional(),
+		category_id: z.string("Please provide a valid category_id").optional(),
 	}).transform((data) => ({
 		...data,
 		limit: data.limit ?? undefined,

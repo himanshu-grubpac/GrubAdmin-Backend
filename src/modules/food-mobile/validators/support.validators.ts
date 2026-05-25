@@ -30,7 +30,7 @@ export const getSupportQuestionsRequestQueryValidator = zValidator(
             })
             .trim()
             .optional(),
-        category_id: z.ulid("Please provide a valid category_id").optional(),
+        category_id: z.string("Please provide a valid category_id").optional(),
         limit: z.coerce.number().optional(),
         page: z.coerce.number().optional(),
     }),
