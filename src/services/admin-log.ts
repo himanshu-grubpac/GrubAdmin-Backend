@@ -13,6 +13,7 @@ interface AdminLogArgs {
 	role_id?: string | null;
 	effected_name?: string;
 	effected_id?: string;
+	client_id?: string;
 	ip?: string;
 }
 
@@ -25,10 +26,14 @@ export class AdminLogService {
 			admin_id,
 			effected_name,
 			effected_id,
+			client_id: explicitClientId,
 			role_name,
 			role_id,
 			ip,
 		} = args;
+
+		// For client module logs, the effected_id is the client's Prisma UUID
+		const clientId = explicitClientId || (module === "client" ? effected_id : undefined);
 
 		if (
 			!admin_name ||
@@ -79,6 +84,7 @@ export class AdminLogService {
 				"re-order": "Updation",
 				assignment: "Assignment",
 				login: "Access",
+				impersonation: "Access",
 			};
 
 			await loggerService.log({
@@ -90,6 +96,7 @@ export class AdminLogService {
 					role: role_name || undefined,
 					ip: ip ?? DEFAULT_IP_ADDRESS,
 				},
+				client_id: clientId,
 				subject: effected_id ? {
 					id: effected_id,
 					name: effected_name || "N/A",

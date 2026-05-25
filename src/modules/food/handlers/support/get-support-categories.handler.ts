@@ -2,7 +2,7 @@ import { createHandlers } from "@/utils/hono-factory";
 import { foodAuthGuard } from "@/middlewares/auth";
 import { getSupportCategoriesRequestQueryValidator } from "food/validators/support.validators.ts";
 import { getVertical } from "@/db/actions/vertical.actions.ts";
-import { FOOD_VERTICAL_NAME } from "@/configs/constants.ts";
+import { DELIVERY_VERTICAL_NAME } from "@/configs/constants.ts";
 import { APIError } from "@/types/error";
 import { getFaqCategory } from "@/db/actions/faq-category.actions.ts";
 import type { faq_category } from "@/db/types";
@@ -21,7 +21,7 @@ export const getSupportCategoriesHandler = createHandlers(
 	async (context) => {
 		const { query, id, page, limit } = context.req.valid("query");
 
-		const vertical = await getVertical(FOOD_VERTICAL_NAME);
+		const vertical = await getVertical(DELIVERY_VERTICAL_NAME);
 
 		if (!vertical) {
 			throw new APIError("No such vertical found!", undefined, undefined, 400);

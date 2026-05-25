@@ -74,7 +74,7 @@ export const sendOtpHandler = createHandlers(
 
 		await services.mailer.sendEmail({
 			from: "ankan@sqaby.com",
-			subject: "Food - Login OTP",
+			subject: "Delivery Portal - Login OTP",
 			to: employeeEmail,
 			text: `Your OTP to log into your food platform is ${otp} (OTP Session ID: ${otp_id})\n\nfor_what: login-send`,
 		});

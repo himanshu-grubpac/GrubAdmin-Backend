@@ -116,7 +116,9 @@ export const exportFaqCategoryRequestQueryValidator = zValidator(
 export const suspendFaqCategoriesRequestBodyValidator = zValidator(
 	"json",
 	z.object({
-		categories: z.ulid("Please provide valid categories").array(),
+		categories: z.string({
+			error: "Please provide valid categories",
+		}).array(),
 	}),
 	(response) => {
 		if (!response.success) {
@@ -128,7 +130,9 @@ export const suspendFaqCategoriesRequestBodyValidator = zValidator(
 export const reactivateFaqCategoriesRequestBodyValidator = zValidator(
 	"json",
 	z.object({
-		categories: z.ulid("Please provide valid categories").array(),
+		categories: z.string({
+			error: "Please provide valid categories",
+		}).array(),
 	}),
 	(response) => {
 		if (!response.success) {
@@ -166,7 +170,9 @@ export const updateFaqCategoryRequestBodyValidator = zValidator(
 export const deleteFaqCategoriesRequestBodyValidator = zValidator(
 	"json",
 	z.object({
-		categories: z.ulid("Please provide a valid id").array(),
+		categories: z.string({
+			error: "Please provide a valid id",
+		}).array(),
 	}),
 	(response) => {
 		if (!response.success) {

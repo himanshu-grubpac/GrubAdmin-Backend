@@ -69,7 +69,7 @@ export const resendOtpHandler = createHandlers(
 		const for_what = `${sentOtp.for_what === "forget_password" ? "forget" : sentOtp.for_what}-resend`;
 		await services.mailer.sendEmail({
 			from: "ankan@sqaby.com",
-			subject: "Food - Login OTP",
+			subject: "Delivery Portal - Login OTP",
 			to: employeeEmail,
 			text: `Your OTP to log into your food platform is ${otp} (OTP Session ID: ${otp_id})\n\nfor_what: ${for_what}`,
 		});
