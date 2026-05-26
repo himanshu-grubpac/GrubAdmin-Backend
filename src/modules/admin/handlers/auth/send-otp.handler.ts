@@ -46,21 +46,19 @@ export const sendOtpHandler = createHandlers(
 
 		const otp = Otp.generateOtp(4); // 4 digits = 10,000 combinations
 
-				await saveOtp({
-					email: normalizedEmail,
-					otp,
-					role: admin.type ?? "admin",
-					for_what: "login",
-				});
+		await saveOtp({
+			email: normalizedEmail,
+			otp,
+			role: admin.type ?? "admin",
+			for_what: "login",
+		});
 
-			await services.mailer.sendEmail({
-				from: MAIL,
-				subject: "OTP",
-				to: normalizedEmail,
-				text: `Your OTP is ${otp}`,
-			});
-			}
-		}
+		await services.mailer.sendEmail({
+			from: MAIL,
+			subject: "OTP",
+			to: normalizedEmail,
+			text: `Your OTP is ${otp}`,
+		});
 
 		return context.json<APIResponse>({
 			success: true,

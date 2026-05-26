@@ -5,6 +5,7 @@ import { PORT } from "@/configs/env";
 Bun.serve({
 	fetch: server.fetch,
 	port: PORT,
+	idleTimeout: 255,
 
 });
 
