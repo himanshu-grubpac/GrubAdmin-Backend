@@ -6,6 +6,7 @@ import { JWT } from "@/utils/jwt.ts";
 import { getUniqueVerticalFoodEmployee } from "@/db/actions/vertical-food-employee.actions";
 import { prisma } from "@/db";
 import { NODE_ENV } from "@/configs/env.ts";
+import { logger } from "@/utils/logger";
 
 
 export const foodAuthGuard = (type?: VerticalFoodEmployeeRoleType[], customErrorMessage?: string) =>
@@ -19,6 +20,7 @@ export const foodAuthGuard = (type?: VerticalFoodEmployeeRoleType[], customError
 			debug_vertical_name: string;
 			user: client | vertical_food_employee;
 			type: VerticalFoodEmployeeRoleType;
+			is_impersonation?: boolean;
 		};
 	}>(async (context, next) => {
 		const authToken = context.req.header("authorization")?.split(" ")[1];
@@ -27,26 +29,31 @@ export const foodAuthGuard = (type?: VerticalFoodEmployeeRoleType[], customError
 			throw new APIError("Unauthenticated access", undefined, undefined, 401);
 		}
 
-		const user = JWT.verifyFoodAuthToken(authToken);
+		// Support both regular food auth tokens AND impersonation tokens
+		let userId: string;
+		let isImpersonation = false;
 
-		if (!user) {
-			throw new APIError(
-				"Unauthenticated access! Please authenticate first to access this data",
-				undefined,
-				undefined,
-				401,
-			);
+		if (JWT.isImpersonationToken(authToken)) {
+			const impersonationUser = JWT.verifyImpersonationToken(authToken);
+			userId = impersonationUser.id;
+			isImpersonation = true;
+			logger.info(`[Auth] Impersonation token verified: admin=${impersonationUser.admin_id} target_user=${impersonationUser.id}`);
+		} else {
+			const user = JWT.verifyFoodAuthToken(authToken);
+			userId = user.id;
 		}
 
 		const employee = await getUniqueVerticalFoodEmployee({
-			id: user.id,
+			id: userId,
 		});
 
 		if (!employee) {
+			logger.error(`[Auth] Employee lookup failed: userId=${userId} isImpersonation=${isImpersonation}`);
 			throw new APIError("No employee found... unauthorized access", undefined, undefined, 403);
 		}
 
 		if (type && !type.includes(employee?.type)) {
+			logger.warn(`[Auth] Role check failed: userId=${userId} expectedType=${type?.join(",")} actualType=${employee.type}`);
 			throw new APIError(
 				customErrorMessage || "Unauthorized access... please contact the admin",
 				undefined,
@@ -61,6 +68,7 @@ export const foodAuthGuard = (type?: VerticalFoodEmployeeRoleType[], customError
 				: (employee.employee as vertical_food_employee).client_id;
 
 		if (!client_id) {
+			logger.error(`[Auth] No client ID: userId=${userId} employeeType=${employee.type}`);
 			throw new APIError(
 				"No client ID found associated with this account",
 				undefined,
@@ -81,12 +89,13 @@ export const foodAuthGuard = (type?: VerticalFoodEmployeeRoleType[], customError
 
 		context.set("user", employee.employee);
 		context.set("type", employee.type);
-		context.set("user_id", user.id);
+		context.set("user_id", userId);
 		context.set("client_id", client_id);
 		context.set("debug_client_name", debug_client_name);
 		context.set("debug_client_organization_name", debug_client_organization_name);
 		context.set("vertical_id", vertical_id);
 		context.set("debug_vertical_name", debug_vertical_name);
+		if (isImpersonation) context.set("is_impersonation", true);
 
 		await next();
 
@@ -100,7 +109,7 @@ export const foodAuthGuard = (type?: VerticalFoodEmployeeRoleType[], customError
 				if (body && typeof body === "object") {
 					if (!body.client_id) body.client_id = client_id;
 					if (!body.vertical_id) body.vertical_id = vertical_id;
-					if (!body.user_id) body.user_id = user.id;
+					if (!body.user_id) body.user_id = userId;
 
 					if (NODE_ENV !== "production") {
 						body.debug = {
@@ -108,6 +117,7 @@ export const foodAuthGuard = (type?: VerticalFoodEmployeeRoleType[], customError
 							client_name: debug_client_name,
 							client_organization_name: debug_client_organization_name,
 							vertical_name: debug_vertical_name,
+							is_impersonation: isImpersonation,
 						};
 					}
 
