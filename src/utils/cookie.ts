@@ -27,6 +27,8 @@ export const setAuthCookie = (
 		httpOnly: true,
 		secure: NODE_ENV === "production",
 		sameSite: NODE_ENV === "production" ? "None" : "Lax",
+		secure: isProduction,   // Only require HTTPS in production — dev uses http://localhost
+		sameSite: isProduction ? "None" : "Lax",
 		path: "/",
 		maxAge: expiresIn,
 		expires: expiresAt,

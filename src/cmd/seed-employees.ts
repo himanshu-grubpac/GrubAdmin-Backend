@@ -137,7 +137,7 @@ export const seedEmployees = async (): Promise<void> => {
 
   for (const empDef of EMPLOYEES) {
     const byId = await prisma.vertical_food_employee.findUnique({ where: { id: empDef.id } });
-    const byDisplayId = await prisma.vertical_food_employee.findUnique({
+    const byDisplayId = await prisma.vertical_food_employee.findFirst({
       where: { employee_display_id: empDef.employee_display_id },
     });
     if (byId || byDisplayId) {
