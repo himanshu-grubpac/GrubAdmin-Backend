@@ -46,7 +46,6 @@ export const createRestaurantRequestBodyValidator = zValidator(
 				error: "Please provide a line two",
 			})
 			.trim()
-			.min(1, "Line two is required")
 			.max(200, "Line two cannot exceed 200 characters")
 			.optional(),
 		google_place_id: z
