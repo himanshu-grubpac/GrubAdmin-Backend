@@ -22,6 +22,9 @@ export const createClientHandler = createHandlers(
 	async (context) => {
 		const { admin, role, ip } = context.var;
 
+		const body = context.req.valid("json");
+		console.log("[POST /admin/customer] Validated body:", JSON.stringify({ vertical_id: body.vertical_id }));
+
 		Permission.checkAdminPermissions({
 			admin,
 			permissions_allowed: {
