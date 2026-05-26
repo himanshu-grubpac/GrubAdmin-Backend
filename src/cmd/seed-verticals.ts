@@ -2,10 +2,10 @@ import { prisma } from "@/db";
 import { logger } from "@/utils/logger";
 
 export const VERTICAL_IDS = {
-  MEDICAL: "seed-vertical-medical",
-  CAMPING: "seed-vertical-camping",
-  HOSPITALITY: "seed-vertical-hospitality",
-  DELIVERY: "seed-vertical-delivery",
+  MEDICAL: "01KSHTRDRZY366VVH1G0PWC6VA",
+  CAMPING: "01KSHTRDS3EZBC8NG684CRECXB",
+  HOSPITALITY: "01KSHTRDS3GBAMFR0AS2SWP65G",
+  DELIVERY: "01KSHTRDS398RX0ZTY8V9J5W3M",
 } as const;
 
 export const ICON_IDS = {
