@@ -1,117 +1,122 @@
+import { ulid } from "ulid";
+
+function mulberry32(seed: number): () => number {
+  let s = seed | 0;
+  return () => {
+    s = (s + 0x6d2b79f5) | 0;
+    let t = Math.imul(s ^ (s >>> 15), 1 | s);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+let _ulidCounter = 0;
+export function deterministicUlid(): string {
+  const idx = _ulidCounter++;
+  const prng = mulberry32(1700000000 + idx);
+  return ulid(1700000000000 + idx, prng);
+}
+
 export const SEED_IDS = {
-  // Verticals
-  VERTICAL_MEDICAL: "seed-vertical-medical",
-  VERTICAL_CAMPING: "seed-vertical-camping",
-  VERTICAL_HOSPITALITY: "seed-vertical-hospitality",
-  VERTICAL_DELIVERY: "seed-vertical-delivery",
+  VERTICAL_MEDICAL: deterministicUlid(),
+  VERTICAL_CAMPING: deterministicUlid(),
+  VERTICAL_HOSPITALITY: deterministicUlid(),
+  VERTICAL_DELIVERY: deterministicUlid(),
 
-  // Icons
-  ICON_DEFAULT: "seed-icon-default",
-  ICON_MEDICAL: "seed-icon-medical",
-  ICON_CAMPING: "seed-icon-camping",
-  ICON_HOSPITALITY: "seed-icon-hospitality",
-  ICON_DELIVERY: "seed-icon-delivery",
-  ICON_SETUP: "seed-icon-setup",
-  ICON_TROUBLESHOOT: "seed-icon-troubleshoot",
-  ICON_DEVICE_CONNECT: "seed-icon-device-connect",
-  ICON_ALERT: "seed-icon-alert",
-  ICON_ACCOUNT: "seed-icon-account",
-  ICON_OTHERS: "seed-icon-others",
+  ICON_DEFAULT: deterministicUlid(),
+  ICON_MEDICAL: deterministicUlid(),
+  ICON_CAMPING: deterministicUlid(),
+  ICON_HOSPITALITY: deterministicUlid(),
+  ICON_DELIVERY: deterministicUlid(),
+  ICON_SETUP: deterministicUlid(),
+  ICON_TROUBLESHOOT: deterministicUlid(),
+  ICON_DEVICE_CONNECT: deterministicUlid(),
+  ICON_ALERT: deterministicUlid(),
+  ICON_ACCOUNT: deterministicUlid(),
+  ICON_OTHERS: deterministicUlid(),
 
-  // Roles
-  ROLE_SUPER_ADMIN: "seed-role-super-admin",
-  ROLE_ADMIN: "seed-role-admin",
-  ROLE_SUPPORT_MANAGER: "seed-role-support-mgr",
-  ROLE_VIEWER: "seed-role-viewer",
+  ROLE_SUPER_ADMIN: deterministicUlid(),
+  ROLE_ADMIN: deterministicUlid(),
+  ROLE_SUPPORT_MANAGER: deterministicUlid(),
+  ROLE_VIEWER: deterministicUlid(),
 
-  // Admins
-  ADMIN_SUPER: "seed-admin-super",
-  ADMIN_ONE: "seed-admin-one",
-  ADMIN_TWO: "seed-admin-two",
-  ADMIN_SUPPORT: "seed-admin-support",
-  ADMIN_VIEWER: "seed-admin-viewer",
+  ADMIN_SUPER: deterministicUlid(),
+  ADMIN_ATUL: deterministicUlid(),
+  ADMIN_ONE: deterministicUlid(),
+  ADMIN_TWO: deterministicUlid(),
+  ADMIN_SUPPORT: deterministicUlid(),
+  ADMIN_VIEWER: deterministicUlid(),
 
-  // Clients
-  CLIENT_ACTIVE_1: "seed-client-active-1",
-  CLIENT_ACTIVE_2: "seed-client-active-2",
-  CLIENT_ACTIVE_3: "seed-client-active-3",
-  CLIENT_SUSPENDED: "seed-client-suspended",
-  CLIENT_INACTIVE: "seed-client-inactive",
+  CLIENT_ACTIVE_1: deterministicUlid(),
+  CLIENT_ACTIVE_2: deterministicUlid(),
+  CLIENT_ACTIVE_3: deterministicUlid(),
+  CLIENT_SUSPENDED: deterministicUlid(),
+  CLIENT_INACTIVE: deterministicUlid(),
 
-  // Restaurants
-  RESTAURANT_ACTIVE_1: "seed-restaurant-active-1",
-  RESTAURANT_ACTIVE_2: "seed-restaurant-active-2",
-  RESTAURANT_ACTIVE_3: "seed-restaurant-active-3",
-  RESTAURANT_SUSPENDED: "seed-restaurant-suspended",
+  RESTAURANT_ACTIVE_1: deterministicUlid(),
+  RESTAURANT_ACTIVE_2: deterministicUlid(),
+  RESTAURANT_ACTIVE_3: deterministicUlid(),
+  RESTAURANT_SUSPENDED: deterministicUlid(),
 
-  // Boxes
-  BOX_001: "seed-box-001",
-  BOX_002: "seed-box-002",
-  BOX_003: "seed-box-003",
-  BOX_004: "seed-box-004",
-  BOX_005: "seed-box-005",
-  BOX_006: "seed-box-006",
-  BOX_007: "seed-box-007",
-  BOX_008: "seed-box-008",
+  BOX_001: deterministicUlid(),
+  BOX_002: deterministicUlid(),
+  BOX_003: deterministicUlid(),
+  BOX_004: deterministicUlid(),
+  BOX_005: deterministicUlid(),
+  BOX_006: deterministicUlid(),
+  BOX_007: deterministicUlid(),
+  BOX_008: deterministicUlid(),
 
-  // Employees
-  EMPLOYEE_MANAGER_1: "seed-emp-mgr-1",
-  EMPLOYEE_MANAGER_2: "seed-emp-mgr-2",
-  EMPLOYEE_DELIVERY_1: "seed-emp-del-1",
-  EMPLOYEE_DELIVERY_2: "seed-emp-del-2",
-  EMPLOYEE_SUSPENDED: "seed-emp-suspended",
-  EMPLOYEE_UNASSIGNED: "seed-emp-unassigned",
-  EMPLOYEE_MEDICAL_DELIVERY: "seed-emp-med-del-1",
+  EMPLOYEE_MANAGER_1: deterministicUlid(),
+  EMPLOYEE_MANAGER_2: deterministicUlid(),
+  EMPLOYEE_DELIVERY_1: deterministicUlid(),
+  EMPLOYEE_DELIVERY_2: deterministicUlid(),
+  EMPLOYEE_SUSPENDED: deterministicUlid(),
+  EMPLOYEE_UNASSIGNED: deterministicUlid(),
+  EMPLOYEE_MEDICAL_DELIVERY: deterministicUlid(),
 
-  // FAQ Categories
-  FAQ_CATEGORY_GETTING_STARTED: "seed-faq-cat-getting-started",
-  FAQ_CATEGORY_TROUBLESHOOTING: "seed-faq-cat-troubleshooting",
-  FAQ_CATEGORY_BILLING: "seed-faq-cat-billing",
-  FAQ_CATEGORY_MEDICAL: "seed-faq-cat-medical",
-  FAQ_CATEGORY_SETUP: "seed-faq-cat-setup",
-  FAQ_CATEGORY_DEVICE_CONNECT: "seed-faq-cat-device-connect",
-  FAQ_CATEGORY_ALERT: "seed-faq-cat-alert",
-  FAQ_CATEGORY_ACCOUNT: "seed-faq-cat-account",
-  FAQ_CATEGORY_OTHERS: "seed-faq-cat-others",
+  FAQ_CATEGORY_GETTING_STARTED: deterministicUlid(),
+  FAQ_CATEGORY_TROUBLESHOOTING: deterministicUlid(),
+  FAQ_CATEGORY_BILLING: deterministicUlid(),
+  FAQ_CATEGORY_MEDICAL: deterministicUlid(),
+  FAQ_CATEGORY_SETUP: deterministicUlid(),
+  FAQ_CATEGORY_DEVICE_CONNECT: deterministicUlid(),
+  FAQ_CATEGORY_ALERT: deterministicUlid(),
+  FAQ_CATEGORY_ACCOUNT: deterministicUlid(),
+  FAQ_CATEGORY_OTHERS: deterministicUlid(),
 
-  // FAQ Questions
-  FAQ_QUESTION_GS_1: "seed-faq-q-gs-1",
-  FAQ_QUESTION_GS_2: "seed-faq-q-gs-2",
-  FAQ_QUESTION_TR_1: "seed-faq-q-tr-1",
-  FAQ_QUESTION_TR_2: "seed-faq-q-tr-2",
-  FAQ_QUESTION_BILL_1: "seed-faq-q-bill-1",
-  FAQ_QUESTION_MED_1: "seed-faq-q-med-1",
+  FAQ_QUESTION_GS_1: deterministicUlid(),
+  FAQ_QUESTION_GS_2: deterministicUlid(),
+  FAQ_QUESTION_TR_1: deterministicUlid(),
+  FAQ_QUESTION_TR_2: deterministicUlid(),
+  FAQ_QUESTION_BILL_1: deterministicUlid(),
+  FAQ_QUESTION_MED_1: deterministicUlid(),
 
-  // Notifications
-  NOTIFICATION_1: "seed-notification-001",
-  NOTIFICATION_2: "seed-notification-002",
-  NOTIFICATION_3: "seed-notification-003",
-  NOTIFICATION_4: "seed-notification-004",
-  NOTIFICATION_5: "seed-notification-005",
+  NOTIFICATION_1: deterministicUlid(),
+  NOTIFICATION_2: deterministicUlid(),
+  NOTIFICATION_3: deterministicUlid(),
+  NOTIFICATION_4: deterministicUlid(),
+  NOTIFICATION_5: deterministicUlid(),
 
-  // System Configs
-  CONFIG_MIN_ANDROID: "seed-config-min-android",
-  CONFIG_MIN_IOS: "seed-config-min-ios",
-  CONFIG_ANDROID_LINKS: "seed-config-android-links",
-  CONFIG_IOS_LINKS: "seed-config-ios-links",
-  CONFIG_MAINTENANCE: "seed-config-maintenance",
-  CONFIG_IMAGE_URLS: "seed-config-image-urls",
-  CONFIG_PRIVACY: "seed-config-privacy",
-  CONFIG_TERMS: "seed-config-terms",
-  CONFIG_JWT_ACCESS: "seed-config-jwt-access",
-  CONFIG_JWT_REFRESH: "seed-config-jwt-refresh",
-  CONFIG_PAGE_SIZE: "seed-config-page-size",
-  CONFIG_APP_NAME: "seed-config-app-name",
-  CONFIG_SUPPORT_EMAIL: "seed-config-support-email",
-  CONFIG_MAX_LOGIN: "seed-config-max-login",
-  CONFIG_OTP_EXPIRY: "seed-config-otp-expiry",
+  CONFIG_MIN_ANDROID: deterministicUlid(),
+  CONFIG_MIN_IOS: deterministicUlid(),
+  CONFIG_ANDROID_LINKS: deterministicUlid(),
+  CONFIG_IOS_LINKS: deterministicUlid(),
+  CONFIG_MAINTENANCE: deterministicUlid(),
+  CONFIG_IMAGE_URLS: deterministicUlid(),
+  CONFIG_PRIVACY: deterministicUlid(),
+  CONFIG_TERMS: deterministicUlid(),
+  CONFIG_JWT_ACCESS: deterministicUlid(),
+  CONFIG_JWT_REFRESH: deterministicUlid(),
+  CONFIG_PAGE_SIZE: deterministicUlid(),
+  CONFIG_APP_NAME: deterministicUlid(),
+  CONFIG_SUPPORT_EMAIL: deterministicUlid(),
+  CONFIG_MAX_LOGIN: deterministicUlid(),
+  CONFIG_OTP_EXPIRY: deterministicUlid(),
 
-  // Archived
-  ARCHIVED_ADMIN: "seed-admin-deleted",
-  ARCHIVED_CLIENT: "seed-client-deleted",
-  ARCHIVED_BOX: "seed-box-deleted",
-  ARCHIVED_RESTAURANT: "seed-restaurant-deleted",
-  ARCHIVED_EMPLOYEE: "seed-emp-deleted",
+  ARCHIVED_ADMIN: deterministicUlid(),
+  ARCHIVED_CLIENT: deterministicUlid(),
+  ARCHIVED_BOX: deterministicUlid(),
+  ARCHIVED_RESTAURANT: deterministicUlid(),
+  ARCHIVED_EMPLOYEE: deterministicUlid(),
 } as const;
-
-export type SeedId = (typeof SEED_IDS)[keyof typeof SEED_IDS];

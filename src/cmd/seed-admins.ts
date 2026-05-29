@@ -23,6 +23,9 @@ export const seedAdmins = async (args: SeedAdminsArgs): Promise<{ id: string; na
     return id;
   };
 
+  let superAdminIds: string[] = [];
+  let superAdminName = "";
+
   const adminsToSeed = [
     {
       id: SEED_IDS.ADMIN_SUPER,
@@ -34,6 +37,17 @@ export const seedAdmins = async (args: SeedAdminsArgs): Promise<{ id: string; na
       mobile_number: "5551234567",
       status: "active" as const,
       employee_id: "EMP-SUPER-001",
+    },
+    {
+      id: SEED_IDS.ADMIN_ATUL,
+      first_name: "Atul",
+      last_name: "Kumar",
+      email: "kumar.atul@grubpac.com",
+      role_id: getRoleId("super admin"),
+      country_code: "+91",
+      mobile_number: "9876543210",
+      status: "active" as const,
+      employee_id: "EMP-SUPER-002",
     },
     {
       id: SEED_IDS.ADMIN_ONE,
@@ -81,9 +95,6 @@ export const seedAdmins = async (args: SeedAdminsArgs): Promise<{ id: string; na
     },
   ];
 
-  let superAdminId = "";
-  let superAdminName = "";
-
   for (const admin of adminsToSeed) {
     const existing = await prisma.admin.findUnique({ where: { id: admin.id } });
     if (existing) {
@@ -102,19 +113,20 @@ export const seedAdmins = async (args: SeedAdminsArgs): Promise<{ id: string; na
       });
       logger.info(`  Admin "${admin.first_name} ${admin.last_name}" updated.`);
       if (admin.role_id === getRoleId("super admin")) {
-        superAdminId = existing.id;
+        superAdminIds.push(existing.id);
         superAdminName = `${admin.first_name} ${admin.last_name}`.trim();
       }
     } else {
       const created = await prisma.admin.create({ data: { ...admin, password: hashedPassword } });
       logger.info(`  Admin "${admin.first_name} ${admin.last_name}" created.`);
       if (admin.role_id === getRoleId("super admin")) {
-        superAdminId = created.id;
+        superAdminIds.push(created.id);
         superAdminName = `${created.first_name} ${created.last_name || ""}`.trim();
       }
     }
   }
 
   logger.info(`Seeded ${adminsToSeed.length} admin users.`);
-  return { id: superAdminId, name: superAdminName };
+  const firstSuperId = superAdminIds[0] || "";
+  return { id: firstSuperId, name: superAdminName };
 };

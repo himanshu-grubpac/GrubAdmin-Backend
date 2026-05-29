@@ -24,8 +24,8 @@ const seedSystemConfigs = async (): Promise<void> => {
   logger.info("Seeding system configurations...");
   for (const cfg of SYSTEM_CONFIGS) {
     await prisma.system_config.upsert({
-      where: { id: cfg.id },
-      update: { key: cfg.key, value: cfg.value },
+      where: { key: cfg.key },
+      update: { value: cfg.value, id: cfg.id },
       create: { id: cfg.id, key: cfg.key, value: cfg.value },
     });
     logger.info(`  Config "${cfg.key}" ready.`);

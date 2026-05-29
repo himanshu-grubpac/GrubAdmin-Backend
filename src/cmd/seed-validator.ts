@@ -1,5 +1,7 @@
 import { logger } from "@/utils/logger";
 
+const ULID_REGEX = /^[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}$/i;
+
 interface ValidationCheck {
   name: string;
   passed: boolean;
@@ -9,30 +11,41 @@ interface ValidationCheck {
 export class SeedValidator {
   private checks: ValidationCheck[] = [];
 
-  private seenIds = new Set<string>();
-  private seenEmails = new Set<string>();
-  private seenBoxDisplayIds = new Set<string>();
+  constructor(private allSeedIds: Set<string>) {}
+
+  validateUlid(value: unknown, entity: string, label: string, field: string): void {
+    if (typeof value !== "string" || !ULID_REGEX.test(value)) {
+      this.addError(
+        "ULID Format",
+        `${entity} "${label}" has invalid ${field} "${String(value)}" — must be 26-char Crockford base32 (ULID)`,
+      );
+    }
+  }
 
   checkDuplicateId(id: string, entity: string, label: string): void {
-    if (this.seenIds.has(id)) {
+    if (this.allSeedIds.has(id)) {
       this.addError("Duplicate IDs", `Duplicate ID "${id}" used by ${entity} "${label}"`);
     }
-    this.seenIds.add(id);
+    this.allSeedIds.add(id);
   }
 
   checkDuplicateEmail(email: string, entity: string, label: string): void {
     const key = email.toLowerCase();
-    if (this.seenEmails.has(key)) {
-      this.addError("Duplicate Emails", `Duplicate email "${email}" used by ${entity} "${label}"`);
+    for (const check of this.checks) {
+      if (check.name === "Duplicate Emails") {
+        for (const err of check.errors) {
+          if (err.includes(key)) return;
+        }
+      }
     }
-    this.seenEmails.add(key);
-  }
-
-  checkDuplicateBoxDisplayId(displayId: string, label: string): void {
-    if (this.seenBoxDisplayIds.has(displayId)) {
-      this.addError("Duplicate Box Display IDs", `Duplicate box_display_id "${displayId}" for "${label}"`);
+    for (const check of this.checks) {
+      if (check.name === "Duplicate Emails") {
+        check.errors.push(`Duplicate email "${email}" used by ${entity} "${label}"`);
+        check.passed = false;
+        return;
+      }
     }
-    this.seenBoxDisplayIds.add(displayId);
+    this.addError("Duplicate Emails", `Duplicate email "${email}" used by ${entity} "${label}"`);
   }
 
   checkRequiredFields(record: Record<string, unknown>, entity: string, label: string, requiredFields: string[]): void {
@@ -80,10 +93,10 @@ export class SeedValidator {
     let allPassed = true;
     for (const check of this.checks) {
       if (check.passed) {
-        logger.info(`  ✔ ${check.name}`);
+        logger.info(`  \u2714 ${check.name}`);
       } else {
         allPassed = false;
-        logger.error(`  ✘ ${check.name}`);
+        logger.error(`  \u2718 ${check.name}`);
         for (const err of check.errors) {
           logger.error(`    - ${err}`);
         }
