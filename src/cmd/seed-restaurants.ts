@@ -1,19 +1,12 @@
 import { prisma } from "@/db";
 import { logger } from "@/utils/logger";
-import { CLIENT_IDS } from "./seed-clients";
-
-export const RESTAURANT_IDS = {
-  ACTIVE_1: "seed-restaurant-active-1",
-  ACTIVE_2: "seed-restaurant-active-2",
-  ACTIVE_3: "seed-restaurant-active-3",
-  SUSPENDED: "seed-restaurant-suspended",
-} as const;
+import { SEED_IDS } from "./seed-ids";
 
 const RESTAURANTS = [
   {
-    id: RESTAURANT_IDS.ACTIVE_1,
+    id: SEED_IDS.RESTAURANT_ACTIVE_1,
     name: "Downtown Bella Italia",
-    client_id: CLIENT_IDS.ACTIVE_1,
+    client_id: SEED_IDS.CLIENT_ACTIVE_1,
     city: "San Francisco",
     state: "California",
     pincode: "94102",
@@ -21,9 +14,9 @@ const RESTAURANTS = [
     status: "active" as const,
   },
   {
-    id: RESTAURANT_IDS.ACTIVE_2,
+    id: SEED_IDS.RESTAURANT_ACTIVE_2,
     name: "Green Leaf Downtown",
-    client_id: CLIENT_IDS.ACTIVE_2,
+    client_id: SEED_IDS.CLIENT_ACTIVE_2,
     city: "New York",
     state: "New York",
     pincode: "10001",
@@ -31,9 +24,9 @@ const RESTAURANTS = [
     status: "active" as const,
   },
   {
-    id: RESTAURANT_IDS.ACTIVE_3,
+    id: SEED_IDS.RESTAURANT_ACTIVE_3,
     name: "Green Leaf Brooklyn",
-    client_id: CLIENT_IDS.ACTIVE_2,
+    client_id: SEED_IDS.CLIENT_ACTIVE_2,
     city: "Brooklyn",
     state: "New York",
     pincode: "11201",
@@ -41,9 +34,9 @@ const RESTAURANTS = [
     status: "active" as const,
   },
   {
-    id: RESTAURANT_IDS.SUSPENDED,
+    id: SEED_IDS.RESTAURANT_SUSPENDED,
     name: "MediQuick Houston Hub",
-    client_id: CLIENT_IDS.ACTIVE_3,
+    client_id: SEED_IDS.CLIENT_ACTIVE_3,
     city: "Houston",
     state: "Texas",
     pincode: "77001",
@@ -55,13 +48,20 @@ const RESTAURANTS = [
 export const seedRestaurants = async (): Promise<void> => {
   logger.info("Seeding restaurants...");
   for (const r of RESTAURANTS) {
-    const existing = await prisma.restaurant.findUnique({ where: { id: r.id } });
-    if (!existing) {
-      await prisma.restaurant.create({ data: r });
-      logger.info(`  Restaurant "${r.name}" (${r.status}) created.`);
-    } else {
-      logger.info(`  Restaurant "${r.name}" already exists.`);
-    }
+    await prisma.restaurant.upsert({
+      where: { id: r.id },
+      update: {
+        name: r.name,
+        client_id: r.client_id,
+        city: r.city,
+        state: r.state,
+        pincode: r.pincode,
+        line_one: r.line_one,
+        status: r.status,
+      },
+      create: r,
+    });
+    logger.info(`  Restaurant "${r.name}" (${r.status}) ready.`);
   }
   logger.info(`Seeded ${RESTAURANTS.length} restaurants.`);
 };

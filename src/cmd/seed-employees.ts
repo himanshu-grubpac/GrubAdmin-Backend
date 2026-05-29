@@ -1,18 +1,6 @@
 import { prisma } from "@/db";
 import { logger } from "@/utils/logger";
-import { CLIENT_IDS } from "./seed-clients";
-import { RESTAURANT_IDS } from "./seed-restaurants";
-import { BOX_IDS } from "./seed-boxes";
-
-export const EMPLOYEE_IDS = {
-  MANAGER_1: "seed-emp-mgr-1",
-  MANAGER_2: "seed-emp-mgr-2",
-  DELIVERY_1: "seed-emp-del-1",
-  DELIVERY_2: "seed-emp-del-2",
-  SUSPENDED: "seed-emp-suspended",
-  UNASSIGNED: "seed-emp-unassigned",
-  MEDICAL_DELIVERY: "seed-emp-med-del-1",
-} as const;
+import { SEED_IDS } from "./seed-ids";
 
 interface EmployeeSeedDef {
   id: string;
@@ -32,103 +20,103 @@ interface EmployeeSeedDef {
 
 const EMPLOYEES: EmployeeSeedDef[] = [
   {
-    id: EMPLOYEE_IDS.MANAGER_1,
+    id: SEED_IDS.EMPLOYEE_MANAGER_1,
     first_name: "Marco",
     last_name: "Rossi",
     country_code: "+1",
     mobile_number: "5556667788",
     email: "marco.rossi@bellaitalia.com",
     employee_display_id: "EMP-MGR-001",
-    client_id: CLIENT_IDS.ACTIVE_1,
-    restaurant_id: RESTAURANT_IDS.ACTIVE_1,
+    client_id: SEED_IDS.CLIENT_ACTIVE_1,
+    restaurant_id: SEED_IDS.RESTAURANT_ACTIVE_1,
     role: "manager",
     status: "active",
-    assigned_box_ids: [BOX_IDS.BOX_001, BOX_IDS.BOX_002],
+    assigned_box_ids: [SEED_IDS.BOX_001, SEED_IDS.BOX_002],
   },
   {
-    id: EMPLOYEE_IDS.DELIVERY_1,
+    id: SEED_IDS.EMPLOYEE_DELIVERY_1,
     first_name: "Luigi",
     last_name: "Verdi",
     country_code: "+1",
     mobile_number: "5557778899",
     email: "luigi.verdi@bellaitalia.com",
     employee_display_id: "EMP-DEL-001",
-    client_id: CLIENT_IDS.ACTIVE_1,
-    restaurant_id: RESTAURANT_IDS.ACTIVE_1,
+    client_id: SEED_IDS.CLIENT_ACTIVE_1,
+    restaurant_id: SEED_IDS.RESTAURANT_ACTIVE_1,
     role: "delivery",
     status: "active",
-    assigned_box_ids: [BOX_IDS.BOX_001, BOX_IDS.BOX_002],
-    connected_box_id: BOX_IDS.BOX_001,
+    assigned_box_ids: [SEED_IDS.BOX_001, SEED_IDS.BOX_002],
+    connected_box_id: SEED_IDS.BOX_001,
   },
   {
-    id: EMPLOYEE_IDS.MANAGER_2,
+    id: SEED_IDS.EMPLOYEE_MANAGER_2,
     first_name: "Sarah",
     last_name: "Green",
     country_code: "+1",
     mobile_number: "5558889900",
     email: "sarah.green@greenleaf.com",
     employee_display_id: "EMP-MGR-002",
-    client_id: CLIENT_IDS.ACTIVE_2,
-    restaurant_id: RESTAURANT_IDS.ACTIVE_2,
+    client_id: SEED_IDS.CLIENT_ACTIVE_2,
+    restaurant_id: SEED_IDS.RESTAURANT_ACTIVE_2,
     role: "manager",
     status: "active",
-    assigned_box_ids: [BOX_IDS.BOX_003, BOX_IDS.BOX_004],
+    assigned_box_ids: [SEED_IDS.BOX_003, SEED_IDS.BOX_004],
   },
   {
-    id: EMPLOYEE_IDS.DELIVERY_2,
+    id: SEED_IDS.EMPLOYEE_DELIVERY_2,
     first_name: "Tom",
     last_name: "Baker",
     country_code: "+1",
     mobile_number: "5559990011",
     email: "tom.baker@greenleaf.com",
     employee_display_id: "EMP-DEL-002",
-    client_id: CLIENT_IDS.ACTIVE_2,
-    restaurant_id: RESTAURANT_IDS.ACTIVE_3,
+    client_id: SEED_IDS.CLIENT_ACTIVE_2,
+    restaurant_id: SEED_IDS.RESTAURANT_ACTIVE_3,
     role: "delivery",
     status: "active",
-    assigned_box_ids: [BOX_IDS.BOX_003],
-    connected_box_id: BOX_IDS.BOX_003,
+    assigned_box_ids: [SEED_IDS.BOX_003],
+    connected_box_id: SEED_IDS.BOX_003,
   },
   {
-    id: EMPLOYEE_IDS.SUSPENDED,
+    id: SEED_IDS.EMPLOYEE_SUSPENDED,
     first_name: "Jack",
     last_name: "Sparrow",
     country_code: "+1",
     mobile_number: "5550001122",
     email: "jack.sparrow@bellaitalia.com",
     employee_display_id: "EMP-SUS-001",
-    client_id: CLIENT_IDS.ACTIVE_1,
-    restaurant_id: RESTAURANT_IDS.ACTIVE_1,
+    client_id: SEED_IDS.CLIENT_ACTIVE_1,
+    restaurant_id: SEED_IDS.RESTAURANT_ACTIVE_1,
     role: "delivery",
     status: "suspended",
   },
   {
-    id: EMPLOYEE_IDS.UNASSIGNED,
+    id: SEED_IDS.EMPLOYEE_UNASSIGNED,
     first_name: "Pending",
     last_name: "Hire",
     country_code: "+1",
     mobile_number: "5551112234",
     email: "pending.hire@greenleaf.com",
     employee_display_id: "EMP-UNAS-001",
-    client_id: CLIENT_IDS.ACTIVE_2,
+    client_id: SEED_IDS.CLIENT_ACTIVE_2,
     restaurant_id: null,
     role: "delivery",
     status: "unassigned",
   },
   {
-    id: EMPLOYEE_IDS.MEDICAL_DELIVERY,
+    id: SEED_IDS.EMPLOYEE_MEDICAL_DELIVERY,
     first_name: "Emily",
     last_name: "Nurse",
     country_code: "+1",
     mobile_number: "5552223345",
     email: "emily.nurse@mediquick.com",
     employee_display_id: "EMP-MED-001",
-    client_id: CLIENT_IDS.ACTIVE_3,
+    client_id: SEED_IDS.CLIENT_ACTIVE_3,
     restaurant_id: null,
     role: "delivery",
     status: "active",
-    assigned_box_ids: [BOX_IDS.BOX_005],
-    connected_box_id: BOX_IDS.BOX_005,
+    assigned_box_ids: [SEED_IDS.BOX_005],
+    connected_box_id: SEED_IDS.BOX_005,
   },
 ];
 
@@ -136,38 +124,38 @@ export const seedEmployees = async (): Promise<void> => {
   logger.info("Seeding delivery employees...");
 
   for (const empDef of EMPLOYEES) {
-    const byId = await prisma.vertical_food_employee.findUnique({ where: { id: empDef.id } });
-    const byDisplayId = await prisma.vertical_food_employee.findFirst({
-      where: { employee_display_id: empDef.employee_display_id },
-    });
-    if (byId || byDisplayId) {
-      logger.info(`  Employee "${empDef.first_name} ${empDef.last_name}" already exists.`);
-      continue;
-    }
-
     const { assigned_box_ids, connected_box_id, ...empData } = empDef;
 
-    const employee = await prisma.vertical_food_employee.create({ data: empData });
-
-    if (assigned_box_ids && assigned_box_ids.length > 0) {
-      await prisma.vertical_food_employee_box.createMany({
-        data: assigned_box_ids.map((boxId) => ({
-          employee_id: employee.id,
-          box_id: boxId,
-          status: "shared",
-          access: "direct",
-        })),
+    const existing = await prisma.vertical_food_employee.findUnique({ where: { id: empDef.id } });
+    if (existing) {
+      await prisma.vertical_food_employee.update({
+        where: { id: empDef.id },
+        data: empData,
       });
-    }
+      logger.info(`  Employee "${empDef.first_name} ${empDef.last_name}" updated.`);
+    } else {
+      const employee = await prisma.vertical_food_employee.create({ data: empData });
 
-    if (connected_box_id) {
-      await prisma.box.update({
-        where: { id: connected_box_id },
-        data: { connection_employee_id: employee.id },
-      });
-    }
+      if (assigned_box_ids && assigned_box_ids.length > 0) {
+        await prisma.vertical_food_employee_box.createMany({
+          data: assigned_box_ids.map((boxId) => ({
+            employee_id: employee.id,
+            box_id: boxId,
+            status: "shared" as const,
+            access: "direct" as const,
+          })),
+        });
+      }
 
-    logger.info(`  Employee "${empDef.first_name} ${empDef.last_name}" created with assignments.`);
+      if (connected_box_id) {
+        await prisma.box.update({
+          where: { id: connected_box_id },
+          data: { connection_employee_id: employee.id },
+        });
+      }
+
+      logger.info(`  Employee "${empDef.first_name} ${empDef.last_name}" created with assignments.`);
+    }
   }
 
   logger.info(`Seeded ${EMPLOYEES.length} delivery employees.`);
