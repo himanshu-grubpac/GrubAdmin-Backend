@@ -110,6 +110,8 @@ export const foodAuthGuard = (type?: VerticalFoodEmployeeRoleType[], customError
 					if (!body.client_id) body.client_id = client_id;
 					if (!body.vertical_id) body.vertical_id = vertical_id;
 					if (!body.user_id) body.user_id = userId;
+					if (!body.vertical_name) body.vertical_name = debug_vertical_name;
+					if (!body.is_impersonation) body.is_impersonation = isImpersonation;
 
 					if (NODE_ENV !== "production") {
 						body.debug = {
