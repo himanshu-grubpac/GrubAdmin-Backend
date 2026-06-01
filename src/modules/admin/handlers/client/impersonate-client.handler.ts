@@ -5,7 +5,6 @@ import { getUniqueClient } from "@/db/actions/client.actions";
 import { APIError } from "@/types/error";
 import { JWT } from "@/utils/jwt";
 import { services } from "@/services";
-import { FRONTEND_URL, JWT_ACCESS_TOKEN_EXPIRY } from "@/configs/env";
 import { setAuthCookie } from "@/utils/cookie";
 import { DEFAULT_IP_ADDRESS } from "@/configs/constants";
 import type { APIResponse } from "@/types/api";
@@ -86,8 +85,6 @@ export const impersonateClientHandler = createHandlers(
 
 		logger.info(`[Impersonation] Successfully completed for admin ${admin.id} → client ${client.id}`);
 
-		const redirectPath = `/impersonate?token=${impersonationToken}&return_url=${encodeURIComponent(FRONTEND_URL ? `${FRONTEND_URL}/clients` : "")}`;
-
 		const response = {
 			success: true,
 			data: {
@@ -99,9 +96,7 @@ export const impersonateClientHandler = createHandlers(
 					email: client.email,
 					vertical: client.vertical?.name || null,
 				},
-				redirect_url: FRONTEND_URL
-					? `${FRONTEND_URL}${redirectPath}`
-					: redirectPath,
+				redirect_url: `/impersonate?token=${impersonationToken}&return_url=${encodeURIComponent("/clients")}`,
 			},
 			...resolveMessageTemplate("admin.client.IMPERSONATION_SUCCESS"),
 		};
