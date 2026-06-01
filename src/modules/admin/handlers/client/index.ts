@@ -7,3 +7,4 @@ export * from "./patch-client-status.handler";
 export * from "./export-client.handler";
 export { exportClientHandler as exportCustomerHandler } from "./export-client.handler";
 export * from "./impersonate-client.handler";
+export * from "./exit-impersonation.handler";

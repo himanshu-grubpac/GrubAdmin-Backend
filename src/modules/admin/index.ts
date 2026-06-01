@@ -29,6 +29,7 @@ import {
 	deleteClientHandler,
 	patchClientStatusHandler,
 	impersonateClientHandler,
+	exitImpersonationHandler,
 } from "./handlers/client";
 import {
 	createVerticalHandler,
@@ -161,6 +162,7 @@ adminRouter.patch("/customer/:id", ...updateClientHandler);
 adminRouter.delete("/customer/:id", ...deleteClientHandler);
 adminRouter.patch("/customer/:id/status", ...patchClientStatusHandler);
 adminRouter.post("/customer/:id/impersonate", ...impersonateClientHandler);
+adminRouter.post("/customer/exit-impersonation", ...exitImpersonationHandler);
 
 /**
  * Name: Admin Vertical Route

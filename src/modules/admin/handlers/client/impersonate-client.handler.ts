@@ -5,7 +5,7 @@ import { getUniqueClient } from "@/db/actions/client.actions";
 import { APIError } from "@/types/error";
 import { JWT } from "@/utils/jwt";
 import { services } from "@/services";
-import { CLIENT_DASHBOARD_URL, JWT_ACCESS_TOKEN_EXPIRY } from "@/configs/env";
+import { CLIENT_DASHBOARD_URL, FRONTEND_URL, JWT_ACCESS_TOKEN_EXPIRY } from "@/configs/env";
 import { setAuthCookie } from "@/utils/cookie";
 import { DEFAULT_IP_ADDRESS } from "@/configs/constants";
 import type { APIResponse } from "@/types/api";
@@ -94,7 +94,7 @@ export const impersonateClientHandler = createHandlers(
 					vertical: client.vertical?.name || null,
 				},
 				redirect_url: CLIENT_DASHBOARD_URL
-					? `${CLIENT_DASHBOARD_URL}/impersonate?token=${impersonationToken}`
+					? `${CLIENT_DASHBOARD_URL}/impersonate?token=${impersonationToken}&return_url=${encodeURIComponent(FRONTEND_URL ? `${FRONTEND_URL}/clients` : "")}`
 					: null,
 			},
 			...resolveMessageTemplate("admin.client.IMPERSONATION_SUCCESS"),
