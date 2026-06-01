@@ -1,8 +1,30 @@
-import { createConnection } from "mariadb";
-import { DATABASE_URL } from "@/configs/env";
+import { createPool } from "mariadb";
+
+const DB_ADMIN_PASSWORD = process.env.AIVEN_ADMIN_PASSWORD;
+if (!DB_ADMIN_PASSWORD) {
+  console.log("AIVEN_ADMIN_PASSWORD not set, skipping idle connection cleanup");
+  process.exit(0);
+}
+
+// Parse DATABASE_URL for host/port
+const dbUrl = process.env.DATABASE_URL || "";
+const afterAt = dbUrl.split("@")[1] || "";
+const host = afterAt.split(":")[0];
+const portStr = afterAt.split(":")[1] || "";
+const port = parseInt(portStr.split("/")[0] || "3306");
 
 async function main() {
-  const conn = await createConnection(DATABASE_URL);
+  const pool = createPool({
+    host,
+    port,
+    user: "avnadmin",
+    password: DB_ADMIN_PASSWORD,
+    database: "defaultdb",
+    ssl: true,
+    connectionLimit: 1,
+    acquireTimeout: 5000,
+  });
+  const conn = await pool.getConnection();
   const rows = await conn.query("SHOW PROCESSLIST");
   let killed = 0;
   for (const r of rows) {
@@ -13,8 +35,12 @@ async function main() {
       } catch {}
     }
   }
-  console.log(`Cleaned up ${killed} idle connections`);
+  console.log(`Killed ${killed} idle connections`);
   await conn.end();
+  await pool.end();
 }
 
-main();
+main().catch((e) => {
+  console.error("Failed to kill idle connections:", e.message);
+  process.exit(1);
+});

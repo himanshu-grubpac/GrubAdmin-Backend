@@ -33,22 +33,30 @@ jobs:
             pm2 delete "${{ secrets.PRODUCTION_PM2_ID }}" || true
             echo "=== Installing dependencies ==="
             bun install
-            echo "=== Running database migrations ==="
-            # Source env to get DATABASE_URL with connection_limit to reduce pool size
+            echo "=== Killing idle database connections ==="
             set -o allexport
             . .env.production 2>/dev/null || true
             set +o allexport
-            export DATABASE_URL="${DATABASE_URL}&connection_limit=1"
+            export AIVEN_ADMIN_PASSWORD="${{ secrets.AIVEN_ADMIN_PASSWORD }}"
+            bun src/cmd/kill-idle-connections.ts || true
+            echo "=== Running database migrations ==="
+            export DATABASE_URL="${DATABASE_URL}&connectionLimit=1"
             bun run db:fix-duplicate-employee-emails
-            # Wait for TCP connections to close before schema push
             sleep 3
-            # Retry db:push up to 3 times (transient connection saturation on Aiven)
+            success=false
             for i in 1 2 3; do
               echo "Attempt $i: prisma db push..."
-              bun db:push && break
+              if bun db:push; then
+                success=true
+                break
+              fi
               echo "db:push failed, waiting 5s before retry..."
               sleep 5
             done
+            if [ "$success" != "true" ]; then
+              echo "db:push failed after 3 attempts"
+              exit 1
+            fi
             bun db:generate
             echo "=== Starting PM2 process ==="
             cd ~/grubadmin-backend/GrubAdmin-Backend
