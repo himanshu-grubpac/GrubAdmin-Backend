@@ -108,7 +108,7 @@ interface CreateBoxArgs {
 	vertical_id: string;
 	client_id?: string | null;
 	vehicle_number?: string | null;
-	status: "active";
+	status: box_status;
 	power_status?: hardware_state | null;
 	health_status?: box_health_status | null;
 	ioniser_status?: hardware_state | null;
@@ -139,7 +139,7 @@ export const createBox = async (args: CreateBoxArgs) => {
 			vertical_id: args.vertical_id,
 			client_id: args.client_id,
 			vehicle_number: args.vehicle_number,
-			status: "active",
+			status: args.status,
 			connection_employee_id: args.connection_employee_id,
 			telemetry: {
 				create: {

@@ -55,7 +55,7 @@ export const sendForgetPasswordMagicLinkHandler = createHandlers(
 
 		await services.mailer.sendEmail({
 			from: "ankan@sqaby.com",
-			subject: "Food - Reset Password Link",
+			subject: "Delivery Portal - Reset Password Link",
 			to: employeeEmail,
 			text: `Click the link below to reset your password (LINK_ID: ${otp_id}):\n${resetUrl}\n\nThis link will expire in 5 minutes.\n\nfor_what: forget-send`,
 		});

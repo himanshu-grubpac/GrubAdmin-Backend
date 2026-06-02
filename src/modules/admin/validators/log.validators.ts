@@ -63,6 +63,8 @@ export const getAdminLogsRequestQueryValidators = zValidator(
 			])
 			.optional(),
 		admin_id: z.string().optional(),
+		subject_id: z.string().optional(),
+		client_id: z.string().optional(),
 		start_date: z.string().optional().transform((v) => v ? new Date(v) : undefined),
 		end_date: z.string().optional().transform((v) => {
 			if (!v) return undefined;

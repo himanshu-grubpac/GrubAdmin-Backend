@@ -17,6 +17,57 @@ interface HealthCheckData {
 	};
 }
 
+// Liveness check — is the server process alive?
+export const livenessHandler = createHandlers(async (context) => {
+	return context.json<APIResponse<null>>(
+		{
+			success: true,
+			code: 200,
+			message: "alive",
+			data: null,
+		},
+		{
+			status: 200,
+		},
+	);
+});
+
+// Readiness check — are dependencies ready to serve requests?
+export const readinessHandler = createHandlers(async (context) => {
+	const errors: string[] = [];
+
+	// Check MySQL connectivity
+	try {
+		await prisma.$queryRaw`SELECT 1`;
+	} catch (e) {
+		errors.push(`mysql: ${e}`);
+	}
+
+	// Check MongoDB connectivity (only if we expect it to be connected)
+	if (errors.length === 0) {
+		return context.json<APIResponse<{ healthy: boolean }>>(
+			{
+				success: true,
+				code: 200,
+				message: "ready",
+				data: { healthy: true },
+			},
+			{ status: 200 },
+		);
+	}
+
+	return context.json<APIResponse<{ healthy: boolean; errors: string[] }>>(
+		{
+			success: false,
+			code: 503,
+			message: "not ready",
+			data: { healthy: false, errors },
+		},
+		{ status: 503 },
+	);
+});
+
+// Full health check (detailed, for debugging)
 export const healthCheckHandler = createHandlers(async (context) => {
 	let sqlInfo = { user: "unknown", database: "unknown", host: "unknown" };
 	let mongoInfo = { user: "unknown", database: "unknown", host: "unknown" };

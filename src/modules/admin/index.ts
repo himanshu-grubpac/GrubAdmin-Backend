@@ -28,6 +28,8 @@ import {
 	updateClientHandler,
 	deleteClientHandler,
 	patchClientStatusHandler,
+	impersonateClientHandler,
+	exitImpersonationHandler,
 } from "./handlers/client";
 import {
 	createVerticalHandler,
@@ -116,7 +118,7 @@ adminRouter.post(
 );
 adminRouter.post(
 	"/auth/reset-password/confirm",
-	
+	otpRateLimit,   // Brute-force protection: 4-digit OTP has only 10,000 combinations
 	...confirmResetPasswordHandler,
 );
 
@@ -134,6 +136,8 @@ adminRouter.post("/config", ...createConfigHandler);
  * Base route: /api/v1/admin/account
  */
 adminRouter.patch("/account", ...updateAccountHandler);
+adminRouter.put("/account/update", ...updateAccountHandler);
+adminRouter.patch("/account/update", ...updateAccountHandler);
 adminRouter.patch(
 	"/account/update/resend-otp",
 	...updateAccountResendOtpHandler,
@@ -157,6 +161,8 @@ adminRouter.get("/customer/:id", ...getClientHandler);
 adminRouter.patch("/customer/:id", ...updateClientHandler);
 adminRouter.delete("/customer/:id", ...deleteClientHandler);
 adminRouter.patch("/customer/:id/status", ...patchClientStatusHandler);
+adminRouter.post("/customer/:id/impersonate", ...impersonateClientHandler);
+adminRouter.post("/customer/exit-impersonation", ...exitImpersonationHandler);
 
 /**
  * Name: Admin Vertical Route

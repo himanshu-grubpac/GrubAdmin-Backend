@@ -1,6 +1,6 @@
-import { type Date, type Document, model, Schema } from "mongoose";
+import { type Document, model, Schema } from "mongoose";
 import type { VerticalFoodEmployeeRoleType } from "@/types/common";
-import { FOOD_EMPLOYEE_CLIENT_ROLE } from "@/configs/constants.ts";
+import { EMPLOYEE_CLIENT_ROLE } from "@/configs/constants.ts";
 
 export type FoodEmployeeOtpModel = Document & {
 	email: string;
@@ -9,6 +9,7 @@ export type FoodEmployeeOtpModel = Document & {
 	otp_id: string;
 	for_what: "login" | "forget_password" | "set_new_password" | "unlock_box";
 	metadata?: any;
+	failed_attempts?: number;
 	createdAt: Date;
 	updatedAt: Date;
 };
@@ -22,7 +23,7 @@ const foodEmployeeOtpSchema = new Schema<FoodEmployeeOtpModel>(
 		},
 		role: {
 			type: String,
-			enum: FOOD_EMPLOYEE_CLIENT_ROLE,
+			enum: EMPLOYEE_CLIENT_ROLE,
 			required: true,
 		},
 		otp: {
@@ -42,6 +43,10 @@ const foodEmployeeOtpSchema = new Schema<FoodEmployeeOtpModel>(
 		metadata: {
 			type: Schema.Types.Mixed,
 			default: null,
+		},
+		failed_attempts: {
+			type: Number,
+			default: 0,
 		},
 		createdAt: {
 			type: Date,

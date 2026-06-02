@@ -38,11 +38,11 @@ export const suspendFaqCategoriesHandler = createHandlers(
 			status: "suspended",
 		});
 
-		Promise.allSettled(
+		await Promise.allSettled(
 			categoriesToBeSuspended.faq_categories.map((faq_category) =>
 				services.adminLogger.log({
 					module: "support_categories",
-					action: "activate",
+					action: "suspend",
 					admin_id: admin?.id,
 					admin_name: `${admin?.first_name} ${admin?.last_name}`,
 					role_id: admin?.role_id,
@@ -52,7 +52,7 @@ export const suspendFaqCategoriesHandler = createHandlers(
 					effected_name: faq_category.name,
 				}),
 			),
-		).then((r) => logger.info(r));
+		);
 
 		return context.json<APIResponse>(
 			{

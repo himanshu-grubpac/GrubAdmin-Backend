@@ -46,7 +46,6 @@ export const createRestaurantRequestBodyValidator = zValidator(
 				error: "Please provide a line two",
 			})
 			.trim()
-			.min(1, "Line two is required")
 			.max(200, "Line two cannot exceed 200 characters")
 			.optional(),
 		google_place_id: z
@@ -89,12 +88,12 @@ export const getRestaurantByIdRequestParamsValidator = zValidator(
 export const getRestaurantsRequestQueryValidator = zValidator(
 	"query",
 	z.object({
-		query: z.string().trim().optional(),
-		search: z.string().trim().optional(),
+		query: z.string().trim().min(2, "Query must be at least 2 characters").optional(),
+		search: z.string().trim().min(2, "Search must be at least 2 characters").optional(),
 		page_number: z.coerce.number().int().min(1).optional(),
 		page: z.coerce.number().int().min(1).optional(),
-		page_size: z.coerce.number().int().min(1).optional(),
-		limit: z.coerce.number().int().min(1).optional(),
+		page_size: z.coerce.number().int().min(1).max(100, "Page size cannot exceed 100").optional(),
+		limit: z.coerce.number().int().min(1).max(100, "Limit cannot exceed 100").optional(),
 		status: z
 			.union([z.literal("active"), z.literal("suspended")], {
 				error: "Please provide a valid status",
@@ -128,9 +127,9 @@ export const getRestaurantsRequestQueryValidator = zValidator(
 export const searchRestaurantRequestQueryValidator = zValidator(
 	"query",
 	z.object({
-		query: z.string().trim().optional(),
-		search: z.string().trim().optional(),
-		limit: z.coerce.number().int().min(1).optional(),
+		query: z.string().trim().min(2, "Query must be at least 2 characters").optional(),
+		search: z.string().trim().min(2, "Search must be at least 2 characters").optional(),
+		limit: z.coerce.number().int().min(1).max(100, "Limit cannot exceed 100").optional(),
 		status: z.string().optional().default("all"),
 	}).transform((data) => ({
 		...data,
@@ -235,7 +234,21 @@ export const reassignRestaurantRequestBodyValidator = zValidator(
 		destination_restaurant_id: z.string().ulid().nullable().optional().or(z.literal("")),
 		reassign_employees: z.boolean().default(true),
 		reassign_boxes: z.boolean().default(true),
-	}),
+	}).refine(
+		(data) => {
+			if (
+				data.destination_restaurant_id &&
+				data.restaurant_ids.includes(data.destination_restaurant_id)
+			) {
+				return false;
+			}
+			return true;
+		},
+		{
+			message: "Destination restaurant cannot be one of the source restaurants to reassign",
+			path: ["destination_restaurant_id"],
+		}
+	),
 	(response) => {
 		if (!response.success) {
 			validatorErrorHandler(response.error);

@@ -34,7 +34,7 @@ export const deleteFaqsHandler = createHandlers(
 
 		await deleteFaqQuestions(ids);
 
-		Promise.allSettled(
+		await Promise.allSettled(
 			deletedFaqs.faqs.map((faq) =>
 				services.adminNotifications.notifyDeletion({
 					itemType: "FAQ",
@@ -44,9 +44,9 @@ export const deleteFaqsHandler = createHandlers(
 					employeeId: admin?.id ?? "",
 				}),
 			),
-		).then((r) => logger.info(r));
+		);
 
-		Promise.allSettled(
+		await Promise.allSettled(
 			deletedFaqs.faqs.map((faq) =>
 				services.adminLogger.log({
 					module: "FAQ",
@@ -60,7 +60,7 @@ export const deleteFaqsHandler = createHandlers(
 					effected_name: faq.question,
 				}),
 			),
-		).then((r) => logger.info(r));
+		);
 
 		return context.json<APIResponse>(
 			{

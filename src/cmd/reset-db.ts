@@ -1,79 +1,68 @@
-import { logger } from "@/utils/logger.ts";
+import { logger } from "@/utils/logger";
 import { connectMongoDB, prisma } from "@/db";
-import { AdminUpdateOtp, Otp } from "@/db/mongo-schema";
-import inquirer from "inquirer";
+import mongoose from "mongoose";
+
+const TABLES_IN_DELETE_ORDER = [
+  // Junction/child tables first
+  "faq_question_category",
+  "faq_question",
+  "faq_category",
+  "vertical_food_employee_box",
+  "restaurant_box",
+  "vertical_food_consumer_box",
+  "vertical_food_consumer",
+  "box_telemetry_latest",
+  "box_lock",
+  "notification",
+  "vertical_food_employee",
+  "box",
+  "restaurant",
+  "client",
+  "vertical_food_employee_deleted",
+  "restaurant_deleted",
+  "box_deleted",
+  "client_deleted",
+  "admin",
+  "admin_dismissed",
+  "icon",
+  "vertical",
+  "role",
+  "system_config",
+];
 
 export const resetDb = async () => {
-	try {
-		const resetConfirmation = await inquirer.prompt([
-			{
-				type: "confirm",
-				message: "Are you sure you wanna reset?",
-				name: "confirm",
-			},
-		]);
+  try {
+    logger.info("Starting full database reset...");
 
-		if (!resetConfirmation.confirm) {
-			logger.info("Reset cancelled by user!!");
-			process.exit(1);
-		}
+    // Disable FK checks
+    await prisma.$executeRawUnsafe("SET FOREIGN_KEY_CHECKS = 0");
 
-		logger.info("Resetting admin");
-		await prisma.admin.deleteMany();
-		logger.info("Reset admin done");
+    for (const table of TABLES_IN_DELETE_ORDER) {
+      logger.info(`  Clearing table: ${table}`);
+      await prisma.$executeRawUnsafe(`DELETE FROM \`${table}\``);
+    }
 
-		logger.info("Resetting dismissed admin");
-		await prisma.admin_dismissed.deleteMany();
-		logger.info("Reset dismissed admin done");
+    // Re-enable FK checks
+    await prisma.$executeRawUnsafe("SET FOREIGN_KEY_CHECKS = 1");
 
-		logger.info("Resetting system config");
-		await prisma.system_config.deleteMany();
-		logger.info("Reset system config done");
+    logger.info("MySQL tables cleared.");
 
-		logger.info("Resetting icon");
-		await prisma.icon.deleteMany();
-		logger.info("Reset icon done");
+    // Clear MongoDB collections
+    await connectMongoDB();
+    const mongoCollections = await mongoose.connection.db.listCollections().toArray();
+    for (const col of mongoCollections) {
+      logger.info(`  Clearing MongoDB collection: ${col.name}`);
+      await mongoose.connection.db.dropCollection(col.name);
+    }
+    logger.info("MongoDB collections cleared.");
 
-		logger.info("Resetting vertical");
-		await prisma.vertical.deleteMany();
-		logger.info("Reset vertical done");
-
-		logger.info("Resetting client");
-		await prisma.client.deleteMany();
-		logger.info("Reset client done");
-
-		logger.info("Resetting faq category");
-		await prisma.faq_category.deleteMany();
-		logger.info("Reset faq category done");
-
-		logger.info("Resetting faq question");
-		await prisma.faq_question.deleteMany();
-		await prisma.faq_question_category.deleteMany();
-		logger.info("Reset faq question done");
-
-		logger.info("Resetting role");
-		await prisma.role.deleteMany();
-		logger.info("Reset role done");
-
-		await connectMongoDB();
-
-		logger.info("Resetting otp");
-		await Otp.deleteMany();
-		logger.info("Reset otp done");
-
-		logger.info("Resetting Admin Update Otp");
-		await AdminUpdateOtp.deleteMany();
-		logger.info("Reset Admin Update Otp done");
-
-		// TODO: Uncomment this to implement s3 clearance!
-		// await services.s3.emptyBucket();
-
-		logger.info("Reset Complete!! Please run the seeder again :)");
-		process.exit(0);
-	} catch (error) {
-		console.log(error);
-		process.exit(1);
-	}
+    logger.info("Database reset complete. Ready for seeding.");
+  } catch (error) {
+    // Ensure FK checks are re-enabled on error
+    await prisma.$executeRawUnsafe("SET FOREIGN_KEY_CHECKS = 1").catch(() => {});
+    logger.error(`Reset failed: ${error}`);
+    process.exit(1);
+  }
 };
 
 await resetDb();

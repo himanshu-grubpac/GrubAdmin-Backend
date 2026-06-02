@@ -77,7 +77,10 @@ export const updateAccountHandler = createHandlers(
 			const profileUpdateOtp = await getAdminUpdateOtp(user_id);
 
 			if (profileUpdateOtp && profileUpdateOtp.email) {
-				throw new APIError(undefined, "admin.account.OTP_ALREADY_SENT", undefined, 400);
+				const timeSinceLastOtp = Date.now() - new Date(profileUpdateOtp.updatedAt).getTime();
+				if (timeSinceLastOtp < 60 * 1000) {
+					throw new APIError("An OTP has already been sent recently. Please wait a minute before requesting another.", "admin.account.OTP_ALREADY_SENT", undefined, 400);
+				}
 			}
 
 			const otp = Otp.generateOtp(4);
@@ -88,11 +91,13 @@ export const updateAccountHandler = createHandlers(
 				otp,
 			});
 
-			await services.mailer.sendEmail({
+			services.mailer.sendEmail({
 				from: MAIL,
 				subject: "OTP for Account Update",
 				to: email,
 				text: `Your account update OTP is ${otp}`,
+			}).catch(err => {
+				logger.error("Failed to send profile update OTP email in background:", err);
 			});
 
 			const response = {
@@ -109,7 +114,10 @@ export const updateAccountHandler = createHandlers(
 			const profileUpdateOtp = await getAdminUpdateOtp(user_id);
 
 			if (profileUpdateOtp && profileUpdateOtp.mobile_number) {
-				throw new APIError(undefined, "admin.account.OTP_ALREADY_SENT", undefined, 400);
+				const timeSinceLastOtp = Date.now() - new Date(profileUpdateOtp.updatedAt).getTime();
+				if (timeSinceLastOtp < 60 * 1000) {
+					throw new APIError("An OTP has already been sent recently. Please wait a minute before requesting another.", "admin.account.OTP_ALREADY_SENT", undefined, 400);
+				}
 			}
 
 			logger.warn("We are sending the OTP on email only");
@@ -123,11 +131,13 @@ export const updateAccountHandler = createHandlers(
 				otp,
 			});
 
-			await services.mailer.sendEmail({
+			services.mailer.sendEmail({
 				from: MAIL,
 				subject: "OTP for Account Update",
 				to: user.email,
 				text: `Your account update OTP is ${otp}`,
+			}).catch(err => {
+				logger.error("Failed to send profile update OTP email in background:", err);
 			});
 
 			const response = {

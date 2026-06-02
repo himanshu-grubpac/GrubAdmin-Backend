@@ -9,6 +9,7 @@ import { withFullAddress } from "@/utils/restaurant.ts";
 import type { APIResponse } from "@/types/api";
 import { loggerService } from "@/services/system-log.ts";
 import { resolveMessageTemplate } from "@/utils/message";
+import { prisma } from "@/db";
 
 interface ResponseData {
 	restaurant: restaurant & { full_address: string };
@@ -34,6 +35,42 @@ export const createRestaurantHandler = createHandlers(
 			longtitude,
 			status,
 		} = context.req.valid("json");
+
+		// Check for uniqueness of Name + client_id
+		const existingByName = await prisma.restaurant.findFirst({
+			where: {
+				name,
+				client_id,
+				status: "active"
+			}
+		});
+		if (existingByName) {
+			throw new APIError(
+				"A restaurant with this name already exists under your account.",
+				"food.restaurant.create.DUPLICATE_NAME",
+				undefined,
+				409
+			);
+		}
+
+		// Check for uniqueness of google_place_id
+		if (google_place_id) {
+			const existingByPlace = await prisma.restaurant.findFirst({
+				where: {
+					google_place_id,
+					client_id,
+					status: "active"
+				}
+			});
+			if (existingByPlace) {
+				throw new APIError(
+					"A restaurant with this Google Place ID already exists under your account.",
+					"food.restaurant.create.DUPLICATE_PLACE_ID",
+					undefined,
+					409
+				);
+			}
+		}
 
 		const googlePlaceData = google_place_id
 			? await services.mapService.getLatLong(google_place_id)

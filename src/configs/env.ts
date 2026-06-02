@@ -10,6 +10,7 @@ export const MAIL_PASS = process.env.MAIL_PASS as string;
 export const MAIL_MIRROR = process.env.MAIL_MIRROR as string;
 export const MAIL_MIRROR_PASS = process.env.MAIL_MIRROR_PASS as string;
 export const AUTH_SECRET = process.env.AUTH_SECRET as string;
+export const FOOD_AUTH_SECRET = process.env.FOOD_AUTH_SECRET as string;
 
 // JWT Token Expiration Settings (in seconds)
 export const JWT_ACCESS_TOKEN_EXPIRY = parseInt(process.env.JWT_ACCESS_TOKEN_EXPIRY || "86400"); // Default: 24 hours
@@ -28,16 +29,21 @@ export const AWS_REGION = process.env.AWS_REGION as string;
 
 export const AWS_BUCKET_NAME = process.env.AWS_BUCKET_NAME as string;
 
+export const FRONTEND_URL = process.env.FRONTEND_URL as string;
+export const CLIENT_DASHBOARD_URL = process.env.CLIENT_DASHBOARD_URL as string;
+
 export const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY as string;
 export const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || "").split(",").map(o => o.trim()).filter(Boolean);
 
 export const loadEnv = (): void => {
 	const requiredEnvVars = [
 		"PORT",
+		"DATABASE_URL",
 		"MONGO_URI",
 		"MAIL",
 		"MAIL_PASS",
 		"AUTH_SECRET",
+		"FOOD_AUTH_SECRET",
 		"AWS_KEY",
 		"AWS_REGION",
 		"AWS_BUCKET_NAME",

@@ -120,7 +120,7 @@ export const updateAccountHandler = createHandlers(
                 from: "ankan@sqaby.com",
                 subject: "OTP for Account Update",
                 to: email,
-                text: `Your OTP to update Food Employee account is ${otp}`,
+                text: `Your OTP to update Delivery Employee account is ${otp}`,
             });
 
             responseData = {

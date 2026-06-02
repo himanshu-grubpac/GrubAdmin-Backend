@@ -12,15 +12,13 @@ coverage
 
 # logs
 logs
-_.log
+*.log
 report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
-# dotenv environment variable files
-.env
-.env.development.local
-.env.test.local
-.env.production.local
-.env.local
+# dotenv environment variable files (keep example templates tracked)
+.env*
+!.env.example
+!.env.production.example
 
 # caches
 .eslintcache

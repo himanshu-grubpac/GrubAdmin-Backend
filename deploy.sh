@@ -5,4 +5,5 @@
 # export PATH="$BUN_INSTALL/bin:$PATH"
 # source ~/.bashrc
 # /home/ubuntu/.bun/bin/bun install
+# /home/ubuntu/.bun/bin/bun run db:fix-duplicate-employee-emails
 # /home/ubuntu/.bun/bin/bun db:push

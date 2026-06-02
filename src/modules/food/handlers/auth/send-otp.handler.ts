@@ -47,6 +47,16 @@ export const sendOtpHandler = createHandlers(
 		let savedOtp = null;
 		if (target_otp_id) {
 			savedOtp = await getSavedFoodEmployeeOtp(employeeEmail, target_otp_id);
+		} else {
+			savedOtp = await getSavedFoodEmployeeOtp(employeeEmail);
+		}
+
+		if (savedOtp) {
+			const timeDiff = Date.now() - new Date(savedOtp.createdAt).getTime();
+			const cooldown = 60000; // 60 seconds cooldown
+			if (timeDiff < cooldown) {
+				throw new APIError("Please wait 60 seconds before requesting a new OTP.", undefined, undefined, 429);
+			}
 		}
 
 		const otp = Otp.generateOtp(4);
@@ -74,7 +84,7 @@ export const sendOtpHandler = createHandlers(
 
 		await services.mailer.sendEmail({
 			from: "ankan@sqaby.com",
-			subject: "Food - Login OTP",
+			subject: "Delivery Portal - Login OTP",
 			to: employeeEmail,
 			text: `Your OTP to log into your food platform is ${otp} (OTP Session ID: ${otp_id})\n\nfor_what: login-send`,
 		});

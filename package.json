@@ -11,12 +11,15 @@
 		"db:push-dev": "bun prisma db push",
 		"db:pull": "bun prisma db pull",
 		"db:seed": "bun src/cmd/seed.ts",
+		"db:seed-mongo": "bun src/cmd/seed-mongo.ts",
 		"reset": "bun src/cmd/reset-db.ts",
-		"db:inject-box-config": "bun src/cmd/inject-box-config.ts"
+		"db:fix-duplicate-employee-emails": "bun src/cmd/fix-duplicate-employee-emails.ts",
+		"db:inject-box-config": "bun src/cmd/inject-box-config.ts",
+"db:backfill-super-admin-permissions": "bun src/cmd/backfill-super-admin-permissions.ts"
 	},
 	"devDependencies": {
 		"@types/bcrypt": "^6.0.0",
-		"@types/bun": "latest",
+		"@types/bun": "^1.3.11",
 		"@types/jsonwebtoken": "^9.0.10",
 		"@types/nodemailer": "^7.0.2",
 		"prettier": "^3.6.2",
