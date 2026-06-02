@@ -1,4 +1,14 @@
 import { logger } from "@/utils/logger";
+import dotenv from "dotenv";
+import path from "path";
+
+// Load environment variables from .env file.
+// In production, load .env.production if it exists.
+// In development, load .env (default dotenv behavior).
+// dotenv does NOT override existing env vars, so explicit env vars take priority.
+const envFile = process.env.NODE_ENV === "production" ? ".env.production" : ".env";
+const envPath = path.resolve(process.cwd(), envFile);
+dotenv.config({ path: envPath });
 
 export const PORT = process.env.PORT as string;
 export const NODE_ENV = process.env.NODE_ENV || "development";
