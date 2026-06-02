@@ -1,7 +1,7 @@
 import { logger } from "@/utils/logger";
 import seedSystemConfigs from "./seed-system-configs";
 import { seedMongoData } from "./seed-mongo";
-import { seedVerticals, seedIcons, migrateFoodVerticalToDelivery } from "./seed-verticals";
+import { seedVerticals, seedIcons, migrateLegacyFoodVertical } from "./seed-verticals";
 import { seedRoles } from "./seed-roles";
 import { seedAdmins } from "./seed-admins";
 import { seedClients } from "./seed-clients";
@@ -44,10 +44,10 @@ export const seed = async () => {
 
   // 4. Migrate legacy Food vertical -> Delivery
   try {
-    await migrateFoodVerticalToDelivery();
-    logger.info("Food -> Delivery vertical migration completed.");
+    await migrateLegacyFoodVertical();
+    logger.info("Legacy Food -> Delivery vertical migration completed.");
   } catch (err) {
-    logger.error(`Failed to migrate Food -> Delivery: ${err}`);
+    logger.error(`Failed to migrate legacy Food -> Delivery: ${err}`);
   }
 
   // 5. Roles (standalone)

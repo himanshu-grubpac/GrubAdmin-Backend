@@ -47,7 +47,7 @@ export const setPasswordUtilityHandler = createHandlers(
                 },
             });
         } else {
-            const employee = await prisma.vertical_food_employee.findFirst({
+            const employee = await prisma.vertical_delivery_employee.findFirst({
                 where: {
                     email,
                 },
@@ -62,7 +62,7 @@ export const setPasswordUtilityHandler = createHandlers(
                 );
             }
 
-            await prisma.vertical_food_employee.update({
+            await prisma.vertical_delivery_employee.update({
                 where: {
                     id: employee.id,
                 },

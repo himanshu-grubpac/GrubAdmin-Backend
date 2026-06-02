@@ -104,11 +104,11 @@ export const getRestaurantById = async (args: GetRestaurantByIdArgs) => {
 	});
 
 	if (!restaurant) {
-		throw new APIError(undefined, "food.restaurant.assign.manager.RESTAURANT_NOT_FOUND", undefined, 404);
+		throw new APIError(undefined, "delivery.restaurant.assign.manager.RESTAURANT_NOT_FOUND", undefined, 404);
 	}
 
 	if (restaurant.client_id !== client_id) {
-		throw new APIError(undefined, "food.restaurant.assign.manager.ACCESS_DENIED", undefined, 403);
+		throw new APIError(undefined, "delivery.restaurant.assign.manager.ACCESS_DENIED", undefined, 403);
 	}
 
 	const manager = restaurant.employees.find((e: any) => e.role === "manager") || null;
@@ -312,7 +312,7 @@ export const getRestaurants = async (args: GetRestaurantArgs) => {
 	const restaurantIds = rawRestaurants.map((r) => r.id);
 
 	// Fetch managers manually
-	const managers = await prisma.vertical_food_employee.findMany({
+	const managers = await prisma.vertical_delivery_employee.findMany({
 		where: {
 			restaurant_id: { in: restaurantIds },
 			role: "manager",
@@ -500,7 +500,7 @@ export const unassignRestaurantResources = async (
 			},
 		});
 
-		await tx.vertical_food_employee.updateMany({
+		await tx.vertical_delivery_employee.updateMany({
 			where: {
 				restaurant_id: {
 					in: restaurants.map((restaurant) => restaurant.id),
@@ -527,7 +527,7 @@ export const unassignRestaurantResources = async (
 				},
 			);
 
-			await tx.vertical_food_employee_box.deleteMany({
+			await tx.vertical_delivery_employee_box.deleteMany({
 				where: {
 					box_id: {
 						in: boxIds,
@@ -565,7 +565,7 @@ export const suspendRestaurantResources = async (
 	if (restaurants.length === 0) {
 		throw new APIError(
 			undefined,
-			"food.restaurant.resource.NOT_FOUND",
+			"delivery.restaurant.resource.NOT_FOUND",
 			{ ids },
 			404
 		);
@@ -574,7 +574,7 @@ export const suspendRestaurantResources = async (
 	if (restaurants.length !== ids.length) {
 		throw new APIError(
 			undefined,
-			"food.restaurant.resource.PARTIAL_FOUND",
+			"delivery.restaurant.resource.PARTIAL_FOUND",
 			{
 				requested_ids: ids,
 				found_count: restaurants.length,
@@ -591,7 +591,7 @@ export const suspendRestaurantResources = async (
 		if (!destRestaurant) {
 			throw new APIError(
 				undefined,
-				"food.restaurant.resource.NOT_FOUND",
+				"delivery.restaurant.resource.NOT_FOUND",
 				{ id: destination_restaurant_id },
 				404
 			);
@@ -612,7 +612,7 @@ export const suspendRestaurantResources = async (
 	if (toSuspend.length === 0) {
 		throw new APIError(
 			undefined,
-			"food.common.ALREADY_IN_STATE",
+			"delivery.common.ALREADY_IN_STATE",
 			{ ids, state: "suspended" },
 			409
 		);
@@ -647,7 +647,7 @@ export const suspendRestaurantResources = async (
 				});
 			}
 
-			await tx.vertical_food_employee.updateMany({
+			await tx.vertical_delivery_employee.updateMany({
 				where: {
 					restaurant_id: { in: ids },
 					client_id,
@@ -670,7 +670,7 @@ export const suspendRestaurantResources = async (
 			}
 
 			// Reassign or unassign employees
-			const employeesToMove = await tx.vertical_food_employee.findMany({
+			const employeesToMove = await tx.vertical_delivery_employee.findMany({
 				where: {
 					restaurant_id: { in: ids },
 					client_id,
@@ -680,14 +680,14 @@ export const suspendRestaurantResources = async (
 			const managersToMove = employeesToMove.filter(e => e.role === "manager");
 
 			if (destination_restaurant_id && managersToMove.length > 0) {
-				const destManager = await tx.vertical_food_employee.findFirst({
+				const destManager = await tx.vertical_delivery_employee.findFirst({
 					where: { restaurant_id: destination_restaurant_id, role: "manager" }
 				});
 
 				if (destManager) {
 					throw new APIError(
 						"This destination restaurant already has an active manager! Cannot assign another.",
-						"food.restaurant.assign.manager.SUSPENSION_CONFLICT",
+						"delivery.restaurant.assign.manager.SUSPENSION_CONFLICT",
 						{ 
 							suspended_restaurant_ids: ids,
 							destination_id: destination_restaurant_id
@@ -697,7 +697,7 @@ export const suspendRestaurantResources = async (
 				}
 			}
 
-			await tx.vertical_food_employee.updateMany({
+			await tx.vertical_delivery_employee.updateMany({
 				where: {
 					restaurant_id: { in: ids },
 					client_id,
@@ -735,13 +735,13 @@ export const deleteRestaurants = async (args: DeleteRestaurantsArgs) => {
 	});
 
 	if (restaurants.length === 0) {
-		throw new APIError(undefined, "food.restaurant.resource.NOT_FOUND", { ids }, 404);
+		throw new APIError(undefined, "delivery.restaurant.resource.NOT_FOUND", { ids }, 404);
 	}
 
 	if (restaurants.length !== ids.length) {
 		throw new APIError(
 			undefined,
-			"food.restaurant.resource.PARTIAL_FOUND",
+			"delivery.restaurant.resource.PARTIAL_FOUND",
 			{
 				requested_ids: ids,
 				found_count: restaurants.length,
@@ -751,7 +751,7 @@ export const deleteRestaurants = async (args: DeleteRestaurantsArgs) => {
 	}
 
 	// Fetch managers for archiving
-	const managers = await prisma.vertical_food_employee.findMany({
+	const managers = await prisma.vertical_delivery_employee.findMany({
 		where: {
 			restaurant_id: { in: ids },
 			role: "manager",
@@ -767,7 +767,7 @@ export const deleteRestaurants = async (args: DeleteRestaurantsArgs) => {
 		if (!destRestaurant) {
 			throw new APIError(
 				undefined,
-				"food.restaurant.resource.NOT_FOUND",
+				"delivery.restaurant.resource.NOT_FOUND",
 				{ id: destination_restaurant_id },
 				404
 			);
@@ -776,7 +776,7 @@ export const deleteRestaurants = async (args: DeleteRestaurantsArgs) => {
 		if (destRestaurant.status !== "active") {
 			throw new APIError(
 				undefined,
-				"food.restaurant.resource.REASSIGNMENT_TO_NON_ACTIVE",
+				"delivery.restaurant.resource.REASSIGNMENT_TO_NON_ACTIVE",
 				undefined,
 				409
 			);
@@ -795,14 +795,14 @@ export const deleteRestaurants = async (args: DeleteRestaurantsArgs) => {
 	const boxIds = restaurants.flatMap((r) => r.restaurant_boxes.map((rb) => rb.box_id));
 
 	// Pre-deletion checks for active resources
-	const employeeCount = await prisma.vertical_food_employee.count({
+	const employeeCount = await prisma.vertical_delivery_employee.count({
 		where: { restaurant_id: { in: ids }, client_id },
 	});
 
 	if ((boxIds.length > 0 || employeeCount > 0) && !destination_restaurant_id) {
 		throw new APIError(
 			"Cannot delete restaurant(s) with active resources (employees/boxes) assigned unless a destination restaurant is provided for reassignment.",
-			"food.restaurant.delete.ACTIVE_DEPENDENCIES",
+			"delivery.restaurant.delete.ACTIVE_DEPENDENCIES",
 			{ box_count: boxIds.length, employee_count: employeeCount },
 			409
 		);
@@ -847,7 +847,7 @@ export const deleteRestaurants = async (args: DeleteRestaurantsArgs) => {
 		}
 
 		// Reassign or Unassign employees from restaurants
-		await tx.vertical_food_employee.updateMany({
+		await tx.vertical_delivery_employee.updateMany({
 			where: {
 				restaurant_id: { in: ids },
 				client_id,
@@ -872,7 +872,7 @@ export const deleteRestaurants = async (args: DeleteRestaurantsArgs) => {
 					{ box_id: { $in: boxIds } },
 					{ $set: { driver_id: null, restaurant_id: null } }
 				);
-				await tx.vertical_food_employee_box.deleteMany({
+				await tx.vertical_delivery_employee_box.deleteMany({
 					where: { box_id: { in: boxIds } }
 				});
 			}
@@ -927,7 +927,7 @@ export const reactivateRestaurants = async (
 		});
 
 		if (reactivate_employees) {
-			await tx.vertical_food_employee.updateMany({
+			await tx.vertical_delivery_employee.updateMany({
 				where: { restaurant_id: { in: ids }, client_id, status: "suspended" },
 				data: { status: "active" },
 			});
@@ -971,17 +971,17 @@ export const deleteSuspendedRestaurants = async (
 	if (restaurants.length === 0) {
 		throw new APIError(
 			undefined,
-			"food.restaurant.resource.NOT_FOUND",
+			"delivery.restaurant.resource.NOT_FOUND",
 			{ ids }
 		);
 	}
 
-	const employeeCount = await prisma.vertical_food_employee.count({
+	const employeeCount = await prisma.vertical_delivery_employee.count({
 		where: { restaurant_id: { in: ids }, client_id },
 	});
 
 	// Archive restaurants to restaurant_deleted
-	const restaurantManagers = await prisma.vertical_food_employee.findMany({
+	const restaurantManagers = await prisma.vertical_delivery_employee.findMany({
 		where: { restaurant_id: { in: ids }, role: "manager" }
 	});
 
@@ -1017,7 +1017,7 @@ export const deleteSuspendedRestaurants = async (
 			});
 		}
 
-		await tx.vertical_food_employee.updateMany({
+		await tx.vertical_delivery_employee.updateMany({
 			where: { restaurant_id: { in: ids }, client_id },
 			data: { restaurant_id: null },
 		});
@@ -1031,7 +1031,7 @@ export const deleteSuspendedRestaurants = async (
 				{ box_id: { $in: boxIds } },
 				{ $set: { driver_id: null, restaurant_id: null } }
 			);
-			await tx.vertical_food_employee_box.deleteMany({
+			await tx.vertical_delivery_employee_box.deleteMany({
 				where: { box_id: { in: boxIds } }
 			});
 		}
@@ -1065,12 +1065,12 @@ export const assignRestaurantManager = async (
 	});
 
 	if (!restaurant) {
-		throw new APIError(undefined, "food.restaurant.assign.manager.RESTAURANT_NOT_FOUND", undefined, 404);
+		throw new APIError(undefined, "delivery.restaurant.assign.manager.RESTAURANT_NOT_FOUND", undefined, 404);
 	}
 
 	if (manager_id) {
 		// 1. Verify the manager exists and belongs to the client
-		const manager = await prisma.vertical_food_employee.findUnique({
+		const manager = await prisma.vertical_delivery_employee.findUnique({
 			where: { id: manager_id, client_id },
 		});
 
@@ -1081,7 +1081,7 @@ export const assignRestaurantManager = async (
 		if (manager.role !== "manager") {
 			throw new APIError(
 				"Only employees with role 'manager' can be assigned as a restaurant manager", 
-				"food.restaurant.assign.manager.INVALID_ROLE",
+				"delivery.restaurant.assign.manager.INVALID_ROLE",
 				{ id: manager_id },
 				400
 			);
@@ -1091,34 +1091,34 @@ export const assignRestaurantManager = async (
 		if (manager.restaurant_id && manager.restaurant_id !== id) {
 			throw new APIError(
 				`This manager is already assigned to another restaurant. Please unassign them first.`,
-				"food.restaurant.assign.manager.REASSIGNMENT_CONFLICT",
+				"delivery.restaurant.assign.manager.REASSIGNMENT_CONFLICT",
 				{ id: manager.restaurant_id },
 				409
 			);
 		}
 
 		// 3. Check if THIS restaurant already has a manager
-		const currentManager = await prisma.vertical_food_employee.findFirst({
+		const currentManager = await prisma.vertical_delivery_employee.findFirst({
 			where: { restaurant_id: id, role: "manager", status: "active" }
 		});
 
 		if (currentManager && currentManager.id !== manager_id) {
 			throw new APIError(
 				"This restaurant already has an active manager! Please unassign them first.",
-				"food.restaurant.assign.manager.ALREADY_HAS_MANAGER",
+				"delivery.restaurant.assign.manager.ALREADY_HAS_MANAGER",
 				{ manager_id: currentManager.id },
 				400
 			);
 		}
 
 		// Update the manager
-		await prisma.vertical_food_employee.update({
+		await prisma.vertical_delivery_employee.update({
 			where: { id: manager_id, client_id },
 			data: { restaurant_id: id },
 		});
 	} else {
 		// Unassign any existing manager for this restaurant
-		await prisma.vertical_food_employee.updateMany({
+		await prisma.vertical_delivery_employee.updateMany({
 			where: { restaurant_id: id, client_id, role: "manager" },
 			data: { restaurant_id: null },
 		});
@@ -1147,10 +1147,10 @@ export const getRestaurantEmployees = async (
 	});
 
 	if (!restaurant) {
-		throw new APIError(undefined, "food.restaurant.assign.manager.RESTAURANT_NOT_FOUND", undefined, 404);
+		throw new APIError(undefined, "delivery.restaurant.assign.manager.RESTAURANT_NOT_FOUND", undefined, 404);
 	}
 
-	const employees = await prisma.vertical_food_employee.findMany({
+	const employees = await prisma.vertical_delivery_employee.findMany({
 		where: {
 			restaurant_id: id,
 			client_id,
@@ -1180,9 +1180,9 @@ export const removeRestaurantEmployees = async (
 		where: { id, client_id, status: { not: "suspended" } },
 	});
 
-	if (!restaurant) throw new APIError(undefined, "food.restaurant.assign.manager.RESTAURANT_NOT_FOUND", undefined, 404);
+	if (!restaurant) throw new APIError(undefined, "delivery.restaurant.assign.manager.RESTAURANT_NOT_FOUND", undefined, 404);
 
-	const employees = await prisma.vertical_food_employee.findMany({
+	const employees = await prisma.vertical_delivery_employee.findMany({
 		where: {
 			id: { in: employee_ids },
 			restaurant_id: id,
@@ -1197,7 +1197,7 @@ export const removeRestaurantEmployees = async (
 	}
 
 	// Unset restaurant_id
-	await prisma.vertical_food_employee.updateMany({
+	await prisma.vertical_delivery_employee.updateMany({
 		where: { id: { in: employee_ids }, restaurant_id: id, client_id },
 		data: { restaurant_id: null },
 	});
@@ -1242,18 +1242,18 @@ export const reassignRestaurantResources = async (
 	]);
 
 	if (fromRestaurants.length === 0) throw new APIError("Source restaurants not found", undefined, undefined, 404);
-	if (!toRestaurant) throw new APIError(undefined, "food.restaurant.assign.manager.RESTAURANT_NOT_FOUND", undefined, 404);
+	if (!toRestaurant) throw new APIError(undefined, "delivery.restaurant.assign.manager.RESTAURANT_NOT_FOUND", undefined, 404);
 
 	await prisma.$transaction(async (tx) => {
 		if (reassign_employees) {
-			const employeesToMove = await tx.vertical_food_employee.findMany({
+			const employeesToMove = await tx.vertical_delivery_employee.findMany({
 				where: { restaurant_id: { in: from_restaurant_ids }, client_id }
 			});
 
 			const managersToMove = employeesToMove.filter(e => e.role === "manager");
 
 			if (managersToMove.length > 0) {
-				const existingManager = await tx.vertical_food_employee.findFirst({
+				const existingManager = await tx.vertical_delivery_employee.findFirst({
 					where: { restaurant_id: to_restaurant_id, role: "manager" }
 				});
 
@@ -1263,7 +1263,7 @@ export const reassignRestaurantResources = async (
 					const managersToUnassign = managersToMove.filter(m => m.id !== managerToKeepId);
 					
 					if (managersToUnassign.length > 0) {
-						await tx.vertical_food_employee.updateMany({
+						await tx.vertical_delivery_employee.updateMany({
 							where: { id: { in: managersToUnassign.map(m => m.id) } },
 							data: { restaurant_id: null }
 						});
@@ -1275,7 +1275,7 @@ export const reassignRestaurantResources = async (
 			const movingManagers = managersToMove.filter(e => e.role === "manager");
 			
 			// If there's already an active manager, none of the moving managers should be assigned.
-			const existingManager = await tx.vertical_food_employee.findFirst({
+			const existingManager = await tx.vertical_delivery_employee.findFirst({
 				where: { restaurant_id: to_restaurant_id, role: "manager" }
 			});
 			
@@ -1287,7 +1287,7 @@ export const reassignRestaurantResources = async (
 			];
 
 			if (allMovingIds.length > 0) {
-				await tx.vertical_food_employee.updateMany({
+				await tx.vertical_delivery_employee.updateMany({
 					where: { id: { in: allMovingIds }, client_id },
 					data: { restaurant_id: to_restaurant_id },
 				});
@@ -1334,18 +1334,18 @@ export const assignEmployeesToRestaurant = async (
 	});
 
 	if (!restaurant) {
-		throw new APIError(undefined, "food.restaurant.assign.manager.RESTAURANT_NOT_FOUND", undefined, 404);
+		throw new APIError(undefined, "delivery.restaurant.assign.manager.RESTAURANT_NOT_FOUND", undefined, 404);
 	}
 
 	if (role === "manager") {
-		const existingManager = await prisma.vertical_food_employee.findFirst({
+		const existingManager = await prisma.vertical_delivery_employee.findFirst({
 			where: { restaurant_id, role: "manager", status: "active" }
 		});
 
 		if (existingManager) {
 			throw new APIError(
 				"This restaurant already has an active manager! Please unassign them first.",
-				"food.restaurant.assign.manager.ALREADY_HAS_MANAGER",
+				"delivery.restaurant.assign.manager.ALREADY_HAS_MANAGER",
 				{ manager_id: existingManager.id },
 				409
 			);
@@ -1354,7 +1354,7 @@ export const assignEmployeesToRestaurant = async (
 		if (employee_ids.length > 1) {
 			throw new APIError(
 				"Cannot assign multiple managers to a single restaurant simultaneously.",
-				"food.restaurant.assign.manager.MULTIPLE_MANAGERS_NOT_ALLOWED",
+				"delivery.restaurant.assign.manager.MULTIPLE_MANAGERS_NOT_ALLOWED",
 				undefined,
 				400
 			);
@@ -1362,7 +1362,7 @@ export const assignEmployeesToRestaurant = async (
 	}
 
 	// Update employees' restaurant_id and role
-	const updateResult = await prisma.vertical_food_employee.updateMany({
+	const updateResult = await prisma.vertical_delivery_employee.updateMany({
 		where: {
 			id: { in: employee_ids },
 			client_id,
@@ -1376,15 +1376,15 @@ export const assignEmployeesToRestaurant = async (
 	return updateResult;
 };
 
-interface SearchVerticalFoodRestaurantsArgs {
+interface SearchVerticalDeliveryRestaurantsArgs {
 	query?: string;
 	client_id: string;
 	limit?: number;
 	status?: string;
 }
 
-export const searchVerticalFoodRestaurants = async (
-	args: SearchVerticalFoodRestaurantsArgs,
+export const searchVerticalDeliveryRestaurants = async (
+	args: SearchVerticalDeliveryRestaurantsArgs,
 ) => {
 	const { query, client_id, limit = 50, status = "all" } = args;
 
