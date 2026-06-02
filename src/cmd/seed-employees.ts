@@ -126,18 +126,18 @@ export const seedEmployees = async (): Promise<void> => {
   for (const empDef of EMPLOYEES) {
     const { assigned_box_ids, connected_box_id, ...empData } = empDef;
 
-    const existing = await prisma.vertical_food_employee.findUnique({ where: { id: empDef.id } });
+    const existing = await prisma.vertical_delivery_employee.findUnique({ where: { id: empDef.id } });
     if (existing) {
-      await prisma.vertical_food_employee.update({
+      await prisma.vertical_delivery_employee.update({
         where: { id: empDef.id },
         data: empData,
       });
       logger.info(`  Employee "${empDef.first_name} ${empDef.last_name}" updated.`);
     } else {
-      const employee = await prisma.vertical_food_employee.create({ data: empData });
+      const employee = await prisma.vertical_delivery_employee.create({ data: empData });
 
       if (assigned_box_ids && assigned_box_ids.length > 0) {
-        await prisma.vertical_food_employee_box.createMany({
+        await prisma.vertical_delivery_employee_box.createMany({
           data: assigned_box_ids.map((boxId) => ({
             employee_id: employee.id,
             box_id: boxId,

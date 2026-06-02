@@ -72,13 +72,13 @@ async function run() {
   }
 
   // 4. Create Employee for Tenant B
-  let employeeB = await prisma.vertical_food_employee.findFirst({
+  let employeeB = await prisma.vertical_delivery_employee.findFirst({
     where: { email: "competitor-drv@competitor.com", client_id: clientBId }
   });
 
   if (!employeeB) {
     console.log("[ACTION] Creating Employee for Tenant B...");
-    employeeB = await prisma.vertical_food_employee.create({
+    employeeB = await prisma.vertical_delivery_employee.create({
       data: {
         first_name: "Competitor",
         last_name: "Driver",
@@ -138,7 +138,7 @@ async function run() {
     });
 
     // Map box to employee
-    await prisma.vertical_food_employee_box.create({
+    await prisma.vertical_delivery_employee_box.create({
       data: {
         employee_id: employeeB.id,
         box_id: boxB.id,

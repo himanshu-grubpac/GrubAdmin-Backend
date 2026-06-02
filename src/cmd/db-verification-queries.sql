@@ -23,7 +23,7 @@ SELECT id, name, status FROM vertical ORDER BY name;
 SELECT c.id, c.name, c.client_display_id, c.email, c.status,
        v.name as vertical_name,
        (SELECT COUNT(*) FROM box b WHERE b.client_id = c.id) as box_count,
-       (SELECT COUNT(*) FROM vertical_food_employee e WHERE e.client_id = c.id) as employee_count,
+       (SELECT COUNT(*) FROM vertical_delivery_employee e WHERE e.client_id = c.id) as employee_count,
        (SELECT COUNT(*) FROM restaurant r WHERE r.client_id = c.id) as restaurant_count
 FROM client c
 LEFT JOIN vertical v ON c.vertical_id = v.id
@@ -40,37 +40,37 @@ FROM client c
 LEFT JOIN vertical v ON c.vertical_id = v.id
 WHERE v.id IS NULL;
 
--- 7. EMPLOYEES (vertical_food_employee): Verify all records
+-- 7. EMPLOYEES (vertical_delivery_employee): Verify all records
 SELECT e.id, e.first_name, e.last_name, e.email, e.employee_display_id,
        e.role, e.status,
        c.name as client_name, c.id as client_id,
        r.name as restaurant_name
-FROM vertical_food_employee e
+FROM vertical_delivery_employee e
 LEFT JOIN client c ON e.client_id = c.id
 LEFT JOIN restaurant r ON e.restaurant_id = r.id
 ORDER BY e.created_at;
 
 -- 8. Find employees with NULL client_id (orphaned)
 SELECT id, first_name, last_name, email, role, status
-FROM vertical_food_employee
+FROM vertical_delivery_employee
 WHERE client_id IS NULL;
 
 -- 9. Find employees with client_id pointing to non-existent client
 SELECT e.id, e.first_name, e.last_name, e.email, e.client_id
-FROM vertical_food_employee e
+FROM vertical_delivery_employee e
 LEFT JOIN client c ON e.client_id = c.id
 WHERE c.id IS NULL;
 
 -- 10. Find employees with duplicate emails (should not exist due to @@unique constraint)
 SELECT email, COUNT(*) as cnt
-FROM vertical_food_employee
+FROM vertical_delivery_employee
 GROUP BY email
 HAVING COUNT(*) > 1;
 
 -- 11. Find employees with same email as their client (potential conflict)
 SELECT e.id as employee_id, e.email, e.first_name, e.last_name,
        c.id as client_id, c.name as client_name
-FROM vertical_food_employee e
+FROM vertical_delivery_employee e
 JOIN client c ON e.client_id = c.id AND e.email = c.email;
 
 -- 12. DUPLICATE EMAIL CHECK: Admin vs Client vs Employee cross-table
@@ -78,7 +78,7 @@ SELECT 'admin' as source, email FROM admin WHERE email IS NOT NULL
 UNION ALL
 SELECT 'client', email FROM client WHERE email IS NOT NULL
 UNION ALL
-SELECT 'employee', email FROM vertical_food_employee WHERE email IS NOT NULL
+SELECT 'employee', email FROM vertical_delivery_employee WHERE email IS NOT NULL
 GROUP BY email
 HAVING COUNT(*) > 1;
 
@@ -87,7 +87,7 @@ SELECT 'client' as type, name as display_name, email, status
 FROM client WHERE status IN ('suspended', 'inactive')
 UNION ALL
 SELECT 'employee', CONCAT(first_name, ' ', last_name), email, status
-FROM vertical_food_employee WHERE status IN ('suspended', 'unassigned')
+FROM vertical_delivery_employee WHERE status IN ('suspended', 'unassigned')
 UNION ALL
 SELECT 'admin', CONCAT(first_name, ' ', last_name), email, status
 FROM admin WHERE status IN ('suspended', 'unassigned')
@@ -96,7 +96,7 @@ ORDER BY type;
 -- 14. RESTAURANTS: Verify ownership
 SELECT r.id, r.name, r.status, r.city, r.state,
        c.name as client_name,
-       (SELECT COUNT(*) FROM vertical_food_employee e WHERE e.restaurant_id = r.id) as employee_count,
+       (SELECT COUNT(*) FROM vertical_delivery_employee e WHERE e.restaurant_id = r.id) as employee_count,
        (SELECT COUNT(*) FROM restaurant_box rb WHERE rb.restaurant_id = r.id) as box_count
 FROM restaurant r
 LEFT JOIN client c ON r.client_id = c.id
@@ -115,7 +115,7 @@ SELECT b.id, b.name, b.box_display_id, b.status, b.vehicle_number,
 FROM box b
 LEFT JOIN client c ON b.client_id = c.id
 LEFT JOIN vertical v ON b.vertical_id = v.id
-LEFT JOIN vertical_food_employee e ON b.connection_employee_id = e.id
+LEFT JOIN vertical_delivery_employee e ON b.connection_employee_id = e.id
 ORDER BY b.created_at;
 
 -- 17. Find boxes with NULL client_id
@@ -129,11 +129,11 @@ FROM box b
 LEFT JOIN client c ON b.client_id = c.id
 WHERE c.id IS NULL;
 
--- 19. EMPLOYEE-BOX assignments (vertical_food_employee_box)
+-- 19. EMPLOYEE-BOX assignments (vertical_delivery_employee_box)
 SELECT eb.id, e.first_name, e.last_name, e.email,
        b.box_display_id, eb.status, eb.access
-FROM vertical_food_employee_box eb
-JOIN vertical_food_employee e ON eb.employee_id = e.id
+FROM vertical_delivery_employee_box eb
+JOIN vertical_delivery_employee e ON eb.employee_id = e.id
 JOIN box b ON eb.box_id = b.id
 ORDER BY e.first_name;
 
@@ -151,7 +151,7 @@ HAVING COUNT(*) > 1;
 
 -- 22. SESSIONS / TOKENS: Check MongoDB collections (run in MongoDB shell)
 -- db.admin_update_otp.find().pretty()
--- db.food_employee_otp.find().pretty()
+-- db.delivery_employee_otp.find().pretty()
 -- db.otp.find().pretty()
 -- db.otp_attempt.find().pretty()
 
@@ -164,7 +164,7 @@ SELECT
     COUNT(DISTINCT r.id) as restaurant_count,
     COUNT(DISTINCT b.id) as box_count
 FROM client c
-LEFT JOIN vertical_food_employee e ON e.client_id = c.id
+LEFT JOIN vertical_delivery_employee e ON e.client_id = c.id
 LEFT JOIN restaurant r ON r.client_id = c.id
 LEFT JOIN box b ON b.client_id = c.id
 GROUP BY c.id, c.name, c.status

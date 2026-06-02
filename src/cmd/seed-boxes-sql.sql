@@ -12,7 +12,7 @@ WHERE restaurant_id = '01KS0QHFCQQP64WXY9RBNANCKT'
 
 -- Step 3: Connect GP-CP02 (active box) to the first active driver
 --   First, find active drivers:
---   SELECT id, first_name, last_name FROM vertical_food_employee
+--   SELECT id, first_name, last_name FROM vertical_delivery_employee
 --   WHERE client_id = '01KS0QHF59ZHVEVA64E4ZXSSE7' AND role = 'delivery' AND status != 'suspended';
 --
 --   If there are active drivers, run:

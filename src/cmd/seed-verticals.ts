@@ -49,12 +49,12 @@ export const seedIcons = async (): Promise<void> => {
   logger.info(`Seeded ${ICONS.length} icons.`);
 };
 
-export const migrateFoodVerticalToDelivery = async (): Promise<void> => {
-  const foodVertical = await prisma.vertical.findFirst({
+export const migrateLegacyFoodVertical = async (): Promise<void> => {
+  const legacyFoodVertical = await prisma.vertical.findFirst({
     where: { name: { equals: "food" } },
   });
 
-  if (!foodVertical) {
+  if (!legacyFoodVertical) {
     logger.info("  No legacy 'Food' vertical found. Nothing to migrate.");
     return;
   }
@@ -68,56 +68,56 @@ export const migrateFoodVerticalToDelivery = async (): Promise<void> => {
     return;
   }
 
-  const foodId = foodVertical.id;
+  const legacyFoodId = legacyFoodVertical.id;
   const deliveryId = deliveryVertical.id;
 
-  if (foodId === deliveryId) {
-    logger.info("  Food and Delivery are the same vertical; nothing to migrate.");
+  if (legacyFoodId === deliveryId) {
+    logger.info("  Legacy Food and Delivery are the same vertical; nothing to migrate.");
     return;
   }
 
   const results: string[] = [];
 
   const clientsMigrated = await prisma.client.updateMany({
-    where: { vertical_id: foodId },
+    where: { vertical_id: legacyFoodId },
     data: { vertical_id: deliveryId },
   });
   if (clientsMigrated.count > 0) results.push(`  Migrated ${clientsMigrated.count} client(s)`);
 
   const boxesMigrated = await prisma.box.updateMany({
-    where: { vertical_id: foodId },
+    where: { vertical_id: legacyFoodId },
     data: { vertical_id: deliveryId },
   });
   if (boxesMigrated.count > 0) results.push(`  Migrated ${boxesMigrated.count} box(es)`);
 
   const faqMigrated = await prisma.faq_category.updateMany({
-    where: { vertical_id: foodId },
+    where: { vertical_id: legacyFoodId },
     data: { vertical_id: deliveryId },
   });
   if (faqMigrated.count > 0) results.push(`  Migrated ${faqMigrated.count} FAQ categor(ies)`);
 
   const deletedClientsMigrated = await prisma.client_deleted.updateMany({
-    where: { vertical_id: foodId },
+    where: { vertical_id: legacyFoodId },
     data: { vertical_id: deliveryId },
   });
   if (deletedClientsMigrated.count > 0) results.push(`  Migrated ${deletedClientsMigrated.count} deleted client(s)`);
 
   const deletedBoxesMigrated = await prisma.box_deleted.updateMany({
-    where: { vertical_id: foodId },
+    where: { vertical_id: legacyFoodId },
     data: { vertical_id: deliveryId },
   });
   if (deletedBoxesMigrated.count > 0) results.push(`  Migrated ${deletedBoxesMigrated.count} deleted box(es)`);
 
   await prisma.vertical.update({
-    where: { id: foodId },
+    where: { id: legacyFoodId },
     data: { status: "deleted" },
   });
-  results.push(`  Soft-deleted legacy 'Food' vertical (${foodId})`);
+  results.push(`  Soft-deleted legacy 'Food' vertical (${legacyFoodId})`);
 
   if (results.length > 0) {
-    logger.info("Food -> Delivery migration complete:");
+    logger.info("Legacy Food -> Delivery migration complete:");
     for (const r of results) logger.info(r);
   } else {
-    logger.info("  No Food-referencing records found to migrate.");
+    logger.info("  No legacy Food-referencing records found to migrate.");
   }
 };

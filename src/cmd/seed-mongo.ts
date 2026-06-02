@@ -1,6 +1,6 @@
 import { connectMongoDB, prisma } from "@/db";
 import { AdminNotification } from "@/db/mongo-schema";
-import { ClientAdminLog, FoodEmployeeLog, RestaurantLog, GrubpacLog } from "@/db/mongo-schema";
+import { ClientAdminLog, DeliveryEmployeeLog, RestaurantLog, GrubpacLog } from "@/db/mongo-schema";
 import { logger } from "@/utils/logger";
 import { SEED_IDS } from "./seed-ids";
 
@@ -117,8 +117,8 @@ const seedSystemLogs = async (superAdminId: string, superAdminName: string) => {
 			],
 		},
 		{
-			model: FoodEmployeeLog,
-			collection: "food_employee_logs",
+			model: DeliveryEmployeeLog,
+			collection: "delivery_employee_logs",
 			documents: [
 				{
 					category: "Employee",

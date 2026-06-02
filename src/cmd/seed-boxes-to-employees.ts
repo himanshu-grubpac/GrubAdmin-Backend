@@ -53,7 +53,7 @@ async function main() {
     console.log(`  Updated ${rbUpdate.count} restaurant_box row(s) to 'shared'.`);
 
     console.log("\nStep 3: Finding active delivery employees...");
-    const drivers = await prisma.vertical_food_employee.findMany({
+    const drivers = await prisma.vertical_delivery_employee.findMany({
         where: {
             client_id: CLIENT_ID,
             role: "delivery",

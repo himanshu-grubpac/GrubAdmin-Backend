@@ -1,12 +1,12 @@
 import { Hono } from "hono";
 import { commonRouter } from "./common";
 import { adminRouter } from "./admin";
-import { foodRouter } from "@/modules/food";
-import { foodMobileRouter } from "@/modules/food-mobile";
+import { deliveryRouter } from "@/modules/delivery";
+import { deliveryMobileRouter } from "@/modules/delivery-mobile";
 
 export const router = new Hono();
 
 router.route("/common", commonRouter);
 router.route("/admin", adminRouter);
-router.route("/food", foodRouter);
-router.route("/food-mobile", foodMobileRouter);
+router.route("/delivery", deliveryRouter);
+router.route("/delivery-mobile", deliveryMobileRouter);

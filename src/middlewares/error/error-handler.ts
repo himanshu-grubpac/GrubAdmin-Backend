@@ -6,10 +6,34 @@ import { ZodError } from "zod";
 import { type StatusCode } from "hono/utils/http-status";
 import { logger } from "@/utils/logger";
 
-export const globalErrorHandler = async (error: unknown, ctx: Context) => {
-	logger.error("API Error occurred:", error);
+/**
+ * Extract a structured context object for error logging.
+ */
+const getErrorContext = (ctx: Context) => ({
+	path: ctx.req.path,
+	method: ctx.req.method,
+	client_id: ctx.get("client_id"),
+	user_id: ctx.get("user_id"),
+	request_id: (ctx as any).requestId || ctx.req.header("x-request-id") || "unknown",
+});
 
-	const client_id = ctx.get("client_id");
+export const globalErrorHandler = async (error: unknown, ctx: Context) => {
+	const errCtx = getErrorContext(ctx);
+	const client_id = errCtx.client_id;
+
+	// Structured error log with all context fields
+	const errorLog = {
+		request_id: errCtx.request_id,
+		path: errCtx.path,
+		method: errCtx.method,
+		client_id: errCtx.client_id,
+		user_id: errCtx.user_id,
+		root_cause: error instanceof Error ? error.constructor.name : typeof error,
+		message: error instanceof Error ? error.message : String(error),
+		stack: error instanceof Error ? error.stack : undefined,
+	};
+
+	logger.error("API Error:", errorLog);
 
 	if (error instanceof Prisma.PrismaClientKnownRequestError) {
 		if (error.code === "P2002" || error.code === "P2014") {
@@ -43,6 +67,7 @@ export const globalErrorHandler = async (error: unknown, ctx: Context) => {
 					error: errorMessage,
 					code: 400,
 					client_id,
+					request_id: errCtx.request_id,
 				},
 				{
 					status: 400,
@@ -57,6 +82,7 @@ export const globalErrorHandler = async (error: unknown, ctx: Context) => {
 					error: "Either no data found or some inconsistent column data type found.",
 					code: 400,
 					client_id,
+					request_id: errCtx.request_id,
 				},
 				{
 					status: 400,
@@ -71,12 +97,56 @@ export const globalErrorHandler = async (error: unknown, ctx: Context) => {
 					error: "Data not found!!",
 					code: 404,
 					client_id,
+					request_id: errCtx.request_id,
 				},
 				{
 					status: 404,
 				},
 			);
 		}
+
+		// Unhandled Prisma error
+		return ctx.json(
+			{
+				success: false,
+				error: "Database error. Please try again.",
+				code: 500,
+				client_id,
+				request_id: errCtx.request_id,
+				root_cause: "prisma_known_error",
+			},
+			{ status: 500 },
+		);
+	}
+
+	if (error instanceof Prisma.PrismaClientInitializationError) {
+		logger.error(`Prisma initialization error: ${error.message}`);
+		return ctx.json(
+			{
+				success: false,
+				error: "Service temporarily unavailable. Database connection issue.",
+				code: 503,
+				client_id,
+				request_id: errCtx.request_id,
+				root_cause: "database_connection_failed",
+			},
+			{ status: 503 },
+		);
+	}
+
+	if (error instanceof Prisma.PrismaClientRustPanicError) {
+		logger.error(`Prisma rust panic: ${error.message}`);
+		return ctx.json(
+			{
+				success: false,
+				error: "Internal database error. Please try again.",
+				code: 500,
+				client_id,
+				request_id: errCtx.request_id,
+				root_cause: "prisma_rust_panic",
+			},
+			{ status: 500 },
+		);
 	}
 
 	if (error instanceof ZodError) {
@@ -86,6 +156,8 @@ export const globalErrorHandler = async (error: unknown, ctx: Context) => {
 				code: 400,
 				error: error.issues[0]?.message ?? "",
 				client_id,
+				request_id: errCtx.request_id,
+				root_cause: "validation_error",
 			},
 			{
 				status: 400,
@@ -100,6 +172,8 @@ export const globalErrorHandler = async (error: unknown, ctx: Context) => {
 				error: error.message,
 				code: 401,
 				client_id,
+				request_id: errCtx.request_id,
+				root_cause: "jwt_error",
 			},
 			{
 				status: 401,
@@ -144,6 +218,7 @@ export const globalErrorHandler = async (error: unknown, ctx: Context) => {
 			data: error.data,
 			...templateData,
 			client_id,
+			request_id: errCtx.request_id,
 		};
 
 		ctx.status(finalData.code as StatusCode);
@@ -151,12 +226,66 @@ export const globalErrorHandler = async (error: unknown, ctx: Context) => {
 	}
 
 	if (error instanceof Error) {
+		// Check if this is a Mongoose/MongoDB error (buffering timeout or connection error)
+		const errorName = error.name || "";
+		const errorMessage = error.message || "";
+
+		// Mongoose buffering timeout errors should return 503, not 400
+		if (
+			errorName.includes("MongooseError") ||
+			errorMessage.includes("buffering timed out") ||
+			errorMessage.includes("MongooseError")
+		) {
+			logger.error(`MongoDB operation failed: ${errorMessage}`, {
+				path: errCtx.path,
+				client_id,
+				request_id: errCtx.request_id,
+			});
+			return ctx.json(
+				{
+					success: false,
+					error: "Service temporarily unavailable. Database connection issue.",
+					code: 503,
+					client_id,
+					request_id: errCtx.request_id,
+					root_cause: "mongodb_buffering_timeout",
+				},
+				{ status: 503 },
+			);
+		}
+
+		// MongoDB connection errors
+		if (
+			errorName === "MongoServerSelectionError" ||
+			errorMessage.includes("getaddrinfo") ||
+			errorMessage.includes("MongoNetworkError") ||
+			errorMessage.includes("Server selection")
+		) {
+			logger.error(`MongoDB connection error: ${errorMessage}`, {
+				path: errCtx.path,
+				request_id: errCtx.request_id,
+			});
+			return ctx.json(
+				{
+					success: false,
+					error: "Service temporarily unavailable. Database connection issue.",
+					code: 503,
+					client_id,
+					request_id: errCtx.request_id,
+					root_cause: "mongodb_connection_error",
+				},
+				{ status: 503 },
+			);
+		}
+
 		return ctx.json(
 			{
 				success: false,
 				error: error.message,
 				code: 400,
 				client_id,
+				request_id: errCtx.request_id,
+				root_cause: "unhandled_error",
 			},
 			{
 				status: 400,
@@ -170,6 +299,8 @@ export const globalErrorHandler = async (error: unknown, ctx: Context) => {
 			error: "Internal Server Error",
 			code: 500,
 			client_id,
+			request_id: errCtx.request_id,
+			root_cause: "unknown_error",
 		},
 		{
 			status: 500,

@@ -18,6 +18,23 @@ import { BoxConfig } from "@/db/mongo-schema";
 import { loggerService } from "@/services/system-log.ts";
 import { withFullAddress } from "@/utils/restaurant.ts";
 import { nullifyEmptyFKs } from "@/utils/clean-query.ts";
+import { isMongoConnected, getMongoConnectionState } from "@/db";
+
+/**
+ * Assert that MongoDB is connected before executing a MongoDB operation.
+ * Throws immediately instead of letting Mongoose buffer and timeout.
+ */
+const requireMongoDB = (operation: string): void => {
+	if (!isMongoConnected()) {
+		logger.error(`MongoDB not connected — cannot execute "${operation}". State: ${getMongoConnectionState()}`);
+		throw new APIError(
+			"Database service temporarily unavailable. Please try again.",
+			undefined,
+			undefined,
+			503,
+		);
+	}
+};
 
 export const calculateAccessMode = (
 	sharedPermissions: { employee_id: string | null; access: string }[],
@@ -82,7 +99,7 @@ export const getHandlerStatus = (box: any) => {
 		return { status: "offline", details: null };
 	}
 
-	const hasSharedEmployees = (box.vertical_food_employee_boxes?.length || 0) > 0;
+	const hasSharedEmployees = (box.vertical_delivery_employee_boxes?.length || 0) > 0;
 	if (!hasSharedEmployees) {
 		return { status: "not_shared", details: null };
 	}
@@ -171,6 +188,7 @@ export const createBox = async (args: CreateBoxArgs) => {
 		},
 	});
 
+	requireMongoDB("BoxConfig.create");
 	const boxConfig = await BoxConfig.create({
 		box_id: box.id,
 	});
@@ -322,7 +340,7 @@ export const toggleAssignBoxes = async (args: ToggleAssignBoxesArgs) => {
 			}
 			for (const box of boxes) {
 				if (box.vertical_id !== client.vertical_id) {
-					throw new APIError(undefined, "food.box.VERTICAL_MISMATCH", undefined, 400);
+					throw new APIError(undefined, "delivery.box.VERTICAL_MISMATCH", undefined, 400);
 				}
 			}
 		}
@@ -340,7 +358,7 @@ export const toggleAssignBoxes = async (args: ToggleAssignBoxesArgs) => {
 				},
 			});
 
-			await tx.vertical_food_employee_box.updateMany({
+			await tx.vertical_delivery_employee_box.updateMany({
 				where: {
 					box_id: { in: box_ids },
 					status: "shared",
@@ -384,14 +402,14 @@ export const deleteBoxes = async (args: DeleteBoxesArgs) => {
 
 	for (const box of boxes) {
 		if (box.client_id && args.box_ids.length === 1) {
-			throw new APIError(undefined, "food.box.CLIENT_ASSIGNED", undefined, 400);
+			throw new APIError(undefined, "delivery.box.CLIENT_ASSIGNED", undefined, 400);
 		} else if (box.client_id) {
 			assignedClients++;
 		}
 	}
 
 	if (assignedClients > 0) {
-		throw new APIError(undefined, "food.box.BULK_CLIENT_ASSIGNED", { count: assignedClients }, 400);
+		throw new APIError(undefined, "delivery.box.BULK_CLIENT_ASSIGNED", { count: assignedClients }, 400);
 	}
 
 	// Archive boxes to box_deleted
@@ -487,7 +505,7 @@ export const getBoxes = async (
 			client: true,
 			vertical: true,
 			connection_employee: true,
-			vertical_food_employee_boxes: true,
+			vertical_delivery_employee_boxes: true,
 			telemetry: true,
 		},
 	};
@@ -513,7 +531,7 @@ export const getBoxes = async (
 
 	return {
 		boxes: boxesResponse.value.map((box) => {
-			const { vertical_food_employee_boxes, connection_employee, telemetry, ...boxData } = (box as any);
+			const { vertical_delivery_employee_boxes, connection_employee, telemetry, ...boxData } = (box as any);
 			const { id: _telemetryId, box_id: _telemetryBoxId, updated_at: _telemetryUpdatedAt, ...telemetryData } = (telemetry || {}) as any;
 			const boxWithTelemetry = { ...boxData, telemetry };
 			const handler = getHandlerStatus(boxWithTelemetry);
@@ -523,7 +541,7 @@ export const getBoxes = async (
 				global_status: getGlobalStatus(boxWithTelemetry),
 				handler_status: handler.status,
 				handler_employee: handler.details,
-				permissions: vertical_food_employee_boxes,
+				permissions: vertical_delivery_employee_boxes,
 			};
 		}),
 		count: boxesCountResponse.value,
@@ -531,8 +549,8 @@ export const getBoxes = async (
 };
 
 
-export const getFoodEmployeeBoxes = async (employeeId: string) => {
-	const assignments = await prisma.vertical_food_employee_box.findMany({
+export const getDeliveryEmployeeBoxes = async (employeeId: string) => {
+	const assignments = await prisma.vertical_delivery_employee_box.findMany({
 		where: {
 			employee_id: employeeId,
 		},
@@ -541,7 +559,7 @@ export const getFoodEmployeeBoxes = async (employeeId: string) => {
 				include: {
 					vertical: true,
 					connection_employee: true,
-					vertical_food_employee_boxes: true,
+					vertical_delivery_employee_boxes: true,
 					telemetry: true,
 				},
 			},
@@ -549,7 +567,7 @@ export const getFoodEmployeeBoxes = async (employeeId: string) => {
 	});
 
 	return assignments.map((a) => {
-		const { vertical_food_employee_boxes, connection_employee, telemetry, ...boxData } = (a.box as any);
+		const { vertical_delivery_employee_boxes, connection_employee, telemetry, ...boxData } = (a.box as any);
 		const { id: _telemetryId, box_id: _telemetryBoxId, updated_at: _telemetryUpdatedAt, ...telemetryData } = (telemetry || {}) as any;
 		const boxWithTelemetry = { ...boxData, telemetry };
 		const handler = getHandlerStatus(boxWithTelemetry);
@@ -559,13 +577,13 @@ export const getFoodEmployeeBoxes = async (employeeId: string) => {
 			global_status: getGlobalStatus(boxWithTelemetry),
 			handler_status: handler.status,
 			handler_employee: handler.details,
-			permissions: vertical_food_employee_boxes,
+			permissions: vertical_delivery_employee_boxes,
 		};
 	});
 };
 
 
-interface GetVerticalFoodBoxesArgs {
+interface GetVerticalDeliveryBoxesArgs {
 	client_id: string;
 	status?: "active" | "suspended" | "";
 	restaurant_id?: string | null;
@@ -592,7 +610,7 @@ interface GetVerticalFoodBoxesArgs {
 	query?: string;
 }
 
-export const getVerticalFoodBoxes = async (args: GetVerticalFoodBoxesArgs) => {
+export const getVerticalDeliveryBoxes = async (args: GetVerticalDeliveryBoxesArgs) => {
 	const {
 		client_id,
 		status,
@@ -664,7 +682,7 @@ export const getVerticalFoodBoxes = async (args: GetVerticalFoodBoxesArgs) => {
 			lock: grublock_status ? { lock_status: grublock_status as box_lock_status } : undefined,
 			...(employee_id
 				? (await (async () => {
-					const employee = await prisma.vertical_food_employee.findUnique({
+					const employee = await prisma.vertical_delivery_employee.findUnique({
 						where: { id: employee_id, client_id },
 						select: { role: true, restaurant_id: true }
 					});
@@ -673,7 +691,7 @@ export const getVerticalFoodBoxes = async (args: GetVerticalFoodBoxesArgs) => {
 						if (!employee.restaurant_id) return { id: { in: [] } };
 						if (permission_status === "blocked") {
 							return {
-								vertical_food_employee_boxes: {
+								vertical_delivery_employee_boxes: {
 									some: {
 										employee_id,
 										status: "blocked",
@@ -684,7 +702,7 @@ export const getVerticalFoodBoxes = async (args: GetVerticalFoodBoxesArgs) => {
 						return {
 							restaurant_boxes: { some: { restaurant_id: employee.restaurant_id } },
 							NOT: {
-								vertical_food_employee_boxes: {
+								vertical_delivery_employee_boxes: {
 									some: {
 										employee_id,
 										status: "blocked",
@@ -697,15 +715,15 @@ export const getVerticalFoodBoxes = async (args: GetVerticalFoodBoxesArgs) => {
 					if (permission_status === "shared") {
 						return {
 							OR: [
-								{ vertical_food_employee_boxes: { some: { employee_id, status: "shared", access: "direct" } } },
-								{ vertical_food_employee_boxes: { some: { status: "shared", access: "public" } } },
-								{ vertical_food_employee_boxes: { some: { status: "shared", access: "all_employees" } } },
+								{ vertical_delivery_employee_boxes: { some: { employee_id, status: "shared", access: "direct" } } },
+								{ vertical_delivery_employee_boxes: { some: { status: "shared", access: "public" } } },
+								{ vertical_delivery_employee_boxes: { some: { status: "shared", access: "all_employees" } } },
 							],
 						};
 					}
 
 					return {
-						vertical_food_employee_boxes: {
+						vertical_delivery_employee_boxes: {
 							some: {
 								employee_id,
 								...(permission_status ? { status: permission_status as any } : {}),
@@ -715,7 +733,7 @@ export const getVerticalFoodBoxes = async (args: GetVerticalFoodBoxesArgs) => {
 				})())
 				: (permission_status
 					? {
-						vertical_food_employee_boxes: {
+						vertical_delivery_employee_boxes: {
 							some: {
 								status: permission_status as any,
 							},
@@ -770,7 +788,7 @@ export const getVerticalFoodBoxes = async (args: GetVerticalFoodBoxesArgs) => {
 				}
 			},
 			lock: true,
-			vertical_food_employee_boxes: {
+			vertical_delivery_employee_boxes: {
 				select: {
 					employee_id: true,
 					status: true,
@@ -807,7 +825,7 @@ export const getVerticalFoodBoxes = async (args: GetVerticalFoodBoxesArgs) => {
 	]);
 
 	// Optimization: Only fetch necessary fields for all employees and create a map for O(1) lookup
-	const allEmployees = await prisma.vertical_food_employee.findMany({
+	const allEmployees = await prisma.vertical_delivery_employee.findMany({
 		where: { client_id, status: { not: "suspended" } },
 		select: {
 			id: true,
@@ -823,8 +841,8 @@ export const getVerticalFoodBoxes = async (args: GetVerticalFoodBoxesArgs) => {
 	const employeeMap = new Map(allEmployees.map(e => [e.id, e]));
 
 	const mapBox = (box: any) => {
-		const { lock, vertical_food_employee_boxes, restaurant_boxes, boxes: consumerBoxes, connection_employee, telemetry, ...boxData } = box;
-		const permissions = vertical_food_employee_boxes || [];
+		const { lock, vertical_delivery_employee_boxes, restaurant_boxes, boxes: consumerBoxes, connection_employee, telemetry, ...boxData } = box;
+		const permissions = vertical_delivery_employee_boxes || [];
 		const sharedPermissions = permissions.filter((p: any) => p.status === "shared");
 
 		const restaurantIds = (restaurant_boxes || []).map((rb: any) => rb.restaurant_id);
@@ -871,6 +889,7 @@ export const getVerticalFoodBoxes = async (args: GetVerticalFoodBoxesArgs) => {
 
 	if (include_configs) {
 		const boxIds = boxes.map((box) => box.id);
+		requireMongoDB("BoxConfig.find");
 		const configs = await BoxConfig.find({ box_id: { $in: boxIds } });
 
 		const boxWithConfigs = boxes.map((box) => {
@@ -888,7 +907,7 @@ export const getVerticalFoodBoxes = async (args: GetVerticalFoodBoxesArgs) => {
 	return { boxes: boxes.map(mapBox), count };
 };
 
-export const deleteVerticalFoodBoxes = async (ids: string[], client_id: string) => {
+export const deleteVerticalDeliveryBoxes = async (ids: string[], client_id: string) => {
 	const boxes = await prisma.box.findMany({
 		where: {
 			id: { in: ids },
@@ -901,7 +920,7 @@ export const deleteVerticalFoodBoxes = async (ids: string[], client_id: string) 
 	});
 
 	if (boxes.length === 0) {
-		throw new APIError(undefined, "food.box.NOT_FOUND", undefined, 404);
+		throw new APIError(undefined, "delivery.box.NOT_FOUND", undefined, 404);
 	}
 
 	// Archive boxes to box_deleted
@@ -920,7 +939,7 @@ export const deleteVerticalFoodBoxes = async (ids: string[], client_id: string) 
 	});
 
 	// Delete connections and relations if not handled by Cascade
-	// restaurant_box and vertical_food_employee_box have OnDelete: Cascade in schema
+	// restaurant_box and vertical_delivery_employee_box have OnDelete: Cascade in schema
 
 	return prisma.box.deleteMany({
 		where: {
@@ -930,7 +949,7 @@ export const deleteVerticalFoodBoxes = async (ids: string[], client_id: string) 
 	});
 };
 
-export const reassignVerticalFoodBoxes = async (
+export const reassignVerticalDeliveryBoxes = async (
 	ids: string[],
 	restaurant_id: string | null,
 	client_id: string,
@@ -943,7 +962,7 @@ export const reassignVerticalFoodBoxes = async (
 		});
 
 		if (boxes.length === 0) {
-			throw new APIError(undefined, "food.box.NOT_FOUND", undefined, 404);
+			throw new APIError(undefined, "delivery.box.NOT_FOUND", undefined, 404);
 		}
 
 		const boxIds = boxes.map((b) => b.id);
@@ -977,7 +996,7 @@ export const reassignVerticalFoodBoxes = async (
 			});
 
 			if (!restaurant) {
-				throw new APIError(undefined, "food.restaurant.assign.manager.RESTAURANT_NOT_FOUND", undefined, 404);
+				throw new APIError(undefined, "delivery.restaurant.assign.manager.RESTAURANT_NOT_FOUND", undefined, 404);
 			}
 
 			// Assign boxes to the target restaurant
@@ -1027,7 +1046,7 @@ export const reassignVerticalFoodBoxes = async (
 	});
 };
 
-interface CreateVerticalFoodGrubpacArgs {
+interface CreateVerticalDeliveryGrubpacArgs {
 	name?: string;
 	box_display_id: string;
 	vehicle_number?: string | null;
@@ -1038,7 +1057,7 @@ interface CreateVerticalFoodGrubpacArgs {
 	access_mode: "public" | "all_employees" | "restaurant_employees";
 }
 
-export const createVerticalFoodGrubpac = async (args: CreateVerticalFoodGrubpacArgs) => {
+export const createVerticalDeliveryGrubpac = async (args: CreateVerticalDeliveryGrubpacArgs) => {
 	const {
 		name,
 		box_display_id,
@@ -1081,7 +1100,7 @@ export const createVerticalFoodGrubpac = async (args: CreateVerticalFoodGrubpacA
 		}
 
 		if (blocked_employee_ids.length > 0) {
-			await tx.vertical_food_employee_box.createMany({
+			await tx.vertical_delivery_employee_box.createMany({
 				data: blocked_employee_ids.map((id) => ({
 					box_id: box.id,
 					employee_id: id,
@@ -1093,26 +1112,26 @@ export const createVerticalFoodGrubpac = async (args: CreateVerticalFoodGrubpacA
 		// Handle access_mode
 		if (access_mode === "public") {
 			// Set all other entries to blocked
-			await tx.vertical_food_employee_box.updateMany({
+			await tx.vertical_delivery_employee_box.updateMany({
 				where: { box_id: box.id, status: "shared" },
 				data: { status: "blocked" }
 			});
 			// Upsert public record (where employee_id is null)
-			await tx.vertical_food_employee_box.create({
+			await tx.vertical_delivery_employee_box.create({
 				data: { box_id: box.id, employee_id: null, status: "shared", access: "public" }
 			});
 		} else if (access_mode === "all_employees") {
 			// Set all other entries to blocked
-			await tx.vertical_food_employee_box.updateMany({
+			await tx.vertical_delivery_employee_box.updateMany({
 				where: { box_id: box.id, status: "shared" },
 				data: { status: "blocked" }
 			});
 			// Create all_employees record
-			await tx.vertical_food_employee_box.create({
+			await tx.vertical_delivery_employee_box.create({
 				data: { box_id: box.id, employee_id: null, status: "shared", access: "all_employees" }
 			});
 		} else if (access_mode === "restaurant_employees") {
-			const employees = await tx.vertical_food_employee.findMany({
+			const employees = await tx.vertical_delivery_employee.findMany({
 				where: {
 					client_id,
 					restaurant_id: { in: restaurant_ids },
@@ -1121,7 +1140,7 @@ export const createVerticalFoodGrubpac = async (args: CreateVerticalFoodGrubpacA
 			});
 
 			if (employees.length > 0) {
-				await tx.vertical_food_employee_box.createMany({
+				await tx.vertical_delivery_employee_box.createMany({
 					data: employees.map((emp) => ({
 						id: ulid(),
 						box_id: box.id,
@@ -1136,6 +1155,7 @@ export const createVerticalFoodGrubpac = async (args: CreateVerticalFoodGrubpacA
 			// (Assuming initial creation already handled blocked ids above)
 		}
 
+		requireMongoDB("BoxConfig.create");
 		await BoxConfig.create({
 			box_id: box.id,
 		});
@@ -1144,7 +1164,7 @@ export const createVerticalFoodGrubpac = async (args: CreateVerticalFoodGrubpacA
 	});
 };
 
-interface UpdateVerticalFoodGrubpacArgs {
+interface UpdateVerticalDeliveryGrubpacArgs {
 	id: string;
 	name?: string;
 	box_display_id?: string;
@@ -1157,7 +1177,7 @@ interface UpdateVerticalFoodGrubpacArgs {
 	connection_employee_id?: string | null;
 }
 
-export const updateVerticalFoodGrubpac = async (args: UpdateVerticalFoodGrubpacArgs) => {
+export const updateVerticalDeliveryGrubpac = async (args: UpdateVerticalDeliveryGrubpacArgs) => {
 	args = nullifyEmptyFKs(args);
 	const {
 		id,
@@ -1178,7 +1198,7 @@ export const updateVerticalFoodGrubpac = async (args: UpdateVerticalFoodGrubpacA
 		});
 
 		if (!box) {
-			throw new APIError(undefined, "food.box.NOT_FOUND", undefined, 404);
+			throw new APIError(undefined, "delivery.box.NOT_FOUND", undefined, 404);
 		}
 
 		const updatedBox = await tx.box.update({
@@ -1223,7 +1243,7 @@ export const updateVerticalFoodGrubpac = async (args: UpdateVerticalFoodGrubpacA
 		}
 
 		if (blocked_employee_ids !== undefined) {
-			await tx.vertical_food_employee_box.updateMany({
+			await tx.vertical_delivery_employee_box.updateMany({
 				where: {
 					box_id: id,
 					status: "blocked",
@@ -1236,7 +1256,7 @@ export const updateVerticalFoodGrubpac = async (args: UpdateVerticalFoodGrubpacA
 			if (blocked_employee_ids.length > 0) {
 				await Promise.all(
 					blocked_employee_ids.map((emp_id) =>
-						tx.vertical_food_employee_box.upsert({
+						tx.vertical_delivery_employee_box.upsert({
 							where: {
 								employee_id_box_id: {
 									employee_id: emp_id,
@@ -1259,7 +1279,7 @@ export const updateVerticalFoodGrubpac = async (args: UpdateVerticalFoodGrubpacA
 
 		if (access_mode !== undefined) {
 			// Update existing SHARED permissions to 'blocked'
-			await tx.vertical_food_employee_box.updateMany({
+			await tx.vertical_delivery_employee_box.updateMany({
 				where: {
 					box_id: id,
 					status: "shared",
@@ -1270,7 +1290,7 @@ export const updateVerticalFoodGrubpac = async (args: UpdateVerticalFoodGrubpacA
 			});
 
 			if (access_mode === "public") {
-				await tx.vertical_food_employee_box.create({
+				await tx.vertical_delivery_employee_box.create({
 					data: {
 						box_id: id,
 						employee_id: null,
@@ -1279,7 +1299,7 @@ export const updateVerticalFoodGrubpac = async (args: UpdateVerticalFoodGrubpacA
 					},
 				});
 			} else if (access_mode === "all_employees") {
-				await tx.vertical_food_employee_box.create({
+				await tx.vertical_delivery_employee_box.create({
 					data: {
 						box_id: id,
 						employee_id: null,
@@ -1295,7 +1315,7 @@ export const updateVerticalFoodGrubpac = async (args: UpdateVerticalFoodGrubpacA
 					targetResIds = rbs.map((rb) => rb.restaurant_id);
 				}
 
-				const employees = await tx.vertical_food_employee.findMany({
+				const employees = await tx.vertical_delivery_employee.findMany({
 					where: {
 						client_id,
 						restaurant_id: { in: targetResIds },
@@ -1305,14 +1325,14 @@ export const updateVerticalFoodGrubpac = async (args: UpdateVerticalFoodGrubpacA
 
 				if (employees.length > 0) {
 					const empIds = employees.map((emp) => emp.id);
-					await tx.vertical_food_employee_box.deleteMany({
+					await tx.vertical_delivery_employee_box.deleteMany({
 						where: {
 							box_id: id,
 							employee_id: { in: empIds },
 						},
 					});
 
-					await tx.vertical_food_employee_box.createMany({
+					await tx.vertical_delivery_employee_box.createMany({
 						data: employees.map((emp) => ({
 							id: ulid(),
 							box_id: id,
@@ -1462,7 +1482,7 @@ export const actionGrubpac = async (args: ActionGrubpacArgs) => {
 	});
 };
 
-interface GetVerticalFoodGrubpacDetailsArgs {
+interface GetVerticalDeliveryGrubpacDetailsArgs {
 	id: string;
 	client_id: string;
 	user_id?: string;
@@ -1470,7 +1490,7 @@ interface GetVerticalFoodGrubpacDetailsArgs {
 	with_permission_for_employee_id?: string;
 }
 
-export const getVerticalFoodGrubpacDetails = async (args: GetVerticalFoodGrubpacDetailsArgs) => {
+export const getVerticalDeliveryGrubpacDetails = async (args: GetVerticalDeliveryGrubpacDetailsArgs) => {
 	const { id, client_id, user_id, type, with_permission_for_employee_id } = args;
 
 	const boxExists = await prisma.box.findUnique({
@@ -1483,7 +1503,7 @@ export const getVerticalFoodGrubpacDetails = async (args: GetVerticalFoodGrubpac
 	}
 
 	if (boxExists.client_id !== client_id) {
-		throw new APIError(undefined, "food.common.ACCESS_DENIED", undefined, 403);
+		throw new APIError(undefined, "delivery.common.ACCESS_DENIED", undefined, 403);
 	}
 
 	const box = await prisma.box.findUnique({
@@ -1492,7 +1512,7 @@ export const getVerticalFoodGrubpacDetails = async (args: GetVerticalFoodGrubpac
 		},
 		include: {
 			lock: true,
-			vertical_food_employee_boxes: {
+			vertical_delivery_employee_boxes: {
 				include: {
 					employee: true,
 				},
@@ -1522,7 +1542,7 @@ export const getVerticalFoodGrubpacDetails = async (args: GetVerticalFoodGrubpac
 	}
 
 	if (type !== "admin" && type !== "admin" && user_id) {
-		const permission = await prisma.vertical_food_employee_box.findFirst({
+		const permission = await prisma.vertical_delivery_employee_box.findFirst({
 			where: {
 				box_id: id,
 				employee_id: user_id,
@@ -1534,12 +1554,12 @@ export const getVerticalFoodGrubpacDetails = async (args: GetVerticalFoodGrubpac
 		}
 	}
 
-	const allEmployees = await prisma.vertical_food_employee.findMany({
+	const allEmployees = await prisma.vertical_delivery_employee.findMany({
 		where: { client_id },
 	});
 
-	const { lock, vertical_food_employee_boxes, restaurant_boxes, boxes: consumerBoxes, connection_employee, telemetry, ...boxData } = box;
-	const permissions = vertical_food_employee_boxes || [];
+	const { lock, vertical_delivery_employee_boxes, restaurant_boxes, boxes: consumerBoxes, connection_employee, telemetry, ...boxData } = box;
+	const permissions = vertical_delivery_employee_boxes || [];
 	const sharedPermissions = permissions.filter((p: any) => p.status === "shared");
 
 	const restaurantIds = (restaurant_boxes || []).map((rb: any) => rb.restaurant_id);
@@ -1593,7 +1613,7 @@ export const getVerticalFoodGrubpacDetails = async (args: GetVerticalFoodGrubpac
 };
 
 
-export const suspendVerticalFoodBoxes = async (ids: string[], client_id: string) => {
+export const suspendVerticalDeliveryBoxes = async (ids: string[], client_id: string) => {
 	const currentBoxes = await prisma.box.findMany({
 		where: { id: { in: ids }, client_id: client_id },
 		select: { id: true, status: true, name: true, box_display_id: true, created_at: true, updated_at: true },
@@ -1621,7 +1641,7 @@ export const suspendVerticalFoodBoxes = async (ids: string[], client_id: string)
 	};
 };
 
-export const reactivateVerticalFoodBoxes = async (ids: string[], client_id: string, reassign?: boolean) => {
+export const reactivateVerticalDeliveryBoxes = async (ids: string[], client_id: string, reassign?: boolean) => {
 	const currentBoxes = await prisma.box.findMany({
 		where: { id: { in: ids }, client_id: client_id },
 		select: { id: true, status: true, name: true, box_display_id: true, created_at: true, updated_at: true },
@@ -1655,14 +1675,14 @@ export const reactivateVerticalFoodBoxes = async (ids: string[], client_id: stri
 	};
 };
 
-export interface SearchVerticalFoodBoxesArgs {
+export interface SearchVerticalDeliveryBoxesArgs {
 	query?: string;
 	limit?: number;
 	status?: box_status;
 	client_id: string;
 }
 
-export const searchVerticalFoodBoxes = async (args: SearchVerticalFoodBoxesArgs) => {
+export const searchVerticalDeliveryBoxes = async (args: SearchVerticalDeliveryBoxesArgs) => {
 	const { query = "", limit = 50, status, client_id } = args;
 
 	return await prisma.box.findMany({
@@ -1736,7 +1756,7 @@ export const updateBoxLockStatus = async (args: {
 		// Handle consumer details if provided (only for locking)
 		if (lock_status === "locked") {
 			if (consumer && consumer.full_name) {
-				const consumerRecord = await tx.vertical_food_consumer.create({
+				const consumerRecord = await tx.vertical_delivery_consumer.create({
 					data: {
 						full_name: consumer.full_name,
 						country_code: consumer.country_code || "",
@@ -1746,7 +1766,7 @@ export const updateBoxLockStatus = async (args: {
 					},
 				});
 
-				await tx.vertical_food_consumer_box.createMany({
+				await tx.vertical_delivery_consumer_box.createMany({
 					data: validIds.map((box_id) => ({
 						box_id,
 						consumer_id: consumerRecord.id,
@@ -1755,13 +1775,13 @@ export const updateBoxLockStatus = async (args: {
 			}
 		} else if (lock_status === "unlocked") {
 			// Find consumers linked to these boxes and update status to delivered if they are pending
-			const consumerLinks = await tx.vertical_food_consumer_box.findMany({
+			const consumerLinks = await tx.vertical_delivery_consumer_box.findMany({
 				where: { box_id: { in: validIds } },
 			});
 
 			const consumerIds = Array.from(new Set(consumerLinks.map((l) => l.consumer_id)));
 			if (consumerIds.length > 0) {
-				await tx.vertical_food_consumer.updateMany({
+				await tx.vertical_delivery_consumer.updateMany({
 					where: {
 						id: { in: consumerIds },
 						status: "pending",
@@ -1781,7 +1801,7 @@ export const updateBoxLockStatus = async (args: {
 					id: user.id,
 					name: user.name,
 					role: (user as any).role,
-					table: (user as any).type === "admin" ? "client" : "vertical_food_employee",
+					table: (user as any).type === "admin" ? "client" : "vertical_delivery_employee",
 					ip: (user as any).ip,
 				},
 				client_id: (user as any).client_id || client_id,
@@ -1830,7 +1850,7 @@ export const updateBoxEmployeeStatus = async (
 		}
 
 		// 2. Verify employees belong to the client
-		const employees = await tx.vertical_food_employee.findMany({
+		const employees = await tx.vertical_delivery_employee.findMany({
 			where: {
 				id: { in: employee_ids },
 				client_id,
@@ -1848,7 +1868,7 @@ export const updateBoxEmployeeStatus = async (
 		// Partial update: only touch the specifically requested assignments
 		for (const box_id of validBoxIds) {
 			for (const employee_id of validEmployeeIds) {
-				await tx.vertical_food_employee_box.upsert({
+				await tx.vertical_delivery_employee_box.upsert({
 					where: {
 						employee_id_box_id: {
 							employee_id,

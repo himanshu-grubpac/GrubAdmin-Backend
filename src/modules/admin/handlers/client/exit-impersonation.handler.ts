@@ -1,7 +1,6 @@
 import { createHandlers } from "@/utils/hono-factory";
 import { JWT } from "@/utils/jwt";
-import { setAuthCookie } from "@/utils/cookie";
-import { JWT_ACCESS_TOKEN_EXPIRY } from "@/configs/env";
+import { deleteAuthCookie } from "@/utils/cookie";
 import { DEFAULT_IP_ADDRESS } from "@/configs/constants";
 import { logger } from "@/utils/logger";
 import { APIError } from "@/types/error";
@@ -28,9 +27,9 @@ export const exitImpersonationHandler = createHandlers(
 				throw new APIError("Invalid admin token: incorrect role", undefined, undefined, 401);
 			}
 
-			setAuthCookie(context, adminToken, { expiresIn: JWT_ACCESS_TOKEN_EXPIRY });
+			deleteAuthCookie(context);
 
-			logger.info(`[Impersonation] Admin session restored for ${user.id}`);
+			logger.info(`[Impersonation] Admin session cleared, restoration required for ${user.id}`);
 
 			// Log the exit event
 			try {
@@ -66,7 +65,7 @@ export const exitImpersonationHandler = createHandlers(
 		} catch (err) {
 			if (err instanceof APIError) throw err;
 			logger.error(`[Impersonation] Failed to restore admin session: ${err}`);
-			throw new APIError("Failed to restore admin session", undefined, undefined, 401);
+			throw new APIError("Failed to restore admin session. Please log in again.", undefined, undefined, 401);
 		}
 	},
 );
