@@ -14,7 +14,7 @@ async function main() {
 
     // Step 1: Clean up any existing boxes with these display IDs to prevent duplicates/crashing
     console.log("Cleaning up existing box data for GP-CP01, GP-CP02, GP-ND01, GP-ND02...");
-    
+
     // Find existing box records to clean associated tables
     const existingBoxes = await prisma.box.findMany({
         where: { box_display_id: { in: boxDisplayIds } },
@@ -45,7 +45,7 @@ async function main() {
 
     const activeDriver = drivers.find(d => d.status === "active");
     const driverId = activeDriver ? activeDriver.id : (drivers[0] ? drivers[0].id : null);
-    
+
     if (activeDriver) {
         console.log(`  Found active driver for GP-CP01 / GP-CP02: ${activeDriver.first_name} ${activeDriver.last_name} (${activeDriver.id})`);
     } else if (drivers[0]) {
@@ -56,7 +56,7 @@ async function main() {
 
     // Step 3: Create the 4 GrubPac boxes
     console.log("\nCreating GrubPac box records...");
-    
+
     const boxesToInsert = [
         {
             name: "GrubPac Box CP-1",

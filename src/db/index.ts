@@ -12,21 +12,27 @@ const globalForPrisma = globalThis as unknown as {
 import { nullifyEmptyStrings } from "@/utils/clean-query.ts";
 
 console.log("Using DATABASE_URL:", DATABASE_URL);
-const adapter = new PrismaMariaDb(DATABASE_URL);
 
+let basePrisma: PrismaClient;
 
-const basePrisma = new PrismaClient({
-	log:
-		process.env.NODE_ENV === "development"
-			? ["query", "error", "warn"]
-			: ["query", "error"],
-	adapter,
-});
-
+if (process.env.NODE_ENV === "production") {
+	const adapter = new PrismaMariaDb(DATABASE_URL);
+	basePrisma = new PrismaClient({
+		log: ["query", "error"],
+		adapter,
+	});
+} else {
+	if (!globalForPrisma.prisma) {
+		const adapter = new PrismaMariaDb(DATABASE_URL);
+		globalForPrisma.prisma = new PrismaClient({
+			log: ["query", "error", "warn"],
+			adapter,
+		});
+	}
+	basePrisma = globalForPrisma.prisma;
+}
 
 export const prisma = basePrisma;
-
-globalForPrisma.prisma = basePrisma;
 
 
 export const connectMongoDB = async () => {

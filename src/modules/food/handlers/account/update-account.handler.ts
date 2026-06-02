@@ -248,13 +248,13 @@ export const updateAccountHandler = createHandlers(
 		if (isPasswordActuallyChanged) changes.push({ field: "password", old_value: "********", new_value: "********" });
 
 		if (changes.length > 0) {
-			const actorName = type === "admin" 
-				? u.name 
+			const actorName = type === "admin"
+				? u.name
 				: `${u.first_name} ${u.last_name || ""}`.trim();
 
 			await loggerService.log({
-			category: "Profile",
-			type: "Updation",
+				category: "Profile",
+				type: "Updation",
 				actor: {
 					id: u.id,
 					name: actorName,
