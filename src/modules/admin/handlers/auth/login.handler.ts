@@ -42,8 +42,7 @@ export const loginHandler = createHandlers(
 		const isCorrectPassword = await Bcrypt.compareHash({
 			data: password,
 			hashedValue: admin.user.password,
-		});    
-
+		});
 
 		if (!isCorrectPassword) {
 			logger.warn(`Login failed - invalid password: ${normalizedEmail}`);
@@ -64,7 +63,11 @@ export const loginHandler = createHandlers(
 			role: admin.type,
 		});
 
-		// Log the login event
+		// Set JWT token as HttpOnly Secure cookie (do this before async logging
+		// so the cookie is set even if the log call fails)
+		setAuthCookie(context, token, { expiresIn: JWT_ACCESS_TOKEN_EXPIRY });
+
+		// Log the login event asynchronously — never block login response on logging
 		const ip = context.req.header("x-forwarded-for")?.split(",")[0] || 
 				   context.req.header("x-real-ip") || 
 				   DEFAULT_IP_ADDRESS;
@@ -79,12 +82,11 @@ export const loginHandler = createHandlers(
 			ip,
 			effected_id: admin.user.id,
 			effected_name: "Self",
+		}).catch((logErr) => {
+			logger.error(`Login log write failed (non-fatal): ${logErr}`);
 		});
 
 		logger.info(`Login successful: ${normalizedEmail} (id: ${admin.user.id})`);
-
-		// Set JWT token as HttpOnly Secure cookie
-		setAuthCookie(context, token, { expiresIn: JWT_ACCESS_TOKEN_EXPIRY });
 
 		const response = {
 			success: true as const,

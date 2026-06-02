@@ -52,8 +52,20 @@ server.use("*", async (c, next) => {
 
 server.onError(globalErrorHandler);
 
-await connectMongoDB();
-
 server.route("/", router);
 
+// Track readiness: the server can serve requests once routes are registered
+let isReady = true;
+
+// Start MongoDB connection in the background — do NOT block server startup.
+// If MongoDB is slow or unavailable, the server is still reachable and can
+// serve login requests that don't depend on Mongo (adminLogger gracefully
+// degrades when MongoDB is down).
+connectMongoDB().then(() => {
+    logger.info("MongoDB background connection completed");
+}).catch((err) => {
+    logger.error(`MongoDB background connection failed: ${err}`);
+});
+
 export default server;
+export { isReady };

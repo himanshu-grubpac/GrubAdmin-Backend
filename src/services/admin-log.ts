@@ -45,17 +45,24 @@ export class AdminLogService {
 			return;
 		}
 
-		await createAdminLog({
-			ip: ip ?? DEFAULT_IP_ADDRESS,
-			module,
-			action,
-			admin_name,
-			admin_id,
-			effected_name,
-			effected_id,
-			role_name,
-			role_id,
-		});
+		// Never let a logging failure propagate — it would be an unhandled
+		// promise rejection that crashes the process.  MongoDB may be
+		// unreachable, causing the write to buffer and eventually throw.
+		try {
+			await createAdminLog({
+				ip: ip ?? DEFAULT_IP_ADDRESS,
+				module,
+				action,
+				admin_name,
+				admin_id,
+				effected_name,
+				effected_id,
+				role_name,
+				role_id,
+			});
+		} catch (logErr) {
+			logger.error(`Admin log write failed (non-fatal): ${logErr}`);
+		}
 
 		// Bridge to SystemLogService for display in "System logs" page
 		try {

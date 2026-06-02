@@ -23,7 +23,9 @@ export interface RateLimitOptions {
 export function rateLimit(options: RateLimitOptions): MiddlewareHandler {
   const { windowMs, max, keyGenerator } = options;
 
-  let cleanupTimer: ReturnType<typeof setInterval> | null = null;
+  // Periodically purge expired entries to prevent memory leak
+  const cleanupTimer = setInterval(() => cleanupExpired(windowMs), CLEANUP_INTERVAL_MS);
+  if (cleanupTimer.unref) cleanupTimer.unref();
 
   return async (c, next) => {
 		// Use the real client IP as the rate limit key.

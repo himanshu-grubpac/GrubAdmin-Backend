@@ -22,26 +22,33 @@ const basePrisma = new PrismaClient({
 	adapter,
 });
 
-// Test the connection silently; if it fails, log and exit so Nginx returns 502 cleanly
+// Test the connection silently; if it fails, do not crash — the readiness
+// check will report unhealthy and the server can still serve static content.
 try {
 	await basePrisma.$connect();
 	logger.info("Database connected successfully");
 } catch (error) {
 	logger.error(`Database connection error: ${error}`);
-	process.exit(1);
+	logger.warn("Server starting without database connectivity. Readiness check will fail until database is available.");
 }
 
 export const prisma = basePrisma;
 
 globalForPrisma.prisma = basePrisma;
 
+// Configure mongoose with a shorter connection timeout so background
+// MongoDB connection doesn't hang longer than necessary.
+const MONGO_CONNECTION_TIMEOUT_MS = 5000;
 
 export const connectMongoDB = async () => {
 	try {
-		logger.info("🍃 Connecting to mongo db...");
+		logger.info("Connecting to mongo db...");
 		logger.info(MONGO_URI);
-		await mongoose.connect(MONGO_URI);
-		logger.info("🍃 Connected to mongo db...");
+		await mongoose.connect(MONGO_URI, {
+			serverSelectionTimeoutMS: MONGO_CONNECTION_TIMEOUT_MS,
+			connectTimeoutMS: MONGO_CONNECTION_TIMEOUT_MS,
+		});
+		logger.info("Connected to mongo db...");
 	} catch (error) {
 		logger.error(`MongoDB connection error: ${error}`);
 		logger.warn("Server will continue without MongoDB. Logging features will be unavailable.");
