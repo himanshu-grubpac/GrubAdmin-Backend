@@ -14,19 +14,26 @@ const getErrorContext = (ctx: Context) => ({
 	method: ctx.req.method,
 	client_id: ctx.get("client_id"),
 	user_id: ctx.get("user_id"),
+	request_id: (ctx as any).requestId || ctx.req.header("x-request-id") || "unknown",
 });
 
 export const globalErrorHandler = async (error: unknown, ctx: Context) => {
 	const errCtx = getErrorContext(ctx);
 	const client_id = errCtx.client_id;
 
-	logger.error("API Error occurred:", {
-		error,
+	// Structured error log with all context fields
+	const errorLog = {
+		request_id: errCtx.request_id,
 		path: errCtx.path,
 		method: errCtx.method,
 		client_id: errCtx.client_id,
 		user_id: errCtx.user_id,
-	});
+		root_cause: error instanceof Error ? error.constructor.name : typeof error,
+		message: error instanceof Error ? error.message : String(error),
+		stack: error instanceof Error ? error.stack : undefined,
+	};
+
+	logger.error("API Error:", errorLog);
 
 	if (error instanceof Prisma.PrismaClientKnownRequestError) {
 		if (error.code === "P2002" || error.code === "P2014") {
@@ -60,6 +67,7 @@ export const globalErrorHandler = async (error: unknown, ctx: Context) => {
 					error: errorMessage,
 					code: 400,
 					client_id,
+					request_id: errCtx.request_id,
 				},
 				{
 					status: 400,
@@ -74,6 +82,7 @@ export const globalErrorHandler = async (error: unknown, ctx: Context) => {
 					error: "Either no data found or some inconsistent column data type found.",
 					code: 400,
 					client_id,
+					request_id: errCtx.request_id,
 				},
 				{
 					status: 400,
@@ -88,6 +97,7 @@ export const globalErrorHandler = async (error: unknown, ctx: Context) => {
 					error: "Data not found!!",
 					code: 404,
 					client_id,
+					request_id: errCtx.request_id,
 				},
 				{
 					status: 404,
@@ -102,6 +112,8 @@ export const globalErrorHandler = async (error: unknown, ctx: Context) => {
 				error: "Database error. Please try again.",
 				code: 500,
 				client_id,
+				request_id: errCtx.request_id,
+				root_cause: "prisma_known_error",
 			},
 			{ status: 500 },
 		);
@@ -115,6 +127,8 @@ export const globalErrorHandler = async (error: unknown, ctx: Context) => {
 				error: "Service temporarily unavailable. Database connection issue.",
 				code: 503,
 				client_id,
+				request_id: errCtx.request_id,
+				root_cause: "database_connection_failed",
 			},
 			{ status: 503 },
 		);
@@ -128,6 +142,8 @@ export const globalErrorHandler = async (error: unknown, ctx: Context) => {
 				error: "Internal database error. Please try again.",
 				code: 500,
 				client_id,
+				request_id: errCtx.request_id,
+				root_cause: "prisma_rust_panic",
 			},
 			{ status: 500 },
 		);
@@ -140,6 +156,8 @@ export const globalErrorHandler = async (error: unknown, ctx: Context) => {
 				code: 400,
 				error: error.issues[0]?.message ?? "",
 				client_id,
+				request_id: errCtx.request_id,
+				root_cause: "validation_error",
 			},
 			{
 				status: 400,
@@ -154,6 +172,8 @@ export const globalErrorHandler = async (error: unknown, ctx: Context) => {
 				error: error.message,
 				code: 401,
 				client_id,
+				request_id: errCtx.request_id,
+				root_cause: "jwt_error",
 			},
 			{
 				status: 401,
@@ -198,6 +218,7 @@ export const globalErrorHandler = async (error: unknown, ctx: Context) => {
 			data: error.data,
 			...templateData,
 			client_id,
+			request_id: errCtx.request_id,
 		};
 
 		ctx.status(finalData.code as StatusCode);
@@ -218,6 +239,7 @@ export const globalErrorHandler = async (error: unknown, ctx: Context) => {
 			logger.error(`MongoDB operation failed: ${errorMessage}`, {
 				path: errCtx.path,
 				client_id,
+				request_id: errCtx.request_id,
 			});
 			return ctx.json(
 				{
@@ -225,6 +247,8 @@ export const globalErrorHandler = async (error: unknown, ctx: Context) => {
 					error: "Service temporarily unavailable. Database connection issue.",
 					code: 503,
 					client_id,
+					request_id: errCtx.request_id,
+					root_cause: "mongodb_buffering_timeout",
 				},
 				{ status: 503 },
 			);
@@ -239,6 +263,7 @@ export const globalErrorHandler = async (error: unknown, ctx: Context) => {
 		) {
 			logger.error(`MongoDB connection error: ${errorMessage}`, {
 				path: errCtx.path,
+				request_id: errCtx.request_id,
 			});
 			return ctx.json(
 				{
@@ -246,6 +271,8 @@ export const globalErrorHandler = async (error: unknown, ctx: Context) => {
 					error: "Service temporarily unavailable. Database connection issue.",
 					code: 503,
 					client_id,
+					request_id: errCtx.request_id,
+					root_cause: "mongodb_connection_error",
 				},
 				{ status: 503 },
 			);
@@ -257,6 +284,8 @@ export const globalErrorHandler = async (error: unknown, ctx: Context) => {
 				error: error.message,
 				code: 400,
 				client_id,
+				request_id: errCtx.request_id,
+				root_cause: "unhandled_error",
 			},
 			{
 				status: 400,
@@ -270,6 +299,8 @@ export const globalErrorHandler = async (error: unknown, ctx: Context) => {
 			error: "Internal Server Error",
 			code: 500,
 			client_id,
+			request_id: errCtx.request_id,
+			root_cause: "unknown_error",
 		},
 		{
 			status: 500,

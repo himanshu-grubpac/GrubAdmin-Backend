@@ -1,6 +1,6 @@
 import type { APIResponse } from "@/types/api/api-response";
 import { createHandlers } from "@/utils/hono-factory";
-import { prisma, isMongoConnected, getMongoConnectionState } from "@/db";
+import { prisma, isMongoConnected, getMongoConnectionState, isPrismaConnected } from "@/db";
 import mongoose from "mongoose";
 import { NODE_ENV } from "@/configs/env";
 import { logger } from "@/utils/logger";
@@ -10,12 +10,14 @@ interface HealthCheckData {
 		user: string;
 		database: string;
 		host: string;
+		connected: boolean;
 	};
 	mongodb?: {
 		user: string;
 		database: string;
 		host: string;
 		state: string;
+		connected: boolean;
 	};
 }
 
@@ -39,11 +41,15 @@ export const readinessHandler = createHandlers(async (context) => {
 	const errors: string[] = [];
 	const warnings: string[] = [];
 
-	// Check MySQL connectivity
-	try {
-		await prisma.$queryRaw`SELECT 1`;
-	} catch (e) {
-		errors.push(`mysql: ${e}`);
+	// Check MySQL connectivity with actual query
+	if (!isPrismaConnected()) {
+		errors.push("mysql: not connected (Prisma initialization failed)");
+	} else {
+		try {
+			await prisma.$queryRaw`SELECT 1`;
+		} catch (e) {
+			errors.push(`mysql: query failed — ${e}`);
+		}
 	}
 
 	// Check MongoDB connectivity
@@ -69,12 +75,11 @@ export const readinessHandler = createHandlers(async (context) => {
 		);
 	}
 
-	return context.json<APIResponse<{ healthy: boolean; errors: string[] }>>(
+	return context.json(
 		{
-			success: false,
+			success: false as const,
 			code: 503,
-			message: "not ready",
-			data: { healthy: false, errors },
+			error: `not ready: ${errors.join("; ")}`,
 		},
 		{ status: 503 },
 	);
@@ -82,28 +87,35 @@ export const readinessHandler = createHandlers(async (context) => {
 
 // Full health check (detailed, for debugging)
 export const healthCheckHandler = createHandlers(async (context) => {
-	let sqlInfo = { user: "unknown", database: "unknown", host: "unknown" };
-	let mongoInfo = { user: "unknown", database: "unknown", host: "unknown", state: "unknown" };
+	let sqlInfo = { user: "unknown", database: "unknown", host: "unknown", connected: false };
+	let mongoInfo = { user: "unknown", database: "unknown", host: "unknown", state: "unknown", connected: false };
 
 	try {
-		const sqlRes: any[] = await prisma.$queryRaw`SELECT USER() as user, DATABASE() as db, @@hostname as host`;
-		if (sqlRes.length > 0) {
-			sqlInfo = {
-				user: sqlRes[0].user,
-				database: sqlRes[0].db,
-				host: sqlRes[0].host,
-			};
+		if (isPrismaConnected()) {
+			const sqlRes: any[] = await prisma.$queryRaw`SELECT USER() as user, DATABASE() as db, @@hostname as host`;
+			if (sqlRes.length > 0) {
+				sqlInfo = {
+					user: sqlRes[0].user,
+					database: sqlRes[0].db,
+					host: sqlRes[0].host,
+					connected: true,
+				};
+			}
+		} else {
+			sqlInfo.connected = false;
 		}
 	} catch (e) {
 		logger.error("SQL Health check failed", e);
 	}
 
 	try {
+		const state = getMongoConnectionState();
 		mongoInfo = {
 			user: mongoose.connection.user || "admin",
 			database: mongoose.connection.name || "unknown",
 			host: mongoose.connection.host || "unknown",
-			state: getMongoConnectionState(),
+			state,
+			connected: state === "connected",
 		};
 	} catch (e) {
 		logger.error("Mongo Health check failed", e);
