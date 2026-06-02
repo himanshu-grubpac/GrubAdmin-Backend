@@ -59,8 +59,7 @@ export const sendOtpHandler = createHandlers(
 			to: normalizedEmail,
 			text: `Your OTP is ${otp}`,
 		});
-	}
-		}
+
 
 return context.json<APIResponse>({
 	success: true,
