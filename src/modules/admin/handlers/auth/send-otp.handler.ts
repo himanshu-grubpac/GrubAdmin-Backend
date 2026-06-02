@@ -5,6 +5,7 @@ import { APIError } from "@/types/error";
 import { Otp } from "@/utils/otp";
 import { getSavedOtp, saveOtp } from "@/db/actions/otp.actions";
 import { services } from "@/services";
+import { MAIL } from "@/configs/env";
 import type { APIResponse } from "@/types/api";
 
 export const sendOtpHandler = createHandlers(
@@ -18,7 +19,9 @@ export const sendOtpHandler = createHandlers(
 		});
 
 		if (!admin) {
-			throw new APIError("No admin found!", undefined, undefined, 404);
+			// Return a generic success — do NOT reveal whether this email exists.
+			// Returning 404 allows attackers to enumerate valid admin email addresses.
+			return context.json<APIResponse>({ success: true, code: 200 }, 200);
 		}
 
 		if (admin.user.status === "suspended") {
@@ -41,26 +44,28 @@ export const sendOtpHandler = createHandlers(
 			);
 		}
 
-		const otp = Otp.generateOtp(4);
+		const otp = Otp.generateOtp(4); // 4 digits = 10,000 combinations
 
 		await saveOtp({
 			email: normalizedEmail,
 			otp,
-			role: admin.type,
+			role: admin.type ?? "admin",
 			for_what: "login",
 		});
 
 		await services.mailer.sendEmail({
-			from: process.env.MAIL,
+			from: MAIL,
 			subject: "OTP",
 			to: normalizedEmail,
 			text: `Your OTP is ${otp}`,
 		});
+	}
+		}
 
-		return context.json<APIResponse>({
-			success: true,
-			code: 200,
-		});
+return context.json<APIResponse>({
+	success: true,
+	code: 200,
+});
 	},
 );
 
