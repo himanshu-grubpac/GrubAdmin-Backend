@@ -30,20 +30,12 @@ if (process.env.NODE_ENV === "production") {
 		});
 	}
 	basePrisma = globalForPrisma.prisma;
-logger.info("Connecting to database...");
-const adapter = new PrismaMariaDb(DATABASE_URL);
-
-const basePrisma = new PrismaClient({
-	log:
-		process.env.NODE_ENV === "development"
-			? ["query", "error", "warn"]
-			: ["error"],
-	adapter,
-});
+}
 
 // Test the connection silently; if it fails, do not crash — the readiness
 // check will report unhealthy and the server can still serve static content.
 try {
+	logger.info("Connecting to database...");
 	await basePrisma.$connect();
 	logger.info("Database connected successfully");
 } catch (error) {

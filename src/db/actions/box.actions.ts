@@ -861,7 +861,7 @@ export const getVerticalFoodBoxes = async (args: GetVerticalFoodBoxesArgs) => {
 			access_mode,
 			permissions_blocked: blockedPermissions,
 			permissions_blocked_count: blockedPermissions.length,
-			grublock_status: lock?.lock_status || null,
+			grublock_status: lock?.lock_status || "unlocked",
 			consumer_info,
 			restaurants: (restaurant_boxes || [])
 				.map((rb: any) => rb.restaurant ? withFullAddress(rb.restaurant) : null)

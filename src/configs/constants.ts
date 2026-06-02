@@ -5,7 +5,7 @@ export const BOX_VERTICALS = [
 	"hospitality",
 ] as const;
 
-export const FOOD_VERTICAL_NAME = "Delivery";
+export const DELIVERY_VERTICAL_NAME = "Delivery";
 
 export const PAGE_SIZE = 40 as const;
 export const LONG_PAGE_SIZE = 100 as const;
