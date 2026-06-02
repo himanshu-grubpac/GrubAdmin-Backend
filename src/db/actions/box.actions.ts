@@ -18,6 +18,23 @@ import { BoxConfig } from "@/db/mongo-schema";
 import { loggerService } from "@/services/system-log.ts";
 import { withFullAddress } from "@/utils/restaurant.ts";
 import { nullifyEmptyFKs } from "@/utils/clean-query.ts";
+import { isMongoConnected, getMongoConnectionState } from "@/db";
+
+/**
+ * Assert that MongoDB is connected before executing a MongoDB operation.
+ * Throws immediately instead of letting Mongoose buffer and timeout.
+ */
+const requireMongoDB = (operation: string): void => {
+	if (!isMongoConnected()) {
+		logger.error(`MongoDB not connected — cannot execute "${operation}". State: ${getMongoConnectionState()}`);
+		throw new APIError(
+			"Database service temporarily unavailable. Please try again.",
+			undefined,
+			undefined,
+			503,
+		);
+	}
+};
 
 export const calculateAccessMode = (
 	sharedPermissions: { employee_id: string | null; access: string }[],
@@ -171,6 +188,7 @@ export const createBox = async (args: CreateBoxArgs) => {
 		},
 	});
 
+	requireMongoDB("BoxConfig.create");
 	const boxConfig = await BoxConfig.create({
 		box_id: box.id,
 	});
@@ -871,6 +889,7 @@ export const getVerticalDeliveryBoxes = async (args: GetVerticalDeliveryBoxesArg
 
 	if (include_configs) {
 		const boxIds = boxes.map((box) => box.id);
+		requireMongoDB("BoxConfig.find");
 		const configs = await BoxConfig.find({ box_id: { $in: boxIds } });
 
 		const boxWithConfigs = boxes.map((box) => {
@@ -1136,6 +1155,7 @@ export const createVerticalDeliveryGrubpac = async (args: CreateVerticalDelivery
 			// (Assuming initial creation already handled blocked ids above)
 		}
 
+		requireMongoDB("BoxConfig.create");
 		await BoxConfig.create({
 			box_id: box.id,
 		});

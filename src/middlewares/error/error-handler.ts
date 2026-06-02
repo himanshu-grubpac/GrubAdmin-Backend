@@ -6,10 +6,27 @@ import { ZodError } from "zod";
 import { type StatusCode } from "hono/utils/http-status";
 import { logger } from "@/utils/logger";
 
-export const globalErrorHandler = async (error: unknown, ctx: Context) => {
-	logger.error("API Error occurred:", error);
+/**
+ * Extract a structured context object for error logging.
+ */
+const getErrorContext = (ctx: Context) => ({
+	path: ctx.req.path,
+	method: ctx.req.method,
+	client_id: ctx.get("client_id"),
+	user_id: ctx.get("user_id"),
+});
 
-	const client_id = ctx.get("client_id");
+export const globalErrorHandler = async (error: unknown, ctx: Context) => {
+	const errCtx = getErrorContext(ctx);
+	const client_id = errCtx.client_id;
+
+	logger.error("API Error occurred:", {
+		error,
+		path: errCtx.path,
+		method: errCtx.method,
+		client_id: errCtx.client_id,
+		user_id: errCtx.user_id,
+	});
 
 	if (error instanceof Prisma.PrismaClientKnownRequestError) {
 		if (error.code === "P2002" || error.code === "P2014") {
@@ -77,6 +94,43 @@ export const globalErrorHandler = async (error: unknown, ctx: Context) => {
 				},
 			);
 		}
+
+		// Unhandled Prisma error
+		return ctx.json(
+			{
+				success: false,
+				error: "Database error. Please try again.",
+				code: 500,
+				client_id,
+			},
+			{ status: 500 },
+		);
+	}
+
+	if (error instanceof Prisma.PrismaClientInitializationError) {
+		logger.error(`Prisma initialization error: ${error.message}`);
+		return ctx.json(
+			{
+				success: false,
+				error: "Service temporarily unavailable. Database connection issue.",
+				code: 503,
+				client_id,
+			},
+			{ status: 503 },
+		);
+	}
+
+	if (error instanceof Prisma.PrismaClientRustPanicError) {
+		logger.error(`Prisma rust panic: ${error.message}`);
+		return ctx.json(
+			{
+				success: false,
+				error: "Internal database error. Please try again.",
+				code: 500,
+				client_id,
+			},
+			{ status: 500 },
+		);
 	}
 
 	if (error instanceof ZodError) {
@@ -151,6 +205,52 @@ export const globalErrorHandler = async (error: unknown, ctx: Context) => {
 	}
 
 	if (error instanceof Error) {
+		// Check if this is a Mongoose/MongoDB error (buffering timeout or connection error)
+		const errorName = error.name || "";
+		const errorMessage = error.message || "";
+
+		// Mongoose buffering timeout errors should return 503, not 400
+		if (
+			errorName.includes("MongooseError") ||
+			errorMessage.includes("buffering timed out") ||
+			errorMessage.includes("MongooseError")
+		) {
+			logger.error(`MongoDB operation failed: ${errorMessage}`, {
+				path: errCtx.path,
+				client_id,
+			});
+			return ctx.json(
+				{
+					success: false,
+					error: "Service temporarily unavailable. Database connection issue.",
+					code: 503,
+					client_id,
+				},
+				{ status: 503 },
+			);
+		}
+
+		// MongoDB connection errors
+		if (
+			errorName === "MongoServerSelectionError" ||
+			errorMessage.includes("getaddrinfo") ||
+			errorMessage.includes("MongoNetworkError") ||
+			errorMessage.includes("Server selection")
+		) {
+			logger.error(`MongoDB connection error: ${errorMessage}`, {
+				path: errCtx.path,
+			});
+			return ctx.json(
+				{
+					success: false,
+					error: "Service temporarily unavailable. Database connection issue.",
+					code: 503,
+					client_id,
+				},
+				{ status: 503 },
+			);
+		}
+
 		return ctx.json(
 			{
 				success: false,
