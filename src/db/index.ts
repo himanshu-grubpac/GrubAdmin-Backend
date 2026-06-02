@@ -11,18 +11,25 @@ const globalForPrisma = globalThis as unknown as {
 
 import { nullifyEmptyStrings } from "@/utils/clean-query.ts";
 
-console.log("Using DATABASE_URL:", DATABASE_URL);
+logger.info("Connecting to database...");
 const adapter = new PrismaMariaDb(DATABASE_URL);
-
 
 const basePrisma = new PrismaClient({
 	log:
 		process.env.NODE_ENV === "development"
 			? ["query", "error", "warn"]
-			: ["query", "error"],
+			: ["error"],
 	adapter,
 });
 
+// Test the connection silently; if it fails, log and exit so Nginx returns 502 cleanly
+try {
+	await basePrisma.$connect();
+	logger.info("Database connected successfully");
+} catch (error) {
+	logger.error(`Database connection error: ${error}`);
+	process.exit(1);
+}
 
 export const prisma = basePrisma;
 
@@ -36,7 +43,7 @@ export const connectMongoDB = async () => {
 		await mongoose.connect(MONGO_URI);
 		logger.info("🍃 Connected to mongo db...");
 	} catch (error) {
-		logger.error(`Connection error: ${error}`);
-		throw error;
+		logger.error(`MongoDB connection error: ${error}`);
+		logger.warn("Server will continue without MongoDB. Logging features will be unavailable.");
 	}
 };
