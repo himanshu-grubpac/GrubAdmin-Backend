@@ -1,5 +1,6 @@
 import {
 	DeleteObjectsCommand,
+	GetBucketLocationCommand,
 	ListObjectsV2Command,
 	type ObjectCannedACL,
 	PutObjectCommand,
@@ -29,17 +30,59 @@ interface UploadToS3Response {
 export class s3Service {
 	client: S3Client;
 	bucket: string;
+	currentRegion: string;
+	bucketRegionResolved = false;
 
 	constructor() {
-		this.client = new S3Client({
-			region: AWS_REGION,
+		this.currentRegion = AWS_REGION;
+		this.client = this.createClient(this.currentRegion);
+		this.bucket = AWS_BUCKET_NAME;
+	}
+
+	private createClient(region: string) {
+		return new S3Client({
+			region,
 			credentials: {
 				accessKeyId: AWS_KEY,
 				secretAccessKey: AWS_SECRET,
 			},
 		});
+	}
 
-		this.bucket = AWS_BUCKET_NAME;
+	private normalizeBucketLocation(location?: string | null): string {
+		if (!location || location === "") {
+			return "us-east-1";
+		}
+
+		if (location.toUpperCase() === "EU") {
+			return "eu-west-1";
+		}
+
+		return location;
+	}
+
+	private async resolveBucketRegion(): Promise<void> {
+		if (this.bucketRegionResolved) {
+			return;
+		}
+
+		try {
+			const response = await this.client.send(
+				new GetBucketLocationCommand({
+					Bucket: this.bucket,
+				}),
+			);
+
+			const region = this.normalizeBucketLocation(response.LocationConstraint);
+			if (region && region !== this.currentRegion) {
+				this.currentRegion = region;
+				this.client = this.createClient(region);
+			}
+		} catch (error: any) {
+			console.error("Failed to resolve S3 bucket region:", error);
+		} finally {
+			this.bucketRegionResolved = true;
+		}
 	}
 
 	private async convertFileToBuffer(file: File) {
@@ -57,20 +100,45 @@ export class s3Service {
 		const key = `${ulid()}-${safeFileName}`;
 		const bucketKey = `${prefix}/${key}`;
 
-
-		await this.client.send(
-			new PutObjectCommand({
-				Bucket: this.bucket,
-				Key: bucketKey,
-				Body: fileBuffer,
-				ContentType: file.type,
-			}),
-		);
-
-		return {
-			key: bucketKey,
-			file_name: file.name,
+		const upload = async () => {
+			await this.client.send(
+				new PutObjectCommand({
+					Bucket: this.bucket,
+					Key: bucketKey,
+					Body: fileBuffer,
+					ContentType: file.type,
+				}),
+			);
 		};
+
+		try {
+			await upload();
+			return {
+				key: bucketKey,
+				file_name: file.name,
+			};
+		} catch (error: any) {
+			const message = String(error?.message || error || "Failed to upload file to S3");
+			console.error("S3 upload failed:", message);
+
+			if (message.includes("must be addressed using the specified endpoint")) {
+				await this.resolveBucketRegion();
+				if (this.currentRegion !== AWS_REGION) {
+					try {
+						await upload();
+						return {
+							key: bucketKey,
+							file_name: file.name,
+						};
+					} catch (retryError: any) {
+						console.error("Retry after bucket region resolution failed:", retryError);
+						throw new Error(String(retryError?.message || retryError || message));
+					}
+				}
+			}
+
+			throw new Error(message);
+		}
 	}
 
 
