@@ -60,10 +60,11 @@ export const sendOtpHandler = createHandlers(
 			text: `Your OTP is ${otp}`,
 		});
 
-		return context.json<APIResponse>({
-			success: true,
-			code: 200,
-		});
+
+return context.json<APIResponse>({
+	success: true,
+	code: 200,
+});
 	},
 );
 
