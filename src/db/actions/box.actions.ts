@@ -1756,11 +1756,25 @@ export const updateBoxLockStatus = async (args: {
 		// Handle consumer details if provided (only for locking)
 		if (lock_status === "locked") {
 			if (consumer && consumer.full_name) {
-				const consumerRecord = await tx.vertical_delivery_consumer.create({
-					data: {
+				const country_code = consumer.country_code || "";
+				const phone = consumer.phone || "";
+
+				const consumerRecord = await tx.vertical_delivery_consumer.upsert({
+					where: {
+						phone_country_code: {
+							phone,
+							country_code,
+						},
+					},
+					update: {
 						full_name: consumer.full_name,
-						country_code: consumer.country_code || "",
-						phone: consumer.phone || "",
+						status: "pending",
+						client_id,
+					},
+					create: {
+						full_name: consumer.full_name,
+						country_code,
+						phone,
 						status: "pending",
 						client_id,
 					},
@@ -1768,6 +1782,7 @@ export const updateBoxLockStatus = async (args: {
 
 				await tx.vertical_delivery_consumer_box.createMany({
 					data: validIds.map((box_id) => ({
+						id: ulid(),
 						box_id,
 						consumer_id: consumerRecord.id,
 					})),
