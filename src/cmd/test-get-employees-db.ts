@@ -1,7 +1,7 @@
 import { prisma } from "../db";
 
 async function main() {
-    const employees = await prisma.vertical_food_employee.findMany({
+    const employees = await prisma.vertical_delivery_employee.findMany({
         where: {
             OR: [
                 { first_name: { contains: "Harsh" } },
@@ -20,7 +20,7 @@ async function main() {
         status: e.status,
     })));
 
-    const allManagers = await prisma.vertical_food_employee.findMany({
+    const allManagers = await prisma.vertical_delivery_employee.findMany({
         where: {
             role: "manager",
         }

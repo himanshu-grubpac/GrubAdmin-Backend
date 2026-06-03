@@ -79,6 +79,6 @@ systemLogSchema.index({ "subject.id": 1, client_id: 1 });
 systemLogSchema.index({ createdAt: -1 });
 
 export const ClientAdminLog = model<SystemLogModel>("client_admin_log", systemLogSchema, "admin_logs");
-export const FoodEmployeeLog = model<SystemLogModel>("food_employee_log", systemLogSchema, "food_employee_logs");
+export const DeliveryEmployeeLog = model<SystemLogModel>("delivery_employee_log", systemLogSchema, "delivery_employee_logs");
 export const RestaurantLog = model<SystemLogModel>("restaurant_log", systemLogSchema, "restaurant_logs");
 export const GrubpacLog = model<SystemLogModel>("grubpac_log", systemLogSchema, "grubpac_logs");

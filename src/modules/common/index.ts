@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { healthCheckHandler } from "./handlers/health";
+import { healthCheckHandler, livenessHandler, readinessHandler } from "./handlers/health";
 import { getConfigsHandler } from "@/modules/common/handlers/config";
 import { getIconsHandlers } from "@/modules/common/handlers/icon";
 import { getPermissionsHandler } from "@/modules/common/handlers/permissions";
@@ -10,6 +10,8 @@ import { setSuperAdminPasswordHandler } from "@/modules/common/handlers/auth/set
 export const commonRouter = new Hono();
 
 commonRouter.get("/health", ...healthCheckHandler);
+commonRouter.get("/healthz", ...livenessHandler);
+commonRouter.get("/readyz", ...readinessHandler);
 commonRouter.get("/config", ...getConfigsHandler);
 commonRouter.get("/icons", ...getIconsHandlers);
 commonRouter.get("/permissions", ...getPermissionsHandler);

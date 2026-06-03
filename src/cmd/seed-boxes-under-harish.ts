@@ -26,7 +26,7 @@ async function main() {
         console.log(`  Deleting existing telemetries, restaurant mappings, and employee mappings for ${existingIds.length} box(es)...`);
         await prisma.box_telemetry_latest.deleteMany({ where: { box_id: { in: existingIds } } });
         await prisma.restaurant_box.deleteMany({ where: { box_id: { in: existingIds } } });
-        await prisma.vertical_food_employee_box.deleteMany({ where: { box_id: { in: existingIds } } });
+        await prisma.vertical_delivery_employee_box.deleteMany({ where: { box_id: { in: existingIds } } });
         await prisma.box.deleteMany({ where: { id: { in: existingIds } } });
         console.log("  Cleanup complete.");
     } else {
@@ -35,7 +35,7 @@ async function main() {
 
     // Step 2: Retrieve active drivers to connect to boxes
     console.log("\nFetching active drivers for connection...");
-    const drivers = await prisma.vertical_food_employee.findMany({
+    const drivers = await prisma.vertical_delivery_employee.findMany({
         where: {
             client_id: CLIENT_ID,
             role: "delivery",
@@ -171,7 +171,7 @@ async function main() {
         console.log(`  Mapped ${rm.box_id} to restaurant ${rm.restaurant_id} (${rm.status})`);
     }
 
-    // Step 6: Map boxes to employees (vertical_food_employee_box) for manager access
+    // Step 6: Map boxes to employees (vertical_delivery_employee_box) for manager access
     if (driverId) {
         console.log("\nMapping connected boxes to drivers in employee box mappings...");
         const employeeMappings = [
@@ -179,7 +179,7 @@ async function main() {
         ];
 
         for (const em of employeeMappings) {
-            await prisma.vertical_food_employee_box.create({ data: em });
+            await prisma.vertical_delivery_employee_box.create({ data: em });
             console.log(`  Mapped box ${em.box_id} to employee ${em.employee_id}`);
         }
     }

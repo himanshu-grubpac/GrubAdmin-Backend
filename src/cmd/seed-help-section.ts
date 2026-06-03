@@ -6,7 +6,7 @@ const VERTICAL_ID = "01KR0DHRG48S8MT3J3WS1E00PD";
 async function main() {
     console.log("Starting Help Section seeding sequence...");
 
-    // Step 1: Verify Food vertical exists
+    // Step 1: Verify Delivery vertical exists
     const vertical = await prisma.vertical.findUnique({
         where: { id: VERTICAL_ID }
     });
@@ -142,7 +142,7 @@ async function main() {
         {
             category: "Device Connection",
             question: "How to connect the box via Bluetooth?",
-            answer: "Turn on Bluetooth on your mobile phone, open the GrubFood App, navigate to the GrubPacs tab, and select 'Scan and Connect Box'. Select your box display ID (e.g., GP-CP01) from the discovered devices list to connect."
+            answer: "Turn on Bluetooth on your mobile phone, open the GrubPac Delivery App, navigate to the GrubPacs tab, and select 'Scan and Connect Box'. Select your box display ID (e.g., GP-CP01) from the discovered devices list to connect."
         },
         {
             category: "Device Connection",

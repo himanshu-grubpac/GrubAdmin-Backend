@@ -1,8 +1,8 @@
 import { prisma } from "../db";
-import { getVerticalFoodBoxes } from "../db/actions/box.actions";
+import { getVerticalDeliveryBoxes } from "../db/actions/box.actions";
 
 async function main() {
-    const employee = await prisma.vertical_food_employee.findFirst({
+    const employee = await prisma.vertical_delivery_employee.findFirst({
         where: {
             first_name: "Harish",
             last_name: "Verma",
@@ -22,14 +22,14 @@ async function main() {
         status: employee.status,
     });
 
-    const result = await getVerticalFoodBoxes({
+    const result = await getVerticalDeliveryBoxes({
         client_id: employee.client_id!,
         employee_id: employee.id,
         permission_status: "shared",
     });
 
-    console.log("getVerticalFoodBoxes result count:", result.boxes.length);
-    console.log("getVerticalFoodBoxes result boxes:", result.boxes.map(b => ({
+    console.log("getVerticalDeliveryBoxes result count:", result.boxes.length);
+    console.log("getVerticalDeliveryBoxes result boxes:", result.boxes.map(b => ({
         id: b.id,
         box_display_id: b.box_display_id,
         name: b.name,

@@ -1,7 +1,8 @@
 import { connectMongoDB, prisma } from "@/db";
 import { AdminNotification } from "@/db/mongo-schema";
-import { ClientAdminLog, FoodEmployeeLog, RestaurantLog, GrubpacLog } from "@/db/mongo-schema";
+import { ClientAdminLog, DeliveryEmployeeLog, RestaurantLog, GrubpacLog } from "@/db/mongo-schema";
 import { logger } from "@/utils/logger";
+import { SEED_IDS } from "./seed-ids";
 
 const seedAdminNotifications = async (superAdminId: string, superAdminName: string) => {
 	const existingCount = await AdminNotification.countDocuments();
@@ -30,8 +31,8 @@ const seedAdminNotifications = async (superAdminId: string, superAdminName: stri
 			recipient_id: superAdminId,
 			employee_id: superAdminId,
 			employee_name: superAdminName,
-			item_id: "demo-client-001",
-			item_name: "Demo Restaurant Inc.",
+			item_id: SEED_IDS.CLIENT_ACTIVE_1,
+			item_name: "Bella Italia Restaurant",
 			item_type: "Client",
 		},
 		{
@@ -41,7 +42,7 @@ const seedAdminNotifications = async (superAdminId: string, superAdminName: stri
 			status: "unread" as const,
 			goal: "update_permission_and_roles" as const,
 			recipient_id: superAdminId,
-			item_id: "box-001",
+			item_id: SEED_IDS.BOX_001,
 			item_name: "GRUB-001",
 			item_type: "Box",
 		},
@@ -54,7 +55,7 @@ const seedAdminNotifications = async (superAdminId: string, superAdminName: stri
 			recipient_id: superAdminId,
 			employee_id: superAdminId,
 			employee_name: superAdminName,
-			role_id: "support-manager-role",
+			role_id: SEED_IDS.ROLE_SUPPORT_MANAGER,
 		},
 		{
 			title: "Box Status Alert",
@@ -63,7 +64,7 @@ const seedAdminNotifications = async (superAdminId: string, superAdminName: stri
 			status: "unread" as const,
 			goal: "deletion" as const,
 			recipient_id: superAdminId,
-			item_id: "box-001",
+			item_id: SEED_IDS.BOX_001,
 			item_name: "GRUB-001",
 			item_type: "Box",
 		},
@@ -88,23 +89,23 @@ const seedSystemLogs = async (superAdminId: string, superAdminName: string) => {
 				{
 					category: "Restaurant",
 					type: "Creation",
-					description: `[${superAdminName}, ${superAdminId}] added new restaurant - [Sample Restaurant, rest-001]`,
+					description: `[${superAdminName}, ${superAdminId}] added new restaurant - [Downtown Bella Italia]`,
 					actor: { id: superAdminId, name: superAdminName, role: "Super Admin", ip: "192.168.1.1" },
-					subject: { id: "rest-001", name: "Sample Restaurant", type: "restaurant" },
+					subject: { id: SEED_IDS.RESTAURANT_ACTIVE_1, name: "Downtown Bella Italia", type: "restaurant" },
 				},
 				{
 					category: "Employee",
 					type: "Creation",
-					description: `Account created and assigned to [Sample Employee] by [${superAdminName}, ${superAdminId}]`,
+					description: `Account created and assigned to [Marco Rossi] by [${superAdminName}, ${superAdminId}]`,
 					actor: { id: superAdminId, name: superAdminName, role: "Super Admin", ip: "192.168.1.1" },
-					subject: { id: "emp-001", name: "Sample Employee", type: "employee" },
+					subject: { id: SEED_IDS.EMPLOYEE_MANAGER_1, name: "Marco Rossi", type: "employee" },
 				},
 				{
 					category: "GrubPac",
 					type: "Creation",
-					description: `[GRUB-001, box-001] created by [${superAdminName}, ${superAdminId}]`,
+					description: `[GRUB-001] created by [${superAdminName}, ${superAdminId}]`,
 					actor: { id: superAdminId, name: superAdminName, role: "Super Admin", ip: "192.168.1.1" },
-					subject: { id: "box-001", name: "GRUB-001", type: "box" },
+					subject: { id: SEED_IDS.BOX_001, name: "GRUB-001", type: "box" },
 				},
 				{
 					category: "Profile",
@@ -116,24 +117,24 @@ const seedSystemLogs = async (superAdminId: string, superAdminName: string) => {
 			],
 		},
 		{
-			model: FoodEmployeeLog,
-			collection: "food_employee_logs",
+			model: DeliveryEmployeeLog,
+			collection: "delivery_employee_logs",
 			documents: [
 				{
 					category: "Employee",
 					type: "Creation",
-					description: `Account created for [John Doe, emp-002]`,
+					description: `Account created for [Luigi Verdi]`,
 					actor: { id: superAdminId, name: superAdminName, role: "admin", table: "client" },
-					client_id: "demo-client-001",
-					subject: { id: "emp-002", name: "John Doe", type: "employee" },
+					client_id: SEED_IDS.CLIENT_ACTIVE_1,
+					subject: { id: SEED_IDS.EMPLOYEE_DELIVERY_1, name: "Luigi Verdi", type: "employee" },
 				},
 				{
 					category: "Employee",
 					type: "Suspension",
 					description: `Account suspended by [${superAdminName}, ${superAdminId}]`,
 					actor: { id: superAdminId, name: superAdminName, role: "admin", table: "client" },
-					client_id: "demo-client-001",
-					subject: { id: "emp-002", name: "John Doe", type: "employee" },
+					client_id: SEED_IDS.CLIENT_ACTIVE_1,
+					subject: { id: SEED_IDS.EMPLOYEE_SUSPENDED, name: "Jack Sparrow", type: "employee" },
 				},
 			],
 		},
@@ -144,10 +145,10 @@ const seedSystemLogs = async (superAdminId: string, superAdminName: string) => {
 				{
 					category: "Restaurant",
 					type: "Creation",
-					description: `[${superAdminName}, ${superAdminId}] added new restaurant - [Pizza Place, rest-002]`,
+					description: `[${superAdminName}, ${superAdminId}] added new restaurant - [Green Leaf Downtown]`,
 					actor: { id: superAdminId, name: superAdminName, role: "admin", table: "client" },
-					client_id: "demo-client-001",
-					subject: { id: "rest-002", name: "Pizza Place", type: "restaurant" },
+					client_id: SEED_IDS.CLIENT_ACTIVE_2,
+					subject: { id: SEED_IDS.RESTAURANT_ACTIVE_2, name: "Green Leaf Downtown", type: "restaurant" },
 				},
 			],
 		},
@@ -158,27 +159,27 @@ const seedSystemLogs = async (superAdminId: string, superAdminName: string) => {
 				{
 					category: "GrubPac",
 					type: "Assignment",
-					description: `[GRUB-001, box-001] assigned to restaurant [Pizza Place, rest-002] by [${superAdminName}, ${superAdminId}]`,
+					description: `[GRUB-001] assigned to restaurant [Downtown Bella Italia] by [${superAdminName}, ${superAdminId}]`,
 					actor: { id: superAdminId, name: superAdminName, role: "admin", table: "client" },
-					client_id: "demo-client-001",
-					subject: { id: "box-001", name: "GRUB-001", type: "box" },
+					client_id: SEED_IDS.CLIENT_ACTIVE_1,
+					subject: { id: SEED_IDS.BOX_001, name: "GRUB-001", type: "box" },
 				},
 				{
 					category: "GrubLock",
 					type: "Status",
-					description: `[${superAdminName}, ${superAdminId}] locked [GRUB-001, box-001] - [Manager, manager@example.com]`,
+					description: `[${superAdminName}, ${superAdminId}] locked [GRUB-001] - [Manager, manager@example.com]`,
 					actor: { id: superAdminId, name: superAdminName, role: "admin", table: "client" },
-					client_id: "demo-client-001",
-					subject: { id: "box-001", name: "GRUB-001", type: "box" },
+					client_id: SEED_IDS.CLIENT_ACTIVE_1,
+					subject: { id: SEED_IDS.BOX_001, name: "GRUB-001", type: "box" },
 					metadata: { action: "lock", recipient: "Manager, manager@example.com" },
 				},
 				{
 					category: "GrubPac",
 					type: "Box status",
 					description: `Box turned OFF`,
-					actor: { id: "box-001", name: "GRUB-001" },
-					client_id: "demo-client-001",
-					subject: { id: "box-001", name: "GRUB-001", type: "box" },
+					actor: { id: SEED_IDS.BOX_001, name: "GRUB-001" },
+					client_id: SEED_IDS.CLIENT_ACTIVE_1,
+					subject: { id: SEED_IDS.BOX_001, name: "GRUB-001", type: "box" },
 					metadata: { state: "OFF" },
 				},
 			],

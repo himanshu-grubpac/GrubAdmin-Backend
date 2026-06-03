@@ -291,8 +291,8 @@ export const deleteClient = async (id: string) => {
 		// Check for dependencies
 		const [boxes, employees, consumers, restaurants] = await Promise.all([
 			tx.box.count({ where: { client_id: id } }),
-			tx.vertical_food_employee.count({ where: { client_id: id } }),
-			tx.vertical_food_consumer.count({ where: { client_id: id } }),
+			tx.vertical_delivery_employee.count({ where: { client_id: id } }),
+			tx.vertical_delivery_consumer.count({ where: { client_id: id } }),
 			tx.restaurant.count({ where: { client_id: id } }),
 		]);
 

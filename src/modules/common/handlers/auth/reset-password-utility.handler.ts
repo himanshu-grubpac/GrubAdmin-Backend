@@ -61,7 +61,7 @@ export const resetPasswordUtilityHandler = createHandlers(
                 phone ? { mobile_number: phone } : {},
             ].filter((condition) => Object.keys(condition).length > 0);
 
-            const employee = await prisma.vertical_food_employee.findFirst({
+            const employee = await prisma.vertical_delivery_employee.findFirst({
                 where: {
                     OR: orConditions.length > 0 ? orConditions : undefined,
                 },
@@ -76,7 +76,7 @@ export const resetPasswordUtilityHandler = createHandlers(
                 );
             }
 
-            await prisma.vertical_food_employee.update({
+            await prisma.vertical_delivery_employee.update({
                 where: {
                     id: employee.id,
                 },

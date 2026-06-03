@@ -7,36 +7,218 @@ import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 // Prevent multiple instances of Prisma Client in dev (hot reloads)
 const globalForPrisma = globalThis as unknown as {
 	prisma: PrismaClient | undefined;
+	adapter: PrismaMariaDb | undefined;
 };
 
-import { nullifyEmptyStrings } from "@/utils/clean-query.ts";
+// ── Prisma (MySQL) ──────────────────────────────────────────────────────────
+// We create the client lazily so a transient connection failure at startup
+// never prevents the server process from starting.  The first successful
+// query will trigger the real connection attempt.
 
-console.log("Using DATABASE_URL:", DATABASE_URL);
-const adapter = new PrismaMariaDb(DATABASE_URL);
+let prismaConnected = false;
+let prismaConnectionPromise: Promise<void> | null = null;
 
+function getPrismaInstance(): PrismaClient {
+	if (globalForPrisma.prisma) {
+		return globalForPrisma.prisma;
+	}
 
-const basePrisma = new PrismaClient({
-	log:
-		process.env.NODE_ENV === "development"
-			? ["query", "error", "warn"]
-			: ["query", "error"],
-	adapter,
+	const newAdapter = new PrismaMariaDb(DATABASE_URL);
+	const newPrisma = new PrismaClient({
+		log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
+		adapter: newAdapter,
+	});
+
+	if (process.env.NODE_ENV !== "production") {
+		globalForPrisma.prisma = newPrisma;
+		globalForPrisma.adapter = newAdapter;
+	}
+
+	return newPrisma;
+}
+
+export const prisma = new Proxy({} as PrismaClient, {
+	get(_, prop) {
+		return (getPrismaInstance() as any)[prop];
+	},
 });
 
+/**
+ * Establish the Prisma connection with retries.  Called once during startup.
+ * If all retries fail the server will continue — queries will return
+ * structured 503 errors instead of crashing.
+ */
+const connectPrisma = async (): Promise<void> => {
+	const maxRetries = parseInt(process.env.PRISMA_MAX_RETRIES || "3", 10);
+	const retryDelayMs = parseInt(process.env.PRISMA_RETRY_DELAY_MS || "2000", 10);
 
-export const prisma = basePrisma;
-
-globalForPrisma.prisma = basePrisma;
-
-
-export const connectMongoDB = async () => {
-	try {
-		logger.info("🍃 Connecting to mongo db...");
-		logger.info(MONGO_URI);
-		await mongoose.connect(MONGO_URI);
-		logger.info("🍃 Connected to mongo db...");
-	} catch (error) {
-		logger.error(`Connection error: ${error}`);
-		throw error;
+	for (let attempt = 1; attempt <= maxRetries; attempt++) {
+		try {
+			logger.info(`Connecting to MySQL via Prisma (attempt ${attempt}/${maxRetries})...`);
+			const client = getPrismaInstance();
+			await client.$connect();
+			prismaConnected = true;
+			logger.info("MySQL connected successfully via Prisma");
+			return;
+		} catch (error) {
+			logger.error(`Prisma connection attempt ${attempt} failed: ${error}`);
+			if (attempt < maxRetries) {
+				logger.info(`Retrying Prisma connection in ${retryDelayMs}ms...`);
+				await new Promise((resolve) => setTimeout(resolve, retryDelayMs));
+			}
+		}
 	}
+
+	prismaConnected = false;
+	logger.error(`MySQL connection failed after ${maxRetries} attempts`);
+	logger.warn("Server will continue without MySQL. Prisma queries will return 503.");
+};
+
+export const isPrismaConnected = (): boolean => prismaConnected;
+
+// ── MongoDB ─────────────────────────────────────────────────────────────────
+// Track MongoDB connection state explicitly.
+let mongoConnected = false;
+let mongoConnectionPromise: Promise<void> | null = null;
+
+export const isMongoConnected = (): boolean => mongoConnected;
+
+export const getMongoConnectionState = (): string => {
+	switch (mongoose.connection.readyState) {
+		case 0: return "disconnected";
+		case 1: return "connected";
+		case 2: return "connecting";
+		case 3: return "disconnecting";
+		default: return "unknown";
+	}
+};
+
+// Disable Mongoose buffering so operations fail immediately instead of
+// timing out silently after 10000ms (default bufferTimeoutMS).
+mongoose.set("bufferCommands", false);
+
+const MONGO_CONNECTION_TIMEOUT_MS = 5000;
+const mongoConnectAttempts = parseInt(process.env.MONGO_MAX_RETRIES || "3", 10);
+const mongoRetryDelay = parseInt(process.env.MONGO_RETRY_DELAY_MS || "2000", 10);
+
+export const connectMongoDB = async (): Promise<void> => {
+	if (mongoConnectionPromise) return mongoConnectionPromise;
+
+	mongoConnectionPromise = (async () => {
+		let lastError: Error | null = null;
+
+		for (let attempt = 1; attempt <= mongoConnectAttempts; attempt++) {
+			try {
+				logger.info(`Connecting to MongoDB (attempt ${attempt}/${mongoConnectAttempts})...`);
+				await mongoose.connect(MONGO_URI, {
+					serverSelectionTimeoutMS: MONGO_CONNECTION_TIMEOUT_MS,
+					connectTimeoutMS: MONGO_CONNECTION_TIMEOUT_MS,
+					heartbeatFrequencyMS: 10000,
+				});
+
+				mongoConnected = true;
+				logger.info("Connected to MongoDB successfully");
+
+				mongoose.connection.on("disconnected", () => {
+					logger.warn("MongoDB disconnected. Updating state.");
+					mongoConnected = false;
+				});
+
+				mongoose.connection.on("reconnected", () => {
+					logger.info("MongoDB reconnected. Updating state.");
+					mongoConnected = true;
+				});
+
+				mongoose.connection.on("error", (err) => {
+					logger.error(`MongoDB connection error: ${err}`);
+					mongoConnected = false;
+				});
+
+				return;
+			} catch (error) {
+				lastError = error as Error;
+				logger.error(`MongoDB connection attempt ${attempt} failed: ${error}`);
+
+				if (attempt < mongoConnectAttempts) {
+					logger.info(`Retrying MongoDB connection in ${mongoRetryDelay}ms...`);
+					await new Promise((resolve) => setTimeout(resolve, mongoRetryDelay));
+				}
+			}
+		}
+
+		mongoConnected = false;
+		logger.error(`MongoDB connection failed after ${mongoConnectAttempts} attempts.`);
+		logger.warn("Server will continue without MongoDB. All MongoDB operations will fail immediately (buffering disabled).");
+		throw lastError || new Error("MongoDB connection failed");
+	})();
+
+	return mongoConnectionPromise;
+};
+
+/**
+ * Wait for MongoDB connection to be established with a timeout.
+ */
+export const ensureMongoDB = async (timeoutMs = 15000): Promise<void> => {
+	if (mongoConnected && mongoose.connection.readyState === 1) return;
+
+	if (!mongoConnectionPromise) {
+		throw new Error("MongoDB connection was never initiated");
+	}
+
+	const timeout = new Promise<never>((_, reject) =>
+		setTimeout(() => reject(new Error(`MongoDB connection not ready within ${timeoutMs}ms`)), timeoutMs)
+	);
+
+	await Promise.race([mongoConnectionPromise, timeout]);
+};
+
+/**
+ * Wait for all database connections to be ready.
+ */
+export const waitForDatabases = async (timeoutMs = 30000): Promise<{ prisma: boolean; mongodb: boolean }> => {
+	const results = {
+		prisma: prismaConnected,
+		mongodb: false,
+	};
+
+	if (prismaConnectionPromise) {
+		try {
+			await prismaConnectionPromise;
+			results.prisma = prismaConnected;
+		} catch {
+			results.prisma = false;
+		}
+	}
+
+	if (mongoConnectionPromise) {
+		try {
+			await ensureMongoDB(timeoutMs);
+			results.mongodb = mongoConnected;
+		} catch {
+			results.mongodb = false;
+		}
+	}
+
+	return results;
+};
+
+/**
+ * Initialize all database connections.  Called once during startup.
+ * Failures are logged but do NOT prevent the server from starting.
+ * The readiness gate will reject traffic until connections succeed.
+ */
+export const initializeDatabases = async (): Promise<void> => {
+	// Connect to Prisma (MySQL)
+	await connectPrisma();
+
+	// Brief pause for connection heartbeats
+	await new Promise((resolve) => setTimeout(resolve, 500));
+};
+
+/**
+ * Check if the server can accept database queries.
+ * Returns true only when at least the primary database (Prisma/MySQL) is connected.
+ */
+export const isDatabaseReady = (): boolean => {
+	return prismaConnected;
 };

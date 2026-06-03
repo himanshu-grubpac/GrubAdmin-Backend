@@ -2,20 +2,7 @@ import { prisma } from "@/db";
 import { connectMongoDB } from "@/db";
 import { BoxConfig } from "@/db/mongo-schema";
 import { logger } from "@/utils/logger";
-import { VERTICAL_IDS } from "./seed-verticals";
-import { CLIENT_IDS } from "./seed-clients";
-import { RESTAURANT_IDS } from "./seed-restaurants";
-
-export const BOX_IDS = {
-  BOX_001: "seed-box-001",
-  BOX_002: "seed-box-002",
-  BOX_003: "seed-box-003",
-  BOX_004: "seed-box-004",
-  BOX_005: "seed-box-005",
-  BOX_006: "seed-box-006",
-  BOX_007: "seed-box-007",
-  BOX_008: "seed-box-008",
-} as const;
+import { SEED_IDS } from "./seed-ids";
 
 interface BoxSeedDef {
   id: string;
@@ -25,41 +12,18 @@ interface BoxSeedDef {
   client_id: string | null;
   status: "active" | "suspended";
   vehicle_number: string | null;
-  telemetry: {
-    health_status?: "healthy" | "attention" | "critical";
-    power_status?: "on" | "off" | "unknown";
-    battery_percentage?: number;
-    connection_status?: "connected" | "disconnected" | "unknown";
-    wifi_status?: "on" | "off" | "unknown";
-    bluetooth_status?: "on" | "off" | "unknown";
-    sim_status?: "on" | "off" | "unknown";
-    gps_status?: "on" | "off" | "unknown";
-    solar_status?: "on" | "off" | "unknown";
-    camera_status?: "on" | "off" | "unknown";
-    adas_status?: "on" | "off" | "unknown";
-    port_big_status?: "on" | "off" | "unknown";
-    port_small_status?: "on" | "off" | "unknown";
-    turn_signal_status?: "on" | "off" | "unknown";
-    memory_percentage?: number;
-    ext_temp?: number;
-    zone1_temp?: number;
-    zone2_temp?: number;
-    ioniser_status?: "on" | "off" | "unknown";
-    gyrosensor_status?: "on" | "off" | "unknown";
-    advert_screen_status?: "on" | "off" | "unknown";
-    dual_zone_status?: "on" | "off" | "unknown";
-  };
+  telemetry: Record<string, unknown>;
   lock_status?: "locked" | "unlocked" | "not_available" | "offline";
   restaurant_ids?: string[];
 }
 
 const BOXES: BoxSeedDef[] = [
   {
-    id: BOX_IDS.BOX_001,
+    id: SEED_IDS.BOX_001,
     box_display_id: "GRUB-001",
     name: "Bella Truck #1",
-    vertical_id: VERTICAL_IDS.DELIVERY,
-    client_id: CLIENT_IDS.ACTIVE_1,
+    vertical_id: SEED_IDS.VERTICAL_DELIVERY,
+    client_id: SEED_IDS.CLIENT_ACTIVE_1,
     status: "active",
     vehicle_number: "CA-1234-GRUB",
     telemetry: {
@@ -73,14 +37,14 @@ const BOXES: BoxSeedDef[] = [
       zone1_temp: 4,
     },
     lock_status: "unlocked",
-    restaurant_ids: [RESTAURANT_IDS.ACTIVE_1],
+    restaurant_ids: [SEED_IDS.RESTAURANT_ACTIVE_1],
   },
   {
-    id: BOX_IDS.BOX_002,
+    id: SEED_IDS.BOX_002,
     box_display_id: "GRUB-002",
     name: "Bella Truck #2",
-    vertical_id: VERTICAL_IDS.DELIVERY,
-    client_id: CLIENT_IDS.ACTIVE_1,
+    vertical_id: SEED_IDS.VERTICAL_DELIVERY,
+    client_id: SEED_IDS.CLIENT_ACTIVE_1,
     status: "active",
     vehicle_number: "CA-5678-GRUB",
     telemetry: {
@@ -94,14 +58,14 @@ const BOXES: BoxSeedDef[] = [
       zone1_temp: 6,
     },
     lock_status: "locked",
-    restaurant_ids: [RESTAURANT_IDS.ACTIVE_1],
+    restaurant_ids: [SEED_IDS.RESTAURANT_ACTIVE_1],
   },
   {
-    id: BOX_IDS.BOX_003,
+    id: SEED_IDS.BOX_003,
     box_display_id: "GRUB-003",
     name: "Green Leaf Van #1",
-    vertical_id: VERTICAL_IDS.DELIVERY,
-    client_id: CLIENT_IDS.ACTIVE_2,
+    vertical_id: SEED_IDS.VERTICAL_DELIVERY,
+    client_id: SEED_IDS.CLIENT_ACTIVE_2,
     status: "active",
     vehicle_number: "NY-9012-GRUB",
     telemetry: {
@@ -117,14 +81,14 @@ const BOXES: BoxSeedDef[] = [
       dual_zone_status: "on",
     },
     lock_status: "unlocked",
-    restaurant_ids: [RESTAURANT_IDS.ACTIVE_2],
+    restaurant_ids: [SEED_IDS.RESTAURANT_ACTIVE_2],
   },
   {
-    id: BOX_IDS.BOX_004,
+    id: SEED_IDS.BOX_004,
     box_display_id: "GRUB-004",
     name: "Green Leaf Van #2",
-    vertical_id: VERTICAL_IDS.DELIVERY,
-    client_id: CLIENT_IDS.ACTIVE_2,
+    vertical_id: SEED_IDS.VERTICAL_DELIVERY,
+    client_id: SEED_IDS.CLIENT_ACTIVE_2,
     status: "active",
     vehicle_number: "NY-3456-GRUB",
     telemetry: {
@@ -137,14 +101,14 @@ const BOXES: BoxSeedDef[] = [
       ext_temp: 30,
     },
     lock_status: "offline",
-    restaurant_ids: [RESTAURANT_IDS.ACTIVE_3],
+    restaurant_ids: [SEED_IDS.RESTAURANT_ACTIVE_3],
   },
   {
-    id: BOX_IDS.BOX_005,
+    id: SEED_IDS.BOX_005,
     box_display_id: "GRUB-005",
     name: "MediQuick Ambulance #1",
-    vertical_id: VERTICAL_IDS.MEDICAL,
-    client_id: CLIENT_IDS.ACTIVE_3,
+    vertical_id: SEED_IDS.VERTICAL_MEDICAL,
+    client_id: SEED_IDS.CLIENT_ACTIVE_3,
     status: "active",
     vehicle_number: "TX-7890-MED",
     telemetry: {
@@ -162,10 +126,10 @@ const BOXES: BoxSeedDef[] = [
     restaurant_ids: [],
   },
   {
-    id: BOX_IDS.BOX_006,
+    id: SEED_IDS.BOX_006,
     box_display_id: "GRUB-006",
     name: "Unassigned Box #1",
-    vertical_id: VERTICAL_IDS.DELIVERY,
+    vertical_id: SEED_IDS.VERTICAL_DELIVERY,
     client_id: null,
     status: "active",
     vehicle_number: null,
@@ -180,10 +144,10 @@ const BOXES: BoxSeedDef[] = [
     lock_status: "unlocked",
   },
   {
-    id: BOX_IDS.BOX_007,
+    id: SEED_IDS.BOX_007,
     box_display_id: "GRUB-007",
     name: "Unassigned Box #2",
-    vertical_id: VERTICAL_IDS.MEDICAL,
+    vertical_id: SEED_IDS.VERTICAL_MEDICAL,
     client_id: null,
     status: "active",
     vehicle_number: null,
@@ -196,11 +160,11 @@ const BOXES: BoxSeedDef[] = [
     lock_status: "unlocked",
   },
   {
-    id: BOX_IDS.BOX_008,
+    id: SEED_IDS.BOX_008,
     box_display_id: "GRUB-SUS-001",
     name: "Suspended Box",
-    vertical_id: VERTICAL_IDS.DELIVERY,
-    client_id: CLIENT_IDS.ACTIVE_1,
+    vertical_id: SEED_IDS.VERTICAL_DELIVERY,
+    client_id: SEED_IDS.CLIENT_ACTIVE_1,
     status: "suspended",
     vehicle_number: "CA-0000-SUS",
     telemetry: {
@@ -218,40 +182,56 @@ export const seedBoxes = async (): Promise<void> => {
   await connectMongoDB();
 
   for (const boxDef of BOXES) {
-    const existing = await prisma.box.findUnique({ where: { id: boxDef.id } });
-    if (existing) {
-      logger.info(`  Box "${boxDef.box_display_id}" already exists.`);
-      continue;
-    }
-
     const { restaurant_ids, lock_status, telemetry, ...boxData } = boxDef;
 
-    const box = await prisma.box.create({
-      data: {
-        ...boxData,
-        telemetry: {
-          create: telemetry,
+    const existing = await prisma.box.findUnique({ where: { id: boxDef.id } });
+    if (!existing) {
+      const box = await prisma.box.create({
+        data: {
+          ...boxData,
+          telemetry: {
+            create: telemetry as any,
+          },
+          lock: {
+            create: { lock_status: lock_status || "unlocked" },
+          },
         },
-        lock: {
-          create: { lock_status: lock_status || "unlocked" },
-        },
-      },
-    });
-
-    if (restaurant_ids && restaurant_ids.length > 0) {
-      await prisma.restaurant_box.createMany({
-        data: restaurant_ids
-          .filter(Boolean)
-          .map((rid) => ({ box_id: box.id, restaurant_id: rid, status: "shared" })),
       });
-    }
 
-    const existingConfig = await BoxConfig.findOne({ box_id: box.id });
-    if (!existingConfig) {
-      await BoxConfig.create({ box_id: box.id });
-    }
+      if (restaurant_ids && restaurant_ids.length > 0) {
+        await prisma.restaurant_box.createMany({
+          data: restaurant_ids
+            .filter(Boolean)
+            .map((rid) => ({ box_id: box.id, restaurant_id: rid, status: "shared" as const })),
+        });
+      }
 
-    logger.info(`  Box "${boxDef.box_display_id}" created with telemetry, lock, config.`);
+      const existingConfig = await BoxConfig.findOne({ box_id: box.id });
+      if (!existingConfig) {
+        await BoxConfig.create({ box_id: box.id });
+      }
+
+      logger.info(`  Box "${boxDef.box_display_id}" created with telemetry, lock, config.`);
+    } else {
+      await prisma.box.update({
+        where: { id: boxDef.id },
+        data: { ...boxData },
+      });
+
+      await prisma.box_telemetry_latest.upsert({
+        where: { box_id: boxDef.id },
+        update: { ...(telemetry as any) },
+        create: { box_id: boxDef.id, ...(telemetry as any) },
+      });
+
+      await prisma.box_lock.upsert({
+        where: { box_id: boxDef.id },
+        update: { lock_status: lock_status || "unlocked" },
+        create: { box_id: boxDef.id, lock_status: lock_status || "unlocked" },
+      });
+
+      logger.info(`  Box "${boxDef.box_display_id}" already exists, updated.`);
+    }
   }
 
   logger.info(`Seeded ${BOXES.length} boxes.`);

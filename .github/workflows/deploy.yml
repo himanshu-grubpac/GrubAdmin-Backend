@@ -29,15 +29,36 @@ jobs:
             cd ~/grubadmin-backend/GrubAdmin-Backend
             git stash
             git pull origin main
+            echo "=== Stopping running PM2 process ==="
+            pm2 delete "${{ secrets.PRODUCTION_PM2_ID }}" || true
             echo "=== Installing dependencies ==="
             bun install
+            echo "=== Killing idle database connections ==="
+            set -o allexport
+            . .env.production 2>/dev/null || true
+            set +o allexport
+            export AIVEN_ADMIN_PASSWORD="${{ secrets.AIVEN_ADMIN_PASSWORD }}"
+            bun src/cmd/kill-idle-connections.ts || true
             echo "=== Running database migrations ==="
+            export DATABASE_URL="${DATABASE_URL}&connectionLimit=1"
             bun run db:fix-duplicate-employee-emails
-            bun db:push
+            sleep 3
+            success=false
+            for i in 1 2 3; do
+              echo "Attempt $i: prisma db push..."
+              if bun db:push; then
+                success=true
+                break
+              fi
+              echo "db:push failed, waiting 5s before retry..."
+              sleep 5
+            done
+            if [ "$success" != "true" ]; then
+              echo "db:push failed after 3 attempts"
+              exit 1
+            fi
             bun db:generate
-            echo "=== Restarting PM2 process ==="
-            pm2 list
-            pm2 delete "${{ secrets.PRODUCTION_PM2_ID }}" || true
+            echo "=== Starting PM2 process ==="
             cd ~/grubadmin-backend/GrubAdmin-Backend
             pm2 start bun --name "${{ secrets.PRODUCTION_PM2_ID }}" -- start
             pm2 save
