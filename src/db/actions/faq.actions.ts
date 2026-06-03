@@ -387,17 +387,27 @@ export const changeFaqQuestionsCategory = async (
 ) => {
 	console.log(args);
 
+	// 1. Fetch active (non-deleted) FAQ question IDs first
+	const activeFaqs = await prisma.faq_question.findMany({
+		where: {
+			id: { in: args.question_ids },
+			NOT: { status: "deleted" },
+		},
+		select: { id: true },
+	});
+	const activeFaqIds = activeFaqs.map((faq) => faq.id);
+
+	if (activeFaqIds.length === 0) {
+		return { count: 0 };
+	}
+
+	// 2. Perform the updateMany safely without illegal relation filters
 	return prisma.faq_question_category.updateMany({
 		where: {
 			question_id: {
-				in: args.question_ids,
+				in: activeFaqIds,
 			},
 			category_id: args.current_category,
-			NOT: {
-				question: {
-					status: "deleted",
-				},
-			},
 		},
 		data: {
 			category_id: args.new_category,

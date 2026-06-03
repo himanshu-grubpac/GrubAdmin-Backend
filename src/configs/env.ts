@@ -69,10 +69,9 @@ export const loadEnv = (): void => {
 			missingVars.push(envVar);
 		}
 	}
-
 	if (missingVars.length > 0) {
 		const errorMessage = `Missing required environment variables: ${missingVars.join(", ")}`;
-		logger.error("❌ Environment Configuration Error:", errorMessage);
+		logger.error(`❌ Environment Configuration Error: ${errorMessage}`);
 		logger.error(
 			"Please ensure all required environment variables are set in your .env file",
 		);

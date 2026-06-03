@@ -7,6 +7,7 @@ import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 // Prevent multiple instances of Prisma Client in dev (hot reloads)
 const globalForPrisma = globalThis as unknown as {
 	prisma: PrismaClient | undefined;
+	adapter: PrismaMariaDb | undefined;
 };
 
 // ── Prisma (MySQL) ──────────────────────────────────────────────────────────
@@ -17,17 +18,23 @@ const globalForPrisma = globalThis as unknown as {
 let prismaConnected = false;
 let prismaConnectionPromise: Promise<void> | null = null;
 
-let adapter: PrismaMariaDb | null = null;
-let basePrisma: PrismaClient | null = null;
-
 function getPrismaInstance(): PrismaClient {
-	if (basePrisma) return basePrisma;
-	adapter = new PrismaMariaDb(DATABASE_URL);
-	basePrisma = new PrismaClient({
+	if (globalForPrisma.prisma) {
+		return globalForPrisma.prisma;
+	}
+
+	const newAdapter = new PrismaMariaDb(DATABASE_URL);
+	const newPrisma = new PrismaClient({
 		log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
-		adapter,
+		adapter: newAdapter,
 	});
-	return basePrisma;
+
+	if (process.env.NODE_ENV !== "production") {
+		globalForPrisma.prisma = newPrisma;
+		globalForPrisma.adapter = newAdapter;
+	}
+
+	return newPrisma;
 }
 
 export const prisma = new Proxy({} as PrismaClient, {
