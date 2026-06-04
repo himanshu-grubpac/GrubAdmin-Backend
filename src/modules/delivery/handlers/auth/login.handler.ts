@@ -44,6 +44,7 @@ export const loginHandler = createHandlers(
 		// Also handle unassigned case for password login if they already have a password
 		if (employee.employee.status === "unassigned") {
 			await activateVerticalDeliveryEmployee({
+				id: employee.employee.id,
 				email: employee.employee.email,
 				type: employee.type as any,
 			});
