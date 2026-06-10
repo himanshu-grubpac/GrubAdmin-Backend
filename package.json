@@ -15,7 +15,7 @@
 		"reset": "bun src/cmd/reset-db.ts",
 		"db:fix-duplicate-employee-emails": "bun src/cmd/fix-duplicate-employee-emails.ts",
 		"db:inject-box-config": "bun src/cmd/inject-box-config.ts",
-"db:backfill-super-admin-permissions": "bun src/cmd/backfill-super-admin-permissions.ts"
+		"db:backfill-super-admin-permissions": "bun src/cmd/backfill-super-admin-permissions.ts"
 	},
 	"devDependencies": {
 		"@types/bcrypt": "^6.0.0",
@@ -37,7 +37,9 @@
 		"@protobufjs/inquire": "^1.1.1",
 		"bcryptjs": "^3.0.3",
 		"bun-mock-prisma": "^1.2.1",
+		"country-state-city": "^3.2.1",
 		"dotenv": "^17.2.3",
+		"effect": "^3.21.3",
 		"hono": "^4.10.8",
 		"inquirer": "^12.10.0",
 		"json-2-csv": "^5.5.10",

@@ -5,7 +5,7 @@ import { createClient, getUniqueClient } from "@/db/actions/client.actions";
 import type { client } from "@/db/types";
 import type { APIResponse } from "@/types/api";
 import { Permission } from "@/utils/permission.ts";
-import { CLIENTS_PERMISSIONS } from "@/configs/constants.ts";
+import { CLIENTS_PERMISSIONS, BOX_VERTICALS } from "@/configs/constants.ts";
 import { getVertical } from "@/db/actions/vertical.actions.ts";
 import { APIError } from "@/types/error";
 import { services } from "@/services";
@@ -43,6 +43,15 @@ export const createClientHandler = createHandlers(
 		const vertical = await getVertical(data.vertical_id);
 		if (!vertical) {
 			throw new APIError("Invalid vertical selected", undefined, undefined, 400);
+		}
+
+		if (!BOX_VERTICALS.includes(vertical.name.toLowerCase() as any)) {
+			throw new APIError(
+				`Invalid vertical. Allowed: ${BOX_VERTICALS.join(", ")}`,
+				undefined,
+				undefined,
+				400,
+			);
 		}
 
 		if (vertical.name === "camping" && data.organization_name) {
