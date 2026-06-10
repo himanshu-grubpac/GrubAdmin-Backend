@@ -99,6 +99,16 @@ export const createClientHandler = createHandlers(
 			effected_name: client.name,
 		});
 
+		services.adminNotifications.notifyCreation({
+			title: "New client!",
+			description: `${client.name} has been added. Assign boxes to activate their account.`,
+			itemId: client.id,
+			itemName: client.name,
+			itemType: "Client",
+			employeeId: admin?.id,
+			employeeName: admin?.first_name,
+		});
+
 		const { password, ...safeClient } = client as any;
 
 		return context.json<APIResponse<ResponseData>>({

@@ -51,6 +51,14 @@ export const assignBoxesHandler = createHandlers(
 			),
 		).then((r) => logger.info(r));
 
+		services.adminNotifications.notifyCreation({
+			title: "Boxes assigned!",
+			description: `${boxes.boxes.length} box(es) assigned to client. Activate their account.`,
+			itemType: "Box",
+			employeeId: admin?.id,
+			employeeName: admin?.first_name,
+		});
+
 		return context.json<APIResponse>(
 			{
 				success: true,

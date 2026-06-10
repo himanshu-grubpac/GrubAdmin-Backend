@@ -182,6 +182,7 @@ export const NOTIFICATIONS_TYPE = ["success", "warning", "error"] as const;
 
 export const NOTIFICATION_GOAL = [
 	"deletion",
+	"creation",
 	"update_permission_and_roles",
 	"update_profile",
 	"export",

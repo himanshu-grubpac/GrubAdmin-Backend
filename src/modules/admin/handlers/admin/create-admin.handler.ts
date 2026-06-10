@@ -88,6 +88,16 @@ export const createAdminHandler = createHandlers(
 			effected_name: `${admin?.first_name} ${admin?.last_name}`,
 		});
 
+		services.adminNotifications.notifyCreation({
+			title: "New employee!",
+			description: `${admin?.first_name} ${admin?.last_name} has been added as an employee.`,
+			itemId: admin.id,
+			itemName: `${admin?.first_name} ${admin?.last_name}`,
+			itemType: "Employee",
+			employeeId: loggedInAdmin?.id,
+			employeeName: loggedInAdmin?.first_name,
+		});
+
 		return context.json<APIResponse<ResponseData>>(
 			{
 				success: true,
