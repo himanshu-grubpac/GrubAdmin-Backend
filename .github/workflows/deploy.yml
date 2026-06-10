@@ -40,6 +40,7 @@ jobs:
           bun src/cmd/kill-idle-connections.ts || true
           echo "=== Running database migrations ==="
           bun run db:fix-duplicate-employee-emails
+          bun run db:fix-orphaned-box-employees
           sleep 3
           success=false
           for i in 1 2 3; do
