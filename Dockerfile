@@ -28,9 +28,5 @@ RUN bun install
 
 # Copy source code
 COPY . .
-COPY run.sh .
-RUN chmod +x run.sh
 
 EXPOSE ${PORT}
-
-CMD ["./run.sh"]
