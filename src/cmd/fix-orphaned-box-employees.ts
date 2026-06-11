@@ -32,10 +32,16 @@ async function main() {
 
 		// --- Fix 2: vertical_delivery_consumer_box.consumer_id -> vertical_delivery_consumer.id ---
 		console.log("Checking vertical_delivery_consumer_box.consumer_id -> vertical_delivery_consumer.id ...");
-		const orphanedConsumerBoxes = await prisma.vertical_delivery_consumer_box.findMany({
-			where: { consumer: null },
-			select: { id: true },
+		const allConsumerBoxes = await prisma.vertical_delivery_consumer_box.findMany({
+			select: { id: true, consumer_id: true },
 		});
+		const validConsumerIds = (await prisma.vertical_delivery_consumer.findMany({
+			select: { id: true },
+		})).map((c) => c.id);
+		const validConsumerIdSet = new Set(validConsumerIds);
+		const orphanedConsumerBoxes = allConsumerBoxes.filter(
+			(cb) => !validConsumerIdSet.has(cb.consumer_id),
+		);
 		if (orphanedConsumerBoxes.length > 0) {
 			console.log(`  Found ${orphanedConsumerBoxes.length} orphaned consumer_id reference(s). Deleting...`);
 			for (const row of orphanedConsumerBoxes) {
@@ -67,10 +73,16 @@ async function main() {
 
 		// --- Fix 4: vertical_delivery_consumer_box.box_id -> box.id ---
 		console.log("Checking vertical_delivery_consumer_box.box_id -> box.id ...");
-		const orphanedConsumerBoxesBox = await prisma.vertical_delivery_consumer_box.findMany({
-			where: { box: null },
-			select: { id: true },
+		const allConsumerBoxesBox = await prisma.vertical_delivery_consumer_box.findMany({
+			select: { id: true, box_id: true },
 		});
+		const validBoxIds = (await prisma.box.findMany({
+			select: { id: true },
+		})).map((b) => b.id);
+		const validBoxIdSet = new Set(validBoxIds);
+		const orphanedConsumerBoxesBox = allConsumerBoxesBox.filter(
+			(cb) => !validBoxIdSet.has(cb.box_id),
+		);
 		if (orphanedConsumerBoxesBox.length > 0) {
 			console.log(`  Found ${orphanedConsumerBoxesBox.length} orphaned box_id reference(s). Deleting...`);
 			for (const row of orphanedConsumerBoxesBox) {
@@ -83,10 +95,16 @@ async function main() {
 
 		// --- Fix 5: vertical_delivery_employee_box.box_id -> box.id ---
 		console.log("Checking vertical_delivery_employee_box.box_id -> box.id ...");
-		const orphanedEmployeeBoxesBox = await prisma.vertical_delivery_employee_box.findMany({
-			where: { box: null },
-			select: { id: true },
+		const allEmployeeBoxesBox = await prisma.vertical_delivery_employee_box.findMany({
+			select: { id: true, box_id: true },
 		});
+		const validEmployeeBoxBoxIds = (await prisma.box.findMany({
+			select: { id: true },
+		})).map((b) => b.id);
+		const validEmployeeBoxBoxIdSet = new Set(validEmployeeBoxBoxIds);
+		const orphanedEmployeeBoxesBox = allEmployeeBoxesBox.filter(
+			(eb) => !validEmployeeBoxBoxIdSet.has(eb.box_id),
+		);
 		if (orphanedEmployeeBoxesBox.length > 0) {
 			console.log(`  Found ${orphanedEmployeeBoxesBox.length} orphaned box_id reference(s). Deleting...`);
 			for (const row of orphanedEmployeeBoxesBox) {
