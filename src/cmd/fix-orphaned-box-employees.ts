@@ -1,7 +1,29 @@
 import { prisma } from "../db/index.ts";
 
+async function tableExists(tableName: string): Promise<boolean> {
+	const result = await prisma.$queryRawUnsafe<{ cnt: number }[]>(
+		`SELECT COUNT(*) as cnt FROM information_schema.tables 
+		WHERE table_schema = DATABASE() 
+		AND table_name = ?`,
+		tableName
+	);
+	return (result?.[0]?.cnt ?? 0) > 0;
+}
+
 async function main() {
 	try {
+		const tables = [
+			"box", "vertical_delivery_employee", "vertical_delivery_consumer_box",
+			"vertical_delivery_consumer", "vertical_delivery_employee_box"
+		];
+		for (const t of tables) {
+			if (!(await tableExists(t))) {
+				console.log(`Table '${t}' does not exist. Skipping all fixes.`);
+				await prisma.$disconnect();
+				return;
+			}
+		}
+
 		// --- Fix 1: box.connection_employee_id -> vertical_delivery_employee.id ---
 		await fixOrphanedRef(
 			"box",

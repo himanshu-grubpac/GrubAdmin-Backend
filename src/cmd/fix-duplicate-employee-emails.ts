@@ -3,6 +3,17 @@ import { prisma } from "../db/index.ts";
 async function main() {
 	console.log("Checking for duplicate employee emails...");
 	try {
+		const tableCheck = await prisma.$queryRawUnsafe<{ exists: number }[]>(
+			`SELECT COUNT(*) as exists FROM information_schema.tables 
+			WHERE table_schema = DATABASE() 
+			AND table_name = 'vertical_delivery_employee'`
+		);
+
+		if (!tableCheck?.[0]?.exists) {
+			console.log("Table 'vertical_delivery_employee' does not exist. Skipping.");
+			return;
+		}
+
 		const duplicates = await prisma.vertical_delivery_employee.groupBy({
 			by: ["email"],
 			_count: { email: true },
