@@ -1,11 +1,13 @@
 import { logger } from "@/utils/logger";
 import { PrismaClient } from "./prisma";
 import mongoose from "mongoose";
-import { MONGO_URI } from "@/configs/env";
+import { DATABASE_URL, MONGO_URI } from "@/configs/env";
+import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 
 // Prevent multiple instances of Prisma Client in dev (hot reloads)
 const globalForPrisma = globalThis as unknown as {
 	prisma: PrismaClient | undefined;
+	adapter: PrismaMariaDb | undefined;
 };
 
 // ── Prisma (MySQL) ──────────────────────────────────────────────────────────
@@ -21,11 +23,14 @@ function getPrismaInstance(): PrismaClient {
 		return globalForPrisma.prisma;
 	}
 
+	const newAdapter = new PrismaMariaDb(DATABASE_URL);
 	const newPrisma = new PrismaClient({
 		log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
+		adapter: newAdapter,
 	});
 
 	globalForPrisma.prisma = newPrisma;
+	globalForPrisma.adapter = newAdapter;
 
 	return newPrisma;
 }
