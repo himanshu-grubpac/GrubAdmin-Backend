@@ -2,6 +2,18 @@ import { prisma } from "../db/index.ts";
 
 async function main() {
 	try {
+		await prisma.box.findFirst({ take: 1 });
+		await prisma.vertical_delivery_employee.findFirst({ take: 1 });
+		await prisma.vertical_delivery_consumer_box.findFirst({ take: 1 });
+		await prisma.vertical_delivery_consumer.findFirst({ take: 1 });
+		await prisma.vertical_delivery_employee_box.findFirst({ take: 1 });
+	} catch {
+		console.log("Required tables do not exist. Skipping all fixes.");
+		await prisma.$disconnect();
+		return;
+	}
+
+	try {
 		// --- Fix 1: box.connection_employee_id -> vertical_delivery_employee.id ---
 		console.log("Checking box.connection_employee_id -> vertical_delivery_employee.id ...");
 		const orphanedBoxes = await prisma.box.findMany({
