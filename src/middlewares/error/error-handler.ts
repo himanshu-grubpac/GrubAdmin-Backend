@@ -22,7 +22,7 @@ export const globalErrorHandler = async (error: unknown, ctx: Context) => {
 	const client_id = errCtx.client_id;
 
 	// Structured error log with all context fields
-	const errorLog = {
+	const errorLog: Record<string, unknown> = {
 		request_id: errCtx.request_id,
 		path: errCtx.path,
 		method: errCtx.method,
@@ -32,6 +32,11 @@ export const globalErrorHandler = async (error: unknown, ctx: Context) => {
 		message: error instanceof Error ? error.message : String(error),
 		stack: error instanceof Error ? error.stack : undefined,
 	};
+
+	if (error instanceof Prisma.PrismaClientKnownRequestError) {
+		errorLog.prisma_code = error.code;
+		errorLog.prisma_meta = error.meta;
+	}
 
 	logger.error("API Error:", errorLog);
 
@@ -114,6 +119,8 @@ export const globalErrorHandler = async (error: unknown, ctx: Context) => {
 				client_id,
 				request_id: errCtx.request_id,
 				root_cause: "prisma_known_error",
+				prisma_code: error.code,
+				prisma_meta: error.meta,
 			},
 			{ status: 500 },
 		);
