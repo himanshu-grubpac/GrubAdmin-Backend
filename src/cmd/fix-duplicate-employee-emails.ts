@@ -3,7 +3,7 @@ import { prisma } from "../db/index.ts";
 async function main() {
 	console.log("Checking for duplicate employee emails...");
 	try {
-		const duplicates = await prisma.vertical_food_employee.groupBy({
+		const duplicates = await prisma.vertical_delivery_employee.groupBy({
 			by: ["email"],
 			_count: { email: true },
 			having: { email: { _count: { gt: 1 } } },
@@ -17,7 +17,7 @@ async function main() {
 		console.log(`Found ${duplicates.length} duplicate email groups. Fixing...`);
 
 		for (const group of duplicates) {
-			const employees = await prisma.vertical_food_employee.findMany({
+			const employees = await prisma.vertical_delivery_employee.findMany({
 				where: { email: group.email },
 				orderBy: { joining_date: "asc" },
 			});
@@ -28,7 +28,7 @@ async function main() {
 			for (let i = 0; i < toFix.length; i++) {
 				const emp = toFix[i];
 				const newEmail = `${emp.email}+fix_${i + 1}_${emp.id.slice(0, 8)}`;
-				await prisma.vertical_food_employee.update({
+				await prisma.vertical_delivery_employee.update({
 					where: { id: emp.id },
 					data: { email: newEmail },
 				});

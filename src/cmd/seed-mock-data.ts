@@ -4,18 +4,18 @@ import { Bcrypt } from "../utils/bcrypt";
 async function main() {
   console.log("Starting mock data seeding...");
 
-  // 0. Ensure target food vertical exists
+  // 0. Ensure target delivery vertical exists
   const targetVerticalId = "01KR0DHRG48S8MT3J3WS1E00PD";
   let vertical = await prisma.vertical.findUnique({
     where: { id: targetVerticalId },
   });
 
   if (!vertical) {
-    console.log("Vertical 'Food' not found, creating vertical...");
+    console.log("Vertical not found, creating...");
     vertical = await prisma.vertical.create({
       data: {
         id: targetVerticalId,
-        name: "Food",
+        name: "Delivery",
         status: "active",
       },
     });
@@ -36,7 +36,7 @@ async function main() {
       data: {
         name: "Harish Verma",
         client_display_id: "2121",
-        organization_name: "Food Wla",
+        organization_name: "Delivery Wla",
         country: "India",
         state: "Delhi",
         email: "verma.harish@grubpac.com",
@@ -44,7 +44,7 @@ async function main() {
         mobile_number: "2212121212",
         country_code: "+91",
         status: "active",
-        vertical_id: "01KR0DHRG48S8MT3J3WS1E00PD", // Food vertical
+        vertical_id: "01KR0DHRG48S8MT3J3WS1E00PD", // Delivery vertical
       },
     });
   }
@@ -104,7 +104,7 @@ async function main() {
     {
       first_name: "Rahul",
       last_name: "Sharma",
-      email: "rahul.sharma@foodwla.com",
+      email: "rahul.sharma@deliverywla.com",
       country_code: "+91",
       mobile_number: "9876543210",
       employee_display_id: "EMP-MGR-001",
@@ -116,7 +116,7 @@ async function main() {
     {
       first_name: "Amit",
       last_name: "Patel",
-      email: "amit.patel@foodwla.com",
+      email: "amit.patel@deliverywla.com",
       country_code: "+91",
       mobile_number: "9876543211",
       employee_display_id: "EMP-MGR-002",
@@ -128,7 +128,7 @@ async function main() {
     {
       first_name: "Karan",
       last_name: "Singh",
-      email: "karan.singh@foodwla.com",
+      email: "karan.singh@deliverywla.com",
       country_code: "+91",
       mobile_number: "9876543212",
       employee_display_id: "EMP-DRV-001",
@@ -140,7 +140,7 @@ async function main() {
     {
       first_name: "Vikram",
       last_name: "Yadav",
-      email: "vikram.yadav@foodwla.com",
+      email: "vikram.yadav@deliverywla.com",
       country_code: "+91",
       mobile_number: "9876543213",
       employee_display_id: "EMP-DRV-002",
@@ -152,7 +152,7 @@ async function main() {
     {
       first_name: "Sunil",
       last_name: "Kumar",
-      email: "sunil.kumar@foodwla.com",
+      email: "sunil.kumar@deliverywla.com",
       country_code: "+91",
       mobile_number: "9876543214",
       employee_display_id: "EMP-DRV-003",
@@ -165,7 +165,7 @@ async function main() {
 
   const employees = [];
   for (const e of employeesData) {
-    const created = await prisma.vertical_food_employee.create({ data: e });
+    const created = await prisma.vertical_delivery_employee.create({ data: e });
     employees.push(created);
   }
   console.log(`Seeded ${employees.length} employees.`);
@@ -285,7 +285,7 @@ async function main() {
     await prisma.restaurant_box.create({ data: rb });
   }
 
-  // 7. Connect boxes to employees (vertical_food_employee_box mapping)
+  // 7. Connect boxes to employees (vertical_delivery_employee_box mapping)
   console.log("Mapping boxes to employees...");
   const employeeBoxes = [
     { employee_id: employees[2].id, box_id: boxes[0].id, status: "shared" as const },
@@ -294,7 +294,7 @@ async function main() {
   ];
 
   for (const eb of employeeBoxes) {
-    await prisma.vertical_food_employee_box.create({ data: eb });
+    await prisma.vertical_delivery_employee_box.create({ data: eb });
   }
 
   // 8. Create some dummy warning/error notifications

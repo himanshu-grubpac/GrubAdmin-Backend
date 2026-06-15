@@ -72,10 +72,18 @@ export const getSavedOtp = async (email: string, otp_id?: string) => {
 };
 
 export const getOtpByToken = async (email: string, token: string) => {
-	return Otp.findOne({
-		email: normalizeEmail(email),
-		otp: token,
-	});
+	const normalizedEmail = normalizeEmail(email);
+	const record = await Otp.findOne({
+		email: normalizedEmail,
+		for_what: "forget_password",
+	}).sort({ createdAt: -1 });
+
+	if (!record) return null;
+
+	const isMatched = await compareOtp(token, record.otp);
+	if (!isMatched) return null;
+
+	return record;
 };
 
 export const deleteSavedOtp = async (email: string) => {

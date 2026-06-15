@@ -89,7 +89,7 @@ export const seedArchived = async (): Promise<void> => {
   });
   logger.info("  Archived deleted restaurant ready.");
 
-  await prisma.vertical_food_employee_deleted.upsert({
+  await prisma.vertical_delivery_employee_deleted.upsert({
     where: { id: SEED_IDS.ARCHIVED_EMPLOYEE },
     update: {
       first_name: "Former",

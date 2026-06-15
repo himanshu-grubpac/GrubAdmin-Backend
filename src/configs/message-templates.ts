@@ -8,7 +8,7 @@
  * so all existing consumers (@/configs/message-templates) keep working.
  */
 
-import { foodMessageTemplates } from "@/modules/food/configs/message-templates";
+import { deliveryMessageTemplates } from "@/modules/delivery/configs/message-templates";
 import { adminMessageTemplates } from "@/modules/admin/configs/message-templates";
 
 // Re-export types for consumers that do `import type { MessageTemplateMap } from "@/configs/message-templates"`
@@ -18,21 +18,21 @@ export type {
 } from "@/configs/template-types";
 
 // Re-export each module's named map for direct, typed access
-export { foodMessageTemplates } from "@/modules/food/configs/message-templates";
+export { deliveryMessageTemplates } from "@/modules/delivery/configs/message-templates";
 export { adminMessageTemplates } from "@/modules/admin/configs/message-templates";
 
-// food-mobile re-exports food's templates (shared namespace)
-export { foodMobileMessageTemplates } from "@/modules/food-mobile/configs/message-templates";
+// delivery-mobile re-exports delivery's templates (shared namespace)
+export { deliveryMobileMessageTemplates } from "@/modules/delivery-mobile/configs/message-templates";
 
 import type { MessageTemplateMap } from "@/configs/template-types";
 
 /**
  * Unified message template map keyed by module namespace.
  * Resolved by the message utility via dot-path strings, e.g.:
- *   "food.restaurant.create.SUCCESS"
+ *   "delivery.restaurant.create.SUCCESS"
  *   "admin.auth.login.SUCCESS"
  */
 export const messageTemplates: MessageTemplateMap = {
-	food: foodMessageTemplates,
+	delivery: deliveryMessageTemplates,
 	admin: adminMessageTemplates,
 };

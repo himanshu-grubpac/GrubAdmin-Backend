@@ -1,4 +1,4 @@
-import { ClientAdminLog, FoodEmployeeLog, RestaurantLog, GrubpacLog } from "@/db/mongo-schema";
+import { ClientAdminLog, DeliveryEmployeeLog, RestaurantLog, GrubpacLog } from "@/db/mongo-schema";
 import { logger } from "@/utils/logger.ts";
 import { DEFAULT_IP_ADDRESS } from "@/configs/constants.ts";
 import { LOG_CONFIG } from "@/configs/log.config.ts";
@@ -89,7 +89,7 @@ export class SystemLogService {
 			let Model;
 			switch (category) {
 				case "Employee":
-					Model = FoodEmployeeLog;
+					Model = DeliveryEmployeeLog;
 					break;
 				case "Restaurant":
 					Model = RestaurantLog;

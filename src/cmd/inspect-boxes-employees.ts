@@ -4,7 +4,7 @@ async function main() {
     const clientId = "01KS0QHF59ZHVEVA64E4ZXSSE7";
 
     // Active drivers
-    const drivers = await prisma.vertical_food_employee.findMany({
+    const drivers = await prisma.vertical_delivery_employee.findMany({
         where: { client_id: clientId, role: "delivery", status: { not: "suspended" } },
         select: { id: true, first_name: true, last_name: true, status: true, restaurant_id: true },
     });

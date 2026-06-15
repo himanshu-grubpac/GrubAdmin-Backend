@@ -59,7 +59,7 @@ const CLIENTS = [
     id: SEED_IDS.CLIENT_INACTIVE,
     name: "Old Town Diner",
     client_display_id: "CLT-005",
-    organization_name: "Old Town Foods",
+    organization_name: "Old Town Delivery",
     country: "United States",
     state: "Florida",
     email: "oldtown@example.com",

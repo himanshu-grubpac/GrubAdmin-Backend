@@ -30,7 +30,7 @@ function sanitizeInputs(inputs: Record<string, any>): Record<string, any> {
  * under the key `req_inputs`.
  *
  * Sensitive fields (password, otp, token, etc.) are stripped before injection.
- * This runs globally on the food router so no individual handler needs to be
+ * This runs globally on the delivery router so no individual handler needs to be
  * modified.
  */
 export const reqInputsMiddleware = createMiddleware(async (c, next) => {

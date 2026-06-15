@@ -14,7 +14,7 @@ async function main() {
     console.log(restaurants);
 
     console.log("\nListing employees for Harish Verma...");
-    const employees = await prisma.vertical_food_employee.findMany({
+    const employees = await prisma.vertical_delivery_employee.findMany({
         where: { client_id },
         select: {
             id: true,

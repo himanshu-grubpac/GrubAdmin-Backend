@@ -5,11 +5,10 @@ import { getUniqueClient } from "@/db/actions/client.actions";
 import { APIError } from "@/types/error";
 import { JWT } from "@/utils/jwt";
 import { services } from "@/services";
-import { setAuthCookie } from "@/utils/cookie";
 import { DEFAULT_IP_ADDRESS } from "@/configs/constants";
-import type { APIResponse } from "@/types/api";
 import { resolveMessageTemplate } from "@/utils/message";
 import { logger } from "@/utils/logger";
+import { CLIENT_DASHBOARD_URL } from "@/configs/env";
 
 export const impersonateClientHandler = createHandlers(
 	authGuard(["admin", "employee"]),
@@ -20,16 +19,16 @@ export const impersonateClientHandler = createHandlers(
 
 		logger.info(`[Impersonation] Request initiated by admin ${admin.id} (${admin.first_name} ${admin.last_name || ""}) for client ${clientId}`);
 
+		if (!clientId) {
+			throw new APIError("Client ID is required", undefined, undefined, 400);
+		}
+
 		Permission.checkAdminPermissions({
 			admin,
 			permissions_allowed: {
 				clients: ["view client account"],
 			},
 		});
-
-		if (!clientId) {
-			throw new APIError("Client ID is required", undefined, undefined, 400);
-		}
 
 		const client = await getUniqueClient({ id: clientId });
 
@@ -48,9 +47,19 @@ export const impersonateClientHandler = createHandlers(
 			);
 		}
 
-		const userType = context.get("type");
-
 		const verticalName = client.vertical?.name || null;
+
+		if (!verticalName || verticalName.toLowerCase() !== "delivery") {
+			logger.warn(`[Impersonation] Client ${clientId} is not a delivery client (vertical: ${verticalName})`);
+			throw new APIError(
+				"Delivery account not configured for this client. Only delivery clients can be accessed.",
+				undefined,
+				undefined,
+				400,
+			);
+		}
+
+		const userType = context.get("type");
 
 		const impersonationToken = JWT.signImpersonationToken({
 			id: client.id,
@@ -64,8 +73,6 @@ export const impersonateClientHandler = createHandlers(
 		});
 
 		logger.info(`[Impersonation] Token generated successfully for admin ${admin.id} → client ${client.id} (${client.name})`);
-
-		setAuthCookie(context, impersonationToken, { expiresIn: 1800 });
 
 		const ip = context.req.header("x-forwarded-for")?.split(",")[0] ||
 				   context.req.header("x-real-ip") ||
@@ -85,6 +92,9 @@ export const impersonateClientHandler = createHandlers(
 
 		logger.info(`[Impersonation] Successfully completed for admin ${admin.id} → client ${client.id}`);
 
+		const deliveryBaseUrl = CLIENT_DASHBOARD_URL || "http://13.127.79.155";
+		const redirectUrl = `${deliveryBaseUrl}/impersonate?token=${impersonationToken}`;
+
 		const response = {
 			success: true,
 			data: {
@@ -94,9 +104,10 @@ export const impersonateClientHandler = createHandlers(
 					name: client.name,
 					client_id: client.client_display_id || client.id,
 					email: client.email,
-					vertical: client.vertical?.name || null,
+					vertical: verticalName,
 				},
-				redirect_url: `/impersonate?token=${impersonationToken}&return_url=${encodeURIComponent("/clients")}`,
+				redirect_url: redirectUrl,
+				delivery_base_url: deliveryBaseUrl,
 			},
 			...resolveMessageTemplate("admin.client.IMPERSONATION_SUCCESS"),
 		};

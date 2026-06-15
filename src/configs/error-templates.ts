@@ -8,7 +8,7 @@
  * so all existing consumers (@/configs/error-templates) keep working.
  */
 
-import { foodErrorTemplates } from "@/modules/food/configs/error-templates";
+import { deliveryErrorTemplates } from "@/modules/delivery/configs/error-templates";
 import { adminErrorTemplates } from "@/modules/admin/configs/error-templates";
 
 // Re-export types for consumers that do `import type { ErrorTemplateMap } from "@/configs/error-templates"`
@@ -18,21 +18,21 @@ export type {
 } from "@/configs/template-types";
 
 // Re-export each module's named map for direct, typed access
-export { foodErrorTemplates } from "@/modules/food/configs/error-templates";
+export { deliveryErrorTemplates } from "@/modules/delivery/configs/error-templates";
 export { adminErrorTemplates } from "@/modules/admin/configs/error-templates";
 
-// food-mobile re-exports food's templates (shared namespace)
-export { foodMobileErrorTemplates } from "@/modules/food-mobile/configs/error-templates";
+// delivery-mobile re-exports delivery's templates (shared namespace)
+export { deliveryMobileErrorTemplates } from "@/modules/delivery-mobile/configs/error-templates";
 
 import type { ErrorTemplateMap } from "@/configs/template-types";
 
 /**
  * Unified error template map keyed by module namespace.
  * Resolved by the global error handler via dot-path strings, e.g.:
- *   "food.auth.login.SUSPENDED"
+ *   "delivery.auth.login.SUSPENDED"
  *   "admin.account.INVALID_PASSWORD"
  */
 export const errorTemplates: ErrorTemplateMap = {
-	food: foodErrorTemplates,
+	delivery: deliveryErrorTemplates,
 	admin: adminErrorTemplates,
 };

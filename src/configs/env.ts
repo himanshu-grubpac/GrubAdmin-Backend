@@ -1,4 +1,14 @@
 import { logger } from "@/utils/logger";
+import dotenv from "dotenv";
+import path from "path";
+
+// Load environment variables from .env file.
+// In production, load .env.production if it exists.
+// In development, load .env (default dotenv behavior).
+// dotenv does NOT override existing env vars, so explicit env vars take priority.
+const envFile = process.env.NODE_ENV === "production" ? ".env.production" : ".env";
+const envPath = path.resolve(process.cwd(), envFile);
+dotenv.config({ path: envPath });
 
 export const PORT = process.env.PORT as string;
 export const NODE_ENV = process.env.NODE_ENV || "development";
@@ -10,7 +20,7 @@ export const MAIL_PASS = process.env.MAIL_PASS as string;
 export const MAIL_MIRROR = process.env.MAIL_MIRROR as string;
 export const MAIL_MIRROR_PASS = process.env.MAIL_MIRROR_PASS as string;
 export const AUTH_SECRET = process.env.AUTH_SECRET as string;
-export const FOOD_AUTH_SECRET = process.env.FOOD_AUTH_SECRET as string;
+export const DELIVERY_AUTH_SECRET = process.env.DELIVERY_AUTH_SECRET as string;
 
 // JWT Token Expiration Settings (in seconds)
 export const JWT_ACCESS_TOKEN_EXPIRY = parseInt(process.env.JWT_ACCESS_TOKEN_EXPIRY || "86400"); // Default: 24 hours
@@ -43,7 +53,7 @@ export const loadEnv = (): void => {
 		"MAIL",
 		"MAIL_PASS",
 		"AUTH_SECRET",
-		"FOOD_AUTH_SECRET",
+		"DELIVERY_AUTH_SECRET",
 		"AWS_KEY",
 		"AWS_REGION",
 		"AWS_BUCKET_NAME",
@@ -59,10 +69,9 @@ export const loadEnv = (): void => {
 			missingVars.push(envVar);
 		}
 	}
-
 	if (missingVars.length > 0) {
 		const errorMessage = `Missing required environment variables: ${missingVars.join(", ")}`;
-		logger.error("❌ Environment Configuration Error:", errorMessage);
+		logger.error(`❌ Environment Configuration Error: ${errorMessage}`);
 		logger.error(
 			"Please ensure all required environment variables are set in your .env file",
 		);
