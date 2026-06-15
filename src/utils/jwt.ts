@@ -16,8 +16,7 @@ interface JwtImpersonationPayload extends JwtPayload {
 	user?: ImpersonationPayload;
 }
 
-
-
+const IMPERSONATION_TOKEN_EXPIRY = 1800; // 30 minutes
 
 export class JWT {
 	static verifyAuthToken(token: string): AuthPayload {
@@ -62,10 +61,41 @@ export class JWT {
 			{
 				user: payload,
 			},
-			FOOD_AUTH_SECRET,  // Separate secret from admin AUTH_SECRET
+			FOOD_AUTH_SECRET,
 			{
 				expiresIn: "24h",
 			},
 		);
+	}
+
+	static signImpersonationToken(payload: ImpersonationPayload): string {
+		return sign(
+			{
+				user: payload,
+			},
+			AUTH_SECRET,
+			{
+				expiresIn: IMPERSONATION_TOKEN_EXPIRY,
+			},
+		);
+	}
+
+	static verifyImpersonationToken(token: string): ImpersonationPayload {
+		const { user } = verify(token, AUTH_SECRET) as JwtImpersonationPayload;
+
+		if (!user) {
+			throw new APIError("Invalid impersonation token", undefined, undefined, 401);
+		}
+
+		return user;
+	}
+
+	static isImpersonationToken(token: string): boolean {
+		try {
+			const decoded = verify(token, AUTH_SECRET, { ignoreExpiration: false }) as JwtImpersonationPayload;
+			return decoded?.user?.role === "impersonation";
+		} catch {
+			return false;
+		}
 	}
 }

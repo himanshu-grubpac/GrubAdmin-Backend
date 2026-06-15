@@ -74,9 +74,23 @@ export const createClientRequestBodyValidator = zValidator(
 			error: "Please provide a vertical id that is a valid ulid",
 		}),
 	}),
-	(response) => {
-		if (!response.success) {
-			validatorErrorHandler(response.error);
+	(result, c) => {
+		if (!result.success) {
+			const issues = result.error.issues;
+			const verticalIdIssue = issues.find((i) => i.path.includes("vertical_id"));
+			console.error(
+				"[POST /admin/customer] Validation failed. Issues:",
+				JSON.stringify(issues, null, 2),
+			);
+			if (verticalIdIssue) {
+				console.error(
+					"[POST /admin/customer] vertical_id error:",
+					verticalIdIssue.message,
+					"| received:",
+					JSON.stringify((verticalIdIssue as any).received ?? "unknown"),
+				);
+			}
+			validatorErrorHandler(result.error);
 		}
 	},
 );

@@ -1,18 +1,11 @@
 import { prisma } from "@/db";
 import { logger } from "@/utils/logger";
 import { Bcrypt } from "@/utils/bcrypt";
+import { SEED_IDS } from "./seed-ids";
 
 interface SeedAdminsArgs {
   roleIds: Record<string, string>;
 }
-
-export const ADMIN_IDS = {
-  SUPER: "seed-admin-super",
-  ADMIN_ONE: "seed-admin-one",
-  ADMIN_TWO: "seed-admin-two",
-  SUPPORT: "seed-admin-support",
-  VIEWER: "seed-admin-viewer",
-} as const;
 
 const DEFAULT_PASSWORD = "Qwerty@54321";
 
@@ -30,9 +23,12 @@ export const seedAdmins = async (args: SeedAdminsArgs): Promise<{ id: string; na
     return id;
   };
 
+  let superAdminIds: string[] = [];
+  let superAdminName = "";
+
   const adminsToSeed = [
     {
-      id: ADMIN_IDS.SUPER,
+      id: SEED_IDS.ADMIN_SUPER,
       first_name: "Rahul",
       last_name: "Jha",
       email: "rahul.jha.work7@gmail.com",
@@ -43,7 +39,18 @@ export const seedAdmins = async (args: SeedAdminsArgs): Promise<{ id: string; na
       employee_id: "EMP-SUPER-001",
     },
     {
-      id: ADMIN_IDS.ADMIN_ONE,
+      id: SEED_IDS.ADMIN_ATUL,
+      first_name: "Atul",
+      last_name: "Kumar",
+      email: "kumar.atul@grubpac.com",
+      role_id: getRoleId("super admin"),
+      country_code: "+91",
+      mobile_number: "9876543210",
+      status: "active" as const,
+      employee_id: "EMP-SUPER-002",
+    },
+    {
+      id: SEED_IDS.ADMIN_ONE,
       first_name: "Alice",
       last_name: "Johnson",
       email: "alice.johnson@grubpac.com",
@@ -54,7 +61,7 @@ export const seedAdmins = async (args: SeedAdminsArgs): Promise<{ id: string; na
       employee_id: "EMP-ADMIN-001",
     },
     {
-      id: ADMIN_IDS.ADMIN_TWO,
+      id: SEED_IDS.ADMIN_TWO,
       first_name: "Bob",
       last_name: "Smith",
       email: "bob.smith@grubpac.com",
@@ -65,7 +72,7 @@ export const seedAdmins = async (args: SeedAdminsArgs): Promise<{ id: string; na
       employee_id: "EMP-ADMIN-002",
     },
     {
-      id: ADMIN_IDS.SUPPORT,
+      id: SEED_IDS.ADMIN_SUPPORT,
       first_name: "Charlie",
       last_name: "Brown",
       email: "charlie.brown@grubpac.com",
@@ -76,7 +83,7 @@ export const seedAdmins = async (args: SeedAdminsArgs): Promise<{ id: string; na
       employee_id: "EMP-SUPPORT-001",
     },
     {
-      id: ADMIN_IDS.VIEWER,
+      id: SEED_IDS.ADMIN_VIEWER,
       first_name: "Diana",
       last_name: "Prince",
       email: "diana.prince@grubpac.com",
@@ -88,30 +95,38 @@ export const seedAdmins = async (args: SeedAdminsArgs): Promise<{ id: string; na
     },
   ];
 
-  let superAdminId = "";
-  let superAdminName = "";
-
   for (const admin of adminsToSeed) {
-    const byEmail = await prisma.admin.findUnique({ where: { email: admin.email } });
-    const byEmployeeId = await prisma.admin.findUnique({ where: { employee_id: admin.employee_id } });
-
-    if (!byEmail && !byEmployeeId) {
+    const existing = await prisma.admin.findUnique({ where: { id: admin.id } });
+    if (existing) {
+      await prisma.admin.update({
+        where: { id: admin.id },
+        data: {
+          first_name: admin.first_name,
+          last_name: admin.last_name,
+          email: admin.email,
+          role_id: admin.role_id,
+          country_code: admin.country_code,
+          mobile_number: admin.mobile_number,
+          status: admin.status,
+          employee_id: admin.employee_id,
+        },
+      });
+      logger.info(`  Admin "${admin.first_name} ${admin.last_name}" updated.`);
+      if (admin.role_id === getRoleId("super admin")) {
+        superAdminIds.push(existing.id);
+        superAdminName = `${admin.first_name} ${admin.last_name}`.trim();
+      }
+    } else {
       const created = await prisma.admin.create({ data: { ...admin, password: hashedPassword } });
       logger.info(`  Admin "${admin.first_name} ${admin.last_name}" created.`);
       if (admin.role_id === getRoleId("super admin")) {
-        superAdminId = created.id;
+        superAdminIds.push(created.id);
         superAdminName = `${created.first_name} ${created.last_name || ""}`.trim();
-      }
-    } else {
-      const existing = byEmail || byEmployeeId;
-      logger.info(`  Admin "${admin.first_name} ${admin.last_name}" already exists.`);
-      if (admin.role_id === getRoleId("super admin")) {
-        superAdminId = existing!.id;
-        superAdminName = `${existing!.first_name} ${existing!.last_name || ""}`.trim();
       }
     }
   }
 
   logger.info(`Seeded ${adminsToSeed.length} admin users.`);
-  return { id: superAdminId, name: superAdminName };
+  const firstSuperId = superAdminIds[0] || "";
+  return { id: firstSuperId, name: superAdminName };
 };

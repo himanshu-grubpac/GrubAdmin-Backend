@@ -5,6 +5,7 @@ import { getCookie } from "hono/cookie";
 import { JWT } from "@/utils/jwt";
 import type { admin, role } from "@/db/types";
 import { getUniqueAdmin } from "@/db/actions/admin.actions.ts";
+import { logger } from "@/utils/logger";
 
 export const authGuard = (type?: UserType[]) =>
 	createMiddleware<{
@@ -24,10 +25,17 @@ export const authGuard = (type?: UserType[]) =>
 		}
 
 		if (!authToken) {
+			logger.warn(`[Auth] No auth token found in cookie or header for ${context.req.path}`);
 			throw new APIError("Unauthenticated access", undefined, undefined, 401);
 		}
 
-		const user = JWT.verifyAuthToken(authToken);
+		let user;
+		try {
+			user = JWT.verifyAuthToken(authToken);
+		} catch (err: any) {
+			logger.warn(`[Auth] Invalid/expired admin token: ${err?.message}`);
+			throw new APIError("Unauthenticated access", undefined, undefined, 401);
+		}
 
 		if (type?.includes("admin") || type?.includes("employee")) {
 			const admin = await getUniqueAdmin({
@@ -35,14 +43,17 @@ export const authGuard = (type?: UserType[]) =>
 			});
 
 			if (!admin) {
+				logger.error(`[Auth] Admin lookup failed: userId=${user.id} role=${user.role}`);
 				throw new APIError("You are not an admin", undefined, undefined, 403);
 			}
 
 			if (admin.user.status === "suspended") {
+				logger.warn(`[Auth] Suspended admin access denied: userId=${user.id}`);
 				throw new APIError("Your account is suspended. Access denied.", undefined, undefined, 403);
 			}
 
 			if (admin.user.role && admin.user.role.status !== "active") {
+				logger.warn(`[Auth] Inactive role denied: userId=${user.id} roleId=${admin.user.role_id}`);
 				throw new APIError("Your assigned role is suspended or deleted.", undefined, undefined, 403);
 			}
 

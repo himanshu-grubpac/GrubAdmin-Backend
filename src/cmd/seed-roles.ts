@@ -1,24 +1,18 @@
 import { prisma } from "@/db";
 import { logger } from "@/utils/logger";
-import { getAllPermissions } from "@/configs/constants.ts";
-
-export const ROLE_IDS = {
-  SUPER_ADMIN: "seed-role-super-admin",
-  ADMIN: "seed-role-admin",
-  SUPPORT_MANAGER: "seed-role-support-mgr",
-  VIEWER: "seed-role-viewer",
-} as const;
+import { getAllPermissions } from "@/configs/constants";
+import { SEED_IDS } from "./seed-ids";
 
 const ROLES = [
   {
-    id: ROLE_IDS.SUPER_ADMIN,
+    id: SEED_IDS.ROLE_SUPER_ADMIN,
     name: "Super Admin",
     name_normalized: "super admin",
     is_super_admin: true,
     permissions_json: getAllPermissions(),
   },
   {
-    id: ROLE_IDS.ADMIN,
+    id: SEED_IDS.ROLE_ADMIN,
     name: "Admin",
     name_normalized: "admin",
     is_super_admin: false,
@@ -55,7 +49,7 @@ const ROLES = [
     },
   },
   {
-    id: ROLE_IDS.SUPPORT_MANAGER,
+    id: SEED_IDS.ROLE_SUPPORT_MANAGER,
     name: "Support Manager",
     name_normalized: "support manager",
     is_super_admin: false,
@@ -69,7 +63,7 @@ const ROLES = [
     },
   },
   {
-    id: ROLE_IDS.VIEWER,
+    id: SEED_IDS.ROLE_VIEWER,
     name: "Viewer",
     name_normalized: "viewer",
     is_super_admin: false,
@@ -89,8 +83,9 @@ export const seedRoles = async (): Promise<Record<string, string>> => {
   const seededRoles: Record<string, string> = {};
   for (const roleDef of ROLES) {
     const role = await prisma.role.upsert({
-      where: { name_normalized: roleDef.name_normalized },
+      where: { id: roleDef.id },
       update: {
+        name: roleDef.name,
         permissions_json: roleDef.permissions_json,
         is_super_admin: roleDef.is_super_admin,
       },

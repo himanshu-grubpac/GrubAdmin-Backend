@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { networkLogger } from "@/middlewares/network-logger";
 import { ALLOWED_ORIGINS, FRONTEND_URL, NODE_ENV, loadEnv } from "@/configs/env.ts";
+import { logger } from "@/utils/logger";
 import { router } from "@/modules";
 import { connectMongoDB } from "./db";
 import { globalErrorHandler } from "./middlewares/error";
@@ -14,7 +15,9 @@ loadEnv();
 server.use(
     cors({
         origin: (origin) => {
-            if (!origin) return null;
+            if (!origin) {
+                return null;
+            }
 
             if (ALLOWED_ORIGINS.includes(origin)) {
                 return origin;
@@ -28,9 +31,12 @@ server.use(
                 return origin;
             }
 
+            logger.warn(`[CORS] Blocked request from origin: ${origin}. Allowed origins: ${ALLOWED_ORIGINS.join(", ")}`);
+
             return null;
         },
         allowMethods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+        allowHeaders: ["Content-Type", "Authorization", "Accept", "X-Requested-With"],
         credentials: true,
     }),
 );

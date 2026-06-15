@@ -6,12 +6,12 @@ import type {
 	Prisma,
 } from "@/db/types";
 import { prisma } from "@/db";
-import { DELIVERY_VERTICAL_NAME } from "@/configs/constants.ts";
 import { withFullAddress } from "@/utils/restaurant.ts";
 import { resolveEmployeeName } from "@/utils/employee.ts";
 import { APIError } from "@/types/error";
 import type { VerticalFoodEmployeeRoleType } from "@/types/common";
 import { nullifyEmptyFKs } from "@/utils/clean-query.ts";
+import { logger } from "@/utils/logger";
 
 interface GetUniqueVerticalFoodEmployeeArgs {
 	email?: string;
@@ -39,43 +39,37 @@ export const getUniqueVerticalFoodEmployee = async (
 ): Promise<GetUniqueVerticalFoodEmployeeResponse> => {
 	const { id, email, phone, employee_display_id } = args;
 
-	const foodVertical = await prisma.vertical.findUnique({
-		where: {
-			name: DELIVERY_VERTICAL_NAME,
-		},
-	});
-
-	if (!foodVertical) {
-		throw new APIError(undefined, "food.common.VERTICAL_NOT_FOUND");
-	}
-
 	const orConditions = [
 		email ? { email: email } : {},
 		phone ? { mobile_number: phone } : {},
 	].filter((condition) => Object.keys(condition).length > 0);
 
-	const superAdmin = await prisma.client.findFirst({
-		where: {
-			id,
-			vertical_id: foodVertical.id,
-			OR: orConditions.length > 0 ? orConditions : undefined,
-		},
-	});
+	// Step 1: Look up client (acts as "admin" / super-admin of their own vertical)
+	// No hard-coded vertical filter — any client can authenticate
+	const clientWhere: any = {};
+	if (id) clientWhere.id = id;
+	if (orConditions.length > 0) clientWhere.OR = orConditions;
 
-	if (superAdmin) {
+	const clientRecord = Object.keys(clientWhere).length > 0
+		? await prisma.client.findFirst({ where: clientWhere })
+		: null;
+
+	if (clientRecord) {
 		return {
 			type: "admin",
-			employee: superAdmin,
+			employee: clientRecord,
 		};
 	}
 
-	const foodEmployee = await prisma.vertical_food_employee.findFirst({
-		where: {
-			id,
-			employee_display_id,
-			OR: orConditions.length > 0 ? orConditions : undefined,
-		},
-	});
+	// Step 2: Look up vertical_food_employee (manager / delivery)
+	const employeeWhere: any = {};
+	if (id) employeeWhere.id = id;
+	if (employee_display_id) employeeWhere.employee_display_id = employee_display_id;
+	if (orConditions.length > 0) employeeWhere.OR = orConditions;
+
+	const foodEmployee = Object.keys(employeeWhere).length > 0
+		? await prisma.vertical_food_employee.findFirst({ where: employeeWhere })
+		: null;
 
 	if (foodEmployee) {
 		return {
@@ -84,6 +78,12 @@ export const getUniqueVerticalFoodEmployee = async (
 		};
 	}
 
+	logger.warn(`[Auth] getUniqueVerticalFoodEmployee returned null`, {
+		email,
+		id,
+		phone,
+		employee_display_id,
+	});
 
 	return null;
 };
@@ -99,24 +99,23 @@ export const activateVerticalFoodEmployee = async (
 ) => {
 	const { email, id, type } = args;
 
-	const foodVertical = await prisma.vertical.findUnique({
-		where: {
-			name: DELIVERY_VERTICAL_NAME,
-		},
-	});
-
-	if (!foodVertical) {
-		throw new APIError(undefined, "food.common.VERTICAL_NOT_FOUND");
-	}
-
 	if (type === "admin") {
+		const clientRecord = await prisma.client.findUnique({
+			where: { id },
+			select: { id: true, vertical_id: true, email: true, status: true },
+		});
+
+		if (!clientRecord) {
+			throw new APIError("Client not found for activation", undefined, undefined, 404);
+		}
+
 		return prisma.client.update({
 			where: {
 				id,
-				vertical_id_email: email
+				vertical_id_email: email && clientRecord.vertical_id
 					? {
 						email,
-						vertical_id: foodVertical.id,
+						vertical_id: clientRecord.vertical_id,
 					}
 					: undefined,
 				status: "inactive",
@@ -177,22 +176,16 @@ export const updateVerticalFoodEmployee = async (
 	const { restaurant_id } = args as any;
 
 	if (type === "admin") {
-
-		const foodVertical = await prisma.vertical.findUnique({
-			where: {
-				name: DELIVERY_VERTICAL_NAME,
-			},
+		const clientRecord = await prisma.client.findUnique({
+			where: { id },
+			select: { vertical_id: true },
 		});
-
-		if (!foodVertical) {
-			throw new APIError(undefined, "food.common.VERTICAL_NOT_FOUND");
-		}
 
 		if (email) {
 			const existingClient = await prisma.client.findFirst({
 				where: {
 					email,
-					vertical_id: foodVertical.id,
+					vertical_id: clientRecord?.vertical_id,
 					NOT: {
 						id,
 					},

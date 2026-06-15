@@ -5,7 +5,6 @@ import { getUniqueClient } from "@/db/actions/client.actions";
 import { APIError } from "@/types/error";
 import { JWT } from "@/utils/jwt";
 import { services } from "@/services";
-import { CLIENT_DASHBOARD_URL, JWT_ACCESS_TOKEN_EXPIRY } from "@/configs/env";
 import { setAuthCookie } from "@/utils/cookie";
 import { DEFAULT_IP_ADDRESS } from "@/configs/constants";
 import type { APIResponse } from "@/types/api";
@@ -51,6 +50,8 @@ export const impersonateClientHandler = createHandlers(
 
 		const userType = context.get("type");
 
+		const verticalName = client.vertical?.name || null;
+
 		const impersonationToken = JWT.signImpersonationToken({
 			id: client.id,
 			role: "impersonation",
@@ -58,6 +59,8 @@ export const impersonateClientHandler = createHandlers(
 			client_id: client.id,
 			is_impersonation: true,
 			admin_role: userType as "admin" | "employee",
+			vertical_name: verticalName,
+			client_name: client.name,
 		});
 
 		logger.info(`[Impersonation] Token generated successfully for admin ${admin.id} → client ${client.id} (${client.name})`);
@@ -93,9 +96,7 @@ export const impersonateClientHandler = createHandlers(
 					email: client.email,
 					vertical: client.vertical?.name || null,
 				},
-				redirect_url: CLIENT_DASHBOARD_URL
-					? `${CLIENT_DASHBOARD_URL}/impersonate?token=${impersonationToken}`
-					: null,
+				redirect_url: `/impersonate?token=${impersonationToken}&return_url=${encodeURIComponent("/clients")}`,
 			},
 			...resolveMessageTemplate("admin.client.IMPERSONATION_SUCCESS"),
 		};
