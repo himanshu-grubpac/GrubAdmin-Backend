@@ -175,7 +175,7 @@ export const getSystemLogs = async (args: GetLogsArgs) => {
 				$addFields: {
 					_searchableDate: {
 						$dateToString: {
-							format: "%d %b %y, %H:%M:%S",
+							format: "%d-%m-%Y %H:%M:%S",
 							date: "$createdAt",
 						},
 					},

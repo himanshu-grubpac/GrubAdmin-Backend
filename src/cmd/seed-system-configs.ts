@@ -18,6 +18,8 @@ const SYSTEM_CONFIGS = [
   { id: SEED_IDS.CONFIG_SUPPORT_EMAIL, key: "supportEmail", value: "support@grubpac.com" },
   { id: SEED_IDS.CONFIG_MAX_LOGIN, key: "maxLoginAttempts", value: "5" },
   { id: SEED_IDS.CONFIG_OTP_EXPIRY, key: "otpExpirySeconds", value: "300" },
+  { id: SEED_IDS.CONFIG_ICON_BASE_URL, key: "icon_base_url", value: "https://grubpac-admin-s3.s3.us-east-1.amazonaws.com" },
+  { id: SEED_IDS.CONFIG_FAQ_BASE_URL, key: "faq_base_url", value: "https://grubpac-admin-s3.s3.us-east-1.amazonaws.com" },
 ];
 
 const seedSystemConfigs = async (): Promise<void> => {

@@ -22,6 +22,7 @@ export interface ImpersonationPayload {
 	admin_role: "admin" | "employee";
 	vertical_name?: string | null;
 	client_name?: string | null;
+	return_url?: string | null;
 	aud?: string;
 	jti?: string;
 }

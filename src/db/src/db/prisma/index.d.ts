@@ -79,25 +79,25 @@ export type box = $Result.DefaultSelection<Prisma.$boxPayload>
  */
 export type restaurant = $Result.DefaultSelection<Prisma.$restaurantPayload>
 /**
- * Model vertical_food_employee
+ * Model vertical_delivery_employee
  * 
  */
-export type vertical_food_employee = $Result.DefaultSelection<Prisma.$vertical_food_employeePayload>
+export type vertical_delivery_employee = $Result.DefaultSelection<Prisma.$vertical_delivery_employeePayload>
 /**
- * Model vertical_food_employee_box
+ * Model vertical_delivery_employee_box
  * 
  */
-export type vertical_food_employee_box = $Result.DefaultSelection<Prisma.$vertical_food_employee_boxPayload>
+export type vertical_delivery_employee_box = $Result.DefaultSelection<Prisma.$vertical_delivery_employee_boxPayload>
 /**
  * Model restaurant_box
  * 
  */
 export type restaurant_box = $Result.DefaultSelection<Prisma.$restaurant_boxPayload>
 /**
- * Model vertical_food_employee_deleted
+ * Model vertical_delivery_employee_deleted
  * 
  */
-export type vertical_food_employee_deleted = $Result.DefaultSelection<Prisma.$vertical_food_employee_deletedPayload>
+export type vertical_delivery_employee_deleted = $Result.DefaultSelection<Prisma.$vertical_delivery_employee_deletedPayload>
 /**
  * Model restaurant_deleted
  * 
@@ -109,15 +109,15 @@ export type restaurant_deleted = $Result.DefaultSelection<Prisma.$restaurant_del
  */
 export type box_deleted = $Result.DefaultSelection<Prisma.$box_deletedPayload>
 /**
- * Model vertical_food_consumer
+ * Model vertical_delivery_consumer
  * 
  */
-export type vertical_food_consumer = $Result.DefaultSelection<Prisma.$vertical_food_consumerPayload>
+export type vertical_delivery_consumer = $Result.DefaultSelection<Prisma.$vertical_delivery_consumerPayload>
 /**
- * Model vertical_food_consumer_box
+ * Model vertical_delivery_consumer_box
  * 
  */
-export type vertical_food_consumer_box = $Result.DefaultSelection<Prisma.$vertical_food_consumer_boxPayload>
+export type vertical_delivery_consumer_box = $Result.DefaultSelection<Prisma.$vertical_delivery_consumer_boxPayload>
 /**
  * Model box_lock
  * 
@@ -268,13 +268,13 @@ export const hardware_state: {
 export type hardware_state = (typeof hardware_state)[keyof typeof hardware_state]
 
 
-export const food_consumer_status: {
+export const delivery_consumer_status: {
   pending: 'pending',
   delivered: 'delivered',
   cancelled: 'cancelled'
 };
 
-export type food_consumer_status = (typeof food_consumer_status)[keyof typeof food_consumer_status]
+export type delivery_consumer_status = (typeof delivery_consumer_status)[keyof typeof delivery_consumer_status]
 
 
 export const notification_type: {
@@ -356,9 +356,9 @@ export type hardware_state = $Enums.hardware_state
 
 export const hardware_state: typeof $Enums.hardware_state
 
-export type food_consumer_status = $Enums.food_consumer_status
+export type delivery_consumer_status = $Enums.delivery_consumer_status
 
-export const food_consumer_status: typeof $Enums.food_consumer_status
+export const delivery_consumer_status: typeof $Enums.delivery_consumer_status
 
 export type notification_type = $Enums.notification_type
 
@@ -620,24 +620,24 @@ export class PrismaClient<
   get restaurant(): Prisma.restaurantDelegate<ExtArgs, ClientOptions>;
 
   /**
-   * `prisma.vertical_food_employee`: Exposes CRUD operations for the **vertical_food_employee** model.
+   * `prisma.vertical_delivery_employee`: Exposes CRUD operations for the **vertical_delivery_employee** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more Vertical_food_employees
-    * const vertical_food_employees = await prisma.vertical_food_employee.findMany()
+    * // Fetch zero or more vertical_delivery_employees
+    * const vertical_delivery_employees = await prisma.vertical_delivery_employee.findMany()
     * ```
     */
-  get vertical_food_employee(): Prisma.vertical_food_employeeDelegate<ExtArgs, ClientOptions>;
+  get vertical_delivery_employee(): Prisma.vertical_delivery_employeeDelegate<ExtArgs, ClientOptions>;
 
   /**
-   * `prisma.vertical_food_employee_box`: Exposes CRUD operations for the **vertical_food_employee_box** model.
+   * `prisma.vertical_delivery_employee_box`: Exposes CRUD operations for the **vertical_delivery_employee_box** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more Vertical_food_employee_boxes
-    * const vertical_food_employee_boxes = await prisma.vertical_food_employee_box.findMany()
+    * // Fetch zero or more vertical_delivery_employee_boxes
+    * const vertical_delivery_employee_boxes = await prisma.vertical_delivery_employee_box.findMany()
     * ```
     */
-  get vertical_food_employee_box(): Prisma.vertical_food_employee_boxDelegate<ExtArgs, ClientOptions>;
+  get vertical_delivery_employee_box(): Prisma.vertical_delivery_employee_boxDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.restaurant_box`: Exposes CRUD operations for the **restaurant_box** model.
@@ -650,14 +650,14 @@ export class PrismaClient<
   get restaurant_box(): Prisma.restaurant_boxDelegate<ExtArgs, ClientOptions>;
 
   /**
-   * `prisma.vertical_food_employee_deleted`: Exposes CRUD operations for the **vertical_food_employee_deleted** model.
+   * `prisma.vertical_delivery_employee_deleted`: Exposes CRUD operations for the **vertical_delivery_employee_deleted** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more Vertical_food_employee_deleteds
-    * const vertical_food_employee_deleteds = await prisma.vertical_food_employee_deleted.findMany()
+    * // Fetch zero or more vertical_delivery_employee_deleteds
+    * const vertical_delivery_employee_deleteds = await prisma.vertical_delivery_employee_deleted.findMany()
     * ```
     */
-  get vertical_food_employee_deleted(): Prisma.vertical_food_employee_deletedDelegate<ExtArgs, ClientOptions>;
+  get vertical_delivery_employee_deleted(): Prisma.vertical_delivery_employee_deletedDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.restaurant_deleted`: Exposes CRUD operations for the **restaurant_deleted** model.
@@ -680,24 +680,24 @@ export class PrismaClient<
   get box_deleted(): Prisma.box_deletedDelegate<ExtArgs, ClientOptions>;
 
   /**
-   * `prisma.vertical_food_consumer`: Exposes CRUD operations for the **vertical_food_consumer** model.
+   * `prisma.vertical_delivery_consumer`: Exposes CRUD operations for the **vertical_delivery_consumer** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more Vertical_food_consumers
-    * const vertical_food_consumers = await prisma.vertical_food_consumer.findMany()
+    * // Fetch zero or more vertical_delivery_consumers
+    * const vertical_delivery_consumers = await prisma.vertical_delivery_consumer.findMany()
     * ```
     */
-  get vertical_food_consumer(): Prisma.vertical_food_consumerDelegate<ExtArgs, ClientOptions>;
+  get vertical_delivery_consumer(): Prisma.vertical_delivery_consumerDelegate<ExtArgs, ClientOptions>;
 
   /**
-   * `prisma.vertical_food_consumer_box`: Exposes CRUD operations for the **vertical_food_consumer_box** model.
+   * `prisma.vertical_delivery_consumer_box`: Exposes CRUD operations for the **vertical_delivery_consumer_box** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more Vertical_food_consumer_boxes
-    * const vertical_food_consumer_boxes = await prisma.vertical_food_consumer_box.findMany()
+    * // Fetch zero or more vertical_delivery_consumer_boxes
+    * const vertical_delivery_consumer_boxes = await prisma.vertical_delivery_consumer_box.findMany()
     * ```
     */
-  get vertical_food_consumer_box(): Prisma.vertical_food_consumer_boxDelegate<ExtArgs, ClientOptions>;
+  get vertical_delivery_consumer_box(): Prisma.vertical_delivery_consumer_boxDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.box_lock`: Exposes CRUD operations for the **box_lock** model.
@@ -1175,14 +1175,14 @@ export namespace Prisma {
     role: 'role',
     box: 'box',
     restaurant: 'restaurant',
-    vertical_food_employee: 'vertical_food_employee',
-    vertical_food_employee_box: 'vertical_food_employee_box',
+    vertical_delivery_employee: 'vertical_delivery_employee',
+    vertical_delivery_employee_box: 'vertical_delivery_employee_box',
     restaurant_box: 'restaurant_box',
-    vertical_food_employee_deleted: 'vertical_food_employee_deleted',
+    vertical_delivery_employee_deleted: 'vertical_delivery_employee_deleted',
     restaurant_deleted: 'restaurant_deleted',
     box_deleted: 'box_deleted',
-    vertical_food_consumer: 'vertical_food_consumer',
-    vertical_food_consumer_box: 'vertical_food_consumer_box',
+    vertical_delivery_consumer: 'vertical_delivery_consumer',
+    vertical_delivery_consumer_box: 'vertical_delivery_consumer_box',
     box_lock: 'box_lock',
     notification: 'notification',
     box_telemetry_latest: 'box_telemetry_latest'
@@ -1201,7 +1201,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "admin" | "admin_dismissed" | "system_config" | "icon" | "vertical" | "client" | "client_deleted" | "faq_category" | "faq_question" | "faq_question_category" | "role" | "box" | "restaurant" | "vertical_food_employee" | "vertical_food_employee_box" | "restaurant_box" | "vertical_food_employee_deleted" | "restaurant_deleted" | "box_deleted" | "vertical_food_consumer" | "vertical_food_consumer_box" | "box_lock" | "notification" | "box_telemetry_latest"
+      modelProps: "admin" | "admin_dismissed" | "system_config" | "icon" | "vertical" | "client" | "client_deleted" | "faq_category" | "faq_question" | "faq_question_category" | "role" | "box" | "restaurant" | "vertical_delivery_employee" | "vertical_delivery_employee_box" | "restaurant_box" | "vertical_delivery_employee_deleted" | "restaurant_deleted" | "box_deleted" | "vertical_delivery_consumer" | "vertical_delivery_consumer_box" | "box_lock" | "notification" | "box_telemetry_latest"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2063,135 +2063,135 @@ export namespace Prisma {
           }
         }
       }
-      vertical_food_employee: {
-        payload: Prisma.$vertical_food_employeePayload<ExtArgs>
-        fields: Prisma.vertical_food_employeeFieldRefs
+      vertical_delivery_employee: {
+        payload: Prisma.$vertical_delivery_employeePayload<ExtArgs>
+        fields: Prisma.vertical_delivery_employeeFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.vertical_food_employeeFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$vertical_food_employeePayload> | null
+            args: Prisma.vertical_delivery_employeeFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$vertical_delivery_employeePayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.vertical_food_employeeFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$vertical_food_employeePayload>
+            args: Prisma.vertical_delivery_employeeFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$vertical_delivery_employeePayload>
           }
           findFirst: {
-            args: Prisma.vertical_food_employeeFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$vertical_food_employeePayload> | null
+            args: Prisma.vertical_delivery_employeeFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$vertical_delivery_employeePayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.vertical_food_employeeFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$vertical_food_employeePayload>
+            args: Prisma.vertical_delivery_employeeFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$vertical_delivery_employeePayload>
           }
           findMany: {
-            args: Prisma.vertical_food_employeeFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$vertical_food_employeePayload>[]
+            args: Prisma.vertical_delivery_employeeFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$vertical_delivery_employeePayload>[]
           }
           create: {
-            args: Prisma.vertical_food_employeeCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$vertical_food_employeePayload>
+            args: Prisma.vertical_delivery_employeeCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$vertical_delivery_employeePayload>
           }
           createMany: {
-            args: Prisma.vertical_food_employeeCreateManyArgs<ExtArgs>
+            args: Prisma.vertical_delivery_employeeCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           delete: {
-            args: Prisma.vertical_food_employeeDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$vertical_food_employeePayload>
+            args: Prisma.vertical_delivery_employeeDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$vertical_delivery_employeePayload>
           }
           update: {
-            args: Prisma.vertical_food_employeeUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$vertical_food_employeePayload>
+            args: Prisma.vertical_delivery_employeeUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$vertical_delivery_employeePayload>
           }
           deleteMany: {
-            args: Prisma.vertical_food_employeeDeleteManyArgs<ExtArgs>
+            args: Prisma.vertical_delivery_employeeDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.vertical_food_employeeUpdateManyArgs<ExtArgs>
+            args: Prisma.vertical_delivery_employeeUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.vertical_food_employeeUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$vertical_food_employeePayload>
+            args: Prisma.vertical_delivery_employeeUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$vertical_delivery_employeePayload>
           }
           aggregate: {
-            args: Prisma.Vertical_food_employeeAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateVertical_food_employee>
+            args: Prisma.vertical_delivery_employeeAggregateArgs<ExtArgs>
+            result: $Utils.Optional<Aggregatevertical_delivery_employee>
           }
           groupBy: {
-            args: Prisma.vertical_food_employeeGroupByArgs<ExtArgs>
-            result: $Utils.Optional<Vertical_food_employeeGroupByOutputType>[]
+            args: Prisma.vertical_delivery_employeeGroupByArgs<ExtArgs>
+            result: $Utils.Optional<vertical_delivery_employeeGroupByOutputType>[]
           }
           count: {
-            args: Prisma.vertical_food_employeeCountArgs<ExtArgs>
-            result: $Utils.Optional<Vertical_food_employeeCountAggregateOutputType> | number
+            args: Prisma.vertical_delivery_employeeCountArgs<ExtArgs>
+            result: $Utils.Optional<vertical_delivery_employeeCountAggregateOutputType> | number
           }
         }
       }
-      vertical_food_employee_box: {
-        payload: Prisma.$vertical_food_employee_boxPayload<ExtArgs>
-        fields: Prisma.vertical_food_employee_boxFieldRefs
+      vertical_delivery_employee_box: {
+        payload: Prisma.$vertical_delivery_employee_boxPayload<ExtArgs>
+        fields: Prisma.vertical_delivery_employee_boxFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.vertical_food_employee_boxFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$vertical_food_employee_boxPayload> | null
+            args: Prisma.vertical_delivery_employee_boxFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$vertical_delivery_employee_boxPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.vertical_food_employee_boxFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$vertical_food_employee_boxPayload>
+            args: Prisma.vertical_delivery_employee_boxFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$vertical_delivery_employee_boxPayload>
           }
           findFirst: {
-            args: Prisma.vertical_food_employee_boxFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$vertical_food_employee_boxPayload> | null
+            args: Prisma.vertical_delivery_employee_boxFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$vertical_delivery_employee_boxPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.vertical_food_employee_boxFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$vertical_food_employee_boxPayload>
+            args: Prisma.vertical_delivery_employee_boxFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$vertical_delivery_employee_boxPayload>
           }
           findMany: {
-            args: Prisma.vertical_food_employee_boxFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$vertical_food_employee_boxPayload>[]
+            args: Prisma.vertical_delivery_employee_boxFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$vertical_delivery_employee_boxPayload>[]
           }
           create: {
-            args: Prisma.vertical_food_employee_boxCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$vertical_food_employee_boxPayload>
+            args: Prisma.vertical_delivery_employee_boxCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$vertical_delivery_employee_boxPayload>
           }
           createMany: {
-            args: Prisma.vertical_food_employee_boxCreateManyArgs<ExtArgs>
+            args: Prisma.vertical_delivery_employee_boxCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           delete: {
-            args: Prisma.vertical_food_employee_boxDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$vertical_food_employee_boxPayload>
+            args: Prisma.vertical_delivery_employee_boxDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$vertical_delivery_employee_boxPayload>
           }
           update: {
-            args: Prisma.vertical_food_employee_boxUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$vertical_food_employee_boxPayload>
+            args: Prisma.vertical_delivery_employee_boxUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$vertical_delivery_employee_boxPayload>
           }
           deleteMany: {
-            args: Prisma.vertical_food_employee_boxDeleteManyArgs<ExtArgs>
+            args: Prisma.vertical_delivery_employee_boxDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.vertical_food_employee_boxUpdateManyArgs<ExtArgs>
+            args: Prisma.vertical_delivery_employee_boxUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.vertical_food_employee_boxUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$vertical_food_employee_boxPayload>
+            args: Prisma.vertical_delivery_employee_boxUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$vertical_delivery_employee_boxPayload>
           }
           aggregate: {
-            args: Prisma.Vertical_food_employee_boxAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateVertical_food_employee_box>
+            args: Prisma.vertical_delivery_employee_boxAggregateArgs<ExtArgs>
+            result: $Utils.Optional<Aggregatevertical_delivery_employee_box>
           }
           groupBy: {
-            args: Prisma.vertical_food_employee_boxGroupByArgs<ExtArgs>
-            result: $Utils.Optional<Vertical_food_employee_boxGroupByOutputType>[]
+            args: Prisma.vertical_delivery_employee_boxGroupByArgs<ExtArgs>
+            result: $Utils.Optional<vertical_delivery_employee_boxGroupByOutputType>[]
           }
           count: {
-            args: Prisma.vertical_food_employee_boxCountArgs<ExtArgs>
-            result: $Utils.Optional<Vertical_food_employee_boxCountAggregateOutputType> | number
+            args: Prisma.vertical_delivery_employee_boxCountArgs<ExtArgs>
+            result: $Utils.Optional<vertical_delivery_employee_boxCountAggregateOutputType> | number
           }
         }
       }
@@ -2261,69 +2261,69 @@ export namespace Prisma {
           }
         }
       }
-      vertical_food_employee_deleted: {
-        payload: Prisma.$vertical_food_employee_deletedPayload<ExtArgs>
-        fields: Prisma.vertical_food_employee_deletedFieldRefs
+      vertical_delivery_employee_deleted: {
+        payload: Prisma.$vertical_delivery_employee_deletedPayload<ExtArgs>
+        fields: Prisma.vertical_delivery_employee_deletedFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.vertical_food_employee_deletedFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$vertical_food_employee_deletedPayload> | null
+            args: Prisma.vertical_delivery_employee_deletedFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$vertical_delivery_employee_deletedPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.vertical_food_employee_deletedFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$vertical_food_employee_deletedPayload>
+            args: Prisma.vertical_delivery_employee_deletedFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$vertical_delivery_employee_deletedPayload>
           }
           findFirst: {
-            args: Prisma.vertical_food_employee_deletedFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$vertical_food_employee_deletedPayload> | null
+            args: Prisma.vertical_delivery_employee_deletedFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$vertical_delivery_employee_deletedPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.vertical_food_employee_deletedFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$vertical_food_employee_deletedPayload>
+            args: Prisma.vertical_delivery_employee_deletedFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$vertical_delivery_employee_deletedPayload>
           }
           findMany: {
-            args: Prisma.vertical_food_employee_deletedFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$vertical_food_employee_deletedPayload>[]
+            args: Prisma.vertical_delivery_employee_deletedFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$vertical_delivery_employee_deletedPayload>[]
           }
           create: {
-            args: Prisma.vertical_food_employee_deletedCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$vertical_food_employee_deletedPayload>
+            args: Prisma.vertical_delivery_employee_deletedCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$vertical_delivery_employee_deletedPayload>
           }
           createMany: {
-            args: Prisma.vertical_food_employee_deletedCreateManyArgs<ExtArgs>
+            args: Prisma.vertical_delivery_employee_deletedCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           delete: {
-            args: Prisma.vertical_food_employee_deletedDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$vertical_food_employee_deletedPayload>
+            args: Prisma.vertical_delivery_employee_deletedDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$vertical_delivery_employee_deletedPayload>
           }
           update: {
-            args: Prisma.vertical_food_employee_deletedUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$vertical_food_employee_deletedPayload>
+            args: Prisma.vertical_delivery_employee_deletedUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$vertical_delivery_employee_deletedPayload>
           }
           deleteMany: {
-            args: Prisma.vertical_food_employee_deletedDeleteManyArgs<ExtArgs>
+            args: Prisma.vertical_delivery_employee_deletedDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.vertical_food_employee_deletedUpdateManyArgs<ExtArgs>
+            args: Prisma.vertical_delivery_employee_deletedUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.vertical_food_employee_deletedUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$vertical_food_employee_deletedPayload>
+            args: Prisma.vertical_delivery_employee_deletedUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$vertical_delivery_employee_deletedPayload>
           }
           aggregate: {
-            args: Prisma.Vertical_food_employee_deletedAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateVertical_food_employee_deleted>
+            args: Prisma.vertical_delivery_employee_deletedAggregateArgs<ExtArgs>
+            result: $Utils.Optional<Aggregatevertical_delivery_employee_deleted>
           }
           groupBy: {
-            args: Prisma.vertical_food_employee_deletedGroupByArgs<ExtArgs>
-            result: $Utils.Optional<Vertical_food_employee_deletedGroupByOutputType>[]
+            args: Prisma.vertical_delivery_employee_deletedGroupByArgs<ExtArgs>
+            result: $Utils.Optional<vertical_delivery_employee_deletedGroupByOutputType>[]
           }
           count: {
-            args: Prisma.vertical_food_employee_deletedCountArgs<ExtArgs>
-            result: $Utils.Optional<Vertical_food_employee_deletedCountAggregateOutputType> | number
+            args: Prisma.vertical_delivery_employee_deletedCountArgs<ExtArgs>
+            result: $Utils.Optional<vertical_delivery_employee_deletedCountAggregateOutputType> | number
           }
         }
       }
@@ -2459,135 +2459,135 @@ export namespace Prisma {
           }
         }
       }
-      vertical_food_consumer: {
-        payload: Prisma.$vertical_food_consumerPayload<ExtArgs>
-        fields: Prisma.vertical_food_consumerFieldRefs
+      vertical_delivery_consumer: {
+        payload: Prisma.$vertical_delivery_consumerPayload<ExtArgs>
+        fields: Prisma.vertical_delivery_consumerFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.vertical_food_consumerFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$vertical_food_consumerPayload> | null
+            args: Prisma.vertical_delivery_consumerFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$vertical_delivery_consumerPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.vertical_food_consumerFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$vertical_food_consumerPayload>
+            args: Prisma.vertical_delivery_consumerFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$vertical_delivery_consumerPayload>
           }
           findFirst: {
-            args: Prisma.vertical_food_consumerFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$vertical_food_consumerPayload> | null
+            args: Prisma.vertical_delivery_consumerFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$vertical_delivery_consumerPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.vertical_food_consumerFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$vertical_food_consumerPayload>
+            args: Prisma.vertical_delivery_consumerFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$vertical_delivery_consumerPayload>
           }
           findMany: {
-            args: Prisma.vertical_food_consumerFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$vertical_food_consumerPayload>[]
+            args: Prisma.vertical_delivery_consumerFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$vertical_delivery_consumerPayload>[]
           }
           create: {
-            args: Prisma.vertical_food_consumerCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$vertical_food_consumerPayload>
+            args: Prisma.vertical_delivery_consumerCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$vertical_delivery_consumerPayload>
           }
           createMany: {
-            args: Prisma.vertical_food_consumerCreateManyArgs<ExtArgs>
+            args: Prisma.vertical_delivery_consumerCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           delete: {
-            args: Prisma.vertical_food_consumerDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$vertical_food_consumerPayload>
+            args: Prisma.vertical_delivery_consumerDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$vertical_delivery_consumerPayload>
           }
           update: {
-            args: Prisma.vertical_food_consumerUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$vertical_food_consumerPayload>
+            args: Prisma.vertical_delivery_consumerUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$vertical_delivery_consumerPayload>
           }
           deleteMany: {
-            args: Prisma.vertical_food_consumerDeleteManyArgs<ExtArgs>
+            args: Prisma.vertical_delivery_consumerDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.vertical_food_consumerUpdateManyArgs<ExtArgs>
+            args: Prisma.vertical_delivery_consumerUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.vertical_food_consumerUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$vertical_food_consumerPayload>
+            args: Prisma.vertical_delivery_consumerUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$vertical_delivery_consumerPayload>
           }
           aggregate: {
-            args: Prisma.Vertical_food_consumerAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateVertical_food_consumer>
+            args: Prisma.vertical_delivery_consumerAggregateArgs<ExtArgs>
+            result: $Utils.Optional<Aggregatevertical_delivery_consumer>
           }
           groupBy: {
-            args: Prisma.vertical_food_consumerGroupByArgs<ExtArgs>
-            result: $Utils.Optional<Vertical_food_consumerGroupByOutputType>[]
+            args: Prisma.vertical_delivery_consumerGroupByArgs<ExtArgs>
+            result: $Utils.Optional<vertical_delivery_consumerGroupByOutputType>[]
           }
           count: {
-            args: Prisma.vertical_food_consumerCountArgs<ExtArgs>
-            result: $Utils.Optional<Vertical_food_consumerCountAggregateOutputType> | number
+            args: Prisma.vertical_delivery_consumerCountArgs<ExtArgs>
+            result: $Utils.Optional<vertical_delivery_consumerCountAggregateOutputType> | number
           }
         }
       }
-      vertical_food_consumer_box: {
-        payload: Prisma.$vertical_food_consumer_boxPayload<ExtArgs>
-        fields: Prisma.vertical_food_consumer_boxFieldRefs
+      vertical_delivery_consumer_box: {
+        payload: Prisma.$vertical_delivery_consumer_boxPayload<ExtArgs>
+        fields: Prisma.vertical_delivery_consumer_boxFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.vertical_food_consumer_boxFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$vertical_food_consumer_boxPayload> | null
+            args: Prisma.vertical_delivery_consumer_boxFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$vertical_delivery_consumer_boxPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.vertical_food_consumer_boxFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$vertical_food_consumer_boxPayload>
+            args: Prisma.vertical_delivery_consumer_boxFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$vertical_delivery_consumer_boxPayload>
           }
           findFirst: {
-            args: Prisma.vertical_food_consumer_boxFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$vertical_food_consumer_boxPayload> | null
+            args: Prisma.vertical_delivery_consumer_boxFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$vertical_delivery_consumer_boxPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.vertical_food_consumer_boxFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$vertical_food_consumer_boxPayload>
+            args: Prisma.vertical_delivery_consumer_boxFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$vertical_delivery_consumer_boxPayload>
           }
           findMany: {
-            args: Prisma.vertical_food_consumer_boxFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$vertical_food_consumer_boxPayload>[]
+            args: Prisma.vertical_delivery_consumer_boxFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$vertical_delivery_consumer_boxPayload>[]
           }
           create: {
-            args: Prisma.vertical_food_consumer_boxCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$vertical_food_consumer_boxPayload>
+            args: Prisma.vertical_delivery_consumer_boxCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$vertical_delivery_consumer_boxPayload>
           }
           createMany: {
-            args: Prisma.vertical_food_consumer_boxCreateManyArgs<ExtArgs>
+            args: Prisma.vertical_delivery_consumer_boxCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           delete: {
-            args: Prisma.vertical_food_consumer_boxDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$vertical_food_consumer_boxPayload>
+            args: Prisma.vertical_delivery_consumer_boxDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$vertical_delivery_consumer_boxPayload>
           }
           update: {
-            args: Prisma.vertical_food_consumer_boxUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$vertical_food_consumer_boxPayload>
+            args: Prisma.vertical_delivery_consumer_boxUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$vertical_delivery_consumer_boxPayload>
           }
           deleteMany: {
-            args: Prisma.vertical_food_consumer_boxDeleteManyArgs<ExtArgs>
+            args: Prisma.vertical_delivery_consumer_boxDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.vertical_food_consumer_boxUpdateManyArgs<ExtArgs>
+            args: Prisma.vertical_delivery_consumer_boxUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.vertical_food_consumer_boxUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$vertical_food_consumer_boxPayload>
+            args: Prisma.vertical_delivery_consumer_boxUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$vertical_delivery_consumer_boxPayload>
           }
           aggregate: {
-            args: Prisma.Vertical_food_consumer_boxAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateVertical_food_consumer_box>
+            args: Prisma.vertical_delivery_consumer_boxAggregateArgs<ExtArgs>
+            result: $Utils.Optional<Aggregatevertical_delivery_consumer_box>
           }
           groupBy: {
-            args: Prisma.vertical_food_consumer_boxGroupByArgs<ExtArgs>
-            result: $Utils.Optional<Vertical_food_consumer_boxGroupByOutputType>[]
+            args: Prisma.vertical_delivery_consumer_boxGroupByArgs<ExtArgs>
+            result: $Utils.Optional<vertical_delivery_consumer_boxGroupByOutputType>[]
           }
           count: {
-            args: Prisma.vertical_food_consumer_boxCountArgs<ExtArgs>
-            result: $Utils.Optional<Vertical_food_consumer_boxCountAggregateOutputType> | number
+            args: Prisma.vertical_delivery_consumer_boxCountArgs<ExtArgs>
+            result: $Utils.Optional<vertical_delivery_consumer_boxCountAggregateOutputType> | number
           }
         }
       }
@@ -2910,14 +2910,14 @@ export namespace Prisma {
     role?: roleOmit
     box?: boxOmit
     restaurant?: restaurantOmit
-    vertical_food_employee?: vertical_food_employeeOmit
-    vertical_food_employee_box?: vertical_food_employee_boxOmit
+    vertical_delivery_employee?: vertical_delivery_employeeOmit
+    vertical_delivery_employee_box?: vertical_delivery_employee_boxOmit
     restaurant_box?: restaurant_boxOmit
-    vertical_food_employee_deleted?: vertical_food_employee_deletedOmit
+    vertical_delivery_employee_deleted?: vertical_delivery_employee_deletedOmit
     restaurant_deleted?: restaurant_deletedOmit
     box_deleted?: box_deletedOmit
-    vertical_food_consumer?: vertical_food_consumerOmit
-    vertical_food_consumer_box?: vertical_food_consumer_boxOmit
+    vertical_delivery_consumer?: vertical_delivery_consumerOmit
+    vertical_delivery_consumer_box?: vertical_delivery_consumer_boxOmit
     box_lock?: box_lockOmit
     notification?: notificationOmit
     box_telemetry_latest?: box_telemetry_latestOmit
@@ -3082,16 +3082,16 @@ export namespace Prisma {
 
   export type ClientCountOutputType = {
     boxes: number
-    vertical_food_consumers: number
-    vertical_food_employees: number
+    vertical_delivery_consumers: number
+    vertical_delivery_employees: number
     restaurants: number
     notifications: number
   }
 
   export type ClientCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     boxes?: boolean | ClientCountOutputTypeCountBoxesArgs
-    vertical_food_consumers?: boolean | ClientCountOutputTypeCountVertical_food_consumersArgs
-    vertical_food_employees?: boolean | ClientCountOutputTypeCountVertical_food_employeesArgs
+    vertical_delivery_consumers?: boolean | ClientCountOutputTypeCountvertical_delivery_consumersArgs
+    vertical_delivery_employees?: boolean | ClientCountOutputTypeCountvertical_delivery_employeesArgs
     restaurants?: boolean | ClientCountOutputTypeCountRestaurantsArgs
     notifications?: boolean | ClientCountOutputTypeCountNotificationsArgs
   }
@@ -3117,15 +3117,15 @@ export namespace Prisma {
   /**
    * ClientCountOutputType without action
    */
-  export type ClientCountOutputTypeCountVertical_food_consumersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: vertical_food_consumerWhereInput
+  export type ClientCountOutputTypeCountvertical_delivery_consumersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: vertical_delivery_consumerWhereInput
   }
 
   /**
    * ClientCountOutputType without action
    */
-  export type ClientCountOutputTypeCountVertical_food_employeesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: vertical_food_employeeWhereInput
+  export type ClientCountOutputTypeCountvertical_delivery_employeesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: vertical_delivery_employeeWhereInput
   }
 
   /**
@@ -3242,13 +3242,13 @@ export namespace Prisma {
 
   export type BoxCountOutputType = {
     boxes: number
-    vertical_food_employee_boxes: number
+    vertical_delivery_employee_boxes: number
     restaurant_boxes: number
   }
 
   export type BoxCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     boxes?: boolean | BoxCountOutputTypeCountBoxesArgs
-    vertical_food_employee_boxes?: boolean | BoxCountOutputTypeCountVertical_food_employee_boxesArgs
+    vertical_delivery_employee_boxes?: boolean | BoxCountOutputTypeCountvertical_delivery_employee_boxesArgs
     restaurant_boxes?: boolean | BoxCountOutputTypeCountRestaurant_boxesArgs
   }
 
@@ -3267,14 +3267,14 @@ export namespace Prisma {
    * BoxCountOutputType without action
    */
   export type BoxCountOutputTypeCountBoxesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: vertical_food_consumer_boxWhereInput
+    where?: vertical_delivery_consumer_boxWhereInput
   }
 
   /**
    * BoxCountOutputType without action
    */
-  export type BoxCountOutputTypeCountVertical_food_employee_boxesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: vertical_food_employee_boxWhereInput
+  export type BoxCountOutputTypeCountvertical_delivery_employee_boxesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: vertical_delivery_employee_boxWhereInput
   }
 
   /**
@@ -3314,7 +3314,7 @@ export namespace Prisma {
    * RestaurantCountOutputType without action
    */
   export type RestaurantCountOutputTypeCountEmployeesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: vertical_food_employeeWhereInput
+    where?: vertical_delivery_employeeWhereInput
   }
 
   /**
@@ -3326,73 +3326,73 @@ export namespace Prisma {
 
 
   /**
-   * Count Type Vertical_food_employeeCountOutputType
+   * Count Type vertical_delivery_employeeCountOutputType
    */
 
-  export type Vertical_food_employeeCountOutputType = {
+  export type vertical_delivery_employeeCountOutputType = {
     connected_boxes: number
-    vertical_food_employee_boxes: number
+    vertical_delivery_employee_boxes: number
   }
 
-  export type Vertical_food_employeeCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    connected_boxes?: boolean | Vertical_food_employeeCountOutputTypeCountConnected_boxesArgs
-    vertical_food_employee_boxes?: boolean | Vertical_food_employeeCountOutputTypeCountVertical_food_employee_boxesArgs
+  export type vertical_delivery_employeeCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    connected_boxes?: boolean | vertical_delivery_employeeCountOutputTypeCountConnected_boxesArgs
+    vertical_delivery_employee_boxes?: boolean | vertical_delivery_employeeCountOutputTypeCountvertical_delivery_employee_boxesArgs
   }
 
   // Custom InputTypes
   /**
-   * Vertical_food_employeeCountOutputType without action
+   * vertical_delivery_employeeCountOutputType without action
    */
-  export type Vertical_food_employeeCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_employeeCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Vertical_food_employeeCountOutputType
+     * Select specific fields to fetch from the vertical_delivery_employeeCountOutputType
      */
-    select?: Vertical_food_employeeCountOutputTypeSelect<ExtArgs> | null
+    select?: vertical_delivery_employeeCountOutputTypeSelect<ExtArgs> | null
   }
 
   /**
-   * Vertical_food_employeeCountOutputType without action
+   * vertical_delivery_employeeCountOutputType without action
    */
-  export type Vertical_food_employeeCountOutputTypeCountConnected_boxesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_employeeCountOutputTypeCountConnected_boxesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: boxWhereInput
   }
 
   /**
-   * Vertical_food_employeeCountOutputType without action
+   * vertical_delivery_employeeCountOutputType without action
    */
-  export type Vertical_food_employeeCountOutputTypeCountVertical_food_employee_boxesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: vertical_food_employee_boxWhereInput
+  export type vertical_delivery_employeeCountOutputTypeCountvertical_delivery_employee_boxesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: vertical_delivery_employee_boxWhereInput
   }
 
 
   /**
-   * Count Type Vertical_food_consumerCountOutputType
+   * Count Type vertical_delivery_consumerCountOutputType
    */
 
-  export type Vertical_food_consumerCountOutputType = {
+  export type vertical_delivery_consumerCountOutputType = {
     boxes: number
   }
 
-  export type Vertical_food_consumerCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    boxes?: boolean | Vertical_food_consumerCountOutputTypeCountBoxesArgs
+  export type vertical_delivery_consumerCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    boxes?: boolean | vertical_delivery_consumerCountOutputTypeCountBoxesArgs
   }
 
   // Custom InputTypes
   /**
-   * Vertical_food_consumerCountOutputType without action
+   * vertical_delivery_consumerCountOutputType without action
    */
-  export type Vertical_food_consumerCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_consumerCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Vertical_food_consumerCountOutputType
+     * Select specific fields to fetch from the vertical_delivery_consumerCountOutputType
      */
-    select?: Vertical_food_consumerCountOutputTypeSelect<ExtArgs> | null
+    select?: vertical_delivery_consumerCountOutputTypeSelect<ExtArgs> | null
   }
 
   /**
-   * Vertical_food_consumerCountOutputType without action
+   * vertical_delivery_consumerCountOutputType without action
    */
-  export type Vertical_food_consumerCountOutputTypeCountBoxesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: vertical_food_consumer_boxWhereInput
+  export type vertical_delivery_consumerCountOutputTypeCountBoxesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: vertical_delivery_consumer_boxWhereInput
   }
 
 
@@ -8569,8 +8569,8 @@ export namespace Prisma {
     profile_pic?: boolean
     boxes?: boolean | client$boxesArgs<ExtArgs>
     vertical?: boolean | client$verticalArgs<ExtArgs>
-    vertical_food_consumers?: boolean | client$vertical_food_consumersArgs<ExtArgs>
-    vertical_food_employees?: boolean | client$vertical_food_employeesArgs<ExtArgs>
+    vertical_delivery_consumers?: boolean | client$vertical_delivery_consumersArgs<ExtArgs>
+    vertical_delivery_employees?: boolean | client$vertical_delivery_employeesArgs<ExtArgs>
     restaurants?: boolean | client$restaurantsArgs<ExtArgs>
     notifications?: boolean | client$notificationsArgs<ExtArgs>
     _count?: boolean | ClientCountOutputTypeDefaultArgs<ExtArgs>
@@ -8600,8 +8600,8 @@ export namespace Prisma {
   export type clientInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     boxes?: boolean | client$boxesArgs<ExtArgs>
     vertical?: boolean | client$verticalArgs<ExtArgs>
-    vertical_food_consumers?: boolean | client$vertical_food_consumersArgs<ExtArgs>
-    vertical_food_employees?: boolean | client$vertical_food_employeesArgs<ExtArgs>
+    vertical_delivery_consumers?: boolean | client$vertical_delivery_consumersArgs<ExtArgs>
+    vertical_delivery_employees?: boolean | client$vertical_delivery_employeesArgs<ExtArgs>
     restaurants?: boolean | client$restaurantsArgs<ExtArgs>
     notifications?: boolean | client$notificationsArgs<ExtArgs>
     _count?: boolean | ClientCountOutputTypeDefaultArgs<ExtArgs>
@@ -8612,8 +8612,8 @@ export namespace Prisma {
     objects: {
       boxes: Prisma.$boxPayload<ExtArgs>[]
       vertical: Prisma.$verticalPayload<ExtArgs> | null
-      vertical_food_consumers: Prisma.$vertical_food_consumerPayload<ExtArgs>[]
-      vertical_food_employees: Prisma.$vertical_food_employeePayload<ExtArgs>[]
+      vertical_delivery_consumers: Prisma.$vertical_delivery_consumerPayload<ExtArgs>[]
+      vertical_delivery_employees: Prisma.$vertical_delivery_employeePayload<ExtArgs>[]
       restaurants: Prisma.$restaurantPayload<ExtArgs>[]
       notifications: Prisma.$notificationPayload<ExtArgs>[]
     }
@@ -8975,8 +8975,8 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     boxes<T extends client$boxesArgs<ExtArgs> = {}>(args?: Subset<T, client$boxesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$boxPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     vertical<T extends client$verticalArgs<ExtArgs> = {}>(args?: Subset<T, client$verticalArgs<ExtArgs>>): Prisma__verticalClient<$Result.GetResult<Prisma.$verticalPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    vertical_food_consumers<T extends client$vertical_food_consumersArgs<ExtArgs> = {}>(args?: Subset<T, client$vertical_food_consumersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$vertical_food_consumerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    vertical_food_employees<T extends client$vertical_food_employeesArgs<ExtArgs> = {}>(args?: Subset<T, client$vertical_food_employeesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$vertical_food_employeePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    vertical_delivery_consumers<T extends client$vertical_delivery_consumersArgs<ExtArgs> = {}>(args?: Subset<T, client$vertical_delivery_consumersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$vertical_delivery_consumerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    vertical_delivery_employees<T extends client$vertical_delivery_employeesArgs<ExtArgs> = {}>(args?: Subset<T, client$vertical_delivery_employeesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$vertical_delivery_employeePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     restaurants<T extends client$restaurantsArgs<ExtArgs> = {}>(args?: Subset<T, client$restaurantsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$restaurantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     notifications<T extends client$notificationsArgs<ExtArgs> = {}>(args?: Subset<T, client$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$notificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
@@ -9414,51 +9414,51 @@ export namespace Prisma {
   }
 
   /**
-   * client.vertical_food_consumers
+   * client.vertical_delivery_consumers
    */
-  export type client$vertical_food_consumersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type client$vertical_delivery_consumersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_consumer
+     * Select specific fields to fetch from the vertical_delivery_consumer
      */
-    select?: vertical_food_consumerSelect<ExtArgs> | null
+    select?: vertical_delivery_consumerSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_consumer
+     * Omit specific fields from the vertical_delivery_consumer
      */
-    omit?: vertical_food_consumerOmit<ExtArgs> | null
+    omit?: vertical_delivery_consumerOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: vertical_food_consumerInclude<ExtArgs> | null
-    where?: vertical_food_consumerWhereInput
-    orderBy?: vertical_food_consumerOrderByWithRelationInput | vertical_food_consumerOrderByWithRelationInput[]
-    cursor?: vertical_food_consumerWhereUniqueInput
+    include?: vertical_delivery_consumerInclude<ExtArgs> | null
+    where?: vertical_delivery_consumerWhereInput
+    orderBy?: vertical_delivery_consumerOrderByWithRelationInput | vertical_delivery_consumerOrderByWithRelationInput[]
+    cursor?: vertical_delivery_consumerWhereUniqueInput
     take?: number
     skip?: number
-    distinct?: Vertical_food_consumerScalarFieldEnum | Vertical_food_consumerScalarFieldEnum[]
+    distinct?: vertical_delivery_consumerScalarFieldEnum | vertical_delivery_consumerScalarFieldEnum[]
   }
 
   /**
-   * client.vertical_food_employees
+   * client.vertical_delivery_employees
    */
-  export type client$vertical_food_employeesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type client$vertical_delivery_employeesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_employee
+     * Select specific fields to fetch from the vertical_delivery_employee
      */
-    select?: vertical_food_employeeSelect<ExtArgs> | null
+    select?: vertical_delivery_employeeSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_employee
+     * Omit specific fields from the vertical_delivery_employee
      */
-    omit?: vertical_food_employeeOmit<ExtArgs> | null
+    omit?: vertical_delivery_employeeOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: vertical_food_employeeInclude<ExtArgs> | null
-    where?: vertical_food_employeeWhereInput
-    orderBy?: vertical_food_employeeOrderByWithRelationInput | vertical_food_employeeOrderByWithRelationInput[]
-    cursor?: vertical_food_employeeWhereUniqueInput
+    include?: vertical_delivery_employeeInclude<ExtArgs> | null
+    where?: vertical_delivery_employeeWhereInput
+    orderBy?: vertical_delivery_employeeOrderByWithRelationInput | vertical_delivery_employeeOrderByWithRelationInput[]
+    cursor?: vertical_delivery_employeeWhereUniqueInput
     take?: number
     skip?: number
-    distinct?: Vertical_food_employeeScalarFieldEnum | Vertical_food_employeeScalarFieldEnum[]
+    distinct?: vertical_delivery_employeeScalarFieldEnum | vertical_delivery_employeeScalarFieldEnum[]
   }
 
   /**
@@ -14727,7 +14727,7 @@ export namespace Prisma {
     vertical?: boolean | box$verticalArgs<ExtArgs>
     lock?: boolean | box$lockArgs<ExtArgs>
     boxes?: boolean | box$boxesArgs<ExtArgs>
-    vertical_food_employee_boxes?: boolean | box$vertical_food_employee_boxesArgs<ExtArgs>
+    vertical_delivery_employee_boxes?: boolean | box$vertical_delivery_employee_boxesArgs<ExtArgs>
     restaurant_boxes?: boolean | box$restaurant_boxesArgs<ExtArgs>
     _count?: boolean | BoxCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["box"]>
@@ -14755,7 +14755,7 @@ export namespace Prisma {
     vertical?: boolean | box$verticalArgs<ExtArgs>
     lock?: boolean | box$lockArgs<ExtArgs>
     boxes?: boolean | box$boxesArgs<ExtArgs>
-    vertical_food_employee_boxes?: boolean | box$vertical_food_employee_boxesArgs<ExtArgs>
+    vertical_delivery_employee_boxes?: boolean | box$vertical_delivery_employee_boxesArgs<ExtArgs>
     restaurant_boxes?: boolean | box$restaurant_boxesArgs<ExtArgs>
     _count?: boolean | BoxCountOutputTypeDefaultArgs<ExtArgs>
   }
@@ -14764,12 +14764,12 @@ export namespace Prisma {
     name: "box"
     objects: {
       telemetry: Prisma.$box_telemetry_latestPayload<ExtArgs> | null
-      connection_employee: Prisma.$vertical_food_employeePayload<ExtArgs> | null
+      connection_employee: Prisma.$vertical_delivery_employeePayload<ExtArgs> | null
       client: Prisma.$clientPayload<ExtArgs> | null
       vertical: Prisma.$verticalPayload<ExtArgs> | null
       lock: Prisma.$box_lockPayload<ExtArgs> | null
-      boxes: Prisma.$vertical_food_consumer_boxPayload<ExtArgs>[]
-      vertical_food_employee_boxes: Prisma.$vertical_food_employee_boxPayload<ExtArgs>[]
+      boxes: Prisma.$vertical_delivery_consumer_boxPayload<ExtArgs>[]
+      vertical_delivery_employee_boxes: Prisma.$vertical_delivery_employee_boxPayload<ExtArgs>[]
       restaurant_boxes: Prisma.$restaurant_boxPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
@@ -15124,12 +15124,12 @@ export namespace Prisma {
   export interface Prisma__boxClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     telemetry<T extends box$telemetryArgs<ExtArgs> = {}>(args?: Subset<T, box$telemetryArgs<ExtArgs>>): Prisma__box_telemetry_latestClient<$Result.GetResult<Prisma.$box_telemetry_latestPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    connection_employee<T extends box$connection_employeeArgs<ExtArgs> = {}>(args?: Subset<T, box$connection_employeeArgs<ExtArgs>>): Prisma__vertical_food_employeeClient<$Result.GetResult<Prisma.$vertical_food_employeePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    connection_employee<T extends box$connection_employeeArgs<ExtArgs> = {}>(args?: Subset<T, box$connection_employeeArgs<ExtArgs>>): Prisma__vertical_delivery_employeeClient<$Result.GetResult<Prisma.$vertical_delivery_employeePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     client<T extends box$clientArgs<ExtArgs> = {}>(args?: Subset<T, box$clientArgs<ExtArgs>>): Prisma__clientClient<$Result.GetResult<Prisma.$clientPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     vertical<T extends box$verticalArgs<ExtArgs> = {}>(args?: Subset<T, box$verticalArgs<ExtArgs>>): Prisma__verticalClient<$Result.GetResult<Prisma.$verticalPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     lock<T extends box$lockArgs<ExtArgs> = {}>(args?: Subset<T, box$lockArgs<ExtArgs>>): Prisma__box_lockClient<$Result.GetResult<Prisma.$box_lockPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    boxes<T extends box$boxesArgs<ExtArgs> = {}>(args?: Subset<T, box$boxesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$vertical_food_consumer_boxPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    vertical_food_employee_boxes<T extends box$vertical_food_employee_boxesArgs<ExtArgs> = {}>(args?: Subset<T, box$vertical_food_employee_boxesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$vertical_food_employee_boxPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    boxes<T extends box$boxesArgs<ExtArgs> = {}>(args?: Subset<T, box$boxesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$vertical_delivery_consumer_boxPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    vertical_delivery_employee_boxes<T extends box$vertical_delivery_employee_boxesArgs<ExtArgs> = {}>(args?: Subset<T, box$vertical_delivery_employee_boxesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$vertical_delivery_employee_boxPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     restaurant_boxes<T extends box$restaurant_boxesArgs<ExtArgs> = {}>(args?: Subset<T, box$restaurant_boxesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$restaurant_boxPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -15541,18 +15541,18 @@ export namespace Prisma {
    */
   export type box$connection_employeeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_employee
+     * Select specific fields to fetch from the vertical_delivery_employee
      */
-    select?: vertical_food_employeeSelect<ExtArgs> | null
+    select?: vertical_delivery_employeeSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_employee
+     * Omit specific fields from the vertical_delivery_employee
      */
-    omit?: vertical_food_employeeOmit<ExtArgs> | null
+    omit?: vertical_delivery_employeeOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: vertical_food_employeeInclude<ExtArgs> | null
-    where?: vertical_food_employeeWhereInput
+    include?: vertical_delivery_employeeInclude<ExtArgs> | null
+    where?: vertical_delivery_employeeWhereInput
   }
 
   /**
@@ -15617,47 +15617,47 @@ export namespace Prisma {
    */
   export type box$boxesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_consumer_box
+     * Select specific fields to fetch from the vertical_delivery_consumer_box
      */
-    select?: vertical_food_consumer_boxSelect<ExtArgs> | null
+    select?: vertical_delivery_consumer_boxSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_consumer_box
+     * Omit specific fields from the vertical_delivery_consumer_box
      */
-    omit?: vertical_food_consumer_boxOmit<ExtArgs> | null
+    omit?: vertical_delivery_consumer_boxOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: vertical_food_consumer_boxInclude<ExtArgs> | null
-    where?: vertical_food_consumer_boxWhereInput
-    orderBy?: vertical_food_consumer_boxOrderByWithRelationInput | vertical_food_consumer_boxOrderByWithRelationInput[]
-    cursor?: vertical_food_consumer_boxWhereUniqueInput
+    include?: vertical_delivery_consumer_boxInclude<ExtArgs> | null
+    where?: vertical_delivery_consumer_boxWhereInput
+    orderBy?: vertical_delivery_consumer_boxOrderByWithRelationInput | vertical_delivery_consumer_boxOrderByWithRelationInput[]
+    cursor?: vertical_delivery_consumer_boxWhereUniqueInput
     take?: number
     skip?: number
-    distinct?: Vertical_food_consumer_boxScalarFieldEnum | Vertical_food_consumer_boxScalarFieldEnum[]
+    distinct?: vertical_delivery_consumer_boxScalarFieldEnum | vertical_delivery_consumer_boxScalarFieldEnum[]
   }
 
   /**
-   * box.vertical_food_employee_boxes
+   * box.vertical_delivery_employee_boxes
    */
-  export type box$vertical_food_employee_boxesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type box$vertical_delivery_employee_boxesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_employee_box
+     * Select specific fields to fetch from the vertical_delivery_employee_box
      */
-    select?: vertical_food_employee_boxSelect<ExtArgs> | null
+    select?: vertical_delivery_employee_boxSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_employee_box
+     * Omit specific fields from the vertical_delivery_employee_box
      */
-    omit?: vertical_food_employee_boxOmit<ExtArgs> | null
+    omit?: vertical_delivery_employee_boxOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: vertical_food_employee_boxInclude<ExtArgs> | null
-    where?: vertical_food_employee_boxWhereInput
-    orderBy?: vertical_food_employee_boxOrderByWithRelationInput | vertical_food_employee_boxOrderByWithRelationInput[]
-    cursor?: vertical_food_employee_boxWhereUniqueInput
+    include?: vertical_delivery_employee_boxInclude<ExtArgs> | null
+    where?: vertical_delivery_employee_boxWhereInput
+    orderBy?: vertical_delivery_employee_boxOrderByWithRelationInput | vertical_delivery_employee_boxOrderByWithRelationInput[]
+    cursor?: vertical_delivery_employee_boxWhereUniqueInput
     take?: number
     skip?: number
-    distinct?: Vertical_food_employee_boxScalarFieldEnum | Vertical_food_employee_boxScalarFieldEnum[]
+    distinct?: vertical_delivery_employee_boxScalarFieldEnum | vertical_delivery_employee_boxScalarFieldEnum[]
   }
 
   /**
@@ -16013,7 +16013,7 @@ export namespace Prisma {
   export type $restaurantPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "restaurant"
     objects: {
-      employees: Prisma.$vertical_food_employeePayload<ExtArgs>[]
+      employees: Prisma.$vertical_delivery_employeePayload<ExtArgs>[]
       client: Prisma.$clientPayload<ExtArgs> | null
       restaurant_boxes: Prisma.$restaurant_boxPayload<ExtArgs>[]
     }
@@ -16372,7 +16372,7 @@ export namespace Prisma {
    */
   export interface Prisma__restaurantClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    employees<T extends restaurant$employeesArgs<ExtArgs> = {}>(args?: Subset<T, restaurant$employeesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$vertical_food_employeePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    employees<T extends restaurant$employeesArgs<ExtArgs> = {}>(args?: Subset<T, restaurant$employeesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$vertical_delivery_employeePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     client<T extends restaurant$clientArgs<ExtArgs> = {}>(args?: Subset<T, restaurant$clientArgs<ExtArgs>>): Prisma__clientClient<$Result.GetResult<Prisma.$clientPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     restaurant_boxes<T extends restaurant$restaurant_boxesArgs<ExtArgs> = {}>(args?: Subset<T, restaurant$restaurant_boxesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$restaurant_boxPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
@@ -16770,23 +16770,23 @@ export namespace Prisma {
    */
   export type restaurant$employeesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_employee
+     * Select specific fields to fetch from the vertical_delivery_employee
      */
-    select?: vertical_food_employeeSelect<ExtArgs> | null
+    select?: vertical_delivery_employeeSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_employee
+     * Omit specific fields from the vertical_delivery_employee
      */
-    omit?: vertical_food_employeeOmit<ExtArgs> | null
+    omit?: vertical_delivery_employeeOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: vertical_food_employeeInclude<ExtArgs> | null
-    where?: vertical_food_employeeWhereInput
-    orderBy?: vertical_food_employeeOrderByWithRelationInput | vertical_food_employeeOrderByWithRelationInput[]
-    cursor?: vertical_food_employeeWhereUniqueInput
+    include?: vertical_delivery_employeeInclude<ExtArgs> | null
+    where?: vertical_delivery_employeeWhereInput
+    orderBy?: vertical_delivery_employeeOrderByWithRelationInput | vertical_delivery_employeeOrderByWithRelationInput[]
+    cursor?: vertical_delivery_employeeWhereUniqueInput
     take?: number
     skip?: number
-    distinct?: Vertical_food_employeeScalarFieldEnum | Vertical_food_employeeScalarFieldEnum[]
+    distinct?: vertical_delivery_employeeScalarFieldEnum | vertical_delivery_employeeScalarFieldEnum[]
   }
 
   /**
@@ -16852,16 +16852,16 @@ export namespace Prisma {
 
 
   /**
-   * Model vertical_food_employee
+   * Model vertical_delivery_employee
    */
 
-  export type AggregateVertical_food_employee = {
-    _count: Vertical_food_employeeCountAggregateOutputType | null
-    _min: Vertical_food_employeeMinAggregateOutputType | null
-    _max: Vertical_food_employeeMaxAggregateOutputType | null
+  export type Aggregatevertical_delivery_employee = {
+    _count: vertical_delivery_employeeCountAggregateOutputType | null
+    _min: vertical_delivery_employeeMinAggregateOutputType | null
+    _max: vertical_delivery_employeeMaxAggregateOutputType | null
   }
 
-  export type Vertical_food_employeeMinAggregateOutputType = {
+  export type vertical_delivery_employeeMinAggregateOutputType = {
     id: string | null
     first_name: string | null
     last_name: string | null
@@ -16880,7 +16880,7 @@ export namespace Prisma {
     profile_pic: string | null
   }
 
-  export type Vertical_food_employeeMaxAggregateOutputType = {
+  export type vertical_delivery_employeeMaxAggregateOutputType = {
     id: string | null
     first_name: string | null
     last_name: string | null
@@ -16899,7 +16899,7 @@ export namespace Prisma {
     profile_pic: string | null
   }
 
-  export type Vertical_food_employeeCountAggregateOutputType = {
+  export type vertical_delivery_employeeCountAggregateOutputType = {
     id: number
     first_name: number
     last_name: number
@@ -16920,7 +16920,7 @@ export namespace Prisma {
   }
 
 
-  export type Vertical_food_employeeMinAggregateInputType = {
+  export type vertical_delivery_employeeMinAggregateInputType = {
     id?: true
     first_name?: true
     last_name?: true
@@ -16939,7 +16939,7 @@ export namespace Prisma {
     profile_pic?: true
   }
 
-  export type Vertical_food_employeeMaxAggregateInputType = {
+  export type vertical_delivery_employeeMaxAggregateInputType = {
     id?: true
     first_name?: true
     last_name?: true
@@ -16958,7 +16958,7 @@ export namespace Prisma {
     profile_pic?: true
   }
 
-  export type Vertical_food_employeeCountAggregateInputType = {
+  export type vertical_delivery_employeeCountAggregateInputType = {
     id?: true
     first_name?: true
     last_name?: true
@@ -16978,79 +16978,79 @@ export namespace Prisma {
     _all?: true
   }
 
-  export type Vertical_food_employeeAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_employeeAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which vertical_food_employee to aggregate.
+     * Filter which vertical_delivery_employee to aggregate.
      */
-    where?: vertical_food_employeeWhereInput
+    where?: vertical_delivery_employeeWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of vertical_food_employees to fetch.
+     * Determine the order of vertical_delivery_employees to fetch.
      */
-    orderBy?: vertical_food_employeeOrderByWithRelationInput | vertical_food_employeeOrderByWithRelationInput[]
+    orderBy?: vertical_delivery_employeeOrderByWithRelationInput | vertical_delivery_employeeOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: vertical_food_employeeWhereUniqueInput
+    cursor?: vertical_delivery_employeeWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` vertical_food_employees from the position of the cursor.
+     * Take `±n` vertical_delivery_employees from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` vertical_food_employees.
+     * Skip the first `n` vertical_delivery_employees.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned vertical_food_employees
+     * Count returned vertical_delivery_employees
     **/
-    _count?: true | Vertical_food_employeeCountAggregateInputType
+    _count?: true | vertical_delivery_employeeCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: Vertical_food_employeeMinAggregateInputType
+    _min?: vertical_delivery_employeeMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: Vertical_food_employeeMaxAggregateInputType
+    _max?: vertical_delivery_employeeMaxAggregateInputType
   }
 
-  export type GetVertical_food_employeeAggregateType<T extends Vertical_food_employeeAggregateArgs> = {
-        [P in keyof T & keyof AggregateVertical_food_employee]: P extends '_count' | 'count'
+  export type Getvertical_delivery_employeeAggregateType<T extends vertical_delivery_employeeAggregateArgs> = {
+        [P in keyof T & keyof Aggregatevertical_delivery_employee]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateVertical_food_employee[P]>
-      : GetScalarType<T[P], AggregateVertical_food_employee[P]>
+        : GetScalarType<T[P], Aggregatevertical_delivery_employee[P]>
+      : GetScalarType<T[P], Aggregatevertical_delivery_employee[P]>
   }
 
 
 
 
-  export type vertical_food_employeeGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: vertical_food_employeeWhereInput
-    orderBy?: vertical_food_employeeOrderByWithAggregationInput | vertical_food_employeeOrderByWithAggregationInput[]
-    by: Vertical_food_employeeScalarFieldEnum[] | Vertical_food_employeeScalarFieldEnum
-    having?: vertical_food_employeeScalarWhereWithAggregatesInput
+  export type vertical_delivery_employeeGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: vertical_delivery_employeeWhereInput
+    orderBy?: vertical_delivery_employeeOrderByWithAggregationInput | vertical_delivery_employeeOrderByWithAggregationInput[]
+    by: vertical_delivery_employeeScalarFieldEnum[] | vertical_delivery_employeeScalarFieldEnum
+    having?: vertical_delivery_employeeScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: Vertical_food_employeeCountAggregateInputType | true
-    _min?: Vertical_food_employeeMinAggregateInputType
-    _max?: Vertical_food_employeeMaxAggregateInputType
+    _count?: vertical_delivery_employeeCountAggregateInputType | true
+    _min?: vertical_delivery_employeeMinAggregateInputType
+    _max?: vertical_delivery_employeeMaxAggregateInputType
   }
 
-  export type Vertical_food_employeeGroupByOutputType = {
+  export type vertical_delivery_employeeGroupByOutputType = {
     id: string
     first_name: string
     last_name: string
@@ -17067,26 +17067,26 @@ export namespace Prisma {
     created_at: Date
     updated_at: Date
     profile_pic: string | null
-    _count: Vertical_food_employeeCountAggregateOutputType | null
-    _min: Vertical_food_employeeMinAggregateOutputType | null
-    _max: Vertical_food_employeeMaxAggregateOutputType | null
+    _count: vertical_delivery_employeeCountAggregateOutputType | null
+    _min: vertical_delivery_employeeMinAggregateOutputType | null
+    _max: vertical_delivery_employeeMaxAggregateOutputType | null
   }
 
-  type GetVertical_food_employeeGroupByPayload<T extends vertical_food_employeeGroupByArgs> = Prisma.PrismaPromise<
+  type Getvertical_delivery_employeeGroupByPayload<T extends vertical_delivery_employeeGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<Vertical_food_employeeGroupByOutputType, T['by']> &
+      PickEnumerable<vertical_delivery_employeeGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof Vertical_food_employeeGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof vertical_delivery_employeeGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], Vertical_food_employeeGroupByOutputType[P]>
-            : GetScalarType<T[P], Vertical_food_employeeGroupByOutputType[P]>
+              : GetScalarType<T[P], vertical_delivery_employeeGroupByOutputType[P]>
+            : GetScalarType<T[P], vertical_delivery_employeeGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type vertical_food_employeeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type vertical_delivery_employeeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     first_name?: boolean
     last_name?: boolean
@@ -17103,16 +17103,16 @@ export namespace Prisma {
     created_at?: boolean
     updated_at?: boolean
     profile_pic?: boolean
-    connected_boxes?: boolean | vertical_food_employee$connected_boxesArgs<ExtArgs>
-    client?: boolean | vertical_food_employee$clientArgs<ExtArgs>
-    restaurant?: boolean | vertical_food_employee$restaurantArgs<ExtArgs>
-    vertical_food_employee_boxes?: boolean | vertical_food_employee$vertical_food_employee_boxesArgs<ExtArgs>
-    _count?: boolean | Vertical_food_employeeCountOutputTypeDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["vertical_food_employee"]>
+    connected_boxes?: boolean | vertical_delivery_employee$connected_boxesArgs<ExtArgs>
+    client?: boolean | vertical_delivery_employee$clientArgs<ExtArgs>
+    restaurant?: boolean | vertical_delivery_employee$restaurantArgs<ExtArgs>
+    vertical_delivery_employee_boxes?: boolean | vertical_delivery_employee$vertical_delivery_employee_boxesArgs<ExtArgs>
+    _count?: boolean | vertical_delivery_employeeCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["vertical_delivery_employee"]>
 
 
 
-  export type vertical_food_employeeSelectScalar = {
+  export type vertical_delivery_employeeSelectScalar = {
     id?: boolean
     first_name?: boolean
     last_name?: boolean
@@ -17131,22 +17131,22 @@ export namespace Prisma {
     profile_pic?: boolean
   }
 
-  export type vertical_food_employeeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "first_name" | "last_name" | "country_code" | "mobile_number" | "email" | "password" | "employee_display_id" | "joining_date" | "client_id" | "restaurant_id" | "role" | "status" | "created_at" | "updated_at" | "profile_pic", ExtArgs["result"]["vertical_food_employee"]>
-  export type vertical_food_employeeInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    connected_boxes?: boolean | vertical_food_employee$connected_boxesArgs<ExtArgs>
-    client?: boolean | vertical_food_employee$clientArgs<ExtArgs>
-    restaurant?: boolean | vertical_food_employee$restaurantArgs<ExtArgs>
-    vertical_food_employee_boxes?: boolean | vertical_food_employee$vertical_food_employee_boxesArgs<ExtArgs>
-    _count?: boolean | Vertical_food_employeeCountOutputTypeDefaultArgs<ExtArgs>
+  export type vertical_delivery_employeeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "first_name" | "last_name" | "country_code" | "mobile_number" | "email" | "password" | "employee_display_id" | "joining_date" | "client_id" | "restaurant_id" | "role" | "status" | "created_at" | "updated_at" | "profile_pic", ExtArgs["result"]["vertical_delivery_employee"]>
+  export type vertical_delivery_employeeInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    connected_boxes?: boolean | vertical_delivery_employee$connected_boxesArgs<ExtArgs>
+    client?: boolean | vertical_delivery_employee$clientArgs<ExtArgs>
+    restaurant?: boolean | vertical_delivery_employee$restaurantArgs<ExtArgs>
+    vertical_delivery_employee_boxes?: boolean | vertical_delivery_employee$vertical_delivery_employee_boxesArgs<ExtArgs>
+    _count?: boolean | vertical_delivery_employeeCountOutputTypeDefaultArgs<ExtArgs>
   }
 
-  export type $vertical_food_employeePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "vertical_food_employee"
+  export type $vertical_delivery_employeePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "vertical_delivery_employee"
     objects: {
       connected_boxes: Prisma.$boxPayload<ExtArgs>[]
       client: Prisma.$clientPayload<ExtArgs> | null
       restaurant: Prisma.$restaurantPayload<ExtArgs> | null
-      vertical_food_employee_boxes: Prisma.$vertical_food_employee_boxPayload<ExtArgs>[]
+      vertical_delivery_employee_boxes: Prisma.$vertical_delivery_employee_boxPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -17165,143 +17165,143 @@ export namespace Prisma {
       created_at: Date
       updated_at: Date
       profile_pic: string | null
-    }, ExtArgs["result"]["vertical_food_employee"]>
+    }, ExtArgs["result"]["vertical_delivery_employee"]>
     composites: {}
   }
 
-  type vertical_food_employeeGetPayload<S extends boolean | null | undefined | vertical_food_employeeDefaultArgs> = $Result.GetResult<Prisma.$vertical_food_employeePayload, S>
+  type vertical_delivery_employeeGetPayload<S extends boolean | null | undefined | vertical_delivery_employeeDefaultArgs> = $Result.GetResult<Prisma.$vertical_delivery_employeePayload, S>
 
-  type vertical_food_employeeCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<vertical_food_employeeFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: Vertical_food_employeeCountAggregateInputType | true
+  type vertical_delivery_employeeCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<vertical_delivery_employeeFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: vertical_delivery_employeeCountAggregateInputType | true
     }
 
-  export interface vertical_food_employeeDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['vertical_food_employee'], meta: { name: 'vertical_food_employee' } }
+  export interface vertical_delivery_employeeDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['vertical_delivery_employee'], meta: { name: 'vertical_delivery_employee' } }
     /**
-     * Find zero or one Vertical_food_employee that matches the filter.
-     * @param {vertical_food_employeeFindUniqueArgs} args - Arguments to find a Vertical_food_employee
+     * Find zero or one vertical_delivery_employee that matches the filter.
+     * @param {vertical_delivery_employeeFindUniqueArgs} args - Arguments to find a vertical_delivery_employee
      * @example
-     * // Get one Vertical_food_employee
-     * const vertical_food_employee = await prisma.vertical_food_employee.findUnique({
+     * // Get one vertical_delivery_employee
+     * const vertical_delivery_employee = await prisma.vertical_delivery_employee.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends vertical_food_employeeFindUniqueArgs>(args: SelectSubset<T, vertical_food_employeeFindUniqueArgs<ExtArgs>>): Prisma__vertical_food_employeeClient<$Result.GetResult<Prisma.$vertical_food_employeePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findUnique<T extends vertical_delivery_employeeFindUniqueArgs>(args: SelectSubset<T, vertical_delivery_employeeFindUniqueArgs<ExtArgs>>): Prisma__vertical_delivery_employeeClient<$Result.GetResult<Prisma.$vertical_delivery_employeePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find one Vertical_food_employee that matches the filter or throw an error with `error.code='P2025'`
+     * Find one vertical_delivery_employee that matches the filter or throw an error with `error.code='P2025'`
      * if no matches were found.
-     * @param {vertical_food_employeeFindUniqueOrThrowArgs} args - Arguments to find a Vertical_food_employee
+     * @param {vertical_delivery_employeeFindUniqueOrThrowArgs} args - Arguments to find a vertical_delivery_employee
      * @example
-     * // Get one Vertical_food_employee
-     * const vertical_food_employee = await prisma.vertical_food_employee.findUniqueOrThrow({
+     * // Get one vertical_delivery_employee
+     * const vertical_delivery_employee = await prisma.vertical_delivery_employee.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends vertical_food_employeeFindUniqueOrThrowArgs>(args: SelectSubset<T, vertical_food_employeeFindUniqueOrThrowArgs<ExtArgs>>): Prisma__vertical_food_employeeClient<$Result.GetResult<Prisma.$vertical_food_employeePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findUniqueOrThrow<T extends vertical_delivery_employeeFindUniqueOrThrowArgs>(args: SelectSubset<T, vertical_delivery_employeeFindUniqueOrThrowArgs<ExtArgs>>): Prisma__vertical_delivery_employeeClient<$Result.GetResult<Prisma.$vertical_delivery_employeePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find the first Vertical_food_employee that matches the filter.
+     * Find the first vertical_delivery_employee that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {vertical_food_employeeFindFirstArgs} args - Arguments to find a Vertical_food_employee
+     * @param {vertical_delivery_employeeFindFirstArgs} args - Arguments to find a vertical_delivery_employee
      * @example
-     * // Get one Vertical_food_employee
-     * const vertical_food_employee = await prisma.vertical_food_employee.findFirst({
+     * // Get one vertical_delivery_employee
+     * const vertical_delivery_employee = await prisma.vertical_delivery_employee.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends vertical_food_employeeFindFirstArgs>(args?: SelectSubset<T, vertical_food_employeeFindFirstArgs<ExtArgs>>): Prisma__vertical_food_employeeClient<$Result.GetResult<Prisma.$vertical_food_employeePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findFirst<T extends vertical_delivery_employeeFindFirstArgs>(args?: SelectSubset<T, vertical_delivery_employeeFindFirstArgs<ExtArgs>>): Prisma__vertical_delivery_employeeClient<$Result.GetResult<Prisma.$vertical_delivery_employeePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find the first Vertical_food_employee that matches the filter or
+     * Find the first vertical_delivery_employee that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {vertical_food_employeeFindFirstOrThrowArgs} args - Arguments to find a Vertical_food_employee
+     * @param {vertical_delivery_employeeFindFirstOrThrowArgs} args - Arguments to find a vertical_delivery_employee
      * @example
-     * // Get one Vertical_food_employee
-     * const vertical_food_employee = await prisma.vertical_food_employee.findFirstOrThrow({
+     * // Get one vertical_delivery_employee
+     * const vertical_delivery_employee = await prisma.vertical_delivery_employee.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends vertical_food_employeeFindFirstOrThrowArgs>(args?: SelectSubset<T, vertical_food_employeeFindFirstOrThrowArgs<ExtArgs>>): Prisma__vertical_food_employeeClient<$Result.GetResult<Prisma.$vertical_food_employeePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findFirstOrThrow<T extends vertical_delivery_employeeFindFirstOrThrowArgs>(args?: SelectSubset<T, vertical_delivery_employeeFindFirstOrThrowArgs<ExtArgs>>): Prisma__vertical_delivery_employeeClient<$Result.GetResult<Prisma.$vertical_delivery_employeePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find zero or more Vertical_food_employees that matches the filter.
+     * Find zero or more vertical_delivery_employees that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {vertical_food_employeeFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {vertical_delivery_employeeFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all Vertical_food_employees
-     * const vertical_food_employees = await prisma.vertical_food_employee.findMany()
+     * // Get all vertical_delivery_employees
+     * const vertical_delivery_employees = await prisma.vertical_delivery_employee.findMany()
      * 
-     * // Get first 10 Vertical_food_employees
-     * const vertical_food_employees = await prisma.vertical_food_employee.findMany({ take: 10 })
+     * // Get first 10 vertical_delivery_employees
+     * const vertical_delivery_employees = await prisma.vertical_delivery_employee.findMany({ take: 10 })
      * 
      * // Only select the `id`
-     * const vertical_food_employeeWithIdOnly = await prisma.vertical_food_employee.findMany({ select: { id: true } })
+     * const vertical_delivery_employeeWithIdOnly = await prisma.vertical_delivery_employee.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends vertical_food_employeeFindManyArgs>(args?: SelectSubset<T, vertical_food_employeeFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$vertical_food_employeePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+    findMany<T extends vertical_delivery_employeeFindManyArgs>(args?: SelectSubset<T, vertical_delivery_employeeFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$vertical_delivery_employeePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
     /**
-     * Create a Vertical_food_employee.
-     * @param {vertical_food_employeeCreateArgs} args - Arguments to create a Vertical_food_employee.
+     * Create a vertical_delivery_employee.
+     * @param {vertical_delivery_employeeCreateArgs} args - Arguments to create a vertical_delivery_employee.
      * @example
-     * // Create one Vertical_food_employee
-     * const Vertical_food_employee = await prisma.vertical_food_employee.create({
+     * // Create one vertical_delivery_employee
+     * const vertical_delivery_employee = await prisma.vertical_delivery_employee.create({
      *   data: {
-     *     // ... data to create a Vertical_food_employee
+     *     // ... data to create a vertical_delivery_employee
      *   }
      * })
      * 
      */
-    create<T extends vertical_food_employeeCreateArgs>(args: SelectSubset<T, vertical_food_employeeCreateArgs<ExtArgs>>): Prisma__vertical_food_employeeClient<$Result.GetResult<Prisma.$vertical_food_employeePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    create<T extends vertical_delivery_employeeCreateArgs>(args: SelectSubset<T, vertical_delivery_employeeCreateArgs<ExtArgs>>): Prisma__vertical_delivery_employeeClient<$Result.GetResult<Prisma.$vertical_delivery_employeePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Create many Vertical_food_employees.
-     * @param {vertical_food_employeeCreateManyArgs} args - Arguments to create many Vertical_food_employees.
+     * Create many vertical_delivery_employees.
+     * @param {vertical_delivery_employeeCreateManyArgs} args - Arguments to create many vertical_delivery_employees.
      * @example
-     * // Create many Vertical_food_employees
-     * const vertical_food_employee = await prisma.vertical_food_employee.createMany({
+     * // Create many vertical_delivery_employees
+     * const vertical_delivery_employee = await prisma.vertical_delivery_employee.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends vertical_food_employeeCreateManyArgs>(args?: SelectSubset<T, vertical_food_employeeCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends vertical_delivery_employeeCreateManyArgs>(args?: SelectSubset<T, vertical_delivery_employeeCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Delete a Vertical_food_employee.
-     * @param {vertical_food_employeeDeleteArgs} args - Arguments to delete one Vertical_food_employee.
+     * Delete a vertical_delivery_employee.
+     * @param {vertical_delivery_employeeDeleteArgs} args - Arguments to delete one vertical_delivery_employee.
      * @example
-     * // Delete one Vertical_food_employee
-     * const Vertical_food_employee = await prisma.vertical_food_employee.delete({
+     * // Delete one vertical_delivery_employee
+     * const vertical_delivery_employee = await prisma.vertical_delivery_employee.delete({
      *   where: {
-     *     // ... filter to delete one Vertical_food_employee
+     *     // ... filter to delete one vertical_delivery_employee
      *   }
      * })
      * 
      */
-    delete<T extends vertical_food_employeeDeleteArgs>(args: SelectSubset<T, vertical_food_employeeDeleteArgs<ExtArgs>>): Prisma__vertical_food_employeeClient<$Result.GetResult<Prisma.$vertical_food_employeePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    delete<T extends vertical_delivery_employeeDeleteArgs>(args: SelectSubset<T, vertical_delivery_employeeDeleteArgs<ExtArgs>>): Prisma__vertical_delivery_employeeClient<$Result.GetResult<Prisma.$vertical_delivery_employeePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Update one Vertical_food_employee.
-     * @param {vertical_food_employeeUpdateArgs} args - Arguments to update one Vertical_food_employee.
+     * Update one vertical_delivery_employee.
+     * @param {vertical_delivery_employeeUpdateArgs} args - Arguments to update one vertical_delivery_employee.
      * @example
-     * // Update one Vertical_food_employee
-     * const vertical_food_employee = await prisma.vertical_food_employee.update({
+     * // Update one vertical_delivery_employee
+     * const vertical_delivery_employee = await prisma.vertical_delivery_employee.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -17311,30 +17311,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends vertical_food_employeeUpdateArgs>(args: SelectSubset<T, vertical_food_employeeUpdateArgs<ExtArgs>>): Prisma__vertical_food_employeeClient<$Result.GetResult<Prisma.$vertical_food_employeePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    update<T extends vertical_delivery_employeeUpdateArgs>(args: SelectSubset<T, vertical_delivery_employeeUpdateArgs<ExtArgs>>): Prisma__vertical_delivery_employeeClient<$Result.GetResult<Prisma.$vertical_delivery_employeePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Delete zero or more Vertical_food_employees.
-     * @param {vertical_food_employeeDeleteManyArgs} args - Arguments to filter Vertical_food_employees to delete.
+     * Delete zero or more vertical_delivery_employees.
+     * @param {vertical_delivery_employeeDeleteManyArgs} args - Arguments to filter vertical_delivery_employees to delete.
      * @example
-     * // Delete a few Vertical_food_employees
-     * const { count } = await prisma.vertical_food_employee.deleteMany({
+     * // Delete a few vertical_delivery_employees
+     * const { count } = await prisma.vertical_delivery_employee.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends vertical_food_employeeDeleteManyArgs>(args?: SelectSubset<T, vertical_food_employeeDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends vertical_delivery_employeeDeleteManyArgs>(args?: SelectSubset<T, vertical_delivery_employeeDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more Vertical_food_employees.
+     * Update zero or more vertical_delivery_employees.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {vertical_food_employeeUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {vertical_delivery_employeeUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many Vertical_food_employees
-     * const vertical_food_employee = await prisma.vertical_food_employee.updateMany({
+     * // Update many vertical_delivery_employees
+     * const vertical_delivery_employee = await prisma.vertical_delivery_employee.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -17344,56 +17344,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends vertical_food_employeeUpdateManyArgs>(args: SelectSubset<T, vertical_food_employeeUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends vertical_delivery_employeeUpdateManyArgs>(args: SelectSubset<T, vertical_delivery_employeeUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one Vertical_food_employee.
-     * @param {vertical_food_employeeUpsertArgs} args - Arguments to update or create a Vertical_food_employee.
+     * Create or update one vertical_delivery_employee.
+     * @param {vertical_delivery_employeeUpsertArgs} args - Arguments to update or create a vertical_delivery_employee.
      * @example
-     * // Update or create a Vertical_food_employee
-     * const vertical_food_employee = await prisma.vertical_food_employee.upsert({
+     * // Update or create a vertical_delivery_employee
+     * const vertical_delivery_employee = await prisma.vertical_delivery_employee.upsert({
      *   create: {
-     *     // ... data to create a Vertical_food_employee
+     *     // ... data to create a vertical_delivery_employee
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the Vertical_food_employee we want to update
+     *     // ... the filter for the vertical_delivery_employee we want to update
      *   }
      * })
      */
-    upsert<T extends vertical_food_employeeUpsertArgs>(args: SelectSubset<T, vertical_food_employeeUpsertArgs<ExtArgs>>): Prisma__vertical_food_employeeClient<$Result.GetResult<Prisma.$vertical_food_employeePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    upsert<T extends vertical_delivery_employeeUpsertArgs>(args: SelectSubset<T, vertical_delivery_employeeUpsertArgs<ExtArgs>>): Prisma__vertical_delivery_employeeClient<$Result.GetResult<Prisma.$vertical_delivery_employeePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
 
     /**
-     * Count the number of Vertical_food_employees.
+     * Count the number of vertical_delivery_employees.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {vertical_food_employeeCountArgs} args - Arguments to filter Vertical_food_employees to count.
+     * @param {vertical_delivery_employeeCountArgs} args - Arguments to filter vertical_delivery_employees to count.
      * @example
-     * // Count the number of Vertical_food_employees
-     * const count = await prisma.vertical_food_employee.count({
+     * // Count the number of vertical_delivery_employees
+     * const count = await prisma.vertical_delivery_employee.count({
      *   where: {
-     *     // ... the filter for the Vertical_food_employees we want to count
+     *     // ... the filter for the vertical_delivery_employees we want to count
      *   }
      * })
     **/
-    count<T extends vertical_food_employeeCountArgs>(
-      args?: Subset<T, vertical_food_employeeCountArgs>,
+    count<T extends vertical_delivery_employeeCountArgs>(
+      args?: Subset<T, vertical_delivery_employeeCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], Vertical_food_employeeCountAggregateOutputType>
+          : GetScalarType<T['select'], vertical_delivery_employeeCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a Vertical_food_employee.
+     * Allows you to perform aggregations operations on a vertical_delivery_employee.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {Vertical_food_employeeAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {vertical_delivery_employeeAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -17413,13 +17413,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends Vertical_food_employeeAggregateArgs>(args: Subset<T, Vertical_food_employeeAggregateArgs>): Prisma.PrismaPromise<GetVertical_food_employeeAggregateType<T>>
+    aggregate<T extends vertical_delivery_employeeAggregateArgs>(args: Subset<T, vertical_delivery_employeeAggregateArgs>): Prisma.PrismaPromise<Getvertical_delivery_employeeAggregateType<T>>
 
     /**
-     * Group by Vertical_food_employee.
+     * Group by vertical_delivery_employee.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {vertical_food_employeeGroupByArgs} args - Group by arguments.
+     * @param {vertical_delivery_employeeGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -17434,14 +17434,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends vertical_food_employeeGroupByArgs,
+      T extends vertical_delivery_employeeGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: vertical_food_employeeGroupByArgs['orderBy'] }
-        : { orderBy?: vertical_food_employeeGroupByArgs['orderBy'] },
+        ? { orderBy: vertical_delivery_employeeGroupByArgs['orderBy'] }
+        : { orderBy?: vertical_delivery_employeeGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -17490,25 +17490,25 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, vertical_food_employeeGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetVertical_food_employeeGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, vertical_delivery_employeeGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? Getvertical_delivery_employeeGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the vertical_food_employee model
+   * Fields of the vertical_delivery_employee model
    */
-  readonly fields: vertical_food_employeeFieldRefs;
+  readonly fields: vertical_delivery_employeeFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for vertical_food_employee.
+   * The delegate class that acts as a "Promise-like" for vertical_delivery_employee.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__vertical_food_employeeClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__vertical_delivery_employeeClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    connected_boxes<T extends vertical_food_employee$connected_boxesArgs<ExtArgs> = {}>(args?: Subset<T, vertical_food_employee$connected_boxesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$boxPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    client<T extends vertical_food_employee$clientArgs<ExtArgs> = {}>(args?: Subset<T, vertical_food_employee$clientArgs<ExtArgs>>): Prisma__clientClient<$Result.GetResult<Prisma.$clientPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    restaurant<T extends vertical_food_employee$restaurantArgs<ExtArgs> = {}>(args?: Subset<T, vertical_food_employee$restaurantArgs<ExtArgs>>): Prisma__restaurantClient<$Result.GetResult<Prisma.$restaurantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    vertical_food_employee_boxes<T extends vertical_food_employee$vertical_food_employee_boxesArgs<ExtArgs> = {}>(args?: Subset<T, vertical_food_employee$vertical_food_employee_boxesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$vertical_food_employee_boxPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    connected_boxes<T extends vertical_delivery_employee$connected_boxesArgs<ExtArgs> = {}>(args?: Subset<T, vertical_delivery_employee$connected_boxesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$boxPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    client<T extends vertical_delivery_employee$clientArgs<ExtArgs> = {}>(args?: Subset<T, vertical_delivery_employee$clientArgs<ExtArgs>>): Prisma__clientClient<$Result.GetResult<Prisma.$clientPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    restaurant<T extends vertical_delivery_employee$restaurantArgs<ExtArgs> = {}>(args?: Subset<T, vertical_delivery_employee$restaurantArgs<ExtArgs>>): Prisma__restaurantClient<$Result.GetResult<Prisma.$restaurantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    vertical_delivery_employee_boxes<T extends vertical_delivery_employee$vertical_delivery_employee_boxesArgs<ExtArgs> = {}>(args?: Subset<T, vertical_delivery_employee$vertical_delivery_employee_boxesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$vertical_delivery_employee_boxPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -17535,376 +17535,376 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the vertical_food_employee model
+   * Fields of the vertical_delivery_employee model
    */
-  interface vertical_food_employeeFieldRefs {
-    readonly id: FieldRef<"vertical_food_employee", 'String'>
-    readonly first_name: FieldRef<"vertical_food_employee", 'String'>
-    readonly last_name: FieldRef<"vertical_food_employee", 'String'>
-    readonly country_code: FieldRef<"vertical_food_employee", 'String'>
-    readonly mobile_number: FieldRef<"vertical_food_employee", 'String'>
-    readonly email: FieldRef<"vertical_food_employee", 'String'>
-    readonly password: FieldRef<"vertical_food_employee", 'String'>
-    readonly employee_display_id: FieldRef<"vertical_food_employee", 'String'>
-    readonly joining_date: FieldRef<"vertical_food_employee", 'DateTime'>
-    readonly client_id: FieldRef<"vertical_food_employee", 'String'>
-    readonly restaurant_id: FieldRef<"vertical_food_employee", 'String'>
-    readonly role: FieldRef<"vertical_food_employee", 'client_employee_role'>
-    readonly status: FieldRef<"vertical_food_employee", 'employee_status'>
-    readonly created_at: FieldRef<"vertical_food_employee", 'DateTime'>
-    readonly updated_at: FieldRef<"vertical_food_employee", 'DateTime'>
-    readonly profile_pic: FieldRef<"vertical_food_employee", 'String'>
+  interface vertical_delivery_employeeFieldRefs {
+    readonly id: FieldRef<"vertical_delivery_employee", 'String'>
+    readonly first_name: FieldRef<"vertical_delivery_employee", 'String'>
+    readonly last_name: FieldRef<"vertical_delivery_employee", 'String'>
+    readonly country_code: FieldRef<"vertical_delivery_employee", 'String'>
+    readonly mobile_number: FieldRef<"vertical_delivery_employee", 'String'>
+    readonly email: FieldRef<"vertical_delivery_employee", 'String'>
+    readonly password: FieldRef<"vertical_delivery_employee", 'String'>
+    readonly employee_display_id: FieldRef<"vertical_delivery_employee", 'String'>
+    readonly joining_date: FieldRef<"vertical_delivery_employee", 'DateTime'>
+    readonly client_id: FieldRef<"vertical_delivery_employee", 'String'>
+    readonly restaurant_id: FieldRef<"vertical_delivery_employee", 'String'>
+    readonly role: FieldRef<"vertical_delivery_employee", 'client_employee_role'>
+    readonly status: FieldRef<"vertical_delivery_employee", 'employee_status'>
+    readonly created_at: FieldRef<"vertical_delivery_employee", 'DateTime'>
+    readonly updated_at: FieldRef<"vertical_delivery_employee", 'DateTime'>
+    readonly profile_pic: FieldRef<"vertical_delivery_employee", 'String'>
   }
     
 
   // Custom InputTypes
   /**
-   * vertical_food_employee findUnique
+   * vertical_delivery_employee findUnique
    */
-  export type vertical_food_employeeFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_employeeFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_employee
+     * Select specific fields to fetch from the vertical_delivery_employee
      */
-    select?: vertical_food_employeeSelect<ExtArgs> | null
+    select?: vertical_delivery_employeeSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_employee
+     * Omit specific fields from the vertical_delivery_employee
      */
-    omit?: vertical_food_employeeOmit<ExtArgs> | null
+    omit?: vertical_delivery_employeeOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: vertical_food_employeeInclude<ExtArgs> | null
+    include?: vertical_delivery_employeeInclude<ExtArgs> | null
     /**
-     * Filter, which vertical_food_employee to fetch.
+     * Filter, which vertical_delivery_employee to fetch.
      */
-    where: vertical_food_employeeWhereUniqueInput
+    where: vertical_delivery_employeeWhereUniqueInput
   }
 
   /**
-   * vertical_food_employee findUniqueOrThrow
+   * vertical_delivery_employee findUniqueOrThrow
    */
-  export type vertical_food_employeeFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_employeeFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_employee
+     * Select specific fields to fetch from the vertical_delivery_employee
      */
-    select?: vertical_food_employeeSelect<ExtArgs> | null
+    select?: vertical_delivery_employeeSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_employee
+     * Omit specific fields from the vertical_delivery_employee
      */
-    omit?: vertical_food_employeeOmit<ExtArgs> | null
+    omit?: vertical_delivery_employeeOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: vertical_food_employeeInclude<ExtArgs> | null
+    include?: vertical_delivery_employeeInclude<ExtArgs> | null
     /**
-     * Filter, which vertical_food_employee to fetch.
+     * Filter, which vertical_delivery_employee to fetch.
      */
-    where: vertical_food_employeeWhereUniqueInput
+    where: vertical_delivery_employeeWhereUniqueInput
   }
 
   /**
-   * vertical_food_employee findFirst
+   * vertical_delivery_employee findFirst
    */
-  export type vertical_food_employeeFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_employeeFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_employee
+     * Select specific fields to fetch from the vertical_delivery_employee
      */
-    select?: vertical_food_employeeSelect<ExtArgs> | null
+    select?: vertical_delivery_employeeSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_employee
+     * Omit specific fields from the vertical_delivery_employee
      */
-    omit?: vertical_food_employeeOmit<ExtArgs> | null
+    omit?: vertical_delivery_employeeOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: vertical_food_employeeInclude<ExtArgs> | null
+    include?: vertical_delivery_employeeInclude<ExtArgs> | null
     /**
-     * Filter, which vertical_food_employee to fetch.
+     * Filter, which vertical_delivery_employee to fetch.
      */
-    where?: vertical_food_employeeWhereInput
+    where?: vertical_delivery_employeeWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of vertical_food_employees to fetch.
+     * Determine the order of vertical_delivery_employees to fetch.
      */
-    orderBy?: vertical_food_employeeOrderByWithRelationInput | vertical_food_employeeOrderByWithRelationInput[]
+    orderBy?: vertical_delivery_employeeOrderByWithRelationInput | vertical_delivery_employeeOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for vertical_food_employees.
+     * Sets the position for searching for vertical_delivery_employees.
      */
-    cursor?: vertical_food_employeeWhereUniqueInput
+    cursor?: vertical_delivery_employeeWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` vertical_food_employees from the position of the cursor.
+     * Take `±n` vertical_delivery_employees from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` vertical_food_employees.
+     * Skip the first `n` vertical_delivery_employees.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of vertical_food_employees.
+     * Filter by unique combinations of vertical_delivery_employees.
      */
-    distinct?: Vertical_food_employeeScalarFieldEnum | Vertical_food_employeeScalarFieldEnum[]
+    distinct?: vertical_delivery_employeeScalarFieldEnum | vertical_delivery_employeeScalarFieldEnum[]
   }
 
   /**
-   * vertical_food_employee findFirstOrThrow
+   * vertical_delivery_employee findFirstOrThrow
    */
-  export type vertical_food_employeeFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_employeeFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_employee
+     * Select specific fields to fetch from the vertical_delivery_employee
      */
-    select?: vertical_food_employeeSelect<ExtArgs> | null
+    select?: vertical_delivery_employeeSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_employee
+     * Omit specific fields from the vertical_delivery_employee
      */
-    omit?: vertical_food_employeeOmit<ExtArgs> | null
+    omit?: vertical_delivery_employeeOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: vertical_food_employeeInclude<ExtArgs> | null
+    include?: vertical_delivery_employeeInclude<ExtArgs> | null
     /**
-     * Filter, which vertical_food_employee to fetch.
+     * Filter, which vertical_delivery_employee to fetch.
      */
-    where?: vertical_food_employeeWhereInput
+    where?: vertical_delivery_employeeWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of vertical_food_employees to fetch.
+     * Determine the order of vertical_delivery_employees to fetch.
      */
-    orderBy?: vertical_food_employeeOrderByWithRelationInput | vertical_food_employeeOrderByWithRelationInput[]
+    orderBy?: vertical_delivery_employeeOrderByWithRelationInput | vertical_delivery_employeeOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for vertical_food_employees.
+     * Sets the position for searching for vertical_delivery_employees.
      */
-    cursor?: vertical_food_employeeWhereUniqueInput
+    cursor?: vertical_delivery_employeeWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` vertical_food_employees from the position of the cursor.
+     * Take `±n` vertical_delivery_employees from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` vertical_food_employees.
+     * Skip the first `n` vertical_delivery_employees.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of vertical_food_employees.
+     * Filter by unique combinations of vertical_delivery_employees.
      */
-    distinct?: Vertical_food_employeeScalarFieldEnum | Vertical_food_employeeScalarFieldEnum[]
+    distinct?: vertical_delivery_employeeScalarFieldEnum | vertical_delivery_employeeScalarFieldEnum[]
   }
 
   /**
-   * vertical_food_employee findMany
+   * vertical_delivery_employee findMany
    */
-  export type vertical_food_employeeFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_employeeFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_employee
+     * Select specific fields to fetch from the vertical_delivery_employee
      */
-    select?: vertical_food_employeeSelect<ExtArgs> | null
+    select?: vertical_delivery_employeeSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_employee
+     * Omit specific fields from the vertical_delivery_employee
      */
-    omit?: vertical_food_employeeOmit<ExtArgs> | null
+    omit?: vertical_delivery_employeeOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: vertical_food_employeeInclude<ExtArgs> | null
+    include?: vertical_delivery_employeeInclude<ExtArgs> | null
     /**
-     * Filter, which vertical_food_employees to fetch.
+     * Filter, which vertical_delivery_employees to fetch.
      */
-    where?: vertical_food_employeeWhereInput
+    where?: vertical_delivery_employeeWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of vertical_food_employees to fetch.
+     * Determine the order of vertical_delivery_employees to fetch.
      */
-    orderBy?: vertical_food_employeeOrderByWithRelationInput | vertical_food_employeeOrderByWithRelationInput[]
+    orderBy?: vertical_delivery_employeeOrderByWithRelationInput | vertical_delivery_employeeOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing vertical_food_employees.
+     * Sets the position for listing vertical_delivery_employees.
      */
-    cursor?: vertical_food_employeeWhereUniqueInput
+    cursor?: vertical_delivery_employeeWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` vertical_food_employees from the position of the cursor.
+     * Take `±n` vertical_delivery_employees from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` vertical_food_employees.
+     * Skip the first `n` vertical_delivery_employees.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of vertical_food_employees.
+     * Filter by unique combinations of vertical_delivery_employees.
      */
-    distinct?: Vertical_food_employeeScalarFieldEnum | Vertical_food_employeeScalarFieldEnum[]
+    distinct?: vertical_delivery_employeeScalarFieldEnum | vertical_delivery_employeeScalarFieldEnum[]
   }
 
   /**
-   * vertical_food_employee create
+   * vertical_delivery_employee create
    */
-  export type vertical_food_employeeCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_employeeCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_employee
+     * Select specific fields to fetch from the vertical_delivery_employee
      */
-    select?: vertical_food_employeeSelect<ExtArgs> | null
+    select?: vertical_delivery_employeeSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_employee
+     * Omit specific fields from the vertical_delivery_employee
      */
-    omit?: vertical_food_employeeOmit<ExtArgs> | null
+    omit?: vertical_delivery_employeeOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: vertical_food_employeeInclude<ExtArgs> | null
+    include?: vertical_delivery_employeeInclude<ExtArgs> | null
     /**
-     * The data needed to create a vertical_food_employee.
+     * The data needed to create a vertical_delivery_employee.
      */
-    data: XOR<vertical_food_employeeCreateInput, vertical_food_employeeUncheckedCreateInput>
+    data: XOR<vertical_delivery_employeeCreateInput, vertical_delivery_employeeUncheckedCreateInput>
   }
 
   /**
-   * vertical_food_employee createMany
+   * vertical_delivery_employee createMany
    */
-  export type vertical_food_employeeCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_employeeCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many vertical_food_employees.
+     * The data used to create many vertical_delivery_employees.
      */
-    data: vertical_food_employeeCreateManyInput | vertical_food_employeeCreateManyInput[]
+    data: vertical_delivery_employeeCreateManyInput | vertical_delivery_employeeCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * vertical_food_employee update
+   * vertical_delivery_employee update
    */
-  export type vertical_food_employeeUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_employeeUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_employee
+     * Select specific fields to fetch from the vertical_delivery_employee
      */
-    select?: vertical_food_employeeSelect<ExtArgs> | null
+    select?: vertical_delivery_employeeSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_employee
+     * Omit specific fields from the vertical_delivery_employee
      */
-    omit?: vertical_food_employeeOmit<ExtArgs> | null
+    omit?: vertical_delivery_employeeOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: vertical_food_employeeInclude<ExtArgs> | null
+    include?: vertical_delivery_employeeInclude<ExtArgs> | null
     /**
-     * The data needed to update a vertical_food_employee.
+     * The data needed to update a vertical_delivery_employee.
      */
-    data: XOR<vertical_food_employeeUpdateInput, vertical_food_employeeUncheckedUpdateInput>
+    data: XOR<vertical_delivery_employeeUpdateInput, vertical_delivery_employeeUncheckedUpdateInput>
     /**
-     * Choose, which vertical_food_employee to update.
+     * Choose, which vertical_delivery_employee to update.
      */
-    where: vertical_food_employeeWhereUniqueInput
+    where: vertical_delivery_employeeWhereUniqueInput
   }
 
   /**
-   * vertical_food_employee updateMany
+   * vertical_delivery_employee updateMany
    */
-  export type vertical_food_employeeUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_employeeUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update vertical_food_employees.
+     * The data used to update vertical_delivery_employees.
      */
-    data: XOR<vertical_food_employeeUpdateManyMutationInput, vertical_food_employeeUncheckedUpdateManyInput>
+    data: XOR<vertical_delivery_employeeUpdateManyMutationInput, vertical_delivery_employeeUncheckedUpdateManyInput>
     /**
-     * Filter which vertical_food_employees to update
+     * Filter which vertical_delivery_employees to update
      */
-    where?: vertical_food_employeeWhereInput
+    where?: vertical_delivery_employeeWhereInput
     /**
-     * Limit how many vertical_food_employees to update.
+     * Limit how many vertical_delivery_employees to update.
      */
     limit?: number
   }
 
   /**
-   * vertical_food_employee upsert
+   * vertical_delivery_employee upsert
    */
-  export type vertical_food_employeeUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_employeeUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_employee
+     * Select specific fields to fetch from the vertical_delivery_employee
      */
-    select?: vertical_food_employeeSelect<ExtArgs> | null
+    select?: vertical_delivery_employeeSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_employee
+     * Omit specific fields from the vertical_delivery_employee
      */
-    omit?: vertical_food_employeeOmit<ExtArgs> | null
+    omit?: vertical_delivery_employeeOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: vertical_food_employeeInclude<ExtArgs> | null
+    include?: vertical_delivery_employeeInclude<ExtArgs> | null
     /**
-     * The filter to search for the vertical_food_employee to update in case it exists.
+     * The filter to search for the vertical_delivery_employee to update in case it exists.
      */
-    where: vertical_food_employeeWhereUniqueInput
+    where: vertical_delivery_employeeWhereUniqueInput
     /**
-     * In case the vertical_food_employee found by the `where` argument doesn't exist, create a new vertical_food_employee with this data.
+     * In case the vertical_delivery_employee found by the `where` argument doesn't exist, create a new vertical_delivery_employee with this data.
      */
-    create: XOR<vertical_food_employeeCreateInput, vertical_food_employeeUncheckedCreateInput>
+    create: XOR<vertical_delivery_employeeCreateInput, vertical_delivery_employeeUncheckedCreateInput>
     /**
-     * In case the vertical_food_employee was found with the provided `where` argument, update it with this data.
+     * In case the vertical_delivery_employee was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<vertical_food_employeeUpdateInput, vertical_food_employeeUncheckedUpdateInput>
+    update: XOR<vertical_delivery_employeeUpdateInput, vertical_delivery_employeeUncheckedUpdateInput>
   }
 
   /**
-   * vertical_food_employee delete
+   * vertical_delivery_employee delete
    */
-  export type vertical_food_employeeDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_employeeDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_employee
+     * Select specific fields to fetch from the vertical_delivery_employee
      */
-    select?: vertical_food_employeeSelect<ExtArgs> | null
+    select?: vertical_delivery_employeeSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_employee
+     * Omit specific fields from the vertical_delivery_employee
      */
-    omit?: vertical_food_employeeOmit<ExtArgs> | null
+    omit?: vertical_delivery_employeeOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: vertical_food_employeeInclude<ExtArgs> | null
+    include?: vertical_delivery_employeeInclude<ExtArgs> | null
     /**
-     * Filter which vertical_food_employee to delete.
+     * Filter which vertical_delivery_employee to delete.
      */
-    where: vertical_food_employeeWhereUniqueInput
+    where: vertical_delivery_employeeWhereUniqueInput
   }
 
   /**
-   * vertical_food_employee deleteMany
+   * vertical_delivery_employee deleteMany
    */
-  export type vertical_food_employeeDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_employeeDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which vertical_food_employees to delete
+     * Filter which vertical_delivery_employees to delete
      */
-    where?: vertical_food_employeeWhereInput
+    where?: vertical_delivery_employeeWhereInput
     /**
-     * Limit how many vertical_food_employees to delete.
+     * Limit how many vertical_delivery_employees to delete.
      */
     limit?: number
   }
 
   /**
-   * vertical_food_employee.connected_boxes
+   * vertical_delivery_employee.connected_boxes
    */
-  export type vertical_food_employee$connected_boxesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_employee$connected_boxesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the box
      */
@@ -17926,9 +17926,9 @@ export namespace Prisma {
   }
 
   /**
-   * vertical_food_employee.client
+   * vertical_delivery_employee.client
    */
-  export type vertical_food_employee$clientArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_employee$clientArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the client
      */
@@ -17945,9 +17945,9 @@ export namespace Prisma {
   }
 
   /**
-   * vertical_food_employee.restaurant
+   * vertical_delivery_employee.restaurant
    */
-  export type vertical_food_employee$restaurantArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_employee$restaurantArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the restaurant
      */
@@ -17964,59 +17964,59 @@ export namespace Prisma {
   }
 
   /**
-   * vertical_food_employee.vertical_food_employee_boxes
+   * vertical_delivery_employee.vertical_delivery_employee_boxes
    */
-  export type vertical_food_employee$vertical_food_employee_boxesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_employee$vertical_delivery_employee_boxesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_employee_box
+     * Select specific fields to fetch from the vertical_delivery_employee_box
      */
-    select?: vertical_food_employee_boxSelect<ExtArgs> | null
+    select?: vertical_delivery_employee_boxSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_employee_box
+     * Omit specific fields from the vertical_delivery_employee_box
      */
-    omit?: vertical_food_employee_boxOmit<ExtArgs> | null
+    omit?: vertical_delivery_employee_boxOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: vertical_food_employee_boxInclude<ExtArgs> | null
-    where?: vertical_food_employee_boxWhereInput
-    orderBy?: vertical_food_employee_boxOrderByWithRelationInput | vertical_food_employee_boxOrderByWithRelationInput[]
-    cursor?: vertical_food_employee_boxWhereUniqueInput
+    include?: vertical_delivery_employee_boxInclude<ExtArgs> | null
+    where?: vertical_delivery_employee_boxWhereInput
+    orderBy?: vertical_delivery_employee_boxOrderByWithRelationInput | vertical_delivery_employee_boxOrderByWithRelationInput[]
+    cursor?: vertical_delivery_employee_boxWhereUniqueInput
     take?: number
     skip?: number
-    distinct?: Vertical_food_employee_boxScalarFieldEnum | Vertical_food_employee_boxScalarFieldEnum[]
+    distinct?: vertical_delivery_employee_boxScalarFieldEnum | vertical_delivery_employee_boxScalarFieldEnum[]
   }
 
   /**
-   * vertical_food_employee without action
+   * vertical_delivery_employee without action
    */
-  export type vertical_food_employeeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_employeeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_employee
+     * Select specific fields to fetch from the vertical_delivery_employee
      */
-    select?: vertical_food_employeeSelect<ExtArgs> | null
+    select?: vertical_delivery_employeeSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_employee
+     * Omit specific fields from the vertical_delivery_employee
      */
-    omit?: vertical_food_employeeOmit<ExtArgs> | null
+    omit?: vertical_delivery_employeeOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: vertical_food_employeeInclude<ExtArgs> | null
+    include?: vertical_delivery_employeeInclude<ExtArgs> | null
   }
 
 
   /**
-   * Model vertical_food_employee_box
+   * Model vertical_delivery_employee_box
    */
 
-  export type AggregateVertical_food_employee_box = {
-    _count: Vertical_food_employee_boxCountAggregateOutputType | null
-    _min: Vertical_food_employee_boxMinAggregateOutputType | null
-    _max: Vertical_food_employee_boxMaxAggregateOutputType | null
+  export type Aggregatevertical_delivery_employee_box = {
+    _count: vertical_delivery_employee_boxCountAggregateOutputType | null
+    _min: vertical_delivery_employee_boxMinAggregateOutputType | null
+    _max: vertical_delivery_employee_boxMaxAggregateOutputType | null
   }
 
-  export type Vertical_food_employee_boxMinAggregateOutputType = {
+  export type vertical_delivery_employee_boxMinAggregateOutputType = {
     id: string | null
     employee_id: string | null
     box_id: string | null
@@ -18026,7 +18026,7 @@ export namespace Prisma {
     access: $Enums.employee_box_access | null
   }
 
-  export type Vertical_food_employee_boxMaxAggregateOutputType = {
+  export type vertical_delivery_employee_boxMaxAggregateOutputType = {
     id: string | null
     employee_id: string | null
     box_id: string | null
@@ -18036,7 +18036,7 @@ export namespace Prisma {
     access: $Enums.employee_box_access | null
   }
 
-  export type Vertical_food_employee_boxCountAggregateOutputType = {
+  export type vertical_delivery_employee_boxCountAggregateOutputType = {
     id: number
     employee_id: number
     box_id: number
@@ -18048,7 +18048,7 @@ export namespace Prisma {
   }
 
 
-  export type Vertical_food_employee_boxMinAggregateInputType = {
+  export type vertical_delivery_employee_boxMinAggregateInputType = {
     id?: true
     employee_id?: true
     box_id?: true
@@ -18058,7 +18058,7 @@ export namespace Prisma {
     access?: true
   }
 
-  export type Vertical_food_employee_boxMaxAggregateInputType = {
+  export type vertical_delivery_employee_boxMaxAggregateInputType = {
     id?: true
     employee_id?: true
     box_id?: true
@@ -18068,7 +18068,7 @@ export namespace Prisma {
     access?: true
   }
 
-  export type Vertical_food_employee_boxCountAggregateInputType = {
+  export type vertical_delivery_employee_boxCountAggregateInputType = {
     id?: true
     employee_id?: true
     box_id?: true
@@ -18079,79 +18079,79 @@ export namespace Prisma {
     _all?: true
   }
 
-  export type Vertical_food_employee_boxAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_employee_boxAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which vertical_food_employee_box to aggregate.
+     * Filter which vertical_delivery_employee_box to aggregate.
      */
-    where?: vertical_food_employee_boxWhereInput
+    where?: vertical_delivery_employee_boxWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of vertical_food_employee_boxes to fetch.
+     * Determine the order of vertical_delivery_employee_boxes to fetch.
      */
-    orderBy?: vertical_food_employee_boxOrderByWithRelationInput | vertical_food_employee_boxOrderByWithRelationInput[]
+    orderBy?: vertical_delivery_employee_boxOrderByWithRelationInput | vertical_delivery_employee_boxOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: vertical_food_employee_boxWhereUniqueInput
+    cursor?: vertical_delivery_employee_boxWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` vertical_food_employee_boxes from the position of the cursor.
+     * Take `±n` vertical_delivery_employee_boxes from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` vertical_food_employee_boxes.
+     * Skip the first `n` vertical_delivery_employee_boxes.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned vertical_food_employee_boxes
+     * Count returned vertical_delivery_employee_boxes
     **/
-    _count?: true | Vertical_food_employee_boxCountAggregateInputType
+    _count?: true | vertical_delivery_employee_boxCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: Vertical_food_employee_boxMinAggregateInputType
+    _min?: vertical_delivery_employee_boxMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: Vertical_food_employee_boxMaxAggregateInputType
+    _max?: vertical_delivery_employee_boxMaxAggregateInputType
   }
 
-  export type GetVertical_food_employee_boxAggregateType<T extends Vertical_food_employee_boxAggregateArgs> = {
-        [P in keyof T & keyof AggregateVertical_food_employee_box]: P extends '_count' | 'count'
+  export type Getvertical_delivery_employee_boxAggregateType<T extends vertical_delivery_employee_boxAggregateArgs> = {
+        [P in keyof T & keyof Aggregatevertical_delivery_employee_box]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateVertical_food_employee_box[P]>
-      : GetScalarType<T[P], AggregateVertical_food_employee_box[P]>
+        : GetScalarType<T[P], Aggregatevertical_delivery_employee_box[P]>
+      : GetScalarType<T[P], Aggregatevertical_delivery_employee_box[P]>
   }
 
 
 
 
-  export type vertical_food_employee_boxGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: vertical_food_employee_boxWhereInput
-    orderBy?: vertical_food_employee_boxOrderByWithAggregationInput | vertical_food_employee_boxOrderByWithAggregationInput[]
-    by: Vertical_food_employee_boxScalarFieldEnum[] | Vertical_food_employee_boxScalarFieldEnum
-    having?: vertical_food_employee_boxScalarWhereWithAggregatesInput
+  export type vertical_delivery_employee_boxGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: vertical_delivery_employee_boxWhereInput
+    orderBy?: vertical_delivery_employee_boxOrderByWithAggregationInput | vertical_delivery_employee_boxOrderByWithAggregationInput[]
+    by: vertical_delivery_employee_boxScalarFieldEnum[] | vertical_delivery_employee_boxScalarFieldEnum
+    having?: vertical_delivery_employee_boxScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: Vertical_food_employee_boxCountAggregateInputType | true
-    _min?: Vertical_food_employee_boxMinAggregateInputType
-    _max?: Vertical_food_employee_boxMaxAggregateInputType
+    _count?: vertical_delivery_employee_boxCountAggregateInputType | true
+    _min?: vertical_delivery_employee_boxMinAggregateInputType
+    _max?: vertical_delivery_employee_boxMaxAggregateInputType
   }
 
-  export type Vertical_food_employee_boxGroupByOutputType = {
+  export type vertical_delivery_employee_boxGroupByOutputType = {
     id: string
     employee_id: string | null
     box_id: string
@@ -18159,26 +18159,26 @@ export namespace Prisma {
     updated_at: Date
     status: $Enums.employee_box_status
     access: $Enums.employee_box_access
-    _count: Vertical_food_employee_boxCountAggregateOutputType | null
-    _min: Vertical_food_employee_boxMinAggregateOutputType | null
-    _max: Vertical_food_employee_boxMaxAggregateOutputType | null
+    _count: vertical_delivery_employee_boxCountAggregateOutputType | null
+    _min: vertical_delivery_employee_boxMinAggregateOutputType | null
+    _max: vertical_delivery_employee_boxMaxAggregateOutputType | null
   }
 
-  type GetVertical_food_employee_boxGroupByPayload<T extends vertical_food_employee_boxGroupByArgs> = Prisma.PrismaPromise<
+  type Getvertical_delivery_employee_boxGroupByPayload<T extends vertical_delivery_employee_boxGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<Vertical_food_employee_boxGroupByOutputType, T['by']> &
+      PickEnumerable<vertical_delivery_employee_boxGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof Vertical_food_employee_boxGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof vertical_delivery_employee_boxGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], Vertical_food_employee_boxGroupByOutputType[P]>
-            : GetScalarType<T[P], Vertical_food_employee_boxGroupByOutputType[P]>
+              : GetScalarType<T[P], vertical_delivery_employee_boxGroupByOutputType[P]>
+            : GetScalarType<T[P], vertical_delivery_employee_boxGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type vertical_food_employee_boxSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type vertical_delivery_employee_boxSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     employee_id?: boolean
     box_id?: boolean
@@ -18187,12 +18187,12 @@ export namespace Prisma {
     status?: boolean
     access?: boolean
     box?: boolean | boxDefaultArgs<ExtArgs>
-    employee?: boolean | vertical_food_employee_box$employeeArgs<ExtArgs>
-  }, ExtArgs["result"]["vertical_food_employee_box"]>
+    employee?: boolean | vertical_delivery_employee_box$employeeArgs<ExtArgs>
+  }, ExtArgs["result"]["vertical_delivery_employee_box"]>
 
 
 
-  export type vertical_food_employee_boxSelectScalar = {
+  export type vertical_delivery_employee_boxSelectScalar = {
     id?: boolean
     employee_id?: boolean
     box_id?: boolean
@@ -18202,17 +18202,17 @@ export namespace Prisma {
     access?: boolean
   }
 
-  export type vertical_food_employee_boxOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "employee_id" | "box_id" | "created_at" | "updated_at" | "status" | "access", ExtArgs["result"]["vertical_food_employee_box"]>
-  export type vertical_food_employee_boxInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_employee_boxOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "employee_id" | "box_id" | "created_at" | "updated_at" | "status" | "access", ExtArgs["result"]["vertical_delivery_employee_box"]>
+  export type vertical_delivery_employee_boxInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     box?: boolean | boxDefaultArgs<ExtArgs>
-    employee?: boolean | vertical_food_employee_box$employeeArgs<ExtArgs>
+    employee?: boolean | vertical_delivery_employee_box$employeeArgs<ExtArgs>
   }
 
-  export type $vertical_food_employee_boxPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "vertical_food_employee_box"
+  export type $vertical_delivery_employee_boxPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "vertical_delivery_employee_box"
     objects: {
       box: Prisma.$boxPayload<ExtArgs>
-      employee: Prisma.$vertical_food_employeePayload<ExtArgs> | null
+      employee: Prisma.$vertical_delivery_employeePayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -18222,143 +18222,143 @@ export namespace Prisma {
       updated_at: Date
       status: $Enums.employee_box_status
       access: $Enums.employee_box_access
-    }, ExtArgs["result"]["vertical_food_employee_box"]>
+    }, ExtArgs["result"]["vertical_delivery_employee_box"]>
     composites: {}
   }
 
-  type vertical_food_employee_boxGetPayload<S extends boolean | null | undefined | vertical_food_employee_boxDefaultArgs> = $Result.GetResult<Prisma.$vertical_food_employee_boxPayload, S>
+  type vertical_delivery_employee_boxGetPayload<S extends boolean | null | undefined | vertical_delivery_employee_boxDefaultArgs> = $Result.GetResult<Prisma.$vertical_delivery_employee_boxPayload, S>
 
-  type vertical_food_employee_boxCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<vertical_food_employee_boxFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: Vertical_food_employee_boxCountAggregateInputType | true
+  type vertical_delivery_employee_boxCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<vertical_delivery_employee_boxFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: vertical_delivery_employee_boxCountAggregateInputType | true
     }
 
-  export interface vertical_food_employee_boxDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['vertical_food_employee_box'], meta: { name: 'vertical_food_employee_box' } }
+  export interface vertical_delivery_employee_boxDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['vertical_delivery_employee_box'], meta: { name: 'vertical_delivery_employee_box' } }
     /**
-     * Find zero or one Vertical_food_employee_box that matches the filter.
-     * @param {vertical_food_employee_boxFindUniqueArgs} args - Arguments to find a Vertical_food_employee_box
+     * Find zero or one vertical_delivery_employee_box that matches the filter.
+     * @param {vertical_delivery_employee_boxFindUniqueArgs} args - Arguments to find a vertical_delivery_employee_box
      * @example
-     * // Get one Vertical_food_employee_box
-     * const vertical_food_employee_box = await prisma.vertical_food_employee_box.findUnique({
+     * // Get one vertical_delivery_employee_box
+     * const vertical_delivery_employee_box = await prisma.vertical_delivery_employee_box.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends vertical_food_employee_boxFindUniqueArgs>(args: SelectSubset<T, vertical_food_employee_boxFindUniqueArgs<ExtArgs>>): Prisma__vertical_food_employee_boxClient<$Result.GetResult<Prisma.$vertical_food_employee_boxPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findUnique<T extends vertical_delivery_employee_boxFindUniqueArgs>(args: SelectSubset<T, vertical_delivery_employee_boxFindUniqueArgs<ExtArgs>>): Prisma__vertical_delivery_employee_boxClient<$Result.GetResult<Prisma.$vertical_delivery_employee_boxPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find one Vertical_food_employee_box that matches the filter or throw an error with `error.code='P2025'`
+     * Find one vertical_delivery_employee_box that matches the filter or throw an error with `error.code='P2025'`
      * if no matches were found.
-     * @param {vertical_food_employee_boxFindUniqueOrThrowArgs} args - Arguments to find a Vertical_food_employee_box
+     * @param {vertical_delivery_employee_boxFindUniqueOrThrowArgs} args - Arguments to find a vertical_delivery_employee_box
      * @example
-     * // Get one Vertical_food_employee_box
-     * const vertical_food_employee_box = await prisma.vertical_food_employee_box.findUniqueOrThrow({
+     * // Get one vertical_delivery_employee_box
+     * const vertical_delivery_employee_box = await prisma.vertical_delivery_employee_box.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends vertical_food_employee_boxFindUniqueOrThrowArgs>(args: SelectSubset<T, vertical_food_employee_boxFindUniqueOrThrowArgs<ExtArgs>>): Prisma__vertical_food_employee_boxClient<$Result.GetResult<Prisma.$vertical_food_employee_boxPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findUniqueOrThrow<T extends vertical_delivery_employee_boxFindUniqueOrThrowArgs>(args: SelectSubset<T, vertical_delivery_employee_boxFindUniqueOrThrowArgs<ExtArgs>>): Prisma__vertical_delivery_employee_boxClient<$Result.GetResult<Prisma.$vertical_delivery_employee_boxPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find the first Vertical_food_employee_box that matches the filter.
+     * Find the first vertical_delivery_employee_box that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {vertical_food_employee_boxFindFirstArgs} args - Arguments to find a Vertical_food_employee_box
+     * @param {vertical_delivery_employee_boxFindFirstArgs} args - Arguments to find a vertical_delivery_employee_box
      * @example
-     * // Get one Vertical_food_employee_box
-     * const vertical_food_employee_box = await prisma.vertical_food_employee_box.findFirst({
+     * // Get one vertical_delivery_employee_box
+     * const vertical_delivery_employee_box = await prisma.vertical_delivery_employee_box.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends vertical_food_employee_boxFindFirstArgs>(args?: SelectSubset<T, vertical_food_employee_boxFindFirstArgs<ExtArgs>>): Prisma__vertical_food_employee_boxClient<$Result.GetResult<Prisma.$vertical_food_employee_boxPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findFirst<T extends vertical_delivery_employee_boxFindFirstArgs>(args?: SelectSubset<T, vertical_delivery_employee_boxFindFirstArgs<ExtArgs>>): Prisma__vertical_delivery_employee_boxClient<$Result.GetResult<Prisma.$vertical_delivery_employee_boxPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find the first Vertical_food_employee_box that matches the filter or
+     * Find the first vertical_delivery_employee_box that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {vertical_food_employee_boxFindFirstOrThrowArgs} args - Arguments to find a Vertical_food_employee_box
+     * @param {vertical_delivery_employee_boxFindFirstOrThrowArgs} args - Arguments to find a vertical_delivery_employee_box
      * @example
-     * // Get one Vertical_food_employee_box
-     * const vertical_food_employee_box = await prisma.vertical_food_employee_box.findFirstOrThrow({
+     * // Get one vertical_delivery_employee_box
+     * const vertical_delivery_employee_box = await prisma.vertical_delivery_employee_box.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends vertical_food_employee_boxFindFirstOrThrowArgs>(args?: SelectSubset<T, vertical_food_employee_boxFindFirstOrThrowArgs<ExtArgs>>): Prisma__vertical_food_employee_boxClient<$Result.GetResult<Prisma.$vertical_food_employee_boxPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findFirstOrThrow<T extends vertical_delivery_employee_boxFindFirstOrThrowArgs>(args?: SelectSubset<T, vertical_delivery_employee_boxFindFirstOrThrowArgs<ExtArgs>>): Prisma__vertical_delivery_employee_boxClient<$Result.GetResult<Prisma.$vertical_delivery_employee_boxPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find zero or more Vertical_food_employee_boxes that matches the filter.
+     * Find zero or more vertical_delivery_employee_boxes that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {vertical_food_employee_boxFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {vertical_delivery_employee_boxFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all Vertical_food_employee_boxes
-     * const vertical_food_employee_boxes = await prisma.vertical_food_employee_box.findMany()
+     * // Get all vertical_delivery_employee_boxes
+     * const vertical_delivery_employee_boxes = await prisma.vertical_delivery_employee_box.findMany()
      * 
-     * // Get first 10 Vertical_food_employee_boxes
-     * const vertical_food_employee_boxes = await prisma.vertical_food_employee_box.findMany({ take: 10 })
+     * // Get first 10 vertical_delivery_employee_boxes
+     * const vertical_delivery_employee_boxes = await prisma.vertical_delivery_employee_box.findMany({ take: 10 })
      * 
      * // Only select the `id`
-     * const vertical_food_employee_boxWithIdOnly = await prisma.vertical_food_employee_box.findMany({ select: { id: true } })
+     * const vertical_delivery_employee_boxWithIdOnly = await prisma.vertical_delivery_employee_box.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends vertical_food_employee_boxFindManyArgs>(args?: SelectSubset<T, vertical_food_employee_boxFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$vertical_food_employee_boxPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+    findMany<T extends vertical_delivery_employee_boxFindManyArgs>(args?: SelectSubset<T, vertical_delivery_employee_boxFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$vertical_delivery_employee_boxPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
     /**
-     * Create a Vertical_food_employee_box.
-     * @param {vertical_food_employee_boxCreateArgs} args - Arguments to create a Vertical_food_employee_box.
+     * Create a vertical_delivery_employee_box.
+     * @param {vertical_delivery_employee_boxCreateArgs} args - Arguments to create a vertical_delivery_employee_box.
      * @example
-     * // Create one Vertical_food_employee_box
-     * const Vertical_food_employee_box = await prisma.vertical_food_employee_box.create({
+     * // Create one vertical_delivery_employee_box
+     * const vertical_delivery_employee_box = await prisma.vertical_delivery_employee_box.create({
      *   data: {
-     *     // ... data to create a Vertical_food_employee_box
+     *     // ... data to create a vertical_delivery_employee_box
      *   }
      * })
      * 
      */
-    create<T extends vertical_food_employee_boxCreateArgs>(args: SelectSubset<T, vertical_food_employee_boxCreateArgs<ExtArgs>>): Prisma__vertical_food_employee_boxClient<$Result.GetResult<Prisma.$vertical_food_employee_boxPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    create<T extends vertical_delivery_employee_boxCreateArgs>(args: SelectSubset<T, vertical_delivery_employee_boxCreateArgs<ExtArgs>>): Prisma__vertical_delivery_employee_boxClient<$Result.GetResult<Prisma.$vertical_delivery_employee_boxPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Create many Vertical_food_employee_boxes.
-     * @param {vertical_food_employee_boxCreateManyArgs} args - Arguments to create many Vertical_food_employee_boxes.
+     * Create many vertical_delivery_employee_boxes.
+     * @param {vertical_delivery_employee_boxCreateManyArgs} args - Arguments to create many vertical_delivery_employee_boxes.
      * @example
-     * // Create many Vertical_food_employee_boxes
-     * const vertical_food_employee_box = await prisma.vertical_food_employee_box.createMany({
+     * // Create many vertical_delivery_employee_boxes
+     * const vertical_delivery_employee_box = await prisma.vertical_delivery_employee_box.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends vertical_food_employee_boxCreateManyArgs>(args?: SelectSubset<T, vertical_food_employee_boxCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends vertical_delivery_employee_boxCreateManyArgs>(args?: SelectSubset<T, vertical_delivery_employee_boxCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Delete a Vertical_food_employee_box.
-     * @param {vertical_food_employee_boxDeleteArgs} args - Arguments to delete one Vertical_food_employee_box.
+     * Delete a vertical_delivery_employee_box.
+     * @param {vertical_delivery_employee_boxDeleteArgs} args - Arguments to delete one vertical_delivery_employee_box.
      * @example
-     * // Delete one Vertical_food_employee_box
-     * const Vertical_food_employee_box = await prisma.vertical_food_employee_box.delete({
+     * // Delete one vertical_delivery_employee_box
+     * const vertical_delivery_employee_box = await prisma.vertical_delivery_employee_box.delete({
      *   where: {
-     *     // ... filter to delete one Vertical_food_employee_box
+     *     // ... filter to delete one vertical_delivery_employee_box
      *   }
      * })
      * 
      */
-    delete<T extends vertical_food_employee_boxDeleteArgs>(args: SelectSubset<T, vertical_food_employee_boxDeleteArgs<ExtArgs>>): Prisma__vertical_food_employee_boxClient<$Result.GetResult<Prisma.$vertical_food_employee_boxPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    delete<T extends vertical_delivery_employee_boxDeleteArgs>(args: SelectSubset<T, vertical_delivery_employee_boxDeleteArgs<ExtArgs>>): Prisma__vertical_delivery_employee_boxClient<$Result.GetResult<Prisma.$vertical_delivery_employee_boxPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Update one Vertical_food_employee_box.
-     * @param {vertical_food_employee_boxUpdateArgs} args - Arguments to update one Vertical_food_employee_box.
+     * Update one vertical_delivery_employee_box.
+     * @param {vertical_delivery_employee_boxUpdateArgs} args - Arguments to update one vertical_delivery_employee_box.
      * @example
-     * // Update one Vertical_food_employee_box
-     * const vertical_food_employee_box = await prisma.vertical_food_employee_box.update({
+     * // Update one vertical_delivery_employee_box
+     * const vertical_delivery_employee_box = await prisma.vertical_delivery_employee_box.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -18368,30 +18368,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends vertical_food_employee_boxUpdateArgs>(args: SelectSubset<T, vertical_food_employee_boxUpdateArgs<ExtArgs>>): Prisma__vertical_food_employee_boxClient<$Result.GetResult<Prisma.$vertical_food_employee_boxPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    update<T extends vertical_delivery_employee_boxUpdateArgs>(args: SelectSubset<T, vertical_delivery_employee_boxUpdateArgs<ExtArgs>>): Prisma__vertical_delivery_employee_boxClient<$Result.GetResult<Prisma.$vertical_delivery_employee_boxPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Delete zero or more Vertical_food_employee_boxes.
-     * @param {vertical_food_employee_boxDeleteManyArgs} args - Arguments to filter Vertical_food_employee_boxes to delete.
+     * Delete zero or more vertical_delivery_employee_boxes.
+     * @param {vertical_delivery_employee_boxDeleteManyArgs} args - Arguments to filter vertical_delivery_employee_boxes to delete.
      * @example
-     * // Delete a few Vertical_food_employee_boxes
-     * const { count } = await prisma.vertical_food_employee_box.deleteMany({
+     * // Delete a few vertical_delivery_employee_boxes
+     * const { count } = await prisma.vertical_delivery_employee_box.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends vertical_food_employee_boxDeleteManyArgs>(args?: SelectSubset<T, vertical_food_employee_boxDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends vertical_delivery_employee_boxDeleteManyArgs>(args?: SelectSubset<T, vertical_delivery_employee_boxDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more Vertical_food_employee_boxes.
+     * Update zero or more vertical_delivery_employee_boxes.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {vertical_food_employee_boxUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {vertical_delivery_employee_boxUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many Vertical_food_employee_boxes
-     * const vertical_food_employee_box = await prisma.vertical_food_employee_box.updateMany({
+     * // Update many vertical_delivery_employee_boxes
+     * const vertical_delivery_employee_box = await prisma.vertical_delivery_employee_box.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -18401,56 +18401,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends vertical_food_employee_boxUpdateManyArgs>(args: SelectSubset<T, vertical_food_employee_boxUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends vertical_delivery_employee_boxUpdateManyArgs>(args: SelectSubset<T, vertical_delivery_employee_boxUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one Vertical_food_employee_box.
-     * @param {vertical_food_employee_boxUpsertArgs} args - Arguments to update or create a Vertical_food_employee_box.
+     * Create or update one vertical_delivery_employee_box.
+     * @param {vertical_delivery_employee_boxUpsertArgs} args - Arguments to update or create a vertical_delivery_employee_box.
      * @example
-     * // Update or create a Vertical_food_employee_box
-     * const vertical_food_employee_box = await prisma.vertical_food_employee_box.upsert({
+     * // Update or create a vertical_delivery_employee_box
+     * const vertical_delivery_employee_box = await prisma.vertical_delivery_employee_box.upsert({
      *   create: {
-     *     // ... data to create a Vertical_food_employee_box
+     *     // ... data to create a vertical_delivery_employee_box
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the Vertical_food_employee_box we want to update
+     *     // ... the filter for the vertical_delivery_employee_box we want to update
      *   }
      * })
      */
-    upsert<T extends vertical_food_employee_boxUpsertArgs>(args: SelectSubset<T, vertical_food_employee_boxUpsertArgs<ExtArgs>>): Prisma__vertical_food_employee_boxClient<$Result.GetResult<Prisma.$vertical_food_employee_boxPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    upsert<T extends vertical_delivery_employee_boxUpsertArgs>(args: SelectSubset<T, vertical_delivery_employee_boxUpsertArgs<ExtArgs>>): Prisma__vertical_delivery_employee_boxClient<$Result.GetResult<Prisma.$vertical_delivery_employee_boxPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
 
     /**
-     * Count the number of Vertical_food_employee_boxes.
+     * Count the number of vertical_delivery_employee_boxes.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {vertical_food_employee_boxCountArgs} args - Arguments to filter Vertical_food_employee_boxes to count.
+     * @param {vertical_delivery_employee_boxCountArgs} args - Arguments to filter vertical_delivery_employee_boxes to count.
      * @example
-     * // Count the number of Vertical_food_employee_boxes
-     * const count = await prisma.vertical_food_employee_box.count({
+     * // Count the number of vertical_delivery_employee_boxes
+     * const count = await prisma.vertical_delivery_employee_box.count({
      *   where: {
-     *     // ... the filter for the Vertical_food_employee_boxes we want to count
+     *     // ... the filter for the vertical_delivery_employee_boxes we want to count
      *   }
      * })
     **/
-    count<T extends vertical_food_employee_boxCountArgs>(
-      args?: Subset<T, vertical_food_employee_boxCountArgs>,
+    count<T extends vertical_delivery_employee_boxCountArgs>(
+      args?: Subset<T, vertical_delivery_employee_boxCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], Vertical_food_employee_boxCountAggregateOutputType>
+          : GetScalarType<T['select'], vertical_delivery_employee_boxCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a Vertical_food_employee_box.
+     * Allows you to perform aggregations operations on a vertical_delivery_employee_box.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {Vertical_food_employee_boxAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {vertical_delivery_employee_boxAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -18470,13 +18470,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends Vertical_food_employee_boxAggregateArgs>(args: Subset<T, Vertical_food_employee_boxAggregateArgs>): Prisma.PrismaPromise<GetVertical_food_employee_boxAggregateType<T>>
+    aggregate<T extends vertical_delivery_employee_boxAggregateArgs>(args: Subset<T, vertical_delivery_employee_boxAggregateArgs>): Prisma.PrismaPromise<Getvertical_delivery_employee_boxAggregateType<T>>
 
     /**
-     * Group by Vertical_food_employee_box.
+     * Group by vertical_delivery_employee_box.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {vertical_food_employee_boxGroupByArgs} args - Group by arguments.
+     * @param {vertical_delivery_employee_boxGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -18491,14 +18491,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends vertical_food_employee_boxGroupByArgs,
+      T extends vertical_delivery_employee_boxGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: vertical_food_employee_boxGroupByArgs['orderBy'] }
-        : { orderBy?: vertical_food_employee_boxGroupByArgs['orderBy'] },
+        ? { orderBy: vertical_delivery_employee_boxGroupByArgs['orderBy'] }
+        : { orderBy?: vertical_delivery_employee_boxGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -18547,23 +18547,23 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, vertical_food_employee_boxGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetVertical_food_employee_boxGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, vertical_delivery_employee_boxGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? Getvertical_delivery_employee_boxGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the vertical_food_employee_box model
+   * Fields of the vertical_delivery_employee_box model
    */
-  readonly fields: vertical_food_employee_boxFieldRefs;
+  readonly fields: vertical_delivery_employee_boxFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for vertical_food_employee_box.
+   * The delegate class that acts as a "Promise-like" for vertical_delivery_employee_box.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__vertical_food_employee_boxClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__vertical_delivery_employee_boxClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     box<T extends boxDefaultArgs<ExtArgs> = {}>(args?: Subset<T, boxDefaultArgs<ExtArgs>>): Prisma__boxClient<$Result.GetResult<Prisma.$boxPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    employee<T extends vertical_food_employee_box$employeeArgs<ExtArgs> = {}>(args?: Subset<T, vertical_food_employee_box$employeeArgs<ExtArgs>>): Prisma__vertical_food_employeeClient<$Result.GetResult<Prisma.$vertical_food_employeePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    employee<T extends vertical_delivery_employee_box$employeeArgs<ExtArgs> = {}>(args?: Subset<T, vertical_delivery_employee_box$employeeArgs<ExtArgs>>): Prisma__vertical_delivery_employeeClient<$Result.GetResult<Prisma.$vertical_delivery_employeePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -18590,398 +18590,398 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the vertical_food_employee_box model
+   * Fields of the vertical_delivery_employee_box model
    */
-  interface vertical_food_employee_boxFieldRefs {
-    readonly id: FieldRef<"vertical_food_employee_box", 'String'>
-    readonly employee_id: FieldRef<"vertical_food_employee_box", 'String'>
-    readonly box_id: FieldRef<"vertical_food_employee_box", 'String'>
-    readonly created_at: FieldRef<"vertical_food_employee_box", 'DateTime'>
-    readonly updated_at: FieldRef<"vertical_food_employee_box", 'DateTime'>
-    readonly status: FieldRef<"vertical_food_employee_box", 'employee_box_status'>
-    readonly access: FieldRef<"vertical_food_employee_box", 'employee_box_access'>
+  interface vertical_delivery_employee_boxFieldRefs {
+    readonly id: FieldRef<"vertical_delivery_employee_box", 'String'>
+    readonly employee_id: FieldRef<"vertical_delivery_employee_box", 'String'>
+    readonly box_id: FieldRef<"vertical_delivery_employee_box", 'String'>
+    readonly created_at: FieldRef<"vertical_delivery_employee_box", 'DateTime'>
+    readonly updated_at: FieldRef<"vertical_delivery_employee_box", 'DateTime'>
+    readonly status: FieldRef<"vertical_delivery_employee_box", 'employee_box_status'>
+    readonly access: FieldRef<"vertical_delivery_employee_box", 'employee_box_access'>
   }
     
 
   // Custom InputTypes
   /**
-   * vertical_food_employee_box findUnique
+   * vertical_delivery_employee_box findUnique
    */
-  export type vertical_food_employee_boxFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_employee_boxFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_employee_box
+     * Select specific fields to fetch from the vertical_delivery_employee_box
      */
-    select?: vertical_food_employee_boxSelect<ExtArgs> | null
+    select?: vertical_delivery_employee_boxSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_employee_box
+     * Omit specific fields from the vertical_delivery_employee_box
      */
-    omit?: vertical_food_employee_boxOmit<ExtArgs> | null
+    omit?: vertical_delivery_employee_boxOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: vertical_food_employee_boxInclude<ExtArgs> | null
+    include?: vertical_delivery_employee_boxInclude<ExtArgs> | null
     /**
-     * Filter, which vertical_food_employee_box to fetch.
+     * Filter, which vertical_delivery_employee_box to fetch.
      */
-    where: vertical_food_employee_boxWhereUniqueInput
+    where: vertical_delivery_employee_boxWhereUniqueInput
   }
 
   /**
-   * vertical_food_employee_box findUniqueOrThrow
+   * vertical_delivery_employee_box findUniqueOrThrow
    */
-  export type vertical_food_employee_boxFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_employee_boxFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_employee_box
+     * Select specific fields to fetch from the vertical_delivery_employee_box
      */
-    select?: vertical_food_employee_boxSelect<ExtArgs> | null
+    select?: vertical_delivery_employee_boxSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_employee_box
+     * Omit specific fields from the vertical_delivery_employee_box
      */
-    omit?: vertical_food_employee_boxOmit<ExtArgs> | null
+    omit?: vertical_delivery_employee_boxOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: vertical_food_employee_boxInclude<ExtArgs> | null
+    include?: vertical_delivery_employee_boxInclude<ExtArgs> | null
     /**
-     * Filter, which vertical_food_employee_box to fetch.
+     * Filter, which vertical_delivery_employee_box to fetch.
      */
-    where: vertical_food_employee_boxWhereUniqueInput
+    where: vertical_delivery_employee_boxWhereUniqueInput
   }
 
   /**
-   * vertical_food_employee_box findFirst
+   * vertical_delivery_employee_box findFirst
    */
-  export type vertical_food_employee_boxFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_employee_boxFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_employee_box
+     * Select specific fields to fetch from the vertical_delivery_employee_box
      */
-    select?: vertical_food_employee_boxSelect<ExtArgs> | null
+    select?: vertical_delivery_employee_boxSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_employee_box
+     * Omit specific fields from the vertical_delivery_employee_box
      */
-    omit?: vertical_food_employee_boxOmit<ExtArgs> | null
+    omit?: vertical_delivery_employee_boxOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: vertical_food_employee_boxInclude<ExtArgs> | null
+    include?: vertical_delivery_employee_boxInclude<ExtArgs> | null
     /**
-     * Filter, which vertical_food_employee_box to fetch.
+     * Filter, which vertical_delivery_employee_box to fetch.
      */
-    where?: vertical_food_employee_boxWhereInput
+    where?: vertical_delivery_employee_boxWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of vertical_food_employee_boxes to fetch.
+     * Determine the order of vertical_delivery_employee_boxes to fetch.
      */
-    orderBy?: vertical_food_employee_boxOrderByWithRelationInput | vertical_food_employee_boxOrderByWithRelationInput[]
+    orderBy?: vertical_delivery_employee_boxOrderByWithRelationInput | vertical_delivery_employee_boxOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for vertical_food_employee_boxes.
+     * Sets the position for searching for vertical_delivery_employee_boxes.
      */
-    cursor?: vertical_food_employee_boxWhereUniqueInput
+    cursor?: vertical_delivery_employee_boxWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` vertical_food_employee_boxes from the position of the cursor.
+     * Take `±n` vertical_delivery_employee_boxes from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` vertical_food_employee_boxes.
+     * Skip the first `n` vertical_delivery_employee_boxes.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of vertical_food_employee_boxes.
+     * Filter by unique combinations of vertical_delivery_employee_boxes.
      */
-    distinct?: Vertical_food_employee_boxScalarFieldEnum | Vertical_food_employee_boxScalarFieldEnum[]
+    distinct?: vertical_delivery_employee_boxScalarFieldEnum | vertical_delivery_employee_boxScalarFieldEnum[]
   }
 
   /**
-   * vertical_food_employee_box findFirstOrThrow
+   * vertical_delivery_employee_box findFirstOrThrow
    */
-  export type vertical_food_employee_boxFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_employee_boxFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_employee_box
+     * Select specific fields to fetch from the vertical_delivery_employee_box
      */
-    select?: vertical_food_employee_boxSelect<ExtArgs> | null
+    select?: vertical_delivery_employee_boxSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_employee_box
+     * Omit specific fields from the vertical_delivery_employee_box
      */
-    omit?: vertical_food_employee_boxOmit<ExtArgs> | null
+    omit?: vertical_delivery_employee_boxOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: vertical_food_employee_boxInclude<ExtArgs> | null
+    include?: vertical_delivery_employee_boxInclude<ExtArgs> | null
     /**
-     * Filter, which vertical_food_employee_box to fetch.
+     * Filter, which vertical_delivery_employee_box to fetch.
      */
-    where?: vertical_food_employee_boxWhereInput
+    where?: vertical_delivery_employee_boxWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of vertical_food_employee_boxes to fetch.
+     * Determine the order of vertical_delivery_employee_boxes to fetch.
      */
-    orderBy?: vertical_food_employee_boxOrderByWithRelationInput | vertical_food_employee_boxOrderByWithRelationInput[]
+    orderBy?: vertical_delivery_employee_boxOrderByWithRelationInput | vertical_delivery_employee_boxOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for vertical_food_employee_boxes.
+     * Sets the position for searching for vertical_delivery_employee_boxes.
      */
-    cursor?: vertical_food_employee_boxWhereUniqueInput
+    cursor?: vertical_delivery_employee_boxWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` vertical_food_employee_boxes from the position of the cursor.
+     * Take `±n` vertical_delivery_employee_boxes from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` vertical_food_employee_boxes.
+     * Skip the first `n` vertical_delivery_employee_boxes.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of vertical_food_employee_boxes.
+     * Filter by unique combinations of vertical_delivery_employee_boxes.
      */
-    distinct?: Vertical_food_employee_boxScalarFieldEnum | Vertical_food_employee_boxScalarFieldEnum[]
+    distinct?: vertical_delivery_employee_boxScalarFieldEnum | vertical_delivery_employee_boxScalarFieldEnum[]
   }
 
   /**
-   * vertical_food_employee_box findMany
+   * vertical_delivery_employee_box findMany
    */
-  export type vertical_food_employee_boxFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_employee_boxFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_employee_box
+     * Select specific fields to fetch from the vertical_delivery_employee_box
      */
-    select?: vertical_food_employee_boxSelect<ExtArgs> | null
+    select?: vertical_delivery_employee_boxSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_employee_box
+     * Omit specific fields from the vertical_delivery_employee_box
      */
-    omit?: vertical_food_employee_boxOmit<ExtArgs> | null
+    omit?: vertical_delivery_employee_boxOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: vertical_food_employee_boxInclude<ExtArgs> | null
+    include?: vertical_delivery_employee_boxInclude<ExtArgs> | null
     /**
-     * Filter, which vertical_food_employee_boxes to fetch.
+     * Filter, which vertical_delivery_employee_boxes to fetch.
      */
-    where?: vertical_food_employee_boxWhereInput
+    where?: vertical_delivery_employee_boxWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of vertical_food_employee_boxes to fetch.
+     * Determine the order of vertical_delivery_employee_boxes to fetch.
      */
-    orderBy?: vertical_food_employee_boxOrderByWithRelationInput | vertical_food_employee_boxOrderByWithRelationInput[]
+    orderBy?: vertical_delivery_employee_boxOrderByWithRelationInput | vertical_delivery_employee_boxOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing vertical_food_employee_boxes.
+     * Sets the position for listing vertical_delivery_employee_boxes.
      */
-    cursor?: vertical_food_employee_boxWhereUniqueInput
+    cursor?: vertical_delivery_employee_boxWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` vertical_food_employee_boxes from the position of the cursor.
+     * Take `±n` vertical_delivery_employee_boxes from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` vertical_food_employee_boxes.
+     * Skip the first `n` vertical_delivery_employee_boxes.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of vertical_food_employee_boxes.
+     * Filter by unique combinations of vertical_delivery_employee_boxes.
      */
-    distinct?: Vertical_food_employee_boxScalarFieldEnum | Vertical_food_employee_boxScalarFieldEnum[]
+    distinct?: vertical_delivery_employee_boxScalarFieldEnum | vertical_delivery_employee_boxScalarFieldEnum[]
   }
 
   /**
-   * vertical_food_employee_box create
+   * vertical_delivery_employee_box create
    */
-  export type vertical_food_employee_boxCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_employee_boxCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_employee_box
+     * Select specific fields to fetch from the vertical_delivery_employee_box
      */
-    select?: vertical_food_employee_boxSelect<ExtArgs> | null
+    select?: vertical_delivery_employee_boxSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_employee_box
+     * Omit specific fields from the vertical_delivery_employee_box
      */
-    omit?: vertical_food_employee_boxOmit<ExtArgs> | null
+    omit?: vertical_delivery_employee_boxOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: vertical_food_employee_boxInclude<ExtArgs> | null
+    include?: vertical_delivery_employee_boxInclude<ExtArgs> | null
     /**
-     * The data needed to create a vertical_food_employee_box.
+     * The data needed to create a vertical_delivery_employee_box.
      */
-    data: XOR<vertical_food_employee_boxCreateInput, vertical_food_employee_boxUncheckedCreateInput>
+    data: XOR<vertical_delivery_employee_boxCreateInput, vertical_delivery_employee_boxUncheckedCreateInput>
   }
 
   /**
-   * vertical_food_employee_box createMany
+   * vertical_delivery_employee_box createMany
    */
-  export type vertical_food_employee_boxCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_employee_boxCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many vertical_food_employee_boxes.
+     * The data used to create many vertical_delivery_employee_boxes.
      */
-    data: vertical_food_employee_boxCreateManyInput | vertical_food_employee_boxCreateManyInput[]
+    data: vertical_delivery_employee_boxCreateManyInput | vertical_delivery_employee_boxCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * vertical_food_employee_box update
+   * vertical_delivery_employee_box update
    */
-  export type vertical_food_employee_boxUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_employee_boxUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_employee_box
+     * Select specific fields to fetch from the vertical_delivery_employee_box
      */
-    select?: vertical_food_employee_boxSelect<ExtArgs> | null
+    select?: vertical_delivery_employee_boxSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_employee_box
+     * Omit specific fields from the vertical_delivery_employee_box
      */
-    omit?: vertical_food_employee_boxOmit<ExtArgs> | null
+    omit?: vertical_delivery_employee_boxOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: vertical_food_employee_boxInclude<ExtArgs> | null
+    include?: vertical_delivery_employee_boxInclude<ExtArgs> | null
     /**
-     * The data needed to update a vertical_food_employee_box.
+     * The data needed to update a vertical_delivery_employee_box.
      */
-    data: XOR<vertical_food_employee_boxUpdateInput, vertical_food_employee_boxUncheckedUpdateInput>
+    data: XOR<vertical_delivery_employee_boxUpdateInput, vertical_delivery_employee_boxUncheckedUpdateInput>
     /**
-     * Choose, which vertical_food_employee_box to update.
+     * Choose, which vertical_delivery_employee_box to update.
      */
-    where: vertical_food_employee_boxWhereUniqueInput
+    where: vertical_delivery_employee_boxWhereUniqueInput
   }
 
   /**
-   * vertical_food_employee_box updateMany
+   * vertical_delivery_employee_box updateMany
    */
-  export type vertical_food_employee_boxUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_employee_boxUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update vertical_food_employee_boxes.
+     * The data used to update vertical_delivery_employee_boxes.
      */
-    data: XOR<vertical_food_employee_boxUpdateManyMutationInput, vertical_food_employee_boxUncheckedUpdateManyInput>
+    data: XOR<vertical_delivery_employee_boxUpdateManyMutationInput, vertical_delivery_employee_boxUncheckedUpdateManyInput>
     /**
-     * Filter which vertical_food_employee_boxes to update
+     * Filter which vertical_delivery_employee_boxes to update
      */
-    where?: vertical_food_employee_boxWhereInput
+    where?: vertical_delivery_employee_boxWhereInput
     /**
-     * Limit how many vertical_food_employee_boxes to update.
+     * Limit how many vertical_delivery_employee_boxes to update.
      */
     limit?: number
   }
 
   /**
-   * vertical_food_employee_box upsert
+   * vertical_delivery_employee_box upsert
    */
-  export type vertical_food_employee_boxUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_employee_boxUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_employee_box
+     * Select specific fields to fetch from the vertical_delivery_employee_box
      */
-    select?: vertical_food_employee_boxSelect<ExtArgs> | null
+    select?: vertical_delivery_employee_boxSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_employee_box
+     * Omit specific fields from the vertical_delivery_employee_box
      */
-    omit?: vertical_food_employee_boxOmit<ExtArgs> | null
+    omit?: vertical_delivery_employee_boxOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: vertical_food_employee_boxInclude<ExtArgs> | null
+    include?: vertical_delivery_employee_boxInclude<ExtArgs> | null
     /**
-     * The filter to search for the vertical_food_employee_box to update in case it exists.
+     * The filter to search for the vertical_delivery_employee_box to update in case it exists.
      */
-    where: vertical_food_employee_boxWhereUniqueInput
+    where: vertical_delivery_employee_boxWhereUniqueInput
     /**
-     * In case the vertical_food_employee_box found by the `where` argument doesn't exist, create a new vertical_food_employee_box with this data.
+     * In case the vertical_delivery_employee_box found by the `where` argument doesn't exist, create a new vertical_delivery_employee_box with this data.
      */
-    create: XOR<vertical_food_employee_boxCreateInput, vertical_food_employee_boxUncheckedCreateInput>
+    create: XOR<vertical_delivery_employee_boxCreateInput, vertical_delivery_employee_boxUncheckedCreateInput>
     /**
-     * In case the vertical_food_employee_box was found with the provided `where` argument, update it with this data.
+     * In case the vertical_delivery_employee_box was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<vertical_food_employee_boxUpdateInput, vertical_food_employee_boxUncheckedUpdateInput>
+    update: XOR<vertical_delivery_employee_boxUpdateInput, vertical_delivery_employee_boxUncheckedUpdateInput>
   }
 
   /**
-   * vertical_food_employee_box delete
+   * vertical_delivery_employee_box delete
    */
-  export type vertical_food_employee_boxDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_employee_boxDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_employee_box
+     * Select specific fields to fetch from the vertical_delivery_employee_box
      */
-    select?: vertical_food_employee_boxSelect<ExtArgs> | null
+    select?: vertical_delivery_employee_boxSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_employee_box
+     * Omit specific fields from the vertical_delivery_employee_box
      */
-    omit?: vertical_food_employee_boxOmit<ExtArgs> | null
+    omit?: vertical_delivery_employee_boxOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: vertical_food_employee_boxInclude<ExtArgs> | null
+    include?: vertical_delivery_employee_boxInclude<ExtArgs> | null
     /**
-     * Filter which vertical_food_employee_box to delete.
+     * Filter which vertical_delivery_employee_box to delete.
      */
-    where: vertical_food_employee_boxWhereUniqueInput
+    where: vertical_delivery_employee_boxWhereUniqueInput
   }
 
   /**
-   * vertical_food_employee_box deleteMany
+   * vertical_delivery_employee_box deleteMany
    */
-  export type vertical_food_employee_boxDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_employee_boxDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which vertical_food_employee_boxes to delete
+     * Filter which vertical_delivery_employee_boxes to delete
      */
-    where?: vertical_food_employee_boxWhereInput
+    where?: vertical_delivery_employee_boxWhereInput
     /**
-     * Limit how many vertical_food_employee_boxes to delete.
+     * Limit how many vertical_delivery_employee_boxes to delete.
      */
     limit?: number
   }
 
   /**
-   * vertical_food_employee_box.employee
+   * vertical_delivery_employee_box.employee
    */
-  export type vertical_food_employee_box$employeeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_employee_box$employeeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_employee
+     * Select specific fields to fetch from the vertical_delivery_employee
      */
-    select?: vertical_food_employeeSelect<ExtArgs> | null
+    select?: vertical_delivery_employeeSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_employee
+     * Omit specific fields from the vertical_delivery_employee
      */
-    omit?: vertical_food_employeeOmit<ExtArgs> | null
+    omit?: vertical_delivery_employeeOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: vertical_food_employeeInclude<ExtArgs> | null
-    where?: vertical_food_employeeWhereInput
+    include?: vertical_delivery_employeeInclude<ExtArgs> | null
+    where?: vertical_delivery_employeeWhereInput
   }
 
   /**
-   * vertical_food_employee_box without action
+   * vertical_delivery_employee_box without action
    */
-  export type vertical_food_employee_boxDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_employee_boxDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_employee_box
+     * Select specific fields to fetch from the vertical_delivery_employee_box
      */
-    select?: vertical_food_employee_boxSelect<ExtArgs> | null
+    select?: vertical_delivery_employee_boxSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_employee_box
+     * Omit specific fields from the vertical_delivery_employee_box
      */
-    omit?: vertical_food_employee_boxOmit<ExtArgs> | null
+    omit?: vertical_delivery_employee_boxOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: vertical_food_employee_boxInclude<ExtArgs> | null
+    include?: vertical_delivery_employee_boxInclude<ExtArgs> | null
   }
 
 
@@ -19935,16 +19935,16 @@ export namespace Prisma {
 
 
   /**
-   * Model vertical_food_employee_deleted
+   * Model vertical_delivery_employee_deleted
    */
 
-  export type AggregateVertical_food_employee_deleted = {
-    _count: Vertical_food_employee_deletedCountAggregateOutputType | null
-    _min: Vertical_food_employee_deletedMinAggregateOutputType | null
-    _max: Vertical_food_employee_deletedMaxAggregateOutputType | null
+  export type Aggregatevertical_delivery_employee_deleted = {
+    _count: vertical_delivery_employee_deletedCountAggregateOutputType | null
+    _min: vertical_delivery_employee_deletedMinAggregateOutputType | null
+    _max: vertical_delivery_employee_deletedMaxAggregateOutputType | null
   }
 
-  export type Vertical_food_employee_deletedMinAggregateOutputType = {
+  export type vertical_delivery_employee_deletedMinAggregateOutputType = {
     id: string | null
     first_name: string | null
     last_name: string | null
@@ -19962,7 +19962,7 @@ export namespace Prisma {
     x_primary_key: string | null
   }
 
-  export type Vertical_food_employee_deletedMaxAggregateOutputType = {
+  export type vertical_delivery_employee_deletedMaxAggregateOutputType = {
     id: string | null
     first_name: string | null
     last_name: string | null
@@ -19980,7 +19980,7 @@ export namespace Prisma {
     x_primary_key: string | null
   }
 
-  export type Vertical_food_employee_deletedCountAggregateOutputType = {
+  export type vertical_delivery_employee_deletedCountAggregateOutputType = {
     id: number
     first_name: number
     last_name: number
@@ -20000,7 +20000,7 @@ export namespace Prisma {
   }
 
 
-  export type Vertical_food_employee_deletedMinAggregateInputType = {
+  export type vertical_delivery_employee_deletedMinAggregateInputType = {
     id?: true
     first_name?: true
     last_name?: true
@@ -20018,7 +20018,7 @@ export namespace Prisma {
     x_primary_key?: true
   }
 
-  export type Vertical_food_employee_deletedMaxAggregateInputType = {
+  export type vertical_delivery_employee_deletedMaxAggregateInputType = {
     id?: true
     first_name?: true
     last_name?: true
@@ -20036,7 +20036,7 @@ export namespace Prisma {
     x_primary_key?: true
   }
 
-  export type Vertical_food_employee_deletedCountAggregateInputType = {
+  export type vertical_delivery_employee_deletedCountAggregateInputType = {
     id?: true
     first_name?: true
     last_name?: true
@@ -20055,79 +20055,79 @@ export namespace Prisma {
     _all?: true
   }
 
-  export type Vertical_food_employee_deletedAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_employee_deletedAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which vertical_food_employee_deleted to aggregate.
+     * Filter which vertical_delivery_employee_deleted to aggregate.
      */
-    where?: vertical_food_employee_deletedWhereInput
+    where?: vertical_delivery_employee_deletedWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of vertical_food_employee_deleteds to fetch.
+     * Determine the order of vertical_delivery_employee_deleteds to fetch.
      */
-    orderBy?: vertical_food_employee_deletedOrderByWithRelationInput | vertical_food_employee_deletedOrderByWithRelationInput[]
+    orderBy?: vertical_delivery_employee_deletedOrderByWithRelationInput | vertical_delivery_employee_deletedOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: vertical_food_employee_deletedWhereUniqueInput
+    cursor?: vertical_delivery_employee_deletedWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` vertical_food_employee_deleteds from the position of the cursor.
+     * Take `±n` vertical_delivery_employee_deleteds from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` vertical_food_employee_deleteds.
+     * Skip the first `n` vertical_delivery_employee_deleteds.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned vertical_food_employee_deleteds
+     * Count returned vertical_delivery_employee_deleteds
     **/
-    _count?: true | Vertical_food_employee_deletedCountAggregateInputType
+    _count?: true | vertical_delivery_employee_deletedCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: Vertical_food_employee_deletedMinAggregateInputType
+    _min?: vertical_delivery_employee_deletedMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: Vertical_food_employee_deletedMaxAggregateInputType
+    _max?: vertical_delivery_employee_deletedMaxAggregateInputType
   }
 
-  export type GetVertical_food_employee_deletedAggregateType<T extends Vertical_food_employee_deletedAggregateArgs> = {
-        [P in keyof T & keyof AggregateVertical_food_employee_deleted]: P extends '_count' | 'count'
+  export type Getvertical_delivery_employee_deletedAggregateType<T extends vertical_delivery_employee_deletedAggregateArgs> = {
+        [P in keyof T & keyof Aggregatevertical_delivery_employee_deleted]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateVertical_food_employee_deleted[P]>
-      : GetScalarType<T[P], AggregateVertical_food_employee_deleted[P]>
+        : GetScalarType<T[P], Aggregatevertical_delivery_employee_deleted[P]>
+      : GetScalarType<T[P], Aggregatevertical_delivery_employee_deleted[P]>
   }
 
 
 
 
-  export type vertical_food_employee_deletedGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: vertical_food_employee_deletedWhereInput
-    orderBy?: vertical_food_employee_deletedOrderByWithAggregationInput | vertical_food_employee_deletedOrderByWithAggregationInput[]
-    by: Vertical_food_employee_deletedScalarFieldEnum[] | Vertical_food_employee_deletedScalarFieldEnum
-    having?: vertical_food_employee_deletedScalarWhereWithAggregatesInput
+  export type vertical_delivery_employee_deletedGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: vertical_delivery_employee_deletedWhereInput
+    orderBy?: vertical_delivery_employee_deletedOrderByWithAggregationInput | vertical_delivery_employee_deletedOrderByWithAggregationInput[]
+    by: vertical_delivery_employee_deletedScalarFieldEnum[] | vertical_delivery_employee_deletedScalarFieldEnum
+    having?: vertical_delivery_employee_deletedScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: Vertical_food_employee_deletedCountAggregateInputType | true
-    _min?: Vertical_food_employee_deletedMinAggregateInputType
-    _max?: Vertical_food_employee_deletedMaxAggregateInputType
+    _count?: vertical_delivery_employee_deletedCountAggregateInputType | true
+    _min?: vertical_delivery_employee_deletedMinAggregateInputType
+    _max?: vertical_delivery_employee_deletedMaxAggregateInputType
   }
 
-  export type Vertical_food_employee_deletedGroupByOutputType = {
+  export type vertical_delivery_employee_deletedGroupByOutputType = {
     id: string
     first_name: string
     last_name: string
@@ -20143,26 +20143,26 @@ export namespace Prisma {
     profile_pic: string | null
     client_id: string | null
     x_primary_key: string | null
-    _count: Vertical_food_employee_deletedCountAggregateOutputType | null
-    _min: Vertical_food_employee_deletedMinAggregateOutputType | null
-    _max: Vertical_food_employee_deletedMaxAggregateOutputType | null
+    _count: vertical_delivery_employee_deletedCountAggregateOutputType | null
+    _min: vertical_delivery_employee_deletedMinAggregateOutputType | null
+    _max: vertical_delivery_employee_deletedMaxAggregateOutputType | null
   }
 
-  type GetVertical_food_employee_deletedGroupByPayload<T extends vertical_food_employee_deletedGroupByArgs> = Prisma.PrismaPromise<
+  type Getvertical_delivery_employee_deletedGroupByPayload<T extends vertical_delivery_employee_deletedGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<Vertical_food_employee_deletedGroupByOutputType, T['by']> &
+      PickEnumerable<vertical_delivery_employee_deletedGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof Vertical_food_employee_deletedGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof vertical_delivery_employee_deletedGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], Vertical_food_employee_deletedGroupByOutputType[P]>
-            : GetScalarType<T[P], Vertical_food_employee_deletedGroupByOutputType[P]>
+              : GetScalarType<T[P], vertical_delivery_employee_deletedGroupByOutputType[P]>
+            : GetScalarType<T[P], vertical_delivery_employee_deletedGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type vertical_food_employee_deletedSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type vertical_delivery_employee_deletedSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     first_name?: boolean
     last_name?: boolean
@@ -20178,11 +20178,11 @@ export namespace Prisma {
     profile_pic?: boolean
     client_id?: boolean
     x_primary_key?: boolean
-  }, ExtArgs["result"]["vertical_food_employee_deleted"]>
+  }, ExtArgs["result"]["vertical_delivery_employee_deleted"]>
 
 
 
-  export type vertical_food_employee_deletedSelectScalar = {
+  export type vertical_delivery_employee_deletedSelectScalar = {
     id?: boolean
     first_name?: boolean
     last_name?: boolean
@@ -20200,10 +20200,10 @@ export namespace Prisma {
     x_primary_key?: boolean
   }
 
-  export type vertical_food_employee_deletedOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "first_name" | "last_name" | "country_code" | "mobile_number" | "email" | "employee_display_id" | "joining_date" | "client_name" | "role_name" | "created_at" | "updated_at" | "profile_pic" | "client_id" | "x_primary_key", ExtArgs["result"]["vertical_food_employee_deleted"]>
+  export type vertical_delivery_employee_deletedOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "first_name" | "last_name" | "country_code" | "mobile_number" | "email" | "employee_display_id" | "joining_date" | "client_name" | "role_name" | "created_at" | "updated_at" | "profile_pic" | "client_id" | "x_primary_key", ExtArgs["result"]["vertical_delivery_employee_deleted"]>
 
-  export type $vertical_food_employee_deletedPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "vertical_food_employee_deleted"
+  export type $vertical_delivery_employee_deletedPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "vertical_delivery_employee_deleted"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -20221,143 +20221,143 @@ export namespace Prisma {
       profile_pic: string | null
       client_id: string | null
       x_primary_key: string | null
-    }, ExtArgs["result"]["vertical_food_employee_deleted"]>
+    }, ExtArgs["result"]["vertical_delivery_employee_deleted"]>
     composites: {}
   }
 
-  type vertical_food_employee_deletedGetPayload<S extends boolean | null | undefined | vertical_food_employee_deletedDefaultArgs> = $Result.GetResult<Prisma.$vertical_food_employee_deletedPayload, S>
+  type vertical_delivery_employee_deletedGetPayload<S extends boolean | null | undefined | vertical_delivery_employee_deletedDefaultArgs> = $Result.GetResult<Prisma.$vertical_delivery_employee_deletedPayload, S>
 
-  type vertical_food_employee_deletedCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<vertical_food_employee_deletedFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: Vertical_food_employee_deletedCountAggregateInputType | true
+  type vertical_delivery_employee_deletedCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<vertical_delivery_employee_deletedFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: vertical_delivery_employee_deletedCountAggregateInputType | true
     }
 
-  export interface vertical_food_employee_deletedDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['vertical_food_employee_deleted'], meta: { name: 'vertical_food_employee_deleted' } }
+  export interface vertical_delivery_employee_deletedDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['vertical_delivery_employee_deleted'], meta: { name: 'vertical_delivery_employee_deleted' } }
     /**
-     * Find zero or one Vertical_food_employee_deleted that matches the filter.
-     * @param {vertical_food_employee_deletedFindUniqueArgs} args - Arguments to find a Vertical_food_employee_deleted
+     * Find zero or one vertical_delivery_employee_deleted that matches the filter.
+     * @param {vertical_delivery_employee_deletedFindUniqueArgs} args - Arguments to find a vertical_delivery_employee_deleted
      * @example
-     * // Get one Vertical_food_employee_deleted
-     * const vertical_food_employee_deleted = await prisma.vertical_food_employee_deleted.findUnique({
+     * // Get one vertical_delivery_employee_deleted
+     * const vertical_delivery_employee_deleted = await prisma.vertical_delivery_employee_deleted.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends vertical_food_employee_deletedFindUniqueArgs>(args: SelectSubset<T, vertical_food_employee_deletedFindUniqueArgs<ExtArgs>>): Prisma__vertical_food_employee_deletedClient<$Result.GetResult<Prisma.$vertical_food_employee_deletedPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findUnique<T extends vertical_delivery_employee_deletedFindUniqueArgs>(args: SelectSubset<T, vertical_delivery_employee_deletedFindUniqueArgs<ExtArgs>>): Prisma__vertical_delivery_employee_deletedClient<$Result.GetResult<Prisma.$vertical_delivery_employee_deletedPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find one Vertical_food_employee_deleted that matches the filter or throw an error with `error.code='P2025'`
+     * Find one vertical_delivery_employee_deleted that matches the filter or throw an error with `error.code='P2025'`
      * if no matches were found.
-     * @param {vertical_food_employee_deletedFindUniqueOrThrowArgs} args - Arguments to find a Vertical_food_employee_deleted
+     * @param {vertical_delivery_employee_deletedFindUniqueOrThrowArgs} args - Arguments to find a vertical_delivery_employee_deleted
      * @example
-     * // Get one Vertical_food_employee_deleted
-     * const vertical_food_employee_deleted = await prisma.vertical_food_employee_deleted.findUniqueOrThrow({
+     * // Get one vertical_delivery_employee_deleted
+     * const vertical_delivery_employee_deleted = await prisma.vertical_delivery_employee_deleted.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends vertical_food_employee_deletedFindUniqueOrThrowArgs>(args: SelectSubset<T, vertical_food_employee_deletedFindUniqueOrThrowArgs<ExtArgs>>): Prisma__vertical_food_employee_deletedClient<$Result.GetResult<Prisma.$vertical_food_employee_deletedPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findUniqueOrThrow<T extends vertical_delivery_employee_deletedFindUniqueOrThrowArgs>(args: SelectSubset<T, vertical_delivery_employee_deletedFindUniqueOrThrowArgs<ExtArgs>>): Prisma__vertical_delivery_employee_deletedClient<$Result.GetResult<Prisma.$vertical_delivery_employee_deletedPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find the first Vertical_food_employee_deleted that matches the filter.
+     * Find the first vertical_delivery_employee_deleted that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {vertical_food_employee_deletedFindFirstArgs} args - Arguments to find a Vertical_food_employee_deleted
+     * @param {vertical_delivery_employee_deletedFindFirstArgs} args - Arguments to find a vertical_delivery_employee_deleted
      * @example
-     * // Get one Vertical_food_employee_deleted
-     * const vertical_food_employee_deleted = await prisma.vertical_food_employee_deleted.findFirst({
+     * // Get one vertical_delivery_employee_deleted
+     * const vertical_delivery_employee_deleted = await prisma.vertical_delivery_employee_deleted.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends vertical_food_employee_deletedFindFirstArgs>(args?: SelectSubset<T, vertical_food_employee_deletedFindFirstArgs<ExtArgs>>): Prisma__vertical_food_employee_deletedClient<$Result.GetResult<Prisma.$vertical_food_employee_deletedPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findFirst<T extends vertical_delivery_employee_deletedFindFirstArgs>(args?: SelectSubset<T, vertical_delivery_employee_deletedFindFirstArgs<ExtArgs>>): Prisma__vertical_delivery_employee_deletedClient<$Result.GetResult<Prisma.$vertical_delivery_employee_deletedPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find the first Vertical_food_employee_deleted that matches the filter or
+     * Find the first vertical_delivery_employee_deleted that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {vertical_food_employee_deletedFindFirstOrThrowArgs} args - Arguments to find a Vertical_food_employee_deleted
+     * @param {vertical_delivery_employee_deletedFindFirstOrThrowArgs} args - Arguments to find a vertical_delivery_employee_deleted
      * @example
-     * // Get one Vertical_food_employee_deleted
-     * const vertical_food_employee_deleted = await prisma.vertical_food_employee_deleted.findFirstOrThrow({
+     * // Get one vertical_delivery_employee_deleted
+     * const vertical_delivery_employee_deleted = await prisma.vertical_delivery_employee_deleted.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends vertical_food_employee_deletedFindFirstOrThrowArgs>(args?: SelectSubset<T, vertical_food_employee_deletedFindFirstOrThrowArgs<ExtArgs>>): Prisma__vertical_food_employee_deletedClient<$Result.GetResult<Prisma.$vertical_food_employee_deletedPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findFirstOrThrow<T extends vertical_delivery_employee_deletedFindFirstOrThrowArgs>(args?: SelectSubset<T, vertical_delivery_employee_deletedFindFirstOrThrowArgs<ExtArgs>>): Prisma__vertical_delivery_employee_deletedClient<$Result.GetResult<Prisma.$vertical_delivery_employee_deletedPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find zero or more Vertical_food_employee_deleteds that matches the filter.
+     * Find zero or more vertical_delivery_employee_deleteds that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {vertical_food_employee_deletedFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {vertical_delivery_employee_deletedFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all Vertical_food_employee_deleteds
-     * const vertical_food_employee_deleteds = await prisma.vertical_food_employee_deleted.findMany()
+     * // Get all vertical_delivery_employee_deleteds
+     * const vertical_delivery_employee_deleteds = await prisma.vertical_delivery_employee_deleted.findMany()
      * 
-     * // Get first 10 Vertical_food_employee_deleteds
-     * const vertical_food_employee_deleteds = await prisma.vertical_food_employee_deleted.findMany({ take: 10 })
+     * // Get first 10 vertical_delivery_employee_deleteds
+     * const vertical_delivery_employee_deleteds = await prisma.vertical_delivery_employee_deleted.findMany({ take: 10 })
      * 
      * // Only select the `id`
-     * const vertical_food_employee_deletedWithIdOnly = await prisma.vertical_food_employee_deleted.findMany({ select: { id: true } })
+     * const vertical_delivery_employee_deletedWithIdOnly = await prisma.vertical_delivery_employee_deleted.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends vertical_food_employee_deletedFindManyArgs>(args?: SelectSubset<T, vertical_food_employee_deletedFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$vertical_food_employee_deletedPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+    findMany<T extends vertical_delivery_employee_deletedFindManyArgs>(args?: SelectSubset<T, vertical_delivery_employee_deletedFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$vertical_delivery_employee_deletedPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
     /**
-     * Create a Vertical_food_employee_deleted.
-     * @param {vertical_food_employee_deletedCreateArgs} args - Arguments to create a Vertical_food_employee_deleted.
+     * Create a vertical_delivery_employee_deleted.
+     * @param {vertical_delivery_employee_deletedCreateArgs} args - Arguments to create a vertical_delivery_employee_deleted.
      * @example
-     * // Create one Vertical_food_employee_deleted
-     * const Vertical_food_employee_deleted = await prisma.vertical_food_employee_deleted.create({
+     * // Create one vertical_delivery_employee_deleted
+     * const vertical_delivery_employee_deleted = await prisma.vertical_delivery_employee_deleted.create({
      *   data: {
-     *     // ... data to create a Vertical_food_employee_deleted
+     *     // ... data to create a vertical_delivery_employee_deleted
      *   }
      * })
      * 
      */
-    create<T extends vertical_food_employee_deletedCreateArgs>(args: SelectSubset<T, vertical_food_employee_deletedCreateArgs<ExtArgs>>): Prisma__vertical_food_employee_deletedClient<$Result.GetResult<Prisma.$vertical_food_employee_deletedPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    create<T extends vertical_delivery_employee_deletedCreateArgs>(args: SelectSubset<T, vertical_delivery_employee_deletedCreateArgs<ExtArgs>>): Prisma__vertical_delivery_employee_deletedClient<$Result.GetResult<Prisma.$vertical_delivery_employee_deletedPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Create many Vertical_food_employee_deleteds.
-     * @param {vertical_food_employee_deletedCreateManyArgs} args - Arguments to create many Vertical_food_employee_deleteds.
+     * Create many vertical_delivery_employee_deleteds.
+     * @param {vertical_delivery_employee_deletedCreateManyArgs} args - Arguments to create many vertical_delivery_employee_deleteds.
      * @example
-     * // Create many Vertical_food_employee_deleteds
-     * const vertical_food_employee_deleted = await prisma.vertical_food_employee_deleted.createMany({
+     * // Create many vertical_delivery_employee_deleteds
+     * const vertical_delivery_employee_deleted = await prisma.vertical_delivery_employee_deleted.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends vertical_food_employee_deletedCreateManyArgs>(args?: SelectSubset<T, vertical_food_employee_deletedCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends vertical_delivery_employee_deletedCreateManyArgs>(args?: SelectSubset<T, vertical_delivery_employee_deletedCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Delete a Vertical_food_employee_deleted.
-     * @param {vertical_food_employee_deletedDeleteArgs} args - Arguments to delete one Vertical_food_employee_deleted.
+     * Delete a vertical_delivery_employee_deleted.
+     * @param {vertical_delivery_employee_deletedDeleteArgs} args - Arguments to delete one vertical_delivery_employee_deleted.
      * @example
-     * // Delete one Vertical_food_employee_deleted
-     * const Vertical_food_employee_deleted = await prisma.vertical_food_employee_deleted.delete({
+     * // Delete one vertical_delivery_employee_deleted
+     * const vertical_delivery_employee_deleted = await prisma.vertical_delivery_employee_deleted.delete({
      *   where: {
-     *     // ... filter to delete one Vertical_food_employee_deleted
+     *     // ... filter to delete one vertical_delivery_employee_deleted
      *   }
      * })
      * 
      */
-    delete<T extends vertical_food_employee_deletedDeleteArgs>(args: SelectSubset<T, vertical_food_employee_deletedDeleteArgs<ExtArgs>>): Prisma__vertical_food_employee_deletedClient<$Result.GetResult<Prisma.$vertical_food_employee_deletedPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    delete<T extends vertical_delivery_employee_deletedDeleteArgs>(args: SelectSubset<T, vertical_delivery_employee_deletedDeleteArgs<ExtArgs>>): Prisma__vertical_delivery_employee_deletedClient<$Result.GetResult<Prisma.$vertical_delivery_employee_deletedPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Update one Vertical_food_employee_deleted.
-     * @param {vertical_food_employee_deletedUpdateArgs} args - Arguments to update one Vertical_food_employee_deleted.
+     * Update one vertical_delivery_employee_deleted.
+     * @param {vertical_delivery_employee_deletedUpdateArgs} args - Arguments to update one vertical_delivery_employee_deleted.
      * @example
-     * // Update one Vertical_food_employee_deleted
-     * const vertical_food_employee_deleted = await prisma.vertical_food_employee_deleted.update({
+     * // Update one vertical_delivery_employee_deleted
+     * const vertical_delivery_employee_deleted = await prisma.vertical_delivery_employee_deleted.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -20367,30 +20367,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends vertical_food_employee_deletedUpdateArgs>(args: SelectSubset<T, vertical_food_employee_deletedUpdateArgs<ExtArgs>>): Prisma__vertical_food_employee_deletedClient<$Result.GetResult<Prisma.$vertical_food_employee_deletedPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    update<T extends vertical_delivery_employee_deletedUpdateArgs>(args: SelectSubset<T, vertical_delivery_employee_deletedUpdateArgs<ExtArgs>>): Prisma__vertical_delivery_employee_deletedClient<$Result.GetResult<Prisma.$vertical_delivery_employee_deletedPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Delete zero or more Vertical_food_employee_deleteds.
-     * @param {vertical_food_employee_deletedDeleteManyArgs} args - Arguments to filter Vertical_food_employee_deleteds to delete.
+     * Delete zero or more vertical_delivery_employee_deleteds.
+     * @param {vertical_delivery_employee_deletedDeleteManyArgs} args - Arguments to filter vertical_delivery_employee_deleteds to delete.
      * @example
-     * // Delete a few Vertical_food_employee_deleteds
-     * const { count } = await prisma.vertical_food_employee_deleted.deleteMany({
+     * // Delete a few vertical_delivery_employee_deleteds
+     * const { count } = await prisma.vertical_delivery_employee_deleted.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends vertical_food_employee_deletedDeleteManyArgs>(args?: SelectSubset<T, vertical_food_employee_deletedDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends vertical_delivery_employee_deletedDeleteManyArgs>(args?: SelectSubset<T, vertical_delivery_employee_deletedDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more Vertical_food_employee_deleteds.
+     * Update zero or more vertical_delivery_employee_deleteds.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {vertical_food_employee_deletedUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {vertical_delivery_employee_deletedUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many Vertical_food_employee_deleteds
-     * const vertical_food_employee_deleted = await prisma.vertical_food_employee_deleted.updateMany({
+     * // Update many vertical_delivery_employee_deleteds
+     * const vertical_delivery_employee_deleted = await prisma.vertical_delivery_employee_deleted.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -20400,56 +20400,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends vertical_food_employee_deletedUpdateManyArgs>(args: SelectSubset<T, vertical_food_employee_deletedUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends vertical_delivery_employee_deletedUpdateManyArgs>(args: SelectSubset<T, vertical_delivery_employee_deletedUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one Vertical_food_employee_deleted.
-     * @param {vertical_food_employee_deletedUpsertArgs} args - Arguments to update or create a Vertical_food_employee_deleted.
+     * Create or update one vertical_delivery_employee_deleted.
+     * @param {vertical_delivery_employee_deletedUpsertArgs} args - Arguments to update or create a vertical_delivery_employee_deleted.
      * @example
-     * // Update or create a Vertical_food_employee_deleted
-     * const vertical_food_employee_deleted = await prisma.vertical_food_employee_deleted.upsert({
+     * // Update or create a vertical_delivery_employee_deleted
+     * const vertical_delivery_employee_deleted = await prisma.vertical_delivery_employee_deleted.upsert({
      *   create: {
-     *     // ... data to create a Vertical_food_employee_deleted
+     *     // ... data to create a vertical_delivery_employee_deleted
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the Vertical_food_employee_deleted we want to update
+     *     // ... the filter for the vertical_delivery_employee_deleted we want to update
      *   }
      * })
      */
-    upsert<T extends vertical_food_employee_deletedUpsertArgs>(args: SelectSubset<T, vertical_food_employee_deletedUpsertArgs<ExtArgs>>): Prisma__vertical_food_employee_deletedClient<$Result.GetResult<Prisma.$vertical_food_employee_deletedPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    upsert<T extends vertical_delivery_employee_deletedUpsertArgs>(args: SelectSubset<T, vertical_delivery_employee_deletedUpsertArgs<ExtArgs>>): Prisma__vertical_delivery_employee_deletedClient<$Result.GetResult<Prisma.$vertical_delivery_employee_deletedPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
 
     /**
-     * Count the number of Vertical_food_employee_deleteds.
+     * Count the number of vertical_delivery_employee_deleteds.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {vertical_food_employee_deletedCountArgs} args - Arguments to filter Vertical_food_employee_deleteds to count.
+     * @param {vertical_delivery_employee_deletedCountArgs} args - Arguments to filter vertical_delivery_employee_deleteds to count.
      * @example
-     * // Count the number of Vertical_food_employee_deleteds
-     * const count = await prisma.vertical_food_employee_deleted.count({
+     * // Count the number of vertical_delivery_employee_deleteds
+     * const count = await prisma.vertical_delivery_employee_deleted.count({
      *   where: {
-     *     // ... the filter for the Vertical_food_employee_deleteds we want to count
+     *     // ... the filter for the vertical_delivery_employee_deleteds we want to count
      *   }
      * })
     **/
-    count<T extends vertical_food_employee_deletedCountArgs>(
-      args?: Subset<T, vertical_food_employee_deletedCountArgs>,
+    count<T extends vertical_delivery_employee_deletedCountArgs>(
+      args?: Subset<T, vertical_delivery_employee_deletedCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], Vertical_food_employee_deletedCountAggregateOutputType>
+          : GetScalarType<T['select'], vertical_delivery_employee_deletedCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a Vertical_food_employee_deleted.
+     * Allows you to perform aggregations operations on a vertical_delivery_employee_deleted.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {Vertical_food_employee_deletedAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {vertical_delivery_employee_deletedAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -20469,13 +20469,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends Vertical_food_employee_deletedAggregateArgs>(args: Subset<T, Vertical_food_employee_deletedAggregateArgs>): Prisma.PrismaPromise<GetVertical_food_employee_deletedAggregateType<T>>
+    aggregate<T extends vertical_delivery_employee_deletedAggregateArgs>(args: Subset<T, vertical_delivery_employee_deletedAggregateArgs>): Prisma.PrismaPromise<Getvertical_delivery_employee_deletedAggregateType<T>>
 
     /**
-     * Group by Vertical_food_employee_deleted.
+     * Group by vertical_delivery_employee_deleted.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {vertical_food_employee_deletedGroupByArgs} args - Group by arguments.
+     * @param {vertical_delivery_employee_deletedGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -20490,14 +20490,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends vertical_food_employee_deletedGroupByArgs,
+      T extends vertical_delivery_employee_deletedGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: vertical_food_employee_deletedGroupByArgs['orderBy'] }
-        : { orderBy?: vertical_food_employee_deletedGroupByArgs['orderBy'] },
+        ? { orderBy: vertical_delivery_employee_deletedGroupByArgs['orderBy'] }
+        : { orderBy?: vertical_delivery_employee_deletedGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -20546,20 +20546,20 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, vertical_food_employee_deletedGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetVertical_food_employee_deletedGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, vertical_delivery_employee_deletedGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? Getvertical_delivery_employee_deletedGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the vertical_food_employee_deleted model
+   * Fields of the vertical_delivery_employee_deleted model
    */
-  readonly fields: vertical_food_employee_deletedFieldRefs;
+  readonly fields: vertical_delivery_employee_deletedFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for vertical_food_employee_deleted.
+   * The delegate class that acts as a "Promise-like" for vertical_delivery_employee_deleted.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__vertical_food_employee_deletedClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__vertical_delivery_employee_deletedClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -20587,347 +20587,347 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the vertical_food_employee_deleted model
+   * Fields of the vertical_delivery_employee_deleted model
    */
-  interface vertical_food_employee_deletedFieldRefs {
-    readonly id: FieldRef<"vertical_food_employee_deleted", 'String'>
-    readonly first_name: FieldRef<"vertical_food_employee_deleted", 'String'>
-    readonly last_name: FieldRef<"vertical_food_employee_deleted", 'String'>
-    readonly country_code: FieldRef<"vertical_food_employee_deleted", 'String'>
-    readonly mobile_number: FieldRef<"vertical_food_employee_deleted", 'String'>
-    readonly email: FieldRef<"vertical_food_employee_deleted", 'String'>
-    readonly employee_display_id: FieldRef<"vertical_food_employee_deleted", 'String'>
-    readonly joining_date: FieldRef<"vertical_food_employee_deleted", 'DateTime'>
-    readonly client_name: FieldRef<"vertical_food_employee_deleted", 'String'>
-    readonly role_name: FieldRef<"vertical_food_employee_deleted", 'String'>
-    readonly created_at: FieldRef<"vertical_food_employee_deleted", 'DateTime'>
-    readonly updated_at: FieldRef<"vertical_food_employee_deleted", 'DateTime'>
-    readonly profile_pic: FieldRef<"vertical_food_employee_deleted", 'String'>
-    readonly client_id: FieldRef<"vertical_food_employee_deleted", 'String'>
-    readonly x_primary_key: FieldRef<"vertical_food_employee_deleted", 'String'>
+  interface vertical_delivery_employee_deletedFieldRefs {
+    readonly id: FieldRef<"vertical_delivery_employee_deleted", 'String'>
+    readonly first_name: FieldRef<"vertical_delivery_employee_deleted", 'String'>
+    readonly last_name: FieldRef<"vertical_delivery_employee_deleted", 'String'>
+    readonly country_code: FieldRef<"vertical_delivery_employee_deleted", 'String'>
+    readonly mobile_number: FieldRef<"vertical_delivery_employee_deleted", 'String'>
+    readonly email: FieldRef<"vertical_delivery_employee_deleted", 'String'>
+    readonly employee_display_id: FieldRef<"vertical_delivery_employee_deleted", 'String'>
+    readonly joining_date: FieldRef<"vertical_delivery_employee_deleted", 'DateTime'>
+    readonly client_name: FieldRef<"vertical_delivery_employee_deleted", 'String'>
+    readonly role_name: FieldRef<"vertical_delivery_employee_deleted", 'String'>
+    readonly created_at: FieldRef<"vertical_delivery_employee_deleted", 'DateTime'>
+    readonly updated_at: FieldRef<"vertical_delivery_employee_deleted", 'DateTime'>
+    readonly profile_pic: FieldRef<"vertical_delivery_employee_deleted", 'String'>
+    readonly client_id: FieldRef<"vertical_delivery_employee_deleted", 'String'>
+    readonly x_primary_key: FieldRef<"vertical_delivery_employee_deleted", 'String'>
   }
     
 
   // Custom InputTypes
   /**
-   * vertical_food_employee_deleted findUnique
+   * vertical_delivery_employee_deleted findUnique
    */
-  export type vertical_food_employee_deletedFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_employee_deletedFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_employee_deleted
+     * Select specific fields to fetch from the vertical_delivery_employee_deleted
      */
-    select?: vertical_food_employee_deletedSelect<ExtArgs> | null
+    select?: vertical_delivery_employee_deletedSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_employee_deleted
+     * Omit specific fields from the vertical_delivery_employee_deleted
      */
-    omit?: vertical_food_employee_deletedOmit<ExtArgs> | null
+    omit?: vertical_delivery_employee_deletedOmit<ExtArgs> | null
     /**
-     * Filter, which vertical_food_employee_deleted to fetch.
+     * Filter, which vertical_delivery_employee_deleted to fetch.
      */
-    where: vertical_food_employee_deletedWhereUniqueInput
+    where: vertical_delivery_employee_deletedWhereUniqueInput
   }
 
   /**
-   * vertical_food_employee_deleted findUniqueOrThrow
+   * vertical_delivery_employee_deleted findUniqueOrThrow
    */
-  export type vertical_food_employee_deletedFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_employee_deletedFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_employee_deleted
+     * Select specific fields to fetch from the vertical_delivery_employee_deleted
      */
-    select?: vertical_food_employee_deletedSelect<ExtArgs> | null
+    select?: vertical_delivery_employee_deletedSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_employee_deleted
+     * Omit specific fields from the vertical_delivery_employee_deleted
      */
-    omit?: vertical_food_employee_deletedOmit<ExtArgs> | null
+    omit?: vertical_delivery_employee_deletedOmit<ExtArgs> | null
     /**
-     * Filter, which vertical_food_employee_deleted to fetch.
+     * Filter, which vertical_delivery_employee_deleted to fetch.
      */
-    where: vertical_food_employee_deletedWhereUniqueInput
+    where: vertical_delivery_employee_deletedWhereUniqueInput
   }
 
   /**
-   * vertical_food_employee_deleted findFirst
+   * vertical_delivery_employee_deleted findFirst
    */
-  export type vertical_food_employee_deletedFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_employee_deletedFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_employee_deleted
+     * Select specific fields to fetch from the vertical_delivery_employee_deleted
      */
-    select?: vertical_food_employee_deletedSelect<ExtArgs> | null
+    select?: vertical_delivery_employee_deletedSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_employee_deleted
+     * Omit specific fields from the vertical_delivery_employee_deleted
      */
-    omit?: vertical_food_employee_deletedOmit<ExtArgs> | null
+    omit?: vertical_delivery_employee_deletedOmit<ExtArgs> | null
     /**
-     * Filter, which vertical_food_employee_deleted to fetch.
+     * Filter, which vertical_delivery_employee_deleted to fetch.
      */
-    where?: vertical_food_employee_deletedWhereInput
+    where?: vertical_delivery_employee_deletedWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of vertical_food_employee_deleteds to fetch.
+     * Determine the order of vertical_delivery_employee_deleteds to fetch.
      */
-    orderBy?: vertical_food_employee_deletedOrderByWithRelationInput | vertical_food_employee_deletedOrderByWithRelationInput[]
+    orderBy?: vertical_delivery_employee_deletedOrderByWithRelationInput | vertical_delivery_employee_deletedOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for vertical_food_employee_deleteds.
+     * Sets the position for searching for vertical_delivery_employee_deleteds.
      */
-    cursor?: vertical_food_employee_deletedWhereUniqueInput
+    cursor?: vertical_delivery_employee_deletedWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` vertical_food_employee_deleteds from the position of the cursor.
+     * Take `±n` vertical_delivery_employee_deleteds from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` vertical_food_employee_deleteds.
+     * Skip the first `n` vertical_delivery_employee_deleteds.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of vertical_food_employee_deleteds.
+     * Filter by unique combinations of vertical_delivery_employee_deleteds.
      */
-    distinct?: Vertical_food_employee_deletedScalarFieldEnum | Vertical_food_employee_deletedScalarFieldEnum[]
+    distinct?: vertical_delivery_employee_deletedScalarFieldEnum | vertical_delivery_employee_deletedScalarFieldEnum[]
   }
 
   /**
-   * vertical_food_employee_deleted findFirstOrThrow
+   * vertical_delivery_employee_deleted findFirstOrThrow
    */
-  export type vertical_food_employee_deletedFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_employee_deletedFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_employee_deleted
+     * Select specific fields to fetch from the vertical_delivery_employee_deleted
      */
-    select?: vertical_food_employee_deletedSelect<ExtArgs> | null
+    select?: vertical_delivery_employee_deletedSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_employee_deleted
+     * Omit specific fields from the vertical_delivery_employee_deleted
      */
-    omit?: vertical_food_employee_deletedOmit<ExtArgs> | null
+    omit?: vertical_delivery_employee_deletedOmit<ExtArgs> | null
     /**
-     * Filter, which vertical_food_employee_deleted to fetch.
+     * Filter, which vertical_delivery_employee_deleted to fetch.
      */
-    where?: vertical_food_employee_deletedWhereInput
+    where?: vertical_delivery_employee_deletedWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of vertical_food_employee_deleteds to fetch.
+     * Determine the order of vertical_delivery_employee_deleteds to fetch.
      */
-    orderBy?: vertical_food_employee_deletedOrderByWithRelationInput | vertical_food_employee_deletedOrderByWithRelationInput[]
+    orderBy?: vertical_delivery_employee_deletedOrderByWithRelationInput | vertical_delivery_employee_deletedOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for vertical_food_employee_deleteds.
+     * Sets the position for searching for vertical_delivery_employee_deleteds.
      */
-    cursor?: vertical_food_employee_deletedWhereUniqueInput
+    cursor?: vertical_delivery_employee_deletedWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` vertical_food_employee_deleteds from the position of the cursor.
+     * Take `±n` vertical_delivery_employee_deleteds from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` vertical_food_employee_deleteds.
+     * Skip the first `n` vertical_delivery_employee_deleteds.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of vertical_food_employee_deleteds.
+     * Filter by unique combinations of vertical_delivery_employee_deleteds.
      */
-    distinct?: Vertical_food_employee_deletedScalarFieldEnum | Vertical_food_employee_deletedScalarFieldEnum[]
+    distinct?: vertical_delivery_employee_deletedScalarFieldEnum | vertical_delivery_employee_deletedScalarFieldEnum[]
   }
 
   /**
-   * vertical_food_employee_deleted findMany
+   * vertical_delivery_employee_deleted findMany
    */
-  export type vertical_food_employee_deletedFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_employee_deletedFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_employee_deleted
+     * Select specific fields to fetch from the vertical_delivery_employee_deleted
      */
-    select?: vertical_food_employee_deletedSelect<ExtArgs> | null
+    select?: vertical_delivery_employee_deletedSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_employee_deleted
+     * Omit specific fields from the vertical_delivery_employee_deleted
      */
-    omit?: vertical_food_employee_deletedOmit<ExtArgs> | null
+    omit?: vertical_delivery_employee_deletedOmit<ExtArgs> | null
     /**
-     * Filter, which vertical_food_employee_deleteds to fetch.
+     * Filter, which vertical_delivery_employee_deleteds to fetch.
      */
-    where?: vertical_food_employee_deletedWhereInput
+    where?: vertical_delivery_employee_deletedWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of vertical_food_employee_deleteds to fetch.
+     * Determine the order of vertical_delivery_employee_deleteds to fetch.
      */
-    orderBy?: vertical_food_employee_deletedOrderByWithRelationInput | vertical_food_employee_deletedOrderByWithRelationInput[]
+    orderBy?: vertical_delivery_employee_deletedOrderByWithRelationInput | vertical_delivery_employee_deletedOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing vertical_food_employee_deleteds.
+     * Sets the position for listing vertical_delivery_employee_deleteds.
      */
-    cursor?: vertical_food_employee_deletedWhereUniqueInput
+    cursor?: vertical_delivery_employee_deletedWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` vertical_food_employee_deleteds from the position of the cursor.
+     * Take `±n` vertical_delivery_employee_deleteds from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` vertical_food_employee_deleteds.
+     * Skip the first `n` vertical_delivery_employee_deleteds.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of vertical_food_employee_deleteds.
+     * Filter by unique combinations of vertical_delivery_employee_deleteds.
      */
-    distinct?: Vertical_food_employee_deletedScalarFieldEnum | Vertical_food_employee_deletedScalarFieldEnum[]
+    distinct?: vertical_delivery_employee_deletedScalarFieldEnum | vertical_delivery_employee_deletedScalarFieldEnum[]
   }
 
   /**
-   * vertical_food_employee_deleted create
+   * vertical_delivery_employee_deleted create
    */
-  export type vertical_food_employee_deletedCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_employee_deletedCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_employee_deleted
+     * Select specific fields to fetch from the vertical_delivery_employee_deleted
      */
-    select?: vertical_food_employee_deletedSelect<ExtArgs> | null
+    select?: vertical_delivery_employee_deletedSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_employee_deleted
+     * Omit specific fields from the vertical_delivery_employee_deleted
      */
-    omit?: vertical_food_employee_deletedOmit<ExtArgs> | null
+    omit?: vertical_delivery_employee_deletedOmit<ExtArgs> | null
     /**
-     * The data needed to create a vertical_food_employee_deleted.
+     * The data needed to create a vertical_delivery_employee_deleted.
      */
-    data: XOR<vertical_food_employee_deletedCreateInput, vertical_food_employee_deletedUncheckedCreateInput>
+    data: XOR<vertical_delivery_employee_deletedCreateInput, vertical_delivery_employee_deletedUncheckedCreateInput>
   }
 
   /**
-   * vertical_food_employee_deleted createMany
+   * vertical_delivery_employee_deleted createMany
    */
-  export type vertical_food_employee_deletedCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_employee_deletedCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many vertical_food_employee_deleteds.
+     * The data used to create many vertical_delivery_employee_deleteds.
      */
-    data: vertical_food_employee_deletedCreateManyInput | vertical_food_employee_deletedCreateManyInput[]
+    data: vertical_delivery_employee_deletedCreateManyInput | vertical_delivery_employee_deletedCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * vertical_food_employee_deleted update
+   * vertical_delivery_employee_deleted update
    */
-  export type vertical_food_employee_deletedUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_employee_deletedUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_employee_deleted
+     * Select specific fields to fetch from the vertical_delivery_employee_deleted
      */
-    select?: vertical_food_employee_deletedSelect<ExtArgs> | null
+    select?: vertical_delivery_employee_deletedSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_employee_deleted
+     * Omit specific fields from the vertical_delivery_employee_deleted
      */
-    omit?: vertical_food_employee_deletedOmit<ExtArgs> | null
+    omit?: vertical_delivery_employee_deletedOmit<ExtArgs> | null
     /**
-     * The data needed to update a vertical_food_employee_deleted.
+     * The data needed to update a vertical_delivery_employee_deleted.
      */
-    data: XOR<vertical_food_employee_deletedUpdateInput, vertical_food_employee_deletedUncheckedUpdateInput>
+    data: XOR<vertical_delivery_employee_deletedUpdateInput, vertical_delivery_employee_deletedUncheckedUpdateInput>
     /**
-     * Choose, which vertical_food_employee_deleted to update.
+     * Choose, which vertical_delivery_employee_deleted to update.
      */
-    where: vertical_food_employee_deletedWhereUniqueInput
+    where: vertical_delivery_employee_deletedWhereUniqueInput
   }
 
   /**
-   * vertical_food_employee_deleted updateMany
+   * vertical_delivery_employee_deleted updateMany
    */
-  export type vertical_food_employee_deletedUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_employee_deletedUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update vertical_food_employee_deleteds.
+     * The data used to update vertical_delivery_employee_deleteds.
      */
-    data: XOR<vertical_food_employee_deletedUpdateManyMutationInput, vertical_food_employee_deletedUncheckedUpdateManyInput>
+    data: XOR<vertical_delivery_employee_deletedUpdateManyMutationInput, vertical_delivery_employee_deletedUncheckedUpdateManyInput>
     /**
-     * Filter which vertical_food_employee_deleteds to update
+     * Filter which vertical_delivery_employee_deleteds to update
      */
-    where?: vertical_food_employee_deletedWhereInput
+    where?: vertical_delivery_employee_deletedWhereInput
     /**
-     * Limit how many vertical_food_employee_deleteds to update.
+     * Limit how many vertical_delivery_employee_deleteds to update.
      */
     limit?: number
   }
 
   /**
-   * vertical_food_employee_deleted upsert
+   * vertical_delivery_employee_deleted upsert
    */
-  export type vertical_food_employee_deletedUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_employee_deletedUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_employee_deleted
+     * Select specific fields to fetch from the vertical_delivery_employee_deleted
      */
-    select?: vertical_food_employee_deletedSelect<ExtArgs> | null
+    select?: vertical_delivery_employee_deletedSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_employee_deleted
+     * Omit specific fields from the vertical_delivery_employee_deleted
      */
-    omit?: vertical_food_employee_deletedOmit<ExtArgs> | null
+    omit?: vertical_delivery_employee_deletedOmit<ExtArgs> | null
     /**
-     * The filter to search for the vertical_food_employee_deleted to update in case it exists.
+     * The filter to search for the vertical_delivery_employee_deleted to update in case it exists.
      */
-    where: vertical_food_employee_deletedWhereUniqueInput
+    where: vertical_delivery_employee_deletedWhereUniqueInput
     /**
-     * In case the vertical_food_employee_deleted found by the `where` argument doesn't exist, create a new vertical_food_employee_deleted with this data.
+     * In case the vertical_delivery_employee_deleted found by the `where` argument doesn't exist, create a new vertical_delivery_employee_deleted with this data.
      */
-    create: XOR<vertical_food_employee_deletedCreateInput, vertical_food_employee_deletedUncheckedCreateInput>
+    create: XOR<vertical_delivery_employee_deletedCreateInput, vertical_delivery_employee_deletedUncheckedCreateInput>
     /**
-     * In case the vertical_food_employee_deleted was found with the provided `where` argument, update it with this data.
+     * In case the vertical_delivery_employee_deleted was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<vertical_food_employee_deletedUpdateInput, vertical_food_employee_deletedUncheckedUpdateInput>
+    update: XOR<vertical_delivery_employee_deletedUpdateInput, vertical_delivery_employee_deletedUncheckedUpdateInput>
   }
 
   /**
-   * vertical_food_employee_deleted delete
+   * vertical_delivery_employee_deleted delete
    */
-  export type vertical_food_employee_deletedDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_employee_deletedDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_employee_deleted
+     * Select specific fields to fetch from the vertical_delivery_employee_deleted
      */
-    select?: vertical_food_employee_deletedSelect<ExtArgs> | null
+    select?: vertical_delivery_employee_deletedSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_employee_deleted
+     * Omit specific fields from the vertical_delivery_employee_deleted
      */
-    omit?: vertical_food_employee_deletedOmit<ExtArgs> | null
+    omit?: vertical_delivery_employee_deletedOmit<ExtArgs> | null
     /**
-     * Filter which vertical_food_employee_deleted to delete.
+     * Filter which vertical_delivery_employee_deleted to delete.
      */
-    where: vertical_food_employee_deletedWhereUniqueInput
+    where: vertical_delivery_employee_deletedWhereUniqueInput
   }
 
   /**
-   * vertical_food_employee_deleted deleteMany
+   * vertical_delivery_employee_deleted deleteMany
    */
-  export type vertical_food_employee_deletedDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_employee_deletedDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which vertical_food_employee_deleteds to delete
+     * Filter which vertical_delivery_employee_deleteds to delete
      */
-    where?: vertical_food_employee_deletedWhereInput
+    where?: vertical_delivery_employee_deletedWhereInput
     /**
-     * Limit how many vertical_food_employee_deleteds to delete.
+     * Limit how many vertical_delivery_employee_deleteds to delete.
      */
     limit?: number
   }
 
   /**
-   * vertical_food_employee_deleted without action
+   * vertical_delivery_employee_deleted without action
    */
-  export type vertical_food_employee_deletedDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_employee_deletedDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_employee_deleted
+     * Select specific fields to fetch from the vertical_delivery_employee_deleted
      */
-    select?: vertical_food_employee_deletedSelect<ExtArgs> | null
+    select?: vertical_delivery_employee_deletedSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_employee_deleted
+     * Omit specific fields from the vertical_delivery_employee_deleted
      */
-    omit?: vertical_food_employee_deletedOmit<ExtArgs> | null
+    omit?: vertical_delivery_employee_deletedOmit<ExtArgs> | null
   }
 
 
@@ -22942,38 +22942,38 @@ export namespace Prisma {
 
 
   /**
-   * Model vertical_food_consumer
+   * Model vertical_delivery_consumer
    */
 
-  export type AggregateVertical_food_consumer = {
-    _count: Vertical_food_consumerCountAggregateOutputType | null
-    _min: Vertical_food_consumerMinAggregateOutputType | null
-    _max: Vertical_food_consumerMaxAggregateOutputType | null
+  export type Aggregatevertical_delivery_consumer = {
+    _count: vertical_delivery_consumerCountAggregateOutputType | null
+    _min: vertical_delivery_consumerMinAggregateOutputType | null
+    _max: vertical_delivery_consumerMaxAggregateOutputType | null
   }
 
-  export type Vertical_food_consumerMinAggregateOutputType = {
+  export type vertical_delivery_consumerMinAggregateOutputType = {
     id: string | null
     full_name: string | null
     country_code: string | null
     phone: string | null
-    status: $Enums.food_consumer_status | null
+    status: $Enums.delivery_consumer_status | null
     client_id: string | null
     created_at: Date | null
     updated_at: Date | null
   }
 
-  export type Vertical_food_consumerMaxAggregateOutputType = {
+  export type vertical_delivery_consumerMaxAggregateOutputType = {
     id: string | null
     full_name: string | null
     country_code: string | null
     phone: string | null
-    status: $Enums.food_consumer_status | null
+    status: $Enums.delivery_consumer_status | null
     client_id: string | null
     created_at: Date | null
     updated_at: Date | null
   }
 
-  export type Vertical_food_consumerCountAggregateOutputType = {
+  export type vertical_delivery_consumerCountAggregateOutputType = {
     id: number
     full_name: number
     country_code: number
@@ -22986,7 +22986,7 @@ export namespace Prisma {
   }
 
 
-  export type Vertical_food_consumerMinAggregateInputType = {
+  export type vertical_delivery_consumerMinAggregateInputType = {
     id?: true
     full_name?: true
     country_code?: true
@@ -22997,7 +22997,7 @@ export namespace Prisma {
     updated_at?: true
   }
 
-  export type Vertical_food_consumerMaxAggregateInputType = {
+  export type vertical_delivery_consumerMaxAggregateInputType = {
     id?: true
     full_name?: true
     country_code?: true
@@ -23008,7 +23008,7 @@ export namespace Prisma {
     updated_at?: true
   }
 
-  export type Vertical_food_consumerCountAggregateInputType = {
+  export type vertical_delivery_consumerCountAggregateInputType = {
     id?: true
     full_name?: true
     country_code?: true
@@ -23020,107 +23020,107 @@ export namespace Prisma {
     _all?: true
   }
 
-  export type Vertical_food_consumerAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_consumerAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which vertical_food_consumer to aggregate.
+     * Filter which vertical_delivery_consumer to aggregate.
      */
-    where?: vertical_food_consumerWhereInput
+    where?: vertical_delivery_consumerWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of vertical_food_consumers to fetch.
+     * Determine the order of vertical_delivery_consumers to fetch.
      */
-    orderBy?: vertical_food_consumerOrderByWithRelationInput | vertical_food_consumerOrderByWithRelationInput[]
+    orderBy?: vertical_delivery_consumerOrderByWithRelationInput | vertical_delivery_consumerOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: vertical_food_consumerWhereUniqueInput
+    cursor?: vertical_delivery_consumerWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` vertical_food_consumers from the position of the cursor.
+     * Take `±n` vertical_delivery_consumers from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` vertical_food_consumers.
+     * Skip the first `n` vertical_delivery_consumers.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned vertical_food_consumers
+     * Count returned vertical_delivery_consumers
     **/
-    _count?: true | Vertical_food_consumerCountAggregateInputType
+    _count?: true | vertical_delivery_consumerCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: Vertical_food_consumerMinAggregateInputType
+    _min?: vertical_delivery_consumerMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: Vertical_food_consumerMaxAggregateInputType
+    _max?: vertical_delivery_consumerMaxAggregateInputType
   }
 
-  export type GetVertical_food_consumerAggregateType<T extends Vertical_food_consumerAggregateArgs> = {
-        [P in keyof T & keyof AggregateVertical_food_consumer]: P extends '_count' | 'count'
+  export type Getvertical_delivery_consumerAggregateType<T extends vertical_delivery_consumerAggregateArgs> = {
+        [P in keyof T & keyof Aggregatevertical_delivery_consumer]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateVertical_food_consumer[P]>
-      : GetScalarType<T[P], AggregateVertical_food_consumer[P]>
+        : GetScalarType<T[P], Aggregatevertical_delivery_consumer[P]>
+      : GetScalarType<T[P], Aggregatevertical_delivery_consumer[P]>
   }
 
 
 
 
-  export type vertical_food_consumerGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: vertical_food_consumerWhereInput
-    orderBy?: vertical_food_consumerOrderByWithAggregationInput | vertical_food_consumerOrderByWithAggregationInput[]
-    by: Vertical_food_consumerScalarFieldEnum[] | Vertical_food_consumerScalarFieldEnum
-    having?: vertical_food_consumerScalarWhereWithAggregatesInput
+  export type vertical_delivery_consumerGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: vertical_delivery_consumerWhereInput
+    orderBy?: vertical_delivery_consumerOrderByWithAggregationInput | vertical_delivery_consumerOrderByWithAggregationInput[]
+    by: vertical_delivery_consumerScalarFieldEnum[] | vertical_delivery_consumerScalarFieldEnum
+    having?: vertical_delivery_consumerScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: Vertical_food_consumerCountAggregateInputType | true
-    _min?: Vertical_food_consumerMinAggregateInputType
-    _max?: Vertical_food_consumerMaxAggregateInputType
+    _count?: vertical_delivery_consumerCountAggregateInputType | true
+    _min?: vertical_delivery_consumerMinAggregateInputType
+    _max?: vertical_delivery_consumerMaxAggregateInputType
   }
 
-  export type Vertical_food_consumerGroupByOutputType = {
+  export type vertical_delivery_consumerGroupByOutputType = {
     id: string
     full_name: string
     country_code: string
     phone: string
-    status: $Enums.food_consumer_status
+    status: $Enums.delivery_consumer_status
     client_id: string | null
     created_at: Date
     updated_at: Date
-    _count: Vertical_food_consumerCountAggregateOutputType | null
-    _min: Vertical_food_consumerMinAggregateOutputType | null
-    _max: Vertical_food_consumerMaxAggregateOutputType | null
+    _count: vertical_delivery_consumerCountAggregateOutputType | null
+    _min: vertical_delivery_consumerMinAggregateOutputType | null
+    _max: vertical_delivery_consumerMaxAggregateOutputType | null
   }
 
-  type GetVertical_food_consumerGroupByPayload<T extends vertical_food_consumerGroupByArgs> = Prisma.PrismaPromise<
+  type Getvertical_delivery_consumerGroupByPayload<T extends vertical_delivery_consumerGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<Vertical_food_consumerGroupByOutputType, T['by']> &
+      PickEnumerable<vertical_delivery_consumerGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof Vertical_food_consumerGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof vertical_delivery_consumerGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], Vertical_food_consumerGroupByOutputType[P]>
-            : GetScalarType<T[P], Vertical_food_consumerGroupByOutputType[P]>
+              : GetScalarType<T[P], vertical_delivery_consumerGroupByOutputType[P]>
+            : GetScalarType<T[P], vertical_delivery_consumerGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type vertical_food_consumerSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type vertical_delivery_consumerSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     full_name?: boolean
     country_code?: boolean
@@ -23129,14 +23129,14 @@ export namespace Prisma {
     client_id?: boolean
     created_at?: boolean
     updated_at?: boolean
-    client?: boolean | vertical_food_consumer$clientArgs<ExtArgs>
-    boxes?: boolean | vertical_food_consumer$boxesArgs<ExtArgs>
-    _count?: boolean | Vertical_food_consumerCountOutputTypeDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["vertical_food_consumer"]>
+    client?: boolean | vertical_delivery_consumer$clientArgs<ExtArgs>
+    boxes?: boolean | vertical_delivery_consumer$boxesArgs<ExtArgs>
+    _count?: boolean | vertical_delivery_consumerCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["vertical_delivery_consumer"]>
 
 
 
-  export type vertical_food_consumerSelectScalar = {
+  export type vertical_delivery_consumerSelectScalar = {
     id?: boolean
     full_name?: boolean
     country_code?: boolean
@@ -23147,165 +23147,165 @@ export namespace Prisma {
     updated_at?: boolean
   }
 
-  export type vertical_food_consumerOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "full_name" | "country_code" | "phone" | "status" | "client_id" | "created_at" | "updated_at", ExtArgs["result"]["vertical_food_consumer"]>
-  export type vertical_food_consumerInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    client?: boolean | vertical_food_consumer$clientArgs<ExtArgs>
-    boxes?: boolean | vertical_food_consumer$boxesArgs<ExtArgs>
-    _count?: boolean | Vertical_food_consumerCountOutputTypeDefaultArgs<ExtArgs>
+  export type vertical_delivery_consumerOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "full_name" | "country_code" | "phone" | "status" | "client_id" | "created_at" | "updated_at", ExtArgs["result"]["vertical_delivery_consumer"]>
+  export type vertical_delivery_consumerInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    client?: boolean | vertical_delivery_consumer$clientArgs<ExtArgs>
+    boxes?: boolean | vertical_delivery_consumer$boxesArgs<ExtArgs>
+    _count?: boolean | vertical_delivery_consumerCountOutputTypeDefaultArgs<ExtArgs>
   }
 
-  export type $vertical_food_consumerPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "vertical_food_consumer"
+  export type $vertical_delivery_consumerPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "vertical_delivery_consumer"
     objects: {
       client: Prisma.$clientPayload<ExtArgs> | null
-      boxes: Prisma.$vertical_food_consumer_boxPayload<ExtArgs>[]
+      boxes: Prisma.$vertical_delivery_consumer_boxPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       full_name: string
       country_code: string
       phone: string
-      status: $Enums.food_consumer_status
+      status: $Enums.delivery_consumer_status
       client_id: string | null
       created_at: Date
       updated_at: Date
-    }, ExtArgs["result"]["vertical_food_consumer"]>
+    }, ExtArgs["result"]["vertical_delivery_consumer"]>
     composites: {}
   }
 
-  type vertical_food_consumerGetPayload<S extends boolean | null | undefined | vertical_food_consumerDefaultArgs> = $Result.GetResult<Prisma.$vertical_food_consumerPayload, S>
+  type vertical_delivery_consumerGetPayload<S extends boolean | null | undefined | vertical_delivery_consumerDefaultArgs> = $Result.GetResult<Prisma.$vertical_delivery_consumerPayload, S>
 
-  type vertical_food_consumerCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<vertical_food_consumerFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: Vertical_food_consumerCountAggregateInputType | true
+  type vertical_delivery_consumerCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<vertical_delivery_consumerFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: vertical_delivery_consumerCountAggregateInputType | true
     }
 
-  export interface vertical_food_consumerDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['vertical_food_consumer'], meta: { name: 'vertical_food_consumer' } }
+  export interface vertical_delivery_consumerDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['vertical_delivery_consumer'], meta: { name: 'vertical_delivery_consumer' } }
     /**
-     * Find zero or one Vertical_food_consumer that matches the filter.
-     * @param {vertical_food_consumerFindUniqueArgs} args - Arguments to find a Vertical_food_consumer
+     * Find zero or one vertical_delivery_consumer that matches the filter.
+     * @param {vertical_delivery_consumerFindUniqueArgs} args - Arguments to find a vertical_delivery_consumer
      * @example
-     * // Get one Vertical_food_consumer
-     * const vertical_food_consumer = await prisma.vertical_food_consumer.findUnique({
+     * // Get one vertical_delivery_consumer
+     * const vertical_delivery_consumer = await prisma.vertical_delivery_consumer.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends vertical_food_consumerFindUniqueArgs>(args: SelectSubset<T, vertical_food_consumerFindUniqueArgs<ExtArgs>>): Prisma__vertical_food_consumerClient<$Result.GetResult<Prisma.$vertical_food_consumerPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findUnique<T extends vertical_delivery_consumerFindUniqueArgs>(args: SelectSubset<T, vertical_delivery_consumerFindUniqueArgs<ExtArgs>>): Prisma__vertical_delivery_consumerClient<$Result.GetResult<Prisma.$vertical_delivery_consumerPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find one Vertical_food_consumer that matches the filter or throw an error with `error.code='P2025'`
+     * Find one vertical_delivery_consumer that matches the filter or throw an error with `error.code='P2025'`
      * if no matches were found.
-     * @param {vertical_food_consumerFindUniqueOrThrowArgs} args - Arguments to find a Vertical_food_consumer
+     * @param {vertical_delivery_consumerFindUniqueOrThrowArgs} args - Arguments to find a vertical_delivery_consumer
      * @example
-     * // Get one Vertical_food_consumer
-     * const vertical_food_consumer = await prisma.vertical_food_consumer.findUniqueOrThrow({
+     * // Get one vertical_delivery_consumer
+     * const vertical_delivery_consumer = await prisma.vertical_delivery_consumer.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends vertical_food_consumerFindUniqueOrThrowArgs>(args: SelectSubset<T, vertical_food_consumerFindUniqueOrThrowArgs<ExtArgs>>): Prisma__vertical_food_consumerClient<$Result.GetResult<Prisma.$vertical_food_consumerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findUniqueOrThrow<T extends vertical_delivery_consumerFindUniqueOrThrowArgs>(args: SelectSubset<T, vertical_delivery_consumerFindUniqueOrThrowArgs<ExtArgs>>): Prisma__vertical_delivery_consumerClient<$Result.GetResult<Prisma.$vertical_delivery_consumerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find the first Vertical_food_consumer that matches the filter.
+     * Find the first vertical_delivery_consumer that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {vertical_food_consumerFindFirstArgs} args - Arguments to find a Vertical_food_consumer
+     * @param {vertical_delivery_consumerFindFirstArgs} args - Arguments to find a vertical_delivery_consumer
      * @example
-     * // Get one Vertical_food_consumer
-     * const vertical_food_consumer = await prisma.vertical_food_consumer.findFirst({
+     * // Get one vertical_delivery_consumer
+     * const vertical_delivery_consumer = await prisma.vertical_delivery_consumer.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends vertical_food_consumerFindFirstArgs>(args?: SelectSubset<T, vertical_food_consumerFindFirstArgs<ExtArgs>>): Prisma__vertical_food_consumerClient<$Result.GetResult<Prisma.$vertical_food_consumerPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findFirst<T extends vertical_delivery_consumerFindFirstArgs>(args?: SelectSubset<T, vertical_delivery_consumerFindFirstArgs<ExtArgs>>): Prisma__vertical_delivery_consumerClient<$Result.GetResult<Prisma.$vertical_delivery_consumerPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find the first Vertical_food_consumer that matches the filter or
+     * Find the first vertical_delivery_consumer that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {vertical_food_consumerFindFirstOrThrowArgs} args - Arguments to find a Vertical_food_consumer
+     * @param {vertical_delivery_consumerFindFirstOrThrowArgs} args - Arguments to find a vertical_delivery_consumer
      * @example
-     * // Get one Vertical_food_consumer
-     * const vertical_food_consumer = await prisma.vertical_food_consumer.findFirstOrThrow({
+     * // Get one vertical_delivery_consumer
+     * const vertical_delivery_consumer = await prisma.vertical_delivery_consumer.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends vertical_food_consumerFindFirstOrThrowArgs>(args?: SelectSubset<T, vertical_food_consumerFindFirstOrThrowArgs<ExtArgs>>): Prisma__vertical_food_consumerClient<$Result.GetResult<Prisma.$vertical_food_consumerPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findFirstOrThrow<T extends vertical_delivery_consumerFindFirstOrThrowArgs>(args?: SelectSubset<T, vertical_delivery_consumerFindFirstOrThrowArgs<ExtArgs>>): Prisma__vertical_delivery_consumerClient<$Result.GetResult<Prisma.$vertical_delivery_consumerPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find zero or more Vertical_food_consumers that matches the filter.
+     * Find zero or more vertical_delivery_consumers that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {vertical_food_consumerFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {vertical_delivery_consumerFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all Vertical_food_consumers
-     * const vertical_food_consumers = await prisma.vertical_food_consumer.findMany()
+     * // Get all vertical_delivery_consumers
+     * const vertical_delivery_consumers = await prisma.vertical_delivery_consumer.findMany()
      * 
-     * // Get first 10 Vertical_food_consumers
-     * const vertical_food_consumers = await prisma.vertical_food_consumer.findMany({ take: 10 })
+     * // Get first 10 vertical_delivery_consumers
+     * const vertical_delivery_consumers = await prisma.vertical_delivery_consumer.findMany({ take: 10 })
      * 
      * // Only select the `id`
-     * const vertical_food_consumerWithIdOnly = await prisma.vertical_food_consumer.findMany({ select: { id: true } })
+     * const vertical_delivery_consumerWithIdOnly = await prisma.vertical_delivery_consumer.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends vertical_food_consumerFindManyArgs>(args?: SelectSubset<T, vertical_food_consumerFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$vertical_food_consumerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+    findMany<T extends vertical_delivery_consumerFindManyArgs>(args?: SelectSubset<T, vertical_delivery_consumerFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$vertical_delivery_consumerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
     /**
-     * Create a Vertical_food_consumer.
-     * @param {vertical_food_consumerCreateArgs} args - Arguments to create a Vertical_food_consumer.
+     * Create a vertical_delivery_consumer.
+     * @param {vertical_delivery_consumerCreateArgs} args - Arguments to create a vertical_delivery_consumer.
      * @example
-     * // Create one Vertical_food_consumer
-     * const Vertical_food_consumer = await prisma.vertical_food_consumer.create({
+     * // Create one vertical_delivery_consumer
+     * const vertical_delivery_consumer = await prisma.vertical_delivery_consumer.create({
      *   data: {
-     *     // ... data to create a Vertical_food_consumer
+     *     // ... data to create a vertical_delivery_consumer
      *   }
      * })
      * 
      */
-    create<T extends vertical_food_consumerCreateArgs>(args: SelectSubset<T, vertical_food_consumerCreateArgs<ExtArgs>>): Prisma__vertical_food_consumerClient<$Result.GetResult<Prisma.$vertical_food_consumerPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    create<T extends vertical_delivery_consumerCreateArgs>(args: SelectSubset<T, vertical_delivery_consumerCreateArgs<ExtArgs>>): Prisma__vertical_delivery_consumerClient<$Result.GetResult<Prisma.$vertical_delivery_consumerPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Create many Vertical_food_consumers.
-     * @param {vertical_food_consumerCreateManyArgs} args - Arguments to create many Vertical_food_consumers.
+     * Create many vertical_delivery_consumers.
+     * @param {vertical_delivery_consumerCreateManyArgs} args - Arguments to create many vertical_delivery_consumers.
      * @example
-     * // Create many Vertical_food_consumers
-     * const vertical_food_consumer = await prisma.vertical_food_consumer.createMany({
+     * // Create many vertical_delivery_consumers
+     * const vertical_delivery_consumer = await prisma.vertical_delivery_consumer.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends vertical_food_consumerCreateManyArgs>(args?: SelectSubset<T, vertical_food_consumerCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends vertical_delivery_consumerCreateManyArgs>(args?: SelectSubset<T, vertical_delivery_consumerCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Delete a Vertical_food_consumer.
-     * @param {vertical_food_consumerDeleteArgs} args - Arguments to delete one Vertical_food_consumer.
+     * Delete a vertical_delivery_consumer.
+     * @param {vertical_delivery_consumerDeleteArgs} args - Arguments to delete one vertical_delivery_consumer.
      * @example
-     * // Delete one Vertical_food_consumer
-     * const Vertical_food_consumer = await prisma.vertical_food_consumer.delete({
+     * // Delete one vertical_delivery_consumer
+     * const vertical_delivery_consumer = await prisma.vertical_delivery_consumer.delete({
      *   where: {
-     *     // ... filter to delete one Vertical_food_consumer
+     *     // ... filter to delete one vertical_delivery_consumer
      *   }
      * })
      * 
      */
-    delete<T extends vertical_food_consumerDeleteArgs>(args: SelectSubset<T, vertical_food_consumerDeleteArgs<ExtArgs>>): Prisma__vertical_food_consumerClient<$Result.GetResult<Prisma.$vertical_food_consumerPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    delete<T extends vertical_delivery_consumerDeleteArgs>(args: SelectSubset<T, vertical_delivery_consumerDeleteArgs<ExtArgs>>): Prisma__vertical_delivery_consumerClient<$Result.GetResult<Prisma.$vertical_delivery_consumerPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Update one Vertical_food_consumer.
-     * @param {vertical_food_consumerUpdateArgs} args - Arguments to update one Vertical_food_consumer.
+     * Update one vertical_delivery_consumer.
+     * @param {vertical_delivery_consumerUpdateArgs} args - Arguments to update one vertical_delivery_consumer.
      * @example
-     * // Update one Vertical_food_consumer
-     * const vertical_food_consumer = await prisma.vertical_food_consumer.update({
+     * // Update one vertical_delivery_consumer
+     * const vertical_delivery_consumer = await prisma.vertical_delivery_consumer.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -23315,30 +23315,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends vertical_food_consumerUpdateArgs>(args: SelectSubset<T, vertical_food_consumerUpdateArgs<ExtArgs>>): Prisma__vertical_food_consumerClient<$Result.GetResult<Prisma.$vertical_food_consumerPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    update<T extends vertical_delivery_consumerUpdateArgs>(args: SelectSubset<T, vertical_delivery_consumerUpdateArgs<ExtArgs>>): Prisma__vertical_delivery_consumerClient<$Result.GetResult<Prisma.$vertical_delivery_consumerPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Delete zero or more Vertical_food_consumers.
-     * @param {vertical_food_consumerDeleteManyArgs} args - Arguments to filter Vertical_food_consumers to delete.
+     * Delete zero or more vertical_delivery_consumers.
+     * @param {vertical_delivery_consumerDeleteManyArgs} args - Arguments to filter vertical_delivery_consumers to delete.
      * @example
-     * // Delete a few Vertical_food_consumers
-     * const { count } = await prisma.vertical_food_consumer.deleteMany({
+     * // Delete a few vertical_delivery_consumers
+     * const { count } = await prisma.vertical_delivery_consumer.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends vertical_food_consumerDeleteManyArgs>(args?: SelectSubset<T, vertical_food_consumerDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends vertical_delivery_consumerDeleteManyArgs>(args?: SelectSubset<T, vertical_delivery_consumerDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more Vertical_food_consumers.
+     * Update zero or more vertical_delivery_consumers.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {vertical_food_consumerUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {vertical_delivery_consumerUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many Vertical_food_consumers
-     * const vertical_food_consumer = await prisma.vertical_food_consumer.updateMany({
+     * // Update many vertical_delivery_consumers
+     * const vertical_delivery_consumer = await prisma.vertical_delivery_consumer.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -23348,56 +23348,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends vertical_food_consumerUpdateManyArgs>(args: SelectSubset<T, vertical_food_consumerUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends vertical_delivery_consumerUpdateManyArgs>(args: SelectSubset<T, vertical_delivery_consumerUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one Vertical_food_consumer.
-     * @param {vertical_food_consumerUpsertArgs} args - Arguments to update or create a Vertical_food_consumer.
+     * Create or update one vertical_delivery_consumer.
+     * @param {vertical_delivery_consumerUpsertArgs} args - Arguments to update or create a vertical_delivery_consumer.
      * @example
-     * // Update or create a Vertical_food_consumer
-     * const vertical_food_consumer = await prisma.vertical_food_consumer.upsert({
+     * // Update or create a vertical_delivery_consumer
+     * const vertical_delivery_consumer = await prisma.vertical_delivery_consumer.upsert({
      *   create: {
-     *     // ... data to create a Vertical_food_consumer
+     *     // ... data to create a vertical_delivery_consumer
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the Vertical_food_consumer we want to update
+     *     // ... the filter for the vertical_delivery_consumer we want to update
      *   }
      * })
      */
-    upsert<T extends vertical_food_consumerUpsertArgs>(args: SelectSubset<T, vertical_food_consumerUpsertArgs<ExtArgs>>): Prisma__vertical_food_consumerClient<$Result.GetResult<Prisma.$vertical_food_consumerPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    upsert<T extends vertical_delivery_consumerUpsertArgs>(args: SelectSubset<T, vertical_delivery_consumerUpsertArgs<ExtArgs>>): Prisma__vertical_delivery_consumerClient<$Result.GetResult<Prisma.$vertical_delivery_consumerPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
 
     /**
-     * Count the number of Vertical_food_consumers.
+     * Count the number of vertical_delivery_consumers.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {vertical_food_consumerCountArgs} args - Arguments to filter Vertical_food_consumers to count.
+     * @param {vertical_delivery_consumerCountArgs} args - Arguments to filter vertical_delivery_consumers to count.
      * @example
-     * // Count the number of Vertical_food_consumers
-     * const count = await prisma.vertical_food_consumer.count({
+     * // Count the number of vertical_delivery_consumers
+     * const count = await prisma.vertical_delivery_consumer.count({
      *   where: {
-     *     // ... the filter for the Vertical_food_consumers we want to count
+     *     // ... the filter for the vertical_delivery_consumers we want to count
      *   }
      * })
     **/
-    count<T extends vertical_food_consumerCountArgs>(
-      args?: Subset<T, vertical_food_consumerCountArgs>,
+    count<T extends vertical_delivery_consumerCountArgs>(
+      args?: Subset<T, vertical_delivery_consumerCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], Vertical_food_consumerCountAggregateOutputType>
+          : GetScalarType<T['select'], vertical_delivery_consumerCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a Vertical_food_consumer.
+     * Allows you to perform aggregations operations on a vertical_delivery_consumer.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {Vertical_food_consumerAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {vertical_delivery_consumerAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -23417,13 +23417,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends Vertical_food_consumerAggregateArgs>(args: Subset<T, Vertical_food_consumerAggregateArgs>): Prisma.PrismaPromise<GetVertical_food_consumerAggregateType<T>>
+    aggregate<T extends vertical_delivery_consumerAggregateArgs>(args: Subset<T, vertical_delivery_consumerAggregateArgs>): Prisma.PrismaPromise<Getvertical_delivery_consumerAggregateType<T>>
 
     /**
-     * Group by Vertical_food_consumer.
+     * Group by vertical_delivery_consumer.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {vertical_food_consumerGroupByArgs} args - Group by arguments.
+     * @param {vertical_delivery_consumerGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -23438,14 +23438,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends vertical_food_consumerGroupByArgs,
+      T extends vertical_delivery_consumerGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: vertical_food_consumerGroupByArgs['orderBy'] }
-        : { orderBy?: vertical_food_consumerGroupByArgs['orderBy'] },
+        ? { orderBy: vertical_delivery_consumerGroupByArgs['orderBy'] }
+        : { orderBy?: vertical_delivery_consumerGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -23494,23 +23494,23 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, vertical_food_consumerGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetVertical_food_consumerGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, vertical_delivery_consumerGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? Getvertical_delivery_consumerGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the vertical_food_consumer model
+   * Fields of the vertical_delivery_consumer model
    */
-  readonly fields: vertical_food_consumerFieldRefs;
+  readonly fields: vertical_delivery_consumerFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for vertical_food_consumer.
+   * The delegate class that acts as a "Promise-like" for vertical_delivery_consumer.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__vertical_food_consumerClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__vertical_delivery_consumerClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    client<T extends vertical_food_consumer$clientArgs<ExtArgs> = {}>(args?: Subset<T, vertical_food_consumer$clientArgs<ExtArgs>>): Prisma__clientClient<$Result.GetResult<Prisma.$clientPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    boxes<T extends vertical_food_consumer$boxesArgs<ExtArgs> = {}>(args?: Subset<T, vertical_food_consumer$boxesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$vertical_food_consumer_boxPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    client<T extends vertical_delivery_consumer$clientArgs<ExtArgs> = {}>(args?: Subset<T, vertical_delivery_consumer$clientArgs<ExtArgs>>): Prisma__clientClient<$Result.GetResult<Prisma.$clientPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    boxes<T extends vertical_delivery_consumer$boxesArgs<ExtArgs> = {}>(args?: Subset<T, vertical_delivery_consumer$boxesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$vertical_delivery_consumer_boxPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -23537,368 +23537,368 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the vertical_food_consumer model
+   * Fields of the vertical_delivery_consumer model
    */
-  interface vertical_food_consumerFieldRefs {
-    readonly id: FieldRef<"vertical_food_consumer", 'String'>
-    readonly full_name: FieldRef<"vertical_food_consumer", 'String'>
-    readonly country_code: FieldRef<"vertical_food_consumer", 'String'>
-    readonly phone: FieldRef<"vertical_food_consumer", 'String'>
-    readonly status: FieldRef<"vertical_food_consumer", 'food_consumer_status'>
-    readonly client_id: FieldRef<"vertical_food_consumer", 'String'>
-    readonly created_at: FieldRef<"vertical_food_consumer", 'DateTime'>
-    readonly updated_at: FieldRef<"vertical_food_consumer", 'DateTime'>
+  interface vertical_delivery_consumerFieldRefs {
+    readonly id: FieldRef<"vertical_delivery_consumer", 'String'>
+    readonly full_name: FieldRef<"vertical_delivery_consumer", 'String'>
+    readonly country_code: FieldRef<"vertical_delivery_consumer", 'String'>
+    readonly phone: FieldRef<"vertical_delivery_consumer", 'String'>
+    readonly status: FieldRef<"vertical_delivery_consumer", 'delivery_consumer_status'>
+    readonly client_id: FieldRef<"vertical_delivery_consumer", 'String'>
+    readonly created_at: FieldRef<"vertical_delivery_consumer", 'DateTime'>
+    readonly updated_at: FieldRef<"vertical_delivery_consumer", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * vertical_food_consumer findUnique
+   * vertical_delivery_consumer findUnique
    */
-  export type vertical_food_consumerFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_consumerFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_consumer
+     * Select specific fields to fetch from the vertical_delivery_consumer
      */
-    select?: vertical_food_consumerSelect<ExtArgs> | null
+    select?: vertical_delivery_consumerSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_consumer
+     * Omit specific fields from the vertical_delivery_consumer
      */
-    omit?: vertical_food_consumerOmit<ExtArgs> | null
+    omit?: vertical_delivery_consumerOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: vertical_food_consumerInclude<ExtArgs> | null
+    include?: vertical_delivery_consumerInclude<ExtArgs> | null
     /**
-     * Filter, which vertical_food_consumer to fetch.
+     * Filter, which vertical_delivery_consumer to fetch.
      */
-    where: vertical_food_consumerWhereUniqueInput
+    where: vertical_delivery_consumerWhereUniqueInput
   }
 
   /**
-   * vertical_food_consumer findUniqueOrThrow
+   * vertical_delivery_consumer findUniqueOrThrow
    */
-  export type vertical_food_consumerFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_consumerFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_consumer
+     * Select specific fields to fetch from the vertical_delivery_consumer
      */
-    select?: vertical_food_consumerSelect<ExtArgs> | null
+    select?: vertical_delivery_consumerSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_consumer
+     * Omit specific fields from the vertical_delivery_consumer
      */
-    omit?: vertical_food_consumerOmit<ExtArgs> | null
+    omit?: vertical_delivery_consumerOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: vertical_food_consumerInclude<ExtArgs> | null
+    include?: vertical_delivery_consumerInclude<ExtArgs> | null
     /**
-     * Filter, which vertical_food_consumer to fetch.
+     * Filter, which vertical_delivery_consumer to fetch.
      */
-    where: vertical_food_consumerWhereUniqueInput
+    where: vertical_delivery_consumerWhereUniqueInput
   }
 
   /**
-   * vertical_food_consumer findFirst
+   * vertical_delivery_consumer findFirst
    */
-  export type vertical_food_consumerFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_consumerFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_consumer
+     * Select specific fields to fetch from the vertical_delivery_consumer
      */
-    select?: vertical_food_consumerSelect<ExtArgs> | null
+    select?: vertical_delivery_consumerSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_consumer
+     * Omit specific fields from the vertical_delivery_consumer
      */
-    omit?: vertical_food_consumerOmit<ExtArgs> | null
+    omit?: vertical_delivery_consumerOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: vertical_food_consumerInclude<ExtArgs> | null
+    include?: vertical_delivery_consumerInclude<ExtArgs> | null
     /**
-     * Filter, which vertical_food_consumer to fetch.
+     * Filter, which vertical_delivery_consumer to fetch.
      */
-    where?: vertical_food_consumerWhereInput
+    where?: vertical_delivery_consumerWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of vertical_food_consumers to fetch.
+     * Determine the order of vertical_delivery_consumers to fetch.
      */
-    orderBy?: vertical_food_consumerOrderByWithRelationInput | vertical_food_consumerOrderByWithRelationInput[]
+    orderBy?: vertical_delivery_consumerOrderByWithRelationInput | vertical_delivery_consumerOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for vertical_food_consumers.
+     * Sets the position for searching for vertical_delivery_consumers.
      */
-    cursor?: vertical_food_consumerWhereUniqueInput
+    cursor?: vertical_delivery_consumerWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` vertical_food_consumers from the position of the cursor.
+     * Take `±n` vertical_delivery_consumers from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` vertical_food_consumers.
+     * Skip the first `n` vertical_delivery_consumers.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of vertical_food_consumers.
+     * Filter by unique combinations of vertical_delivery_consumers.
      */
-    distinct?: Vertical_food_consumerScalarFieldEnum | Vertical_food_consumerScalarFieldEnum[]
+    distinct?: vertical_delivery_consumerScalarFieldEnum | vertical_delivery_consumerScalarFieldEnum[]
   }
 
   /**
-   * vertical_food_consumer findFirstOrThrow
+   * vertical_delivery_consumer findFirstOrThrow
    */
-  export type vertical_food_consumerFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_consumerFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_consumer
+     * Select specific fields to fetch from the vertical_delivery_consumer
      */
-    select?: vertical_food_consumerSelect<ExtArgs> | null
+    select?: vertical_delivery_consumerSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_consumer
+     * Omit specific fields from the vertical_delivery_consumer
      */
-    omit?: vertical_food_consumerOmit<ExtArgs> | null
+    omit?: vertical_delivery_consumerOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: vertical_food_consumerInclude<ExtArgs> | null
+    include?: vertical_delivery_consumerInclude<ExtArgs> | null
     /**
-     * Filter, which vertical_food_consumer to fetch.
+     * Filter, which vertical_delivery_consumer to fetch.
      */
-    where?: vertical_food_consumerWhereInput
+    where?: vertical_delivery_consumerWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of vertical_food_consumers to fetch.
+     * Determine the order of vertical_delivery_consumers to fetch.
      */
-    orderBy?: vertical_food_consumerOrderByWithRelationInput | vertical_food_consumerOrderByWithRelationInput[]
+    orderBy?: vertical_delivery_consumerOrderByWithRelationInput | vertical_delivery_consumerOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for vertical_food_consumers.
+     * Sets the position for searching for vertical_delivery_consumers.
      */
-    cursor?: vertical_food_consumerWhereUniqueInput
+    cursor?: vertical_delivery_consumerWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` vertical_food_consumers from the position of the cursor.
+     * Take `±n` vertical_delivery_consumers from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` vertical_food_consumers.
+     * Skip the first `n` vertical_delivery_consumers.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of vertical_food_consumers.
+     * Filter by unique combinations of vertical_delivery_consumers.
      */
-    distinct?: Vertical_food_consumerScalarFieldEnum | Vertical_food_consumerScalarFieldEnum[]
+    distinct?: vertical_delivery_consumerScalarFieldEnum | vertical_delivery_consumerScalarFieldEnum[]
   }
 
   /**
-   * vertical_food_consumer findMany
+   * vertical_delivery_consumer findMany
    */
-  export type vertical_food_consumerFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_consumerFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_consumer
+     * Select specific fields to fetch from the vertical_delivery_consumer
      */
-    select?: vertical_food_consumerSelect<ExtArgs> | null
+    select?: vertical_delivery_consumerSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_consumer
+     * Omit specific fields from the vertical_delivery_consumer
      */
-    omit?: vertical_food_consumerOmit<ExtArgs> | null
+    omit?: vertical_delivery_consumerOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: vertical_food_consumerInclude<ExtArgs> | null
+    include?: vertical_delivery_consumerInclude<ExtArgs> | null
     /**
-     * Filter, which vertical_food_consumers to fetch.
+     * Filter, which vertical_delivery_consumers to fetch.
      */
-    where?: vertical_food_consumerWhereInput
+    where?: vertical_delivery_consumerWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of vertical_food_consumers to fetch.
+     * Determine the order of vertical_delivery_consumers to fetch.
      */
-    orderBy?: vertical_food_consumerOrderByWithRelationInput | vertical_food_consumerOrderByWithRelationInput[]
+    orderBy?: vertical_delivery_consumerOrderByWithRelationInput | vertical_delivery_consumerOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing vertical_food_consumers.
+     * Sets the position for listing vertical_delivery_consumers.
      */
-    cursor?: vertical_food_consumerWhereUniqueInput
+    cursor?: vertical_delivery_consumerWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` vertical_food_consumers from the position of the cursor.
+     * Take `±n` vertical_delivery_consumers from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` vertical_food_consumers.
+     * Skip the first `n` vertical_delivery_consumers.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of vertical_food_consumers.
+     * Filter by unique combinations of vertical_delivery_consumers.
      */
-    distinct?: Vertical_food_consumerScalarFieldEnum | Vertical_food_consumerScalarFieldEnum[]
+    distinct?: vertical_delivery_consumerScalarFieldEnum | vertical_delivery_consumerScalarFieldEnum[]
   }
 
   /**
-   * vertical_food_consumer create
+   * vertical_delivery_consumer create
    */
-  export type vertical_food_consumerCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_consumerCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_consumer
+     * Select specific fields to fetch from the vertical_delivery_consumer
      */
-    select?: vertical_food_consumerSelect<ExtArgs> | null
+    select?: vertical_delivery_consumerSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_consumer
+     * Omit specific fields from the vertical_delivery_consumer
      */
-    omit?: vertical_food_consumerOmit<ExtArgs> | null
+    omit?: vertical_delivery_consumerOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: vertical_food_consumerInclude<ExtArgs> | null
+    include?: vertical_delivery_consumerInclude<ExtArgs> | null
     /**
-     * The data needed to create a vertical_food_consumer.
+     * The data needed to create a vertical_delivery_consumer.
      */
-    data: XOR<vertical_food_consumerCreateInput, vertical_food_consumerUncheckedCreateInput>
+    data: XOR<vertical_delivery_consumerCreateInput, vertical_delivery_consumerUncheckedCreateInput>
   }
 
   /**
-   * vertical_food_consumer createMany
+   * vertical_delivery_consumer createMany
    */
-  export type vertical_food_consumerCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_consumerCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many vertical_food_consumers.
+     * The data used to create many vertical_delivery_consumers.
      */
-    data: vertical_food_consumerCreateManyInput | vertical_food_consumerCreateManyInput[]
+    data: vertical_delivery_consumerCreateManyInput | vertical_delivery_consumerCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * vertical_food_consumer update
+   * vertical_delivery_consumer update
    */
-  export type vertical_food_consumerUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_consumerUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_consumer
+     * Select specific fields to fetch from the vertical_delivery_consumer
      */
-    select?: vertical_food_consumerSelect<ExtArgs> | null
+    select?: vertical_delivery_consumerSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_consumer
+     * Omit specific fields from the vertical_delivery_consumer
      */
-    omit?: vertical_food_consumerOmit<ExtArgs> | null
+    omit?: vertical_delivery_consumerOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: vertical_food_consumerInclude<ExtArgs> | null
+    include?: vertical_delivery_consumerInclude<ExtArgs> | null
     /**
-     * The data needed to update a vertical_food_consumer.
+     * The data needed to update a vertical_delivery_consumer.
      */
-    data: XOR<vertical_food_consumerUpdateInput, vertical_food_consumerUncheckedUpdateInput>
+    data: XOR<vertical_delivery_consumerUpdateInput, vertical_delivery_consumerUncheckedUpdateInput>
     /**
-     * Choose, which vertical_food_consumer to update.
+     * Choose, which vertical_delivery_consumer to update.
      */
-    where: vertical_food_consumerWhereUniqueInput
+    where: vertical_delivery_consumerWhereUniqueInput
   }
 
   /**
-   * vertical_food_consumer updateMany
+   * vertical_delivery_consumer updateMany
    */
-  export type vertical_food_consumerUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_consumerUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update vertical_food_consumers.
+     * The data used to update vertical_delivery_consumers.
      */
-    data: XOR<vertical_food_consumerUpdateManyMutationInput, vertical_food_consumerUncheckedUpdateManyInput>
+    data: XOR<vertical_delivery_consumerUpdateManyMutationInput, vertical_delivery_consumerUncheckedUpdateManyInput>
     /**
-     * Filter which vertical_food_consumers to update
+     * Filter which vertical_delivery_consumers to update
      */
-    where?: vertical_food_consumerWhereInput
+    where?: vertical_delivery_consumerWhereInput
     /**
-     * Limit how many vertical_food_consumers to update.
+     * Limit how many vertical_delivery_consumers to update.
      */
     limit?: number
   }
 
   /**
-   * vertical_food_consumer upsert
+   * vertical_delivery_consumer upsert
    */
-  export type vertical_food_consumerUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_consumerUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_consumer
+     * Select specific fields to fetch from the vertical_delivery_consumer
      */
-    select?: vertical_food_consumerSelect<ExtArgs> | null
+    select?: vertical_delivery_consumerSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_consumer
+     * Omit specific fields from the vertical_delivery_consumer
      */
-    omit?: vertical_food_consumerOmit<ExtArgs> | null
+    omit?: vertical_delivery_consumerOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: vertical_food_consumerInclude<ExtArgs> | null
+    include?: vertical_delivery_consumerInclude<ExtArgs> | null
     /**
-     * The filter to search for the vertical_food_consumer to update in case it exists.
+     * The filter to search for the vertical_delivery_consumer to update in case it exists.
      */
-    where: vertical_food_consumerWhereUniqueInput
+    where: vertical_delivery_consumerWhereUniqueInput
     /**
-     * In case the vertical_food_consumer found by the `where` argument doesn't exist, create a new vertical_food_consumer with this data.
+     * In case the vertical_delivery_consumer found by the `where` argument doesn't exist, create a new vertical_delivery_consumer with this data.
      */
-    create: XOR<vertical_food_consumerCreateInput, vertical_food_consumerUncheckedCreateInput>
+    create: XOR<vertical_delivery_consumerCreateInput, vertical_delivery_consumerUncheckedCreateInput>
     /**
-     * In case the vertical_food_consumer was found with the provided `where` argument, update it with this data.
+     * In case the vertical_delivery_consumer was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<vertical_food_consumerUpdateInput, vertical_food_consumerUncheckedUpdateInput>
+    update: XOR<vertical_delivery_consumerUpdateInput, vertical_delivery_consumerUncheckedUpdateInput>
   }
 
   /**
-   * vertical_food_consumer delete
+   * vertical_delivery_consumer delete
    */
-  export type vertical_food_consumerDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_consumerDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_consumer
+     * Select specific fields to fetch from the vertical_delivery_consumer
      */
-    select?: vertical_food_consumerSelect<ExtArgs> | null
+    select?: vertical_delivery_consumerSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_consumer
+     * Omit specific fields from the vertical_delivery_consumer
      */
-    omit?: vertical_food_consumerOmit<ExtArgs> | null
+    omit?: vertical_delivery_consumerOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: vertical_food_consumerInclude<ExtArgs> | null
+    include?: vertical_delivery_consumerInclude<ExtArgs> | null
     /**
-     * Filter which vertical_food_consumer to delete.
+     * Filter which vertical_delivery_consumer to delete.
      */
-    where: vertical_food_consumerWhereUniqueInput
+    where: vertical_delivery_consumerWhereUniqueInput
   }
 
   /**
-   * vertical_food_consumer deleteMany
+   * vertical_delivery_consumer deleteMany
    */
-  export type vertical_food_consumerDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_consumerDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which vertical_food_consumers to delete
+     * Filter which vertical_delivery_consumers to delete
      */
-    where?: vertical_food_consumerWhereInput
+    where?: vertical_delivery_consumerWhereInput
     /**
-     * Limit how many vertical_food_consumers to delete.
+     * Limit how many vertical_delivery_consumers to delete.
      */
     limit?: number
   }
 
   /**
-   * vertical_food_consumer.client
+   * vertical_delivery_consumer.client
    */
-  export type vertical_food_consumer$clientArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_consumer$clientArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the client
      */
@@ -23915,59 +23915,59 @@ export namespace Prisma {
   }
 
   /**
-   * vertical_food_consumer.boxes
+   * vertical_delivery_consumer.boxes
    */
-  export type vertical_food_consumer$boxesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_consumer$boxesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_consumer_box
+     * Select specific fields to fetch from the vertical_delivery_consumer_box
      */
-    select?: vertical_food_consumer_boxSelect<ExtArgs> | null
+    select?: vertical_delivery_consumer_boxSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_consumer_box
+     * Omit specific fields from the vertical_delivery_consumer_box
      */
-    omit?: vertical_food_consumer_boxOmit<ExtArgs> | null
+    omit?: vertical_delivery_consumer_boxOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: vertical_food_consumer_boxInclude<ExtArgs> | null
-    where?: vertical_food_consumer_boxWhereInput
-    orderBy?: vertical_food_consumer_boxOrderByWithRelationInput | vertical_food_consumer_boxOrderByWithRelationInput[]
-    cursor?: vertical_food_consumer_boxWhereUniqueInput
+    include?: vertical_delivery_consumer_boxInclude<ExtArgs> | null
+    where?: vertical_delivery_consumer_boxWhereInput
+    orderBy?: vertical_delivery_consumer_boxOrderByWithRelationInput | vertical_delivery_consumer_boxOrderByWithRelationInput[]
+    cursor?: vertical_delivery_consumer_boxWhereUniqueInput
     take?: number
     skip?: number
-    distinct?: Vertical_food_consumer_boxScalarFieldEnum | Vertical_food_consumer_boxScalarFieldEnum[]
+    distinct?: vertical_delivery_consumer_boxScalarFieldEnum | vertical_delivery_consumer_boxScalarFieldEnum[]
   }
 
   /**
-   * vertical_food_consumer without action
+   * vertical_delivery_consumer without action
    */
-  export type vertical_food_consumerDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_consumerDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_consumer
+     * Select specific fields to fetch from the vertical_delivery_consumer
      */
-    select?: vertical_food_consumerSelect<ExtArgs> | null
+    select?: vertical_delivery_consumerSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_consumer
+     * Omit specific fields from the vertical_delivery_consumer
      */
-    omit?: vertical_food_consumerOmit<ExtArgs> | null
+    omit?: vertical_delivery_consumerOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: vertical_food_consumerInclude<ExtArgs> | null
+    include?: vertical_delivery_consumerInclude<ExtArgs> | null
   }
 
 
   /**
-   * Model vertical_food_consumer_box
+   * Model vertical_delivery_consumer_box
    */
 
-  export type AggregateVertical_food_consumer_box = {
-    _count: Vertical_food_consumer_boxCountAggregateOutputType | null
-    _min: Vertical_food_consumer_boxMinAggregateOutputType | null
-    _max: Vertical_food_consumer_boxMaxAggregateOutputType | null
+  export type Aggregatevertical_delivery_consumer_box = {
+    _count: vertical_delivery_consumer_boxCountAggregateOutputType | null
+    _min: vertical_delivery_consumer_boxMinAggregateOutputType | null
+    _max: vertical_delivery_consumer_boxMaxAggregateOutputType | null
   }
 
-  export type Vertical_food_consumer_boxMinAggregateOutputType = {
+  export type vertical_delivery_consumer_boxMinAggregateOutputType = {
     id: string | null
     consumer_id: string | null
     box_id: string | null
@@ -23975,7 +23975,7 @@ export namespace Prisma {
     updated_at: Date | null
   }
 
-  export type Vertical_food_consumer_boxMaxAggregateOutputType = {
+  export type vertical_delivery_consumer_boxMaxAggregateOutputType = {
     id: string | null
     consumer_id: string | null
     box_id: string | null
@@ -23983,7 +23983,7 @@ export namespace Prisma {
     updated_at: Date | null
   }
 
-  export type Vertical_food_consumer_boxCountAggregateOutputType = {
+  export type vertical_delivery_consumer_boxCountAggregateOutputType = {
     id: number
     consumer_id: number
     box_id: number
@@ -23993,7 +23993,7 @@ export namespace Prisma {
   }
 
 
-  export type Vertical_food_consumer_boxMinAggregateInputType = {
+  export type vertical_delivery_consumer_boxMinAggregateInputType = {
     id?: true
     consumer_id?: true
     box_id?: true
@@ -24001,7 +24001,7 @@ export namespace Prisma {
     updated_at?: true
   }
 
-  export type Vertical_food_consumer_boxMaxAggregateInputType = {
+  export type vertical_delivery_consumer_boxMaxAggregateInputType = {
     id?: true
     consumer_id?: true
     box_id?: true
@@ -24009,7 +24009,7 @@ export namespace Prisma {
     updated_at?: true
   }
 
-  export type Vertical_food_consumer_boxCountAggregateInputType = {
+  export type vertical_delivery_consumer_boxCountAggregateInputType = {
     id?: true
     consumer_id?: true
     box_id?: true
@@ -24018,116 +24018,116 @@ export namespace Prisma {
     _all?: true
   }
 
-  export type Vertical_food_consumer_boxAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_consumer_boxAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which vertical_food_consumer_box to aggregate.
+     * Filter which vertical_delivery_consumer_box to aggregate.
      */
-    where?: vertical_food_consumer_boxWhereInput
+    where?: vertical_delivery_consumer_boxWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of vertical_food_consumer_boxes to fetch.
+     * Determine the order of vertical_delivery_consumer_boxes to fetch.
      */
-    orderBy?: vertical_food_consumer_boxOrderByWithRelationInput | vertical_food_consumer_boxOrderByWithRelationInput[]
+    orderBy?: vertical_delivery_consumer_boxOrderByWithRelationInput | vertical_delivery_consumer_boxOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: vertical_food_consumer_boxWhereUniqueInput
+    cursor?: vertical_delivery_consumer_boxWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` vertical_food_consumer_boxes from the position of the cursor.
+     * Take `±n` vertical_delivery_consumer_boxes from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` vertical_food_consumer_boxes.
+     * Skip the first `n` vertical_delivery_consumer_boxes.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned vertical_food_consumer_boxes
+     * Count returned vertical_delivery_consumer_boxes
     **/
-    _count?: true | Vertical_food_consumer_boxCountAggregateInputType
+    _count?: true | vertical_delivery_consumer_boxCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: Vertical_food_consumer_boxMinAggregateInputType
+    _min?: vertical_delivery_consumer_boxMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: Vertical_food_consumer_boxMaxAggregateInputType
+    _max?: vertical_delivery_consumer_boxMaxAggregateInputType
   }
 
-  export type GetVertical_food_consumer_boxAggregateType<T extends Vertical_food_consumer_boxAggregateArgs> = {
-        [P in keyof T & keyof AggregateVertical_food_consumer_box]: P extends '_count' | 'count'
+  export type Getvertical_delivery_consumer_boxAggregateType<T extends vertical_delivery_consumer_boxAggregateArgs> = {
+        [P in keyof T & keyof Aggregatevertical_delivery_consumer_box]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateVertical_food_consumer_box[P]>
-      : GetScalarType<T[P], AggregateVertical_food_consumer_box[P]>
+        : GetScalarType<T[P], Aggregatevertical_delivery_consumer_box[P]>
+      : GetScalarType<T[P], Aggregatevertical_delivery_consumer_box[P]>
   }
 
 
 
 
-  export type vertical_food_consumer_boxGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: vertical_food_consumer_boxWhereInput
-    orderBy?: vertical_food_consumer_boxOrderByWithAggregationInput | vertical_food_consumer_boxOrderByWithAggregationInput[]
-    by: Vertical_food_consumer_boxScalarFieldEnum[] | Vertical_food_consumer_boxScalarFieldEnum
-    having?: vertical_food_consumer_boxScalarWhereWithAggregatesInput
+  export type vertical_delivery_consumer_boxGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: vertical_delivery_consumer_boxWhereInput
+    orderBy?: vertical_delivery_consumer_boxOrderByWithAggregationInput | vertical_delivery_consumer_boxOrderByWithAggregationInput[]
+    by: vertical_delivery_consumer_boxScalarFieldEnum[] | vertical_delivery_consumer_boxScalarFieldEnum
+    having?: vertical_delivery_consumer_boxScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: Vertical_food_consumer_boxCountAggregateInputType | true
-    _min?: Vertical_food_consumer_boxMinAggregateInputType
-    _max?: Vertical_food_consumer_boxMaxAggregateInputType
+    _count?: vertical_delivery_consumer_boxCountAggregateInputType | true
+    _min?: vertical_delivery_consumer_boxMinAggregateInputType
+    _max?: vertical_delivery_consumer_boxMaxAggregateInputType
   }
 
-  export type Vertical_food_consumer_boxGroupByOutputType = {
+  export type vertical_delivery_consumer_boxGroupByOutputType = {
     id: string
     consumer_id: string
     box_id: string
     created_at: Date
     updated_at: Date
-    _count: Vertical_food_consumer_boxCountAggregateOutputType | null
-    _min: Vertical_food_consumer_boxMinAggregateOutputType | null
-    _max: Vertical_food_consumer_boxMaxAggregateOutputType | null
+    _count: vertical_delivery_consumer_boxCountAggregateOutputType | null
+    _min: vertical_delivery_consumer_boxMinAggregateOutputType | null
+    _max: vertical_delivery_consumer_boxMaxAggregateOutputType | null
   }
 
-  type GetVertical_food_consumer_boxGroupByPayload<T extends vertical_food_consumer_boxGroupByArgs> = Prisma.PrismaPromise<
+  type Getvertical_delivery_consumer_boxGroupByPayload<T extends vertical_delivery_consumer_boxGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<Vertical_food_consumer_boxGroupByOutputType, T['by']> &
+      PickEnumerable<vertical_delivery_consumer_boxGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof Vertical_food_consumer_boxGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof vertical_delivery_consumer_boxGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], Vertical_food_consumer_boxGroupByOutputType[P]>
-            : GetScalarType<T[P], Vertical_food_consumer_boxGroupByOutputType[P]>
+              : GetScalarType<T[P], vertical_delivery_consumer_boxGroupByOutputType[P]>
+            : GetScalarType<T[P], vertical_delivery_consumer_boxGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type vertical_food_consumer_boxSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type vertical_delivery_consumer_boxSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     consumer_id?: boolean
     box_id?: boolean
     created_at?: boolean
     updated_at?: boolean
     box?: boolean | boxDefaultArgs<ExtArgs>
-    consumer?: boolean | vertical_food_consumerDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["vertical_food_consumer_box"]>
+    consumer?: boolean | vertical_delivery_consumerDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["vertical_delivery_consumer_box"]>
 
 
 
-  export type vertical_food_consumer_boxSelectScalar = {
+  export type vertical_delivery_consumer_boxSelectScalar = {
     id?: boolean
     consumer_id?: boolean
     box_id?: boolean
@@ -24135,17 +24135,17 @@ export namespace Prisma {
     updated_at?: boolean
   }
 
-  export type vertical_food_consumer_boxOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "consumer_id" | "box_id" | "created_at" | "updated_at", ExtArgs["result"]["vertical_food_consumer_box"]>
-  export type vertical_food_consumer_boxInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_consumer_boxOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "consumer_id" | "box_id" | "created_at" | "updated_at", ExtArgs["result"]["vertical_delivery_consumer_box"]>
+  export type vertical_delivery_consumer_boxInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     box?: boolean | boxDefaultArgs<ExtArgs>
-    consumer?: boolean | vertical_food_consumerDefaultArgs<ExtArgs>
+    consumer?: boolean | vertical_delivery_consumerDefaultArgs<ExtArgs>
   }
 
-  export type $vertical_food_consumer_boxPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "vertical_food_consumer_box"
+  export type $vertical_delivery_consumer_boxPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "vertical_delivery_consumer_box"
     objects: {
       box: Prisma.$boxPayload<ExtArgs>
-      consumer: Prisma.$vertical_food_consumerPayload<ExtArgs>
+      consumer: Prisma.$vertical_delivery_consumerPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -24153,143 +24153,143 @@ export namespace Prisma {
       box_id: string
       created_at: Date
       updated_at: Date
-    }, ExtArgs["result"]["vertical_food_consumer_box"]>
+    }, ExtArgs["result"]["vertical_delivery_consumer_box"]>
     composites: {}
   }
 
-  type vertical_food_consumer_boxGetPayload<S extends boolean | null | undefined | vertical_food_consumer_boxDefaultArgs> = $Result.GetResult<Prisma.$vertical_food_consumer_boxPayload, S>
+  type vertical_delivery_consumer_boxGetPayload<S extends boolean | null | undefined | vertical_delivery_consumer_boxDefaultArgs> = $Result.GetResult<Prisma.$vertical_delivery_consumer_boxPayload, S>
 
-  type vertical_food_consumer_boxCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<vertical_food_consumer_boxFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: Vertical_food_consumer_boxCountAggregateInputType | true
+  type vertical_delivery_consumer_boxCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<vertical_delivery_consumer_boxFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: vertical_delivery_consumer_boxCountAggregateInputType | true
     }
 
-  export interface vertical_food_consumer_boxDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['vertical_food_consumer_box'], meta: { name: 'vertical_food_consumer_box' } }
+  export interface vertical_delivery_consumer_boxDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['vertical_delivery_consumer_box'], meta: { name: 'vertical_delivery_consumer_box' } }
     /**
-     * Find zero or one Vertical_food_consumer_box that matches the filter.
-     * @param {vertical_food_consumer_boxFindUniqueArgs} args - Arguments to find a Vertical_food_consumer_box
+     * Find zero or one vertical_delivery_consumer_box that matches the filter.
+     * @param {vertical_delivery_consumer_boxFindUniqueArgs} args - Arguments to find a vertical_delivery_consumer_box
      * @example
-     * // Get one Vertical_food_consumer_box
-     * const vertical_food_consumer_box = await prisma.vertical_food_consumer_box.findUnique({
+     * // Get one vertical_delivery_consumer_box
+     * const vertical_delivery_consumer_box = await prisma.vertical_delivery_consumer_box.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends vertical_food_consumer_boxFindUniqueArgs>(args: SelectSubset<T, vertical_food_consumer_boxFindUniqueArgs<ExtArgs>>): Prisma__vertical_food_consumer_boxClient<$Result.GetResult<Prisma.$vertical_food_consumer_boxPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findUnique<T extends vertical_delivery_consumer_boxFindUniqueArgs>(args: SelectSubset<T, vertical_delivery_consumer_boxFindUniqueArgs<ExtArgs>>): Prisma__vertical_delivery_consumer_boxClient<$Result.GetResult<Prisma.$vertical_delivery_consumer_boxPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find one Vertical_food_consumer_box that matches the filter or throw an error with `error.code='P2025'`
+     * Find one vertical_delivery_consumer_box that matches the filter or throw an error with `error.code='P2025'`
      * if no matches were found.
-     * @param {vertical_food_consumer_boxFindUniqueOrThrowArgs} args - Arguments to find a Vertical_food_consumer_box
+     * @param {vertical_delivery_consumer_boxFindUniqueOrThrowArgs} args - Arguments to find a vertical_delivery_consumer_box
      * @example
-     * // Get one Vertical_food_consumer_box
-     * const vertical_food_consumer_box = await prisma.vertical_food_consumer_box.findUniqueOrThrow({
+     * // Get one vertical_delivery_consumer_box
+     * const vertical_delivery_consumer_box = await prisma.vertical_delivery_consumer_box.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends vertical_food_consumer_boxFindUniqueOrThrowArgs>(args: SelectSubset<T, vertical_food_consumer_boxFindUniqueOrThrowArgs<ExtArgs>>): Prisma__vertical_food_consumer_boxClient<$Result.GetResult<Prisma.$vertical_food_consumer_boxPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findUniqueOrThrow<T extends vertical_delivery_consumer_boxFindUniqueOrThrowArgs>(args: SelectSubset<T, vertical_delivery_consumer_boxFindUniqueOrThrowArgs<ExtArgs>>): Prisma__vertical_delivery_consumer_boxClient<$Result.GetResult<Prisma.$vertical_delivery_consumer_boxPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find the first Vertical_food_consumer_box that matches the filter.
+     * Find the first vertical_delivery_consumer_box that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {vertical_food_consumer_boxFindFirstArgs} args - Arguments to find a Vertical_food_consumer_box
+     * @param {vertical_delivery_consumer_boxFindFirstArgs} args - Arguments to find a vertical_delivery_consumer_box
      * @example
-     * // Get one Vertical_food_consumer_box
-     * const vertical_food_consumer_box = await prisma.vertical_food_consumer_box.findFirst({
+     * // Get one vertical_delivery_consumer_box
+     * const vertical_delivery_consumer_box = await prisma.vertical_delivery_consumer_box.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends vertical_food_consumer_boxFindFirstArgs>(args?: SelectSubset<T, vertical_food_consumer_boxFindFirstArgs<ExtArgs>>): Prisma__vertical_food_consumer_boxClient<$Result.GetResult<Prisma.$vertical_food_consumer_boxPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findFirst<T extends vertical_delivery_consumer_boxFindFirstArgs>(args?: SelectSubset<T, vertical_delivery_consumer_boxFindFirstArgs<ExtArgs>>): Prisma__vertical_delivery_consumer_boxClient<$Result.GetResult<Prisma.$vertical_delivery_consumer_boxPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find the first Vertical_food_consumer_box that matches the filter or
+     * Find the first vertical_delivery_consumer_box that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {vertical_food_consumer_boxFindFirstOrThrowArgs} args - Arguments to find a Vertical_food_consumer_box
+     * @param {vertical_delivery_consumer_boxFindFirstOrThrowArgs} args - Arguments to find a vertical_delivery_consumer_box
      * @example
-     * // Get one Vertical_food_consumer_box
-     * const vertical_food_consumer_box = await prisma.vertical_food_consumer_box.findFirstOrThrow({
+     * // Get one vertical_delivery_consumer_box
+     * const vertical_delivery_consumer_box = await prisma.vertical_delivery_consumer_box.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends vertical_food_consumer_boxFindFirstOrThrowArgs>(args?: SelectSubset<T, vertical_food_consumer_boxFindFirstOrThrowArgs<ExtArgs>>): Prisma__vertical_food_consumer_boxClient<$Result.GetResult<Prisma.$vertical_food_consumer_boxPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findFirstOrThrow<T extends vertical_delivery_consumer_boxFindFirstOrThrowArgs>(args?: SelectSubset<T, vertical_delivery_consumer_boxFindFirstOrThrowArgs<ExtArgs>>): Prisma__vertical_delivery_consumer_boxClient<$Result.GetResult<Prisma.$vertical_delivery_consumer_boxPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find zero or more Vertical_food_consumer_boxes that matches the filter.
+     * Find zero or more vertical_delivery_consumer_boxes that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {vertical_food_consumer_boxFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {vertical_delivery_consumer_boxFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all Vertical_food_consumer_boxes
-     * const vertical_food_consumer_boxes = await prisma.vertical_food_consumer_box.findMany()
+     * // Get all vertical_delivery_consumer_boxes
+     * const vertical_delivery_consumer_boxes = await prisma.vertical_delivery_consumer_box.findMany()
      * 
-     * // Get first 10 Vertical_food_consumer_boxes
-     * const vertical_food_consumer_boxes = await prisma.vertical_food_consumer_box.findMany({ take: 10 })
+     * // Get first 10 vertical_delivery_consumer_boxes
+     * const vertical_delivery_consumer_boxes = await prisma.vertical_delivery_consumer_box.findMany({ take: 10 })
      * 
      * // Only select the `id`
-     * const vertical_food_consumer_boxWithIdOnly = await prisma.vertical_food_consumer_box.findMany({ select: { id: true } })
+     * const vertical_delivery_consumer_boxWithIdOnly = await prisma.vertical_delivery_consumer_box.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends vertical_food_consumer_boxFindManyArgs>(args?: SelectSubset<T, vertical_food_consumer_boxFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$vertical_food_consumer_boxPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+    findMany<T extends vertical_delivery_consumer_boxFindManyArgs>(args?: SelectSubset<T, vertical_delivery_consumer_boxFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$vertical_delivery_consumer_boxPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
     /**
-     * Create a Vertical_food_consumer_box.
-     * @param {vertical_food_consumer_boxCreateArgs} args - Arguments to create a Vertical_food_consumer_box.
+     * Create a vertical_delivery_consumer_box.
+     * @param {vertical_delivery_consumer_boxCreateArgs} args - Arguments to create a vertical_delivery_consumer_box.
      * @example
-     * // Create one Vertical_food_consumer_box
-     * const Vertical_food_consumer_box = await prisma.vertical_food_consumer_box.create({
+     * // Create one vertical_delivery_consumer_box
+     * const vertical_delivery_consumer_box = await prisma.vertical_delivery_consumer_box.create({
      *   data: {
-     *     // ... data to create a Vertical_food_consumer_box
+     *     // ... data to create a vertical_delivery_consumer_box
      *   }
      * })
      * 
      */
-    create<T extends vertical_food_consumer_boxCreateArgs>(args: SelectSubset<T, vertical_food_consumer_boxCreateArgs<ExtArgs>>): Prisma__vertical_food_consumer_boxClient<$Result.GetResult<Prisma.$vertical_food_consumer_boxPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    create<T extends vertical_delivery_consumer_boxCreateArgs>(args: SelectSubset<T, vertical_delivery_consumer_boxCreateArgs<ExtArgs>>): Prisma__vertical_delivery_consumer_boxClient<$Result.GetResult<Prisma.$vertical_delivery_consumer_boxPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Create many Vertical_food_consumer_boxes.
-     * @param {vertical_food_consumer_boxCreateManyArgs} args - Arguments to create many Vertical_food_consumer_boxes.
+     * Create many vertical_delivery_consumer_boxes.
+     * @param {vertical_delivery_consumer_boxCreateManyArgs} args - Arguments to create many vertical_delivery_consumer_boxes.
      * @example
-     * // Create many Vertical_food_consumer_boxes
-     * const vertical_food_consumer_box = await prisma.vertical_food_consumer_box.createMany({
+     * // Create many vertical_delivery_consumer_boxes
+     * const vertical_delivery_consumer_box = await prisma.vertical_delivery_consumer_box.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends vertical_food_consumer_boxCreateManyArgs>(args?: SelectSubset<T, vertical_food_consumer_boxCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends vertical_delivery_consumer_boxCreateManyArgs>(args?: SelectSubset<T, vertical_delivery_consumer_boxCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Delete a Vertical_food_consumer_box.
-     * @param {vertical_food_consumer_boxDeleteArgs} args - Arguments to delete one Vertical_food_consumer_box.
+     * Delete a vertical_delivery_consumer_box.
+     * @param {vertical_delivery_consumer_boxDeleteArgs} args - Arguments to delete one vertical_delivery_consumer_box.
      * @example
-     * // Delete one Vertical_food_consumer_box
-     * const Vertical_food_consumer_box = await prisma.vertical_food_consumer_box.delete({
+     * // Delete one vertical_delivery_consumer_box
+     * const vertical_delivery_consumer_box = await prisma.vertical_delivery_consumer_box.delete({
      *   where: {
-     *     // ... filter to delete one Vertical_food_consumer_box
+     *     // ... filter to delete one vertical_delivery_consumer_box
      *   }
      * })
      * 
      */
-    delete<T extends vertical_food_consumer_boxDeleteArgs>(args: SelectSubset<T, vertical_food_consumer_boxDeleteArgs<ExtArgs>>): Prisma__vertical_food_consumer_boxClient<$Result.GetResult<Prisma.$vertical_food_consumer_boxPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    delete<T extends vertical_delivery_consumer_boxDeleteArgs>(args: SelectSubset<T, vertical_delivery_consumer_boxDeleteArgs<ExtArgs>>): Prisma__vertical_delivery_consumer_boxClient<$Result.GetResult<Prisma.$vertical_delivery_consumer_boxPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Update one Vertical_food_consumer_box.
-     * @param {vertical_food_consumer_boxUpdateArgs} args - Arguments to update one Vertical_food_consumer_box.
+     * Update one vertical_delivery_consumer_box.
+     * @param {vertical_delivery_consumer_boxUpdateArgs} args - Arguments to update one vertical_delivery_consumer_box.
      * @example
-     * // Update one Vertical_food_consumer_box
-     * const vertical_food_consumer_box = await prisma.vertical_food_consumer_box.update({
+     * // Update one vertical_delivery_consumer_box
+     * const vertical_delivery_consumer_box = await prisma.vertical_delivery_consumer_box.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -24299,30 +24299,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends vertical_food_consumer_boxUpdateArgs>(args: SelectSubset<T, vertical_food_consumer_boxUpdateArgs<ExtArgs>>): Prisma__vertical_food_consumer_boxClient<$Result.GetResult<Prisma.$vertical_food_consumer_boxPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    update<T extends vertical_delivery_consumer_boxUpdateArgs>(args: SelectSubset<T, vertical_delivery_consumer_boxUpdateArgs<ExtArgs>>): Prisma__vertical_delivery_consumer_boxClient<$Result.GetResult<Prisma.$vertical_delivery_consumer_boxPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Delete zero or more Vertical_food_consumer_boxes.
-     * @param {vertical_food_consumer_boxDeleteManyArgs} args - Arguments to filter Vertical_food_consumer_boxes to delete.
+     * Delete zero or more vertical_delivery_consumer_boxes.
+     * @param {vertical_delivery_consumer_boxDeleteManyArgs} args - Arguments to filter vertical_delivery_consumer_boxes to delete.
      * @example
-     * // Delete a few Vertical_food_consumer_boxes
-     * const { count } = await prisma.vertical_food_consumer_box.deleteMany({
+     * // Delete a few vertical_delivery_consumer_boxes
+     * const { count } = await prisma.vertical_delivery_consumer_box.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends vertical_food_consumer_boxDeleteManyArgs>(args?: SelectSubset<T, vertical_food_consumer_boxDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends vertical_delivery_consumer_boxDeleteManyArgs>(args?: SelectSubset<T, vertical_delivery_consumer_boxDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more Vertical_food_consumer_boxes.
+     * Update zero or more vertical_delivery_consumer_boxes.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {vertical_food_consumer_boxUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {vertical_delivery_consumer_boxUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many Vertical_food_consumer_boxes
-     * const vertical_food_consumer_box = await prisma.vertical_food_consumer_box.updateMany({
+     * // Update many vertical_delivery_consumer_boxes
+     * const vertical_delivery_consumer_box = await prisma.vertical_delivery_consumer_box.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -24332,56 +24332,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends vertical_food_consumer_boxUpdateManyArgs>(args: SelectSubset<T, vertical_food_consumer_boxUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends vertical_delivery_consumer_boxUpdateManyArgs>(args: SelectSubset<T, vertical_delivery_consumer_boxUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one Vertical_food_consumer_box.
-     * @param {vertical_food_consumer_boxUpsertArgs} args - Arguments to update or create a Vertical_food_consumer_box.
+     * Create or update one vertical_delivery_consumer_box.
+     * @param {vertical_delivery_consumer_boxUpsertArgs} args - Arguments to update or create a vertical_delivery_consumer_box.
      * @example
-     * // Update or create a Vertical_food_consumer_box
-     * const vertical_food_consumer_box = await prisma.vertical_food_consumer_box.upsert({
+     * // Update or create a vertical_delivery_consumer_box
+     * const vertical_delivery_consumer_box = await prisma.vertical_delivery_consumer_box.upsert({
      *   create: {
-     *     // ... data to create a Vertical_food_consumer_box
+     *     // ... data to create a vertical_delivery_consumer_box
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the Vertical_food_consumer_box we want to update
+     *     // ... the filter for the vertical_delivery_consumer_box we want to update
      *   }
      * })
      */
-    upsert<T extends vertical_food_consumer_boxUpsertArgs>(args: SelectSubset<T, vertical_food_consumer_boxUpsertArgs<ExtArgs>>): Prisma__vertical_food_consumer_boxClient<$Result.GetResult<Prisma.$vertical_food_consumer_boxPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    upsert<T extends vertical_delivery_consumer_boxUpsertArgs>(args: SelectSubset<T, vertical_delivery_consumer_boxUpsertArgs<ExtArgs>>): Prisma__vertical_delivery_consumer_boxClient<$Result.GetResult<Prisma.$vertical_delivery_consumer_boxPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
 
     /**
-     * Count the number of Vertical_food_consumer_boxes.
+     * Count the number of vertical_delivery_consumer_boxes.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {vertical_food_consumer_boxCountArgs} args - Arguments to filter Vertical_food_consumer_boxes to count.
+     * @param {vertical_delivery_consumer_boxCountArgs} args - Arguments to filter vertical_delivery_consumer_boxes to count.
      * @example
-     * // Count the number of Vertical_food_consumer_boxes
-     * const count = await prisma.vertical_food_consumer_box.count({
+     * // Count the number of vertical_delivery_consumer_boxes
+     * const count = await prisma.vertical_delivery_consumer_box.count({
      *   where: {
-     *     // ... the filter for the Vertical_food_consumer_boxes we want to count
+     *     // ... the filter for the vertical_delivery_consumer_boxes we want to count
      *   }
      * })
     **/
-    count<T extends vertical_food_consumer_boxCountArgs>(
-      args?: Subset<T, vertical_food_consumer_boxCountArgs>,
+    count<T extends vertical_delivery_consumer_boxCountArgs>(
+      args?: Subset<T, vertical_delivery_consumer_boxCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], Vertical_food_consumer_boxCountAggregateOutputType>
+          : GetScalarType<T['select'], vertical_delivery_consumer_boxCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a Vertical_food_consumer_box.
+     * Allows you to perform aggregations operations on a vertical_delivery_consumer_box.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {Vertical_food_consumer_boxAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {vertical_delivery_consumer_boxAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -24401,13 +24401,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends Vertical_food_consumer_boxAggregateArgs>(args: Subset<T, Vertical_food_consumer_boxAggregateArgs>): Prisma.PrismaPromise<GetVertical_food_consumer_boxAggregateType<T>>
+    aggregate<T extends vertical_delivery_consumer_boxAggregateArgs>(args: Subset<T, vertical_delivery_consumer_boxAggregateArgs>): Prisma.PrismaPromise<Getvertical_delivery_consumer_boxAggregateType<T>>
 
     /**
-     * Group by Vertical_food_consumer_box.
+     * Group by vertical_delivery_consumer_box.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {vertical_food_consumer_boxGroupByArgs} args - Group by arguments.
+     * @param {vertical_delivery_consumer_boxGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -24422,14 +24422,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends vertical_food_consumer_boxGroupByArgs,
+      T extends vertical_delivery_consumer_boxGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: vertical_food_consumer_boxGroupByArgs['orderBy'] }
-        : { orderBy?: vertical_food_consumer_boxGroupByArgs['orderBy'] },
+        ? { orderBy: vertical_delivery_consumer_boxGroupByArgs['orderBy'] }
+        : { orderBy?: vertical_delivery_consumer_boxGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -24478,23 +24478,23 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, vertical_food_consumer_boxGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetVertical_food_consumer_boxGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, vertical_delivery_consumer_boxGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? Getvertical_delivery_consumer_boxGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the vertical_food_consumer_box model
+   * Fields of the vertical_delivery_consumer_box model
    */
-  readonly fields: vertical_food_consumer_boxFieldRefs;
+  readonly fields: vertical_delivery_consumer_boxFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for vertical_food_consumer_box.
+   * The delegate class that acts as a "Promise-like" for vertical_delivery_consumer_box.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__vertical_food_consumer_boxClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__vertical_delivery_consumer_boxClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     box<T extends boxDefaultArgs<ExtArgs> = {}>(args?: Subset<T, boxDefaultArgs<ExtArgs>>): Prisma__boxClient<$Result.GetResult<Prisma.$boxPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    consumer<T extends vertical_food_consumerDefaultArgs<ExtArgs> = {}>(args?: Subset<T, vertical_food_consumerDefaultArgs<ExtArgs>>): Prisma__vertical_food_consumerClient<$Result.GetResult<Prisma.$vertical_food_consumerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    consumer<T extends vertical_delivery_consumerDefaultArgs<ExtArgs> = {}>(args?: Subset<T, vertical_delivery_consumerDefaultArgs<ExtArgs>>): Prisma__vertical_delivery_consumerClient<$Result.GetResult<Prisma.$vertical_delivery_consumerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -24521,377 +24521,377 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the vertical_food_consumer_box model
+   * Fields of the vertical_delivery_consumer_box model
    */
-  interface vertical_food_consumer_boxFieldRefs {
-    readonly id: FieldRef<"vertical_food_consumer_box", 'String'>
-    readonly consumer_id: FieldRef<"vertical_food_consumer_box", 'String'>
-    readonly box_id: FieldRef<"vertical_food_consumer_box", 'String'>
-    readonly created_at: FieldRef<"vertical_food_consumer_box", 'DateTime'>
-    readonly updated_at: FieldRef<"vertical_food_consumer_box", 'DateTime'>
+  interface vertical_delivery_consumer_boxFieldRefs {
+    readonly id: FieldRef<"vertical_delivery_consumer_box", 'String'>
+    readonly consumer_id: FieldRef<"vertical_delivery_consumer_box", 'String'>
+    readonly box_id: FieldRef<"vertical_delivery_consumer_box", 'String'>
+    readonly created_at: FieldRef<"vertical_delivery_consumer_box", 'DateTime'>
+    readonly updated_at: FieldRef<"vertical_delivery_consumer_box", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * vertical_food_consumer_box findUnique
+   * vertical_delivery_consumer_box findUnique
    */
-  export type vertical_food_consumer_boxFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_consumer_boxFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_consumer_box
+     * Select specific fields to fetch from the vertical_delivery_consumer_box
      */
-    select?: vertical_food_consumer_boxSelect<ExtArgs> | null
+    select?: vertical_delivery_consumer_boxSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_consumer_box
+     * Omit specific fields from the vertical_delivery_consumer_box
      */
-    omit?: vertical_food_consumer_boxOmit<ExtArgs> | null
+    omit?: vertical_delivery_consumer_boxOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: vertical_food_consumer_boxInclude<ExtArgs> | null
+    include?: vertical_delivery_consumer_boxInclude<ExtArgs> | null
     /**
-     * Filter, which vertical_food_consumer_box to fetch.
+     * Filter, which vertical_delivery_consumer_box to fetch.
      */
-    where: vertical_food_consumer_boxWhereUniqueInput
+    where: vertical_delivery_consumer_boxWhereUniqueInput
   }
 
   /**
-   * vertical_food_consumer_box findUniqueOrThrow
+   * vertical_delivery_consumer_box findUniqueOrThrow
    */
-  export type vertical_food_consumer_boxFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_consumer_boxFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_consumer_box
+     * Select specific fields to fetch from the vertical_delivery_consumer_box
      */
-    select?: vertical_food_consumer_boxSelect<ExtArgs> | null
+    select?: vertical_delivery_consumer_boxSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_consumer_box
+     * Omit specific fields from the vertical_delivery_consumer_box
      */
-    omit?: vertical_food_consumer_boxOmit<ExtArgs> | null
+    omit?: vertical_delivery_consumer_boxOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: vertical_food_consumer_boxInclude<ExtArgs> | null
+    include?: vertical_delivery_consumer_boxInclude<ExtArgs> | null
     /**
-     * Filter, which vertical_food_consumer_box to fetch.
+     * Filter, which vertical_delivery_consumer_box to fetch.
      */
-    where: vertical_food_consumer_boxWhereUniqueInput
+    where: vertical_delivery_consumer_boxWhereUniqueInput
   }
 
   /**
-   * vertical_food_consumer_box findFirst
+   * vertical_delivery_consumer_box findFirst
    */
-  export type vertical_food_consumer_boxFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_consumer_boxFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_consumer_box
+     * Select specific fields to fetch from the vertical_delivery_consumer_box
      */
-    select?: vertical_food_consumer_boxSelect<ExtArgs> | null
+    select?: vertical_delivery_consumer_boxSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_consumer_box
+     * Omit specific fields from the vertical_delivery_consumer_box
      */
-    omit?: vertical_food_consumer_boxOmit<ExtArgs> | null
+    omit?: vertical_delivery_consumer_boxOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: vertical_food_consumer_boxInclude<ExtArgs> | null
+    include?: vertical_delivery_consumer_boxInclude<ExtArgs> | null
     /**
-     * Filter, which vertical_food_consumer_box to fetch.
+     * Filter, which vertical_delivery_consumer_box to fetch.
      */
-    where?: vertical_food_consumer_boxWhereInput
+    where?: vertical_delivery_consumer_boxWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of vertical_food_consumer_boxes to fetch.
+     * Determine the order of vertical_delivery_consumer_boxes to fetch.
      */
-    orderBy?: vertical_food_consumer_boxOrderByWithRelationInput | vertical_food_consumer_boxOrderByWithRelationInput[]
+    orderBy?: vertical_delivery_consumer_boxOrderByWithRelationInput | vertical_delivery_consumer_boxOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for vertical_food_consumer_boxes.
+     * Sets the position for searching for vertical_delivery_consumer_boxes.
      */
-    cursor?: vertical_food_consumer_boxWhereUniqueInput
+    cursor?: vertical_delivery_consumer_boxWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` vertical_food_consumer_boxes from the position of the cursor.
+     * Take `±n` vertical_delivery_consumer_boxes from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` vertical_food_consumer_boxes.
+     * Skip the first `n` vertical_delivery_consumer_boxes.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of vertical_food_consumer_boxes.
+     * Filter by unique combinations of vertical_delivery_consumer_boxes.
      */
-    distinct?: Vertical_food_consumer_boxScalarFieldEnum | Vertical_food_consumer_boxScalarFieldEnum[]
+    distinct?: vertical_delivery_consumer_boxScalarFieldEnum | vertical_delivery_consumer_boxScalarFieldEnum[]
   }
 
   /**
-   * vertical_food_consumer_box findFirstOrThrow
+   * vertical_delivery_consumer_box findFirstOrThrow
    */
-  export type vertical_food_consumer_boxFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_consumer_boxFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_consumer_box
+     * Select specific fields to fetch from the vertical_delivery_consumer_box
      */
-    select?: vertical_food_consumer_boxSelect<ExtArgs> | null
+    select?: vertical_delivery_consumer_boxSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_consumer_box
+     * Omit specific fields from the vertical_delivery_consumer_box
      */
-    omit?: vertical_food_consumer_boxOmit<ExtArgs> | null
+    omit?: vertical_delivery_consumer_boxOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: vertical_food_consumer_boxInclude<ExtArgs> | null
+    include?: vertical_delivery_consumer_boxInclude<ExtArgs> | null
     /**
-     * Filter, which vertical_food_consumer_box to fetch.
+     * Filter, which vertical_delivery_consumer_box to fetch.
      */
-    where?: vertical_food_consumer_boxWhereInput
+    where?: vertical_delivery_consumer_boxWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of vertical_food_consumer_boxes to fetch.
+     * Determine the order of vertical_delivery_consumer_boxes to fetch.
      */
-    orderBy?: vertical_food_consumer_boxOrderByWithRelationInput | vertical_food_consumer_boxOrderByWithRelationInput[]
+    orderBy?: vertical_delivery_consumer_boxOrderByWithRelationInput | vertical_delivery_consumer_boxOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for vertical_food_consumer_boxes.
+     * Sets the position for searching for vertical_delivery_consumer_boxes.
      */
-    cursor?: vertical_food_consumer_boxWhereUniqueInput
+    cursor?: vertical_delivery_consumer_boxWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` vertical_food_consumer_boxes from the position of the cursor.
+     * Take `±n` vertical_delivery_consumer_boxes from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` vertical_food_consumer_boxes.
+     * Skip the first `n` vertical_delivery_consumer_boxes.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of vertical_food_consumer_boxes.
+     * Filter by unique combinations of vertical_delivery_consumer_boxes.
      */
-    distinct?: Vertical_food_consumer_boxScalarFieldEnum | Vertical_food_consumer_boxScalarFieldEnum[]
+    distinct?: vertical_delivery_consumer_boxScalarFieldEnum | vertical_delivery_consumer_boxScalarFieldEnum[]
   }
 
   /**
-   * vertical_food_consumer_box findMany
+   * vertical_delivery_consumer_box findMany
    */
-  export type vertical_food_consumer_boxFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_consumer_boxFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_consumer_box
+     * Select specific fields to fetch from the vertical_delivery_consumer_box
      */
-    select?: vertical_food_consumer_boxSelect<ExtArgs> | null
+    select?: vertical_delivery_consumer_boxSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_consumer_box
+     * Omit specific fields from the vertical_delivery_consumer_box
      */
-    omit?: vertical_food_consumer_boxOmit<ExtArgs> | null
+    omit?: vertical_delivery_consumer_boxOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: vertical_food_consumer_boxInclude<ExtArgs> | null
+    include?: vertical_delivery_consumer_boxInclude<ExtArgs> | null
     /**
-     * Filter, which vertical_food_consumer_boxes to fetch.
+     * Filter, which vertical_delivery_consumer_boxes to fetch.
      */
-    where?: vertical_food_consumer_boxWhereInput
+    where?: vertical_delivery_consumer_boxWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of vertical_food_consumer_boxes to fetch.
+     * Determine the order of vertical_delivery_consumer_boxes to fetch.
      */
-    orderBy?: vertical_food_consumer_boxOrderByWithRelationInput | vertical_food_consumer_boxOrderByWithRelationInput[]
+    orderBy?: vertical_delivery_consumer_boxOrderByWithRelationInput | vertical_delivery_consumer_boxOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing vertical_food_consumer_boxes.
+     * Sets the position for listing vertical_delivery_consumer_boxes.
      */
-    cursor?: vertical_food_consumer_boxWhereUniqueInput
+    cursor?: vertical_delivery_consumer_boxWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` vertical_food_consumer_boxes from the position of the cursor.
+     * Take `±n` vertical_delivery_consumer_boxes from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` vertical_food_consumer_boxes.
+     * Skip the first `n` vertical_delivery_consumer_boxes.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of vertical_food_consumer_boxes.
+     * Filter by unique combinations of vertical_delivery_consumer_boxes.
      */
-    distinct?: Vertical_food_consumer_boxScalarFieldEnum | Vertical_food_consumer_boxScalarFieldEnum[]
+    distinct?: vertical_delivery_consumer_boxScalarFieldEnum | vertical_delivery_consumer_boxScalarFieldEnum[]
   }
 
   /**
-   * vertical_food_consumer_box create
+   * vertical_delivery_consumer_box create
    */
-  export type vertical_food_consumer_boxCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_consumer_boxCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_consumer_box
+     * Select specific fields to fetch from the vertical_delivery_consumer_box
      */
-    select?: vertical_food_consumer_boxSelect<ExtArgs> | null
+    select?: vertical_delivery_consumer_boxSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_consumer_box
+     * Omit specific fields from the vertical_delivery_consumer_box
      */
-    omit?: vertical_food_consumer_boxOmit<ExtArgs> | null
+    omit?: vertical_delivery_consumer_boxOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: vertical_food_consumer_boxInclude<ExtArgs> | null
+    include?: vertical_delivery_consumer_boxInclude<ExtArgs> | null
     /**
-     * The data needed to create a vertical_food_consumer_box.
+     * The data needed to create a vertical_delivery_consumer_box.
      */
-    data: XOR<vertical_food_consumer_boxCreateInput, vertical_food_consumer_boxUncheckedCreateInput>
+    data: XOR<vertical_delivery_consumer_boxCreateInput, vertical_delivery_consumer_boxUncheckedCreateInput>
   }
 
   /**
-   * vertical_food_consumer_box createMany
+   * vertical_delivery_consumer_box createMany
    */
-  export type vertical_food_consumer_boxCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_consumer_boxCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many vertical_food_consumer_boxes.
+     * The data used to create many vertical_delivery_consumer_boxes.
      */
-    data: vertical_food_consumer_boxCreateManyInput | vertical_food_consumer_boxCreateManyInput[]
+    data: vertical_delivery_consumer_boxCreateManyInput | vertical_delivery_consumer_boxCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * vertical_food_consumer_box update
+   * vertical_delivery_consumer_box update
    */
-  export type vertical_food_consumer_boxUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_consumer_boxUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_consumer_box
+     * Select specific fields to fetch from the vertical_delivery_consumer_box
      */
-    select?: vertical_food_consumer_boxSelect<ExtArgs> | null
+    select?: vertical_delivery_consumer_boxSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_consumer_box
+     * Omit specific fields from the vertical_delivery_consumer_box
      */
-    omit?: vertical_food_consumer_boxOmit<ExtArgs> | null
+    omit?: vertical_delivery_consumer_boxOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: vertical_food_consumer_boxInclude<ExtArgs> | null
+    include?: vertical_delivery_consumer_boxInclude<ExtArgs> | null
     /**
-     * The data needed to update a vertical_food_consumer_box.
+     * The data needed to update a vertical_delivery_consumer_box.
      */
-    data: XOR<vertical_food_consumer_boxUpdateInput, vertical_food_consumer_boxUncheckedUpdateInput>
+    data: XOR<vertical_delivery_consumer_boxUpdateInput, vertical_delivery_consumer_boxUncheckedUpdateInput>
     /**
-     * Choose, which vertical_food_consumer_box to update.
+     * Choose, which vertical_delivery_consumer_box to update.
      */
-    where: vertical_food_consumer_boxWhereUniqueInput
+    where: vertical_delivery_consumer_boxWhereUniqueInput
   }
 
   /**
-   * vertical_food_consumer_box updateMany
+   * vertical_delivery_consumer_box updateMany
    */
-  export type vertical_food_consumer_boxUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_consumer_boxUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update vertical_food_consumer_boxes.
+     * The data used to update vertical_delivery_consumer_boxes.
      */
-    data: XOR<vertical_food_consumer_boxUpdateManyMutationInput, vertical_food_consumer_boxUncheckedUpdateManyInput>
+    data: XOR<vertical_delivery_consumer_boxUpdateManyMutationInput, vertical_delivery_consumer_boxUncheckedUpdateManyInput>
     /**
-     * Filter which vertical_food_consumer_boxes to update
+     * Filter which vertical_delivery_consumer_boxes to update
      */
-    where?: vertical_food_consumer_boxWhereInput
+    where?: vertical_delivery_consumer_boxWhereInput
     /**
-     * Limit how many vertical_food_consumer_boxes to update.
+     * Limit how many vertical_delivery_consumer_boxes to update.
      */
     limit?: number
   }
 
   /**
-   * vertical_food_consumer_box upsert
+   * vertical_delivery_consumer_box upsert
    */
-  export type vertical_food_consumer_boxUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_consumer_boxUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_consumer_box
+     * Select specific fields to fetch from the vertical_delivery_consumer_box
      */
-    select?: vertical_food_consumer_boxSelect<ExtArgs> | null
+    select?: vertical_delivery_consumer_boxSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_consumer_box
+     * Omit specific fields from the vertical_delivery_consumer_box
      */
-    omit?: vertical_food_consumer_boxOmit<ExtArgs> | null
+    omit?: vertical_delivery_consumer_boxOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: vertical_food_consumer_boxInclude<ExtArgs> | null
+    include?: vertical_delivery_consumer_boxInclude<ExtArgs> | null
     /**
-     * The filter to search for the vertical_food_consumer_box to update in case it exists.
+     * The filter to search for the vertical_delivery_consumer_box to update in case it exists.
      */
-    where: vertical_food_consumer_boxWhereUniqueInput
+    where: vertical_delivery_consumer_boxWhereUniqueInput
     /**
-     * In case the vertical_food_consumer_box found by the `where` argument doesn't exist, create a new vertical_food_consumer_box with this data.
+     * In case the vertical_delivery_consumer_box found by the `where` argument doesn't exist, create a new vertical_delivery_consumer_box with this data.
      */
-    create: XOR<vertical_food_consumer_boxCreateInput, vertical_food_consumer_boxUncheckedCreateInput>
+    create: XOR<vertical_delivery_consumer_boxCreateInput, vertical_delivery_consumer_boxUncheckedCreateInput>
     /**
-     * In case the vertical_food_consumer_box was found with the provided `where` argument, update it with this data.
+     * In case the vertical_delivery_consumer_box was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<vertical_food_consumer_boxUpdateInput, vertical_food_consumer_boxUncheckedUpdateInput>
+    update: XOR<vertical_delivery_consumer_boxUpdateInput, vertical_delivery_consumer_boxUncheckedUpdateInput>
   }
 
   /**
-   * vertical_food_consumer_box delete
+   * vertical_delivery_consumer_box delete
    */
-  export type vertical_food_consumer_boxDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_consumer_boxDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_consumer_box
+     * Select specific fields to fetch from the vertical_delivery_consumer_box
      */
-    select?: vertical_food_consumer_boxSelect<ExtArgs> | null
+    select?: vertical_delivery_consumer_boxSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_consumer_box
+     * Omit specific fields from the vertical_delivery_consumer_box
      */
-    omit?: vertical_food_consumer_boxOmit<ExtArgs> | null
+    omit?: vertical_delivery_consumer_boxOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: vertical_food_consumer_boxInclude<ExtArgs> | null
+    include?: vertical_delivery_consumer_boxInclude<ExtArgs> | null
     /**
-     * Filter which vertical_food_consumer_box to delete.
+     * Filter which vertical_delivery_consumer_box to delete.
      */
-    where: vertical_food_consumer_boxWhereUniqueInput
+    where: vertical_delivery_consumer_boxWhereUniqueInput
   }
 
   /**
-   * vertical_food_consumer_box deleteMany
+   * vertical_delivery_consumer_box deleteMany
    */
-  export type vertical_food_consumer_boxDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_consumer_boxDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which vertical_food_consumer_boxes to delete
+     * Filter which vertical_delivery_consumer_boxes to delete
      */
-    where?: vertical_food_consumer_boxWhereInput
+    where?: vertical_delivery_consumer_boxWhereInput
     /**
-     * Limit how many vertical_food_consumer_boxes to delete.
+     * Limit how many vertical_delivery_consumer_boxes to delete.
      */
     limit?: number
   }
 
   /**
-   * vertical_food_consumer_box without action
+   * vertical_delivery_consumer_box without action
    */
-  export type vertical_food_consumer_boxDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type vertical_delivery_consumer_boxDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the vertical_food_consumer_box
+     * Select specific fields to fetch from the vertical_delivery_consumer_box
      */
-    select?: vertical_food_consumer_boxSelect<ExtArgs> | null
+    select?: vertical_delivery_consumer_boxSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the vertical_food_consumer_box
+     * Omit specific fields from the vertical_delivery_consumer_box
      */
-    omit?: vertical_food_consumer_boxOmit<ExtArgs> | null
+    omit?: vertical_delivery_consumer_boxOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: vertical_food_consumer_boxInclude<ExtArgs> | null
+    include?: vertical_delivery_consumer_boxInclude<ExtArgs> | null
   }
 
 
@@ -28288,7 +28288,7 @@ export namespace Prisma {
   export type RestaurantScalarFieldEnum = (typeof RestaurantScalarFieldEnum)[keyof typeof RestaurantScalarFieldEnum]
 
 
-  export const Vertical_food_employeeScalarFieldEnum: {
+  export const vertical_delivery_employeeScalarFieldEnum: {
     id: 'id',
     first_name: 'first_name',
     last_name: 'last_name',
@@ -28307,10 +28307,10 @@ export namespace Prisma {
     profile_pic: 'profile_pic'
   };
 
-  export type Vertical_food_employeeScalarFieldEnum = (typeof Vertical_food_employeeScalarFieldEnum)[keyof typeof Vertical_food_employeeScalarFieldEnum]
+  export type vertical_delivery_employeeScalarFieldEnum = (typeof vertical_delivery_employeeScalarFieldEnum)[keyof typeof vertical_delivery_employeeScalarFieldEnum]
 
 
-  export const Vertical_food_employee_boxScalarFieldEnum: {
+  export const vertical_delivery_employee_boxScalarFieldEnum: {
     id: 'id',
     employee_id: 'employee_id',
     box_id: 'box_id',
@@ -28320,7 +28320,7 @@ export namespace Prisma {
     access: 'access'
   };
 
-  export type Vertical_food_employee_boxScalarFieldEnum = (typeof Vertical_food_employee_boxScalarFieldEnum)[keyof typeof Vertical_food_employee_boxScalarFieldEnum]
+  export type vertical_delivery_employee_boxScalarFieldEnum = (typeof vertical_delivery_employee_boxScalarFieldEnum)[keyof typeof vertical_delivery_employee_boxScalarFieldEnum]
 
 
   export const Restaurant_boxScalarFieldEnum: {
@@ -28335,7 +28335,7 @@ export namespace Prisma {
   export type Restaurant_boxScalarFieldEnum = (typeof Restaurant_boxScalarFieldEnum)[keyof typeof Restaurant_boxScalarFieldEnum]
 
 
-  export const Vertical_food_employee_deletedScalarFieldEnum: {
+  export const vertical_delivery_employee_deletedScalarFieldEnum: {
     id: 'id',
     first_name: 'first_name',
     last_name: 'last_name',
@@ -28353,7 +28353,7 @@ export namespace Prisma {
     x_primary_key: 'x_primary_key'
   };
 
-  export type Vertical_food_employee_deletedScalarFieldEnum = (typeof Vertical_food_employee_deletedScalarFieldEnum)[keyof typeof Vertical_food_employee_deletedScalarFieldEnum]
+  export type vertical_delivery_employee_deletedScalarFieldEnum = (typeof vertical_delivery_employee_deletedScalarFieldEnum)[keyof typeof vertical_delivery_employee_deletedScalarFieldEnum]
 
 
   export const Restaurant_deletedScalarFieldEnum: {
@@ -28396,7 +28396,7 @@ export namespace Prisma {
   export type Box_deletedScalarFieldEnum = (typeof Box_deletedScalarFieldEnum)[keyof typeof Box_deletedScalarFieldEnum]
 
 
-  export const Vertical_food_consumerScalarFieldEnum: {
+  export const vertical_delivery_consumerScalarFieldEnum: {
     id: 'id',
     full_name: 'full_name',
     country_code: 'country_code',
@@ -28407,10 +28407,10 @@ export namespace Prisma {
     updated_at: 'updated_at'
   };
 
-  export type Vertical_food_consumerScalarFieldEnum = (typeof Vertical_food_consumerScalarFieldEnum)[keyof typeof Vertical_food_consumerScalarFieldEnum]
+  export type vertical_delivery_consumerScalarFieldEnum = (typeof vertical_delivery_consumerScalarFieldEnum)[keyof typeof vertical_delivery_consumerScalarFieldEnum]
 
 
-  export const Vertical_food_consumer_boxScalarFieldEnum: {
+  export const vertical_delivery_consumer_boxScalarFieldEnum: {
     id: 'id',
     consumer_id: 'consumer_id',
     box_id: 'box_id',
@@ -28418,7 +28418,7 @@ export namespace Prisma {
     updated_at: 'updated_at'
   };
 
-  export type Vertical_food_consumer_boxScalarFieldEnum = (typeof Vertical_food_consumer_boxScalarFieldEnum)[keyof typeof Vertical_food_consumer_boxScalarFieldEnum]
+  export type vertical_delivery_consumer_boxScalarFieldEnum = (typeof vertical_delivery_consumer_boxScalarFieldEnum)[keyof typeof vertical_delivery_consumer_boxScalarFieldEnum]
 
 
   export const Box_lockScalarFieldEnum: {
@@ -28695,7 +28695,7 @@ export namespace Prisma {
   export type restaurantOrderByRelevanceFieldEnum = (typeof restaurantOrderByRelevanceFieldEnum)[keyof typeof restaurantOrderByRelevanceFieldEnum]
 
 
-  export const vertical_food_employeeOrderByRelevanceFieldEnum: {
+  export const vertical_delivery_employeeOrderByRelevanceFieldEnum: {
     id: 'id',
     first_name: 'first_name',
     last_name: 'last_name',
@@ -28709,16 +28709,16 @@ export namespace Prisma {
     profile_pic: 'profile_pic'
   };
 
-  export type vertical_food_employeeOrderByRelevanceFieldEnum = (typeof vertical_food_employeeOrderByRelevanceFieldEnum)[keyof typeof vertical_food_employeeOrderByRelevanceFieldEnum]
+  export type vertical_delivery_employeeOrderByRelevanceFieldEnum = (typeof vertical_delivery_employeeOrderByRelevanceFieldEnum)[keyof typeof vertical_delivery_employeeOrderByRelevanceFieldEnum]
 
 
-  export const vertical_food_employee_boxOrderByRelevanceFieldEnum: {
+  export const vertical_delivery_employee_boxOrderByRelevanceFieldEnum: {
     id: 'id',
     employee_id: 'employee_id',
     box_id: 'box_id'
   };
 
-  export type vertical_food_employee_boxOrderByRelevanceFieldEnum = (typeof vertical_food_employee_boxOrderByRelevanceFieldEnum)[keyof typeof vertical_food_employee_boxOrderByRelevanceFieldEnum]
+  export type vertical_delivery_employee_boxOrderByRelevanceFieldEnum = (typeof vertical_delivery_employee_boxOrderByRelevanceFieldEnum)[keyof typeof vertical_delivery_employee_boxOrderByRelevanceFieldEnum]
 
 
   export const restaurant_boxOrderByRelevanceFieldEnum: {
@@ -28730,7 +28730,7 @@ export namespace Prisma {
   export type restaurant_boxOrderByRelevanceFieldEnum = (typeof restaurant_boxOrderByRelevanceFieldEnum)[keyof typeof restaurant_boxOrderByRelevanceFieldEnum]
 
 
-  export const vertical_food_employee_deletedOrderByRelevanceFieldEnum: {
+  export const vertical_delivery_employee_deletedOrderByRelevanceFieldEnum: {
     id: 'id',
     first_name: 'first_name',
     last_name: 'last_name',
@@ -28745,7 +28745,7 @@ export namespace Prisma {
     x_primary_key: 'x_primary_key'
   };
 
-  export type vertical_food_employee_deletedOrderByRelevanceFieldEnum = (typeof vertical_food_employee_deletedOrderByRelevanceFieldEnum)[keyof typeof vertical_food_employee_deletedOrderByRelevanceFieldEnum]
+  export type vertical_delivery_employee_deletedOrderByRelevanceFieldEnum = (typeof vertical_delivery_employee_deletedOrderByRelevanceFieldEnum)[keyof typeof vertical_delivery_employee_deletedOrderByRelevanceFieldEnum]
 
 
   export const restaurant_deletedOrderByRelevanceFieldEnum: {
@@ -28782,7 +28782,7 @@ export namespace Prisma {
   export type box_deletedOrderByRelevanceFieldEnum = (typeof box_deletedOrderByRelevanceFieldEnum)[keyof typeof box_deletedOrderByRelevanceFieldEnum]
 
 
-  export const vertical_food_consumerOrderByRelevanceFieldEnum: {
+  export const vertical_delivery_consumerOrderByRelevanceFieldEnum: {
     id: 'id',
     full_name: 'full_name',
     country_code: 'country_code',
@@ -28790,16 +28790,16 @@ export namespace Prisma {
     client_id: 'client_id'
   };
 
-  export type vertical_food_consumerOrderByRelevanceFieldEnum = (typeof vertical_food_consumerOrderByRelevanceFieldEnum)[keyof typeof vertical_food_consumerOrderByRelevanceFieldEnum]
+  export type vertical_delivery_consumerOrderByRelevanceFieldEnum = (typeof vertical_delivery_consumerOrderByRelevanceFieldEnum)[keyof typeof vertical_delivery_consumerOrderByRelevanceFieldEnum]
 
 
-  export const vertical_food_consumer_boxOrderByRelevanceFieldEnum: {
+  export const vertical_delivery_consumer_boxOrderByRelevanceFieldEnum: {
     id: 'id',
     consumer_id: 'consumer_id',
     box_id: 'box_id'
   };
 
-  export type vertical_food_consumer_boxOrderByRelevanceFieldEnum = (typeof vertical_food_consumer_boxOrderByRelevanceFieldEnum)[keyof typeof vertical_food_consumer_boxOrderByRelevanceFieldEnum]
+  export type vertical_delivery_consumer_boxOrderByRelevanceFieldEnum = (typeof vertical_delivery_consumer_boxOrderByRelevanceFieldEnum)[keyof typeof vertical_delivery_consumer_boxOrderByRelevanceFieldEnum]
 
 
   export const box_lockOrderByRelevanceFieldEnum: {
@@ -28971,9 +28971,9 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'food_consumer_status'
+   * Reference to a field of type 'delivery_consumer_status'
    */
-  export type Enumfood_consumer_statusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'food_consumer_status'>
+  export type Enumdelivery_consumer_statusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'delivery_consumer_status'>
     
 
 
@@ -29416,8 +29416,8 @@ export namespace Prisma {
     profile_pic?: StringNullableFilter<"client"> | string | null
     boxes?: BoxListRelationFilter
     vertical?: XOR<VerticalNullableScalarRelationFilter, verticalWhereInput> | null
-    vertical_food_consumers?: Vertical_food_consumerListRelationFilter
-    vertical_food_employees?: Vertical_food_employeeListRelationFilter
+    vertical_delivery_consumers?: vertical_delivery_consumerListRelationFilter
+    vertical_delivery_employees?: vertical_delivery_employeeListRelationFilter
     restaurants?: RestaurantListRelationFilter
     notifications?: NotificationListRelationFilter
   }
@@ -29440,8 +29440,8 @@ export namespace Prisma {
     profile_pic?: SortOrderInput | SortOrder
     boxes?: boxOrderByRelationAggregateInput
     vertical?: verticalOrderByWithRelationInput
-    vertical_food_consumers?: vertical_food_consumerOrderByRelationAggregateInput
-    vertical_food_employees?: vertical_food_employeeOrderByRelationAggregateInput
+    vertical_delivery_consumers?: vertical_delivery_consumerOrderByRelationAggregateInput
+    vertical_delivery_employees?: vertical_delivery_employeeOrderByRelationAggregateInput
     restaurants?: restaurantOrderByRelationAggregateInput
     notifications?: notificationOrderByRelationAggregateInput
     _relevance?: clientOrderByRelevanceInput
@@ -29469,8 +29469,8 @@ export namespace Prisma {
     profile_pic?: StringNullableFilter<"client"> | string | null
     boxes?: BoxListRelationFilter
     vertical?: XOR<VerticalNullableScalarRelationFilter, verticalWhereInput> | null
-    vertical_food_consumers?: Vertical_food_consumerListRelationFilter
-    vertical_food_employees?: Vertical_food_employeeListRelationFilter
+    vertical_delivery_consumers?: vertical_delivery_consumerListRelationFilter
+    vertical_delivery_employees?: vertical_delivery_employeeListRelationFilter
     restaurants?: RestaurantListRelationFilter
     notifications?: NotificationListRelationFilter
   }, "id" | "client_display_id" | "vertical_id_email">
@@ -29926,12 +29926,12 @@ export namespace Prisma {
     vehicle_number?: StringNullableFilter<"box"> | string | null
     connection_employee_id?: StringNullableFilter<"box"> | string | null
     telemetry?: XOR<Box_telemetry_latestNullableScalarRelationFilter, box_telemetry_latestWhereInput> | null
-    connection_employee?: XOR<Vertical_food_employeeNullableScalarRelationFilter, vertical_food_employeeWhereInput> | null
+    connection_employee?: XOR<vertical_delivery_employeeNullableScalarRelationFilter, vertical_delivery_employeeWhereInput> | null
     client?: XOR<ClientNullableScalarRelationFilter, clientWhereInput> | null
     vertical?: XOR<VerticalNullableScalarRelationFilter, verticalWhereInput> | null
     lock?: XOR<Box_lockNullableScalarRelationFilter, box_lockWhereInput> | null
-    boxes?: Vertical_food_consumer_boxListRelationFilter
-    vertical_food_employee_boxes?: Vertical_food_employee_boxListRelationFilter
+    boxes?: vertical_delivery_consumer_boxListRelationFilter
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxListRelationFilter
     restaurant_boxes?: Restaurant_boxListRelationFilter
   }
 
@@ -29947,12 +29947,12 @@ export namespace Prisma {
     vehicle_number?: SortOrderInput | SortOrder
     connection_employee_id?: SortOrderInput | SortOrder
     telemetry?: box_telemetry_latestOrderByWithRelationInput
-    connection_employee?: vertical_food_employeeOrderByWithRelationInput
+    connection_employee?: vertical_delivery_employeeOrderByWithRelationInput
     client?: clientOrderByWithRelationInput
     vertical?: verticalOrderByWithRelationInput
     lock?: box_lockOrderByWithRelationInput
-    boxes?: vertical_food_consumer_boxOrderByRelationAggregateInput
-    vertical_food_employee_boxes?: vertical_food_employee_boxOrderByRelationAggregateInput
+    boxes?: vertical_delivery_consumer_boxOrderByRelationAggregateInput
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxOrderByRelationAggregateInput
     restaurant_boxes?: restaurant_boxOrderByRelationAggregateInput
     _relevance?: boxOrderByRelevanceInput
   }
@@ -29972,12 +29972,12 @@ export namespace Prisma {
     vehicle_number?: StringNullableFilter<"box"> | string | null
     connection_employee_id?: StringNullableFilter<"box"> | string | null
     telemetry?: XOR<Box_telemetry_latestNullableScalarRelationFilter, box_telemetry_latestWhereInput> | null
-    connection_employee?: XOR<Vertical_food_employeeNullableScalarRelationFilter, vertical_food_employeeWhereInput> | null
+    connection_employee?: XOR<vertical_delivery_employeeNullableScalarRelationFilter, vertical_delivery_employeeWhereInput> | null
     client?: XOR<ClientNullableScalarRelationFilter, clientWhereInput> | null
     vertical?: XOR<VerticalNullableScalarRelationFilter, verticalWhereInput> | null
     lock?: XOR<Box_lockNullableScalarRelationFilter, box_lockWhereInput> | null
-    boxes?: Vertical_food_consumer_boxListRelationFilter
-    vertical_food_employee_boxes?: Vertical_food_employee_boxListRelationFilter
+    boxes?: vertical_delivery_consumer_boxListRelationFilter
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxListRelationFilter
     restaurant_boxes?: Restaurant_boxListRelationFilter
   }, "id" | "box_display_id">
 
@@ -30031,7 +30031,7 @@ export namespace Prisma {
     pincode?: StringNullableFilter<"restaurant"> | string | null
     state?: StringNullableFilter<"restaurant"> | string | null
     status?: Enumrestaurant_statusFilter<"restaurant"> | $Enums.restaurant_status
-    employees?: Vertical_food_employeeListRelationFilter
+    employees?: vertical_delivery_employeeListRelationFilter
     client?: XOR<ClientNullableScalarRelationFilter, clientWhereInput> | null
     restaurant_boxes?: Restaurant_boxListRelationFilter
   }
@@ -30051,7 +30051,7 @@ export namespace Prisma {
     pincode?: SortOrderInput | SortOrder
     state?: SortOrderInput | SortOrder
     status?: SortOrder
-    employees?: vertical_food_employeeOrderByRelationAggregateInput
+    employees?: vertical_delivery_employeeOrderByRelationAggregateInput
     client?: clientOrderByWithRelationInput
     restaurant_boxes?: restaurant_boxOrderByRelationAggregateInput
     _relevance?: restaurantOrderByRelevanceInput
@@ -30075,7 +30075,7 @@ export namespace Prisma {
     pincode?: StringNullableFilter<"restaurant"> | string | null
     state?: StringNullableFilter<"restaurant"> | string | null
     status?: Enumrestaurant_statusFilter<"restaurant"> | $Enums.restaurant_status
-    employees?: Vertical_food_employeeListRelationFilter
+    employees?: vertical_delivery_employeeListRelationFilter
     client?: XOR<ClientNullableScalarRelationFilter, clientWhereInput> | null
     restaurant_boxes?: Restaurant_boxListRelationFilter
   }, "id">
@@ -30122,33 +30122,33 @@ export namespace Prisma {
     status?: Enumrestaurant_statusWithAggregatesFilter<"restaurant"> | $Enums.restaurant_status
   }
 
-  export type vertical_food_employeeWhereInput = {
-    AND?: vertical_food_employeeWhereInput | vertical_food_employeeWhereInput[]
-    OR?: vertical_food_employeeWhereInput[]
-    NOT?: vertical_food_employeeWhereInput | vertical_food_employeeWhereInput[]
-    id?: StringFilter<"vertical_food_employee"> | string
-    first_name?: StringFilter<"vertical_food_employee"> | string
-    last_name?: StringFilter<"vertical_food_employee"> | string
-    country_code?: StringFilter<"vertical_food_employee"> | string
-    mobile_number?: StringFilter<"vertical_food_employee"> | string
-    email?: StringFilter<"vertical_food_employee"> | string
-    password?: StringNullableFilter<"vertical_food_employee"> | string | null
-    employee_display_id?: StringFilter<"vertical_food_employee"> | string
-    joining_date?: DateTimeFilter<"vertical_food_employee"> | Date | string
-    client_id?: StringNullableFilter<"vertical_food_employee"> | string | null
-    restaurant_id?: StringNullableFilter<"vertical_food_employee"> | string | null
-    role?: Enumclient_employee_roleFilter<"vertical_food_employee"> | $Enums.client_employee_role
-    status?: Enumemployee_statusFilter<"vertical_food_employee"> | $Enums.employee_status
-    created_at?: DateTimeFilter<"vertical_food_employee"> | Date | string
-    updated_at?: DateTimeFilter<"vertical_food_employee"> | Date | string
-    profile_pic?: StringNullableFilter<"vertical_food_employee"> | string | null
+  export type vertical_delivery_employeeWhereInput = {
+    AND?: vertical_delivery_employeeWhereInput | vertical_delivery_employeeWhereInput[]
+    OR?: vertical_delivery_employeeWhereInput[]
+    NOT?: vertical_delivery_employeeWhereInput | vertical_delivery_employeeWhereInput[]
+    id?: StringFilter<"vertical_delivery_employee"> | string
+    first_name?: StringFilter<"vertical_delivery_employee"> | string
+    last_name?: StringFilter<"vertical_delivery_employee"> | string
+    country_code?: StringFilter<"vertical_delivery_employee"> | string
+    mobile_number?: StringFilter<"vertical_delivery_employee"> | string
+    email?: StringFilter<"vertical_delivery_employee"> | string
+    password?: StringNullableFilter<"vertical_delivery_employee"> | string | null
+    employee_display_id?: StringFilter<"vertical_delivery_employee"> | string
+    joining_date?: DateTimeFilter<"vertical_delivery_employee"> | Date | string
+    client_id?: StringNullableFilter<"vertical_delivery_employee"> | string | null
+    restaurant_id?: StringNullableFilter<"vertical_delivery_employee"> | string | null
+    role?: Enumclient_employee_roleFilter<"vertical_delivery_employee"> | $Enums.client_employee_role
+    status?: Enumemployee_statusFilter<"vertical_delivery_employee"> | $Enums.employee_status
+    created_at?: DateTimeFilter<"vertical_delivery_employee"> | Date | string
+    updated_at?: DateTimeFilter<"vertical_delivery_employee"> | Date | string
+    profile_pic?: StringNullableFilter<"vertical_delivery_employee"> | string | null
     connected_boxes?: BoxListRelationFilter
     client?: XOR<ClientNullableScalarRelationFilter, clientWhereInput> | null
     restaurant?: XOR<RestaurantNullableScalarRelationFilter, restaurantWhereInput> | null
-    vertical_food_employee_boxes?: Vertical_food_employee_boxListRelationFilter
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxListRelationFilter
   }
 
-  export type vertical_food_employeeOrderByWithRelationInput = {
+  export type vertical_delivery_employeeOrderByWithRelationInput = {
     id?: SortOrder
     first_name?: SortOrder
     last_name?: SortOrder
@@ -30168,38 +30168,38 @@ export namespace Prisma {
     connected_boxes?: boxOrderByRelationAggregateInput
     client?: clientOrderByWithRelationInput
     restaurant?: restaurantOrderByWithRelationInput
-    vertical_food_employee_boxes?: vertical_food_employee_boxOrderByRelationAggregateInput
-    _relevance?: vertical_food_employeeOrderByRelevanceInput
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxOrderByRelationAggregateInput
+    _relevance?: vertical_delivery_employeeOrderByRelevanceInput
   }
 
-  export type vertical_food_employeeWhereUniqueInput = Prisma.AtLeast<{
+  export type vertical_delivery_employeeWhereUniqueInput = Prisma.AtLeast<{
     id?: string
     email?: string
     employee_display_id?: string
-    country_code_mobile_number?: vertical_food_employeeCountry_codeMobile_numberCompoundUniqueInput
-    AND?: vertical_food_employeeWhereInput | vertical_food_employeeWhereInput[]
-    OR?: vertical_food_employeeWhereInput[]
-    NOT?: vertical_food_employeeWhereInput | vertical_food_employeeWhereInput[]
-    first_name?: StringFilter<"vertical_food_employee"> | string
-    last_name?: StringFilter<"vertical_food_employee"> | string
-    country_code?: StringFilter<"vertical_food_employee"> | string
-    mobile_number?: StringFilter<"vertical_food_employee"> | string
-    password?: StringNullableFilter<"vertical_food_employee"> | string | null
-    joining_date?: DateTimeFilter<"vertical_food_employee"> | Date | string
-    client_id?: StringNullableFilter<"vertical_food_employee"> | string | null
-    restaurant_id?: StringNullableFilter<"vertical_food_employee"> | string | null
-    role?: Enumclient_employee_roleFilter<"vertical_food_employee"> | $Enums.client_employee_role
-    status?: Enumemployee_statusFilter<"vertical_food_employee"> | $Enums.employee_status
-    created_at?: DateTimeFilter<"vertical_food_employee"> | Date | string
-    updated_at?: DateTimeFilter<"vertical_food_employee"> | Date | string
-    profile_pic?: StringNullableFilter<"vertical_food_employee"> | string | null
+    country_code_mobile_number?: vertical_delivery_employeeCountry_codeMobile_numberCompoundUniqueInput
+    AND?: vertical_delivery_employeeWhereInput | vertical_delivery_employeeWhereInput[]
+    OR?: vertical_delivery_employeeWhereInput[]
+    NOT?: vertical_delivery_employeeWhereInput | vertical_delivery_employeeWhereInput[]
+    first_name?: StringFilter<"vertical_delivery_employee"> | string
+    last_name?: StringFilter<"vertical_delivery_employee"> | string
+    country_code?: StringFilter<"vertical_delivery_employee"> | string
+    mobile_number?: StringFilter<"vertical_delivery_employee"> | string
+    password?: StringNullableFilter<"vertical_delivery_employee"> | string | null
+    joining_date?: DateTimeFilter<"vertical_delivery_employee"> | Date | string
+    client_id?: StringNullableFilter<"vertical_delivery_employee"> | string | null
+    restaurant_id?: StringNullableFilter<"vertical_delivery_employee"> | string | null
+    role?: Enumclient_employee_roleFilter<"vertical_delivery_employee"> | $Enums.client_employee_role
+    status?: Enumemployee_statusFilter<"vertical_delivery_employee"> | $Enums.employee_status
+    created_at?: DateTimeFilter<"vertical_delivery_employee"> | Date | string
+    updated_at?: DateTimeFilter<"vertical_delivery_employee"> | Date | string
+    profile_pic?: StringNullableFilter<"vertical_delivery_employee"> | string | null
     connected_boxes?: BoxListRelationFilter
     client?: XOR<ClientNullableScalarRelationFilter, clientWhereInput> | null
     restaurant?: XOR<RestaurantNullableScalarRelationFilter, restaurantWhereInput> | null
-    vertical_food_employee_boxes?: Vertical_food_employee_boxListRelationFilter
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxListRelationFilter
   }, "id" | "email" | "employee_display_id" | "country_code_mobile_number">
 
-  export type vertical_food_employeeOrderByWithAggregationInput = {
+  export type vertical_delivery_employeeOrderByWithAggregationInput = {
     id?: SortOrder
     first_name?: SortOrder
     last_name?: SortOrder
@@ -30216,49 +30216,49 @@ export namespace Prisma {
     created_at?: SortOrder
     updated_at?: SortOrder
     profile_pic?: SortOrderInput | SortOrder
-    _count?: vertical_food_employeeCountOrderByAggregateInput
-    _max?: vertical_food_employeeMaxOrderByAggregateInput
-    _min?: vertical_food_employeeMinOrderByAggregateInput
+    _count?: vertical_delivery_employeeCountOrderByAggregateInput
+    _max?: vertical_delivery_employeeMaxOrderByAggregateInput
+    _min?: vertical_delivery_employeeMinOrderByAggregateInput
   }
 
-  export type vertical_food_employeeScalarWhereWithAggregatesInput = {
-    AND?: vertical_food_employeeScalarWhereWithAggregatesInput | vertical_food_employeeScalarWhereWithAggregatesInput[]
-    OR?: vertical_food_employeeScalarWhereWithAggregatesInput[]
-    NOT?: vertical_food_employeeScalarWhereWithAggregatesInput | vertical_food_employeeScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"vertical_food_employee"> | string
-    first_name?: StringWithAggregatesFilter<"vertical_food_employee"> | string
-    last_name?: StringWithAggregatesFilter<"vertical_food_employee"> | string
-    country_code?: StringWithAggregatesFilter<"vertical_food_employee"> | string
-    mobile_number?: StringWithAggregatesFilter<"vertical_food_employee"> | string
-    email?: StringWithAggregatesFilter<"vertical_food_employee"> | string
-    password?: StringNullableWithAggregatesFilter<"vertical_food_employee"> | string | null
-    employee_display_id?: StringWithAggregatesFilter<"vertical_food_employee"> | string
-    joining_date?: DateTimeWithAggregatesFilter<"vertical_food_employee"> | Date | string
-    client_id?: StringNullableWithAggregatesFilter<"vertical_food_employee"> | string | null
-    restaurant_id?: StringNullableWithAggregatesFilter<"vertical_food_employee"> | string | null
-    role?: Enumclient_employee_roleWithAggregatesFilter<"vertical_food_employee"> | $Enums.client_employee_role
-    status?: Enumemployee_statusWithAggregatesFilter<"vertical_food_employee"> | $Enums.employee_status
-    created_at?: DateTimeWithAggregatesFilter<"vertical_food_employee"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"vertical_food_employee"> | Date | string
-    profile_pic?: StringNullableWithAggregatesFilter<"vertical_food_employee"> | string | null
+  export type vertical_delivery_employeeScalarWhereWithAggregatesInput = {
+    AND?: vertical_delivery_employeeScalarWhereWithAggregatesInput | vertical_delivery_employeeScalarWhereWithAggregatesInput[]
+    OR?: vertical_delivery_employeeScalarWhereWithAggregatesInput[]
+    NOT?: vertical_delivery_employeeScalarWhereWithAggregatesInput | vertical_delivery_employeeScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"vertical_delivery_employee"> | string
+    first_name?: StringWithAggregatesFilter<"vertical_delivery_employee"> | string
+    last_name?: StringWithAggregatesFilter<"vertical_delivery_employee"> | string
+    country_code?: StringWithAggregatesFilter<"vertical_delivery_employee"> | string
+    mobile_number?: StringWithAggregatesFilter<"vertical_delivery_employee"> | string
+    email?: StringWithAggregatesFilter<"vertical_delivery_employee"> | string
+    password?: StringNullableWithAggregatesFilter<"vertical_delivery_employee"> | string | null
+    employee_display_id?: StringWithAggregatesFilter<"vertical_delivery_employee"> | string
+    joining_date?: DateTimeWithAggregatesFilter<"vertical_delivery_employee"> | Date | string
+    client_id?: StringNullableWithAggregatesFilter<"vertical_delivery_employee"> | string | null
+    restaurant_id?: StringNullableWithAggregatesFilter<"vertical_delivery_employee"> | string | null
+    role?: Enumclient_employee_roleWithAggregatesFilter<"vertical_delivery_employee"> | $Enums.client_employee_role
+    status?: Enumemployee_statusWithAggregatesFilter<"vertical_delivery_employee"> | $Enums.employee_status
+    created_at?: DateTimeWithAggregatesFilter<"vertical_delivery_employee"> | Date | string
+    updated_at?: DateTimeWithAggregatesFilter<"vertical_delivery_employee"> | Date | string
+    profile_pic?: StringNullableWithAggregatesFilter<"vertical_delivery_employee"> | string | null
   }
 
-  export type vertical_food_employee_boxWhereInput = {
-    AND?: vertical_food_employee_boxWhereInput | vertical_food_employee_boxWhereInput[]
-    OR?: vertical_food_employee_boxWhereInput[]
-    NOT?: vertical_food_employee_boxWhereInput | vertical_food_employee_boxWhereInput[]
-    id?: StringFilter<"vertical_food_employee_box"> | string
-    employee_id?: StringNullableFilter<"vertical_food_employee_box"> | string | null
-    box_id?: StringFilter<"vertical_food_employee_box"> | string
-    created_at?: DateTimeFilter<"vertical_food_employee_box"> | Date | string
-    updated_at?: DateTimeFilter<"vertical_food_employee_box"> | Date | string
-    status?: Enumemployee_box_statusFilter<"vertical_food_employee_box"> | $Enums.employee_box_status
-    access?: Enumemployee_box_accessFilter<"vertical_food_employee_box"> | $Enums.employee_box_access
+  export type vertical_delivery_employee_boxWhereInput = {
+    AND?: vertical_delivery_employee_boxWhereInput | vertical_delivery_employee_boxWhereInput[]
+    OR?: vertical_delivery_employee_boxWhereInput[]
+    NOT?: vertical_delivery_employee_boxWhereInput | vertical_delivery_employee_boxWhereInput[]
+    id?: StringFilter<"vertical_delivery_employee_box"> | string
+    employee_id?: StringNullableFilter<"vertical_delivery_employee_box"> | string | null
+    box_id?: StringFilter<"vertical_delivery_employee_box"> | string
+    created_at?: DateTimeFilter<"vertical_delivery_employee_box"> | Date | string
+    updated_at?: DateTimeFilter<"vertical_delivery_employee_box"> | Date | string
+    status?: Enumemployee_box_statusFilter<"vertical_delivery_employee_box"> | $Enums.employee_box_status
+    access?: Enumemployee_box_accessFilter<"vertical_delivery_employee_box"> | $Enums.employee_box_access
     box?: XOR<BoxScalarRelationFilter, boxWhereInput>
-    employee?: XOR<Vertical_food_employeeNullableScalarRelationFilter, vertical_food_employeeWhereInput> | null
+    employee?: XOR<vertical_delivery_employeeNullableScalarRelationFilter, vertical_delivery_employeeWhereInput> | null
   }
 
-  export type vertical_food_employee_boxOrderByWithRelationInput = {
+  export type vertical_delivery_employee_boxOrderByWithRelationInput = {
     id?: SortOrder
     employee_id?: SortOrderInput | SortOrder
     box_id?: SortOrder
@@ -30267,27 +30267,27 @@ export namespace Prisma {
     status?: SortOrder
     access?: SortOrder
     box?: boxOrderByWithRelationInput
-    employee?: vertical_food_employeeOrderByWithRelationInput
-    _relevance?: vertical_food_employee_boxOrderByRelevanceInput
+    employee?: vertical_delivery_employeeOrderByWithRelationInput
+    _relevance?: vertical_delivery_employee_boxOrderByRelevanceInput
   }
 
-  export type vertical_food_employee_boxWhereUniqueInput = Prisma.AtLeast<{
+  export type vertical_delivery_employee_boxWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    employee_id_box_id?: vertical_food_employee_boxEmployee_idBox_idCompoundUniqueInput
-    AND?: vertical_food_employee_boxWhereInput | vertical_food_employee_boxWhereInput[]
-    OR?: vertical_food_employee_boxWhereInput[]
-    NOT?: vertical_food_employee_boxWhereInput | vertical_food_employee_boxWhereInput[]
-    employee_id?: StringNullableFilter<"vertical_food_employee_box"> | string | null
-    box_id?: StringFilter<"vertical_food_employee_box"> | string
-    created_at?: DateTimeFilter<"vertical_food_employee_box"> | Date | string
-    updated_at?: DateTimeFilter<"vertical_food_employee_box"> | Date | string
-    status?: Enumemployee_box_statusFilter<"vertical_food_employee_box"> | $Enums.employee_box_status
-    access?: Enumemployee_box_accessFilter<"vertical_food_employee_box"> | $Enums.employee_box_access
+    employee_id_box_id?: vertical_delivery_employee_boxEmployee_idBox_idCompoundUniqueInput
+    AND?: vertical_delivery_employee_boxWhereInput | vertical_delivery_employee_boxWhereInput[]
+    OR?: vertical_delivery_employee_boxWhereInput[]
+    NOT?: vertical_delivery_employee_boxWhereInput | vertical_delivery_employee_boxWhereInput[]
+    employee_id?: StringNullableFilter<"vertical_delivery_employee_box"> | string | null
+    box_id?: StringFilter<"vertical_delivery_employee_box"> | string
+    created_at?: DateTimeFilter<"vertical_delivery_employee_box"> | Date | string
+    updated_at?: DateTimeFilter<"vertical_delivery_employee_box"> | Date | string
+    status?: Enumemployee_box_statusFilter<"vertical_delivery_employee_box"> | $Enums.employee_box_status
+    access?: Enumemployee_box_accessFilter<"vertical_delivery_employee_box"> | $Enums.employee_box_access
     box?: XOR<BoxScalarRelationFilter, boxWhereInput>
-    employee?: XOR<Vertical_food_employeeNullableScalarRelationFilter, vertical_food_employeeWhereInput> | null
+    employee?: XOR<vertical_delivery_employeeNullableScalarRelationFilter, vertical_delivery_employeeWhereInput> | null
   }, "id" | "employee_id_box_id">
 
-  export type vertical_food_employee_boxOrderByWithAggregationInput = {
+  export type vertical_delivery_employee_boxOrderByWithAggregationInput = {
     id?: SortOrder
     employee_id?: SortOrderInput | SortOrder
     box_id?: SortOrder
@@ -30295,22 +30295,22 @@ export namespace Prisma {
     updated_at?: SortOrder
     status?: SortOrder
     access?: SortOrder
-    _count?: vertical_food_employee_boxCountOrderByAggregateInput
-    _max?: vertical_food_employee_boxMaxOrderByAggregateInput
-    _min?: vertical_food_employee_boxMinOrderByAggregateInput
+    _count?: vertical_delivery_employee_boxCountOrderByAggregateInput
+    _max?: vertical_delivery_employee_boxMaxOrderByAggregateInput
+    _min?: vertical_delivery_employee_boxMinOrderByAggregateInput
   }
 
-  export type vertical_food_employee_boxScalarWhereWithAggregatesInput = {
-    AND?: vertical_food_employee_boxScalarWhereWithAggregatesInput | vertical_food_employee_boxScalarWhereWithAggregatesInput[]
-    OR?: vertical_food_employee_boxScalarWhereWithAggregatesInput[]
-    NOT?: vertical_food_employee_boxScalarWhereWithAggregatesInput | vertical_food_employee_boxScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"vertical_food_employee_box"> | string
-    employee_id?: StringNullableWithAggregatesFilter<"vertical_food_employee_box"> | string | null
-    box_id?: StringWithAggregatesFilter<"vertical_food_employee_box"> | string
-    created_at?: DateTimeWithAggregatesFilter<"vertical_food_employee_box"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"vertical_food_employee_box"> | Date | string
-    status?: Enumemployee_box_statusWithAggregatesFilter<"vertical_food_employee_box"> | $Enums.employee_box_status
-    access?: Enumemployee_box_accessWithAggregatesFilter<"vertical_food_employee_box"> | $Enums.employee_box_access
+  export type vertical_delivery_employee_boxScalarWhereWithAggregatesInput = {
+    AND?: vertical_delivery_employee_boxScalarWhereWithAggregatesInput | vertical_delivery_employee_boxScalarWhereWithAggregatesInput[]
+    OR?: vertical_delivery_employee_boxScalarWhereWithAggregatesInput[]
+    NOT?: vertical_delivery_employee_boxScalarWhereWithAggregatesInput | vertical_delivery_employee_boxScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"vertical_delivery_employee_box"> | string
+    employee_id?: StringNullableWithAggregatesFilter<"vertical_delivery_employee_box"> | string | null
+    box_id?: StringWithAggregatesFilter<"vertical_delivery_employee_box"> | string
+    created_at?: DateTimeWithAggregatesFilter<"vertical_delivery_employee_box"> | Date | string
+    updated_at?: DateTimeWithAggregatesFilter<"vertical_delivery_employee_box"> | Date | string
+    status?: Enumemployee_box_statusWithAggregatesFilter<"vertical_delivery_employee_box"> | $Enums.employee_box_status
+    access?: Enumemployee_box_accessWithAggregatesFilter<"vertical_delivery_employee_box"> | $Enums.employee_box_access
   }
 
   export type restaurant_boxWhereInput = {
@@ -30377,28 +30377,28 @@ export namespace Prisma {
     status?: Enumrestaurant_box_statusWithAggregatesFilter<"restaurant_box"> | $Enums.restaurant_box_status
   }
 
-  export type vertical_food_employee_deletedWhereInput = {
-    AND?: vertical_food_employee_deletedWhereInput | vertical_food_employee_deletedWhereInput[]
-    OR?: vertical_food_employee_deletedWhereInput[]
-    NOT?: vertical_food_employee_deletedWhereInput | vertical_food_employee_deletedWhereInput[]
-    id?: StringFilter<"vertical_food_employee_deleted"> | string
-    first_name?: StringFilter<"vertical_food_employee_deleted"> | string
-    last_name?: StringFilter<"vertical_food_employee_deleted"> | string
-    country_code?: StringFilter<"vertical_food_employee_deleted"> | string
-    mobile_number?: StringFilter<"vertical_food_employee_deleted"> | string
-    email?: StringFilter<"vertical_food_employee_deleted"> | string
-    employee_display_id?: StringFilter<"vertical_food_employee_deleted"> | string
-    joining_date?: DateTimeFilter<"vertical_food_employee_deleted"> | Date | string
-    client_name?: StringFilter<"vertical_food_employee_deleted"> | string
-    role_name?: StringFilter<"vertical_food_employee_deleted"> | string
-    created_at?: DateTimeFilter<"vertical_food_employee_deleted"> | Date | string
-    updated_at?: DateTimeFilter<"vertical_food_employee_deleted"> | Date | string
-    profile_pic?: StringNullableFilter<"vertical_food_employee_deleted"> | string | null
-    client_id?: StringNullableFilter<"vertical_food_employee_deleted"> | string | null
-    x_primary_key?: StringNullableFilter<"vertical_food_employee_deleted"> | string | null
+  export type vertical_delivery_employee_deletedWhereInput = {
+    AND?: vertical_delivery_employee_deletedWhereInput | vertical_delivery_employee_deletedWhereInput[]
+    OR?: vertical_delivery_employee_deletedWhereInput[]
+    NOT?: vertical_delivery_employee_deletedWhereInput | vertical_delivery_employee_deletedWhereInput[]
+    id?: StringFilter<"vertical_delivery_employee_deleted"> | string
+    first_name?: StringFilter<"vertical_delivery_employee_deleted"> | string
+    last_name?: StringFilter<"vertical_delivery_employee_deleted"> | string
+    country_code?: StringFilter<"vertical_delivery_employee_deleted"> | string
+    mobile_number?: StringFilter<"vertical_delivery_employee_deleted"> | string
+    email?: StringFilter<"vertical_delivery_employee_deleted"> | string
+    employee_display_id?: StringFilter<"vertical_delivery_employee_deleted"> | string
+    joining_date?: DateTimeFilter<"vertical_delivery_employee_deleted"> | Date | string
+    client_name?: StringFilter<"vertical_delivery_employee_deleted"> | string
+    role_name?: StringFilter<"vertical_delivery_employee_deleted"> | string
+    created_at?: DateTimeFilter<"vertical_delivery_employee_deleted"> | Date | string
+    updated_at?: DateTimeFilter<"vertical_delivery_employee_deleted"> | Date | string
+    profile_pic?: StringNullableFilter<"vertical_delivery_employee_deleted"> | string | null
+    client_id?: StringNullableFilter<"vertical_delivery_employee_deleted"> | string | null
+    x_primary_key?: StringNullableFilter<"vertical_delivery_employee_deleted"> | string | null
   }
 
-  export type vertical_food_employee_deletedOrderByWithRelationInput = {
+  export type vertical_delivery_employee_deletedOrderByWithRelationInput = {
     id?: SortOrder
     first_name?: SortOrder
     last_name?: SortOrder
@@ -30414,31 +30414,31 @@ export namespace Prisma {
     profile_pic?: SortOrderInput | SortOrder
     client_id?: SortOrderInput | SortOrder
     x_primary_key?: SortOrderInput | SortOrder
-    _relevance?: vertical_food_employee_deletedOrderByRelevanceInput
+    _relevance?: vertical_delivery_employee_deletedOrderByRelevanceInput
   }
 
-  export type vertical_food_employee_deletedWhereUniqueInput = Prisma.AtLeast<{
+  export type vertical_delivery_employee_deletedWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    AND?: vertical_food_employee_deletedWhereInput | vertical_food_employee_deletedWhereInput[]
-    OR?: vertical_food_employee_deletedWhereInput[]
-    NOT?: vertical_food_employee_deletedWhereInput | vertical_food_employee_deletedWhereInput[]
-    first_name?: StringFilter<"vertical_food_employee_deleted"> | string
-    last_name?: StringFilter<"vertical_food_employee_deleted"> | string
-    country_code?: StringFilter<"vertical_food_employee_deleted"> | string
-    mobile_number?: StringFilter<"vertical_food_employee_deleted"> | string
-    email?: StringFilter<"vertical_food_employee_deleted"> | string
-    employee_display_id?: StringFilter<"vertical_food_employee_deleted"> | string
-    joining_date?: DateTimeFilter<"vertical_food_employee_deleted"> | Date | string
-    client_name?: StringFilter<"vertical_food_employee_deleted"> | string
-    role_name?: StringFilter<"vertical_food_employee_deleted"> | string
-    created_at?: DateTimeFilter<"vertical_food_employee_deleted"> | Date | string
-    updated_at?: DateTimeFilter<"vertical_food_employee_deleted"> | Date | string
-    profile_pic?: StringNullableFilter<"vertical_food_employee_deleted"> | string | null
-    client_id?: StringNullableFilter<"vertical_food_employee_deleted"> | string | null
-    x_primary_key?: StringNullableFilter<"vertical_food_employee_deleted"> | string | null
+    AND?: vertical_delivery_employee_deletedWhereInput | vertical_delivery_employee_deletedWhereInput[]
+    OR?: vertical_delivery_employee_deletedWhereInput[]
+    NOT?: vertical_delivery_employee_deletedWhereInput | vertical_delivery_employee_deletedWhereInput[]
+    first_name?: StringFilter<"vertical_delivery_employee_deleted"> | string
+    last_name?: StringFilter<"vertical_delivery_employee_deleted"> | string
+    country_code?: StringFilter<"vertical_delivery_employee_deleted"> | string
+    mobile_number?: StringFilter<"vertical_delivery_employee_deleted"> | string
+    email?: StringFilter<"vertical_delivery_employee_deleted"> | string
+    employee_display_id?: StringFilter<"vertical_delivery_employee_deleted"> | string
+    joining_date?: DateTimeFilter<"vertical_delivery_employee_deleted"> | Date | string
+    client_name?: StringFilter<"vertical_delivery_employee_deleted"> | string
+    role_name?: StringFilter<"vertical_delivery_employee_deleted"> | string
+    created_at?: DateTimeFilter<"vertical_delivery_employee_deleted"> | Date | string
+    updated_at?: DateTimeFilter<"vertical_delivery_employee_deleted"> | Date | string
+    profile_pic?: StringNullableFilter<"vertical_delivery_employee_deleted"> | string | null
+    client_id?: StringNullableFilter<"vertical_delivery_employee_deleted"> | string | null
+    x_primary_key?: StringNullableFilter<"vertical_delivery_employee_deleted"> | string | null
   }, "id">
 
-  export type vertical_food_employee_deletedOrderByWithAggregationInput = {
+  export type vertical_delivery_employee_deletedOrderByWithAggregationInput = {
     id?: SortOrder
     first_name?: SortOrder
     last_name?: SortOrder
@@ -30454,30 +30454,30 @@ export namespace Prisma {
     profile_pic?: SortOrderInput | SortOrder
     client_id?: SortOrderInput | SortOrder
     x_primary_key?: SortOrderInput | SortOrder
-    _count?: vertical_food_employee_deletedCountOrderByAggregateInput
-    _max?: vertical_food_employee_deletedMaxOrderByAggregateInput
-    _min?: vertical_food_employee_deletedMinOrderByAggregateInput
+    _count?: vertical_delivery_employee_deletedCountOrderByAggregateInput
+    _max?: vertical_delivery_employee_deletedMaxOrderByAggregateInput
+    _min?: vertical_delivery_employee_deletedMinOrderByAggregateInput
   }
 
-  export type vertical_food_employee_deletedScalarWhereWithAggregatesInput = {
-    AND?: vertical_food_employee_deletedScalarWhereWithAggregatesInput | vertical_food_employee_deletedScalarWhereWithAggregatesInput[]
-    OR?: vertical_food_employee_deletedScalarWhereWithAggregatesInput[]
-    NOT?: vertical_food_employee_deletedScalarWhereWithAggregatesInput | vertical_food_employee_deletedScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"vertical_food_employee_deleted"> | string
-    first_name?: StringWithAggregatesFilter<"vertical_food_employee_deleted"> | string
-    last_name?: StringWithAggregatesFilter<"vertical_food_employee_deleted"> | string
-    country_code?: StringWithAggregatesFilter<"vertical_food_employee_deleted"> | string
-    mobile_number?: StringWithAggregatesFilter<"vertical_food_employee_deleted"> | string
-    email?: StringWithAggregatesFilter<"vertical_food_employee_deleted"> | string
-    employee_display_id?: StringWithAggregatesFilter<"vertical_food_employee_deleted"> | string
-    joining_date?: DateTimeWithAggregatesFilter<"vertical_food_employee_deleted"> | Date | string
-    client_name?: StringWithAggregatesFilter<"vertical_food_employee_deleted"> | string
-    role_name?: StringWithAggregatesFilter<"vertical_food_employee_deleted"> | string
-    created_at?: DateTimeWithAggregatesFilter<"vertical_food_employee_deleted"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"vertical_food_employee_deleted"> | Date | string
-    profile_pic?: StringNullableWithAggregatesFilter<"vertical_food_employee_deleted"> | string | null
-    client_id?: StringNullableWithAggregatesFilter<"vertical_food_employee_deleted"> | string | null
-    x_primary_key?: StringNullableWithAggregatesFilter<"vertical_food_employee_deleted"> | string | null
+  export type vertical_delivery_employee_deletedScalarWhereWithAggregatesInput = {
+    AND?: vertical_delivery_employee_deletedScalarWhereWithAggregatesInput | vertical_delivery_employee_deletedScalarWhereWithAggregatesInput[]
+    OR?: vertical_delivery_employee_deletedScalarWhereWithAggregatesInput[]
+    NOT?: vertical_delivery_employee_deletedScalarWhereWithAggregatesInput | vertical_delivery_employee_deletedScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"vertical_delivery_employee_deleted"> | string
+    first_name?: StringWithAggregatesFilter<"vertical_delivery_employee_deleted"> | string
+    last_name?: StringWithAggregatesFilter<"vertical_delivery_employee_deleted"> | string
+    country_code?: StringWithAggregatesFilter<"vertical_delivery_employee_deleted"> | string
+    mobile_number?: StringWithAggregatesFilter<"vertical_delivery_employee_deleted"> | string
+    email?: StringWithAggregatesFilter<"vertical_delivery_employee_deleted"> | string
+    employee_display_id?: StringWithAggregatesFilter<"vertical_delivery_employee_deleted"> | string
+    joining_date?: DateTimeWithAggregatesFilter<"vertical_delivery_employee_deleted"> | Date | string
+    client_name?: StringWithAggregatesFilter<"vertical_delivery_employee_deleted"> | string
+    role_name?: StringWithAggregatesFilter<"vertical_delivery_employee_deleted"> | string
+    created_at?: DateTimeWithAggregatesFilter<"vertical_delivery_employee_deleted"> | Date | string
+    updated_at?: DateTimeWithAggregatesFilter<"vertical_delivery_employee_deleted"> | Date | string
+    profile_pic?: StringNullableWithAggregatesFilter<"vertical_delivery_employee_deleted"> | string | null
+    client_id?: StringNullableWithAggregatesFilter<"vertical_delivery_employee_deleted"> | string | null
+    x_primary_key?: StringNullableWithAggregatesFilter<"vertical_delivery_employee_deleted"> | string | null
   }
 
   export type restaurant_deletedWhereInput = {
@@ -30678,23 +30678,23 @@ export namespace Prisma {
     updated_at?: DateTimeWithAggregatesFilter<"box_deleted"> | Date | string
   }
 
-  export type vertical_food_consumerWhereInput = {
-    AND?: vertical_food_consumerWhereInput | vertical_food_consumerWhereInput[]
-    OR?: vertical_food_consumerWhereInput[]
-    NOT?: vertical_food_consumerWhereInput | vertical_food_consumerWhereInput[]
-    id?: StringFilter<"vertical_food_consumer"> | string
-    full_name?: StringFilter<"vertical_food_consumer"> | string
-    country_code?: StringFilter<"vertical_food_consumer"> | string
-    phone?: StringFilter<"vertical_food_consumer"> | string
-    status?: Enumfood_consumer_statusFilter<"vertical_food_consumer"> | $Enums.food_consumer_status
-    client_id?: StringNullableFilter<"vertical_food_consumer"> | string | null
-    created_at?: DateTimeFilter<"vertical_food_consumer"> | Date | string
-    updated_at?: DateTimeFilter<"vertical_food_consumer"> | Date | string
+  export type vertical_delivery_consumerWhereInput = {
+    AND?: vertical_delivery_consumerWhereInput | vertical_delivery_consumerWhereInput[]
+    OR?: vertical_delivery_consumerWhereInput[]
+    NOT?: vertical_delivery_consumerWhereInput | vertical_delivery_consumerWhereInput[]
+    id?: StringFilter<"vertical_delivery_consumer"> | string
+    full_name?: StringFilter<"vertical_delivery_consumer"> | string
+    country_code?: StringFilter<"vertical_delivery_consumer"> | string
+    phone?: StringFilter<"vertical_delivery_consumer"> | string
+    status?: Enumdelivery_consumer_statusFilter<"vertical_delivery_consumer"> | $Enums.delivery_consumer_status
+    client_id?: StringNullableFilter<"vertical_delivery_consumer"> | string | null
+    created_at?: DateTimeFilter<"vertical_delivery_consumer"> | Date | string
+    updated_at?: DateTimeFilter<"vertical_delivery_consumer"> | Date | string
     client?: XOR<ClientNullableScalarRelationFilter, clientWhereInput> | null
-    boxes?: Vertical_food_consumer_boxListRelationFilter
+    boxes?: vertical_delivery_consumer_boxListRelationFilter
   }
 
-  export type vertical_food_consumerOrderByWithRelationInput = {
+  export type vertical_delivery_consumerOrderByWithRelationInput = {
     id?: SortOrder
     full_name?: SortOrder
     country_code?: SortOrder
@@ -30704,28 +30704,28 @@ export namespace Prisma {
     created_at?: SortOrder
     updated_at?: SortOrder
     client?: clientOrderByWithRelationInput
-    boxes?: vertical_food_consumer_boxOrderByRelationAggregateInput
-    _relevance?: vertical_food_consumerOrderByRelevanceInput
+    boxes?: vertical_delivery_consumer_boxOrderByRelationAggregateInput
+    _relevance?: vertical_delivery_consumerOrderByRelevanceInput
   }
 
-  export type vertical_food_consumerWhereUniqueInput = Prisma.AtLeast<{
+  export type vertical_delivery_consumerWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    phone_country_code?: vertical_food_consumerPhoneCountry_codeCompoundUniqueInput
-    AND?: vertical_food_consumerWhereInput | vertical_food_consumerWhereInput[]
-    OR?: vertical_food_consumerWhereInput[]
-    NOT?: vertical_food_consumerWhereInput | vertical_food_consumerWhereInput[]
-    full_name?: StringFilter<"vertical_food_consumer"> | string
-    country_code?: StringFilter<"vertical_food_consumer"> | string
-    phone?: StringFilter<"vertical_food_consumer"> | string
-    status?: Enumfood_consumer_statusFilter<"vertical_food_consumer"> | $Enums.food_consumer_status
-    client_id?: StringNullableFilter<"vertical_food_consumer"> | string | null
-    created_at?: DateTimeFilter<"vertical_food_consumer"> | Date | string
-    updated_at?: DateTimeFilter<"vertical_food_consumer"> | Date | string
+    phone_country_code?: vertical_delivery_consumerPhoneCountry_codeCompoundUniqueInput
+    AND?: vertical_delivery_consumerWhereInput | vertical_delivery_consumerWhereInput[]
+    OR?: vertical_delivery_consumerWhereInput[]
+    NOT?: vertical_delivery_consumerWhereInput | vertical_delivery_consumerWhereInput[]
+    full_name?: StringFilter<"vertical_delivery_consumer"> | string
+    country_code?: StringFilter<"vertical_delivery_consumer"> | string
+    phone?: StringFilter<"vertical_delivery_consumer"> | string
+    status?: Enumdelivery_consumer_statusFilter<"vertical_delivery_consumer"> | $Enums.delivery_consumer_status
+    client_id?: StringNullableFilter<"vertical_delivery_consumer"> | string | null
+    created_at?: DateTimeFilter<"vertical_delivery_consumer"> | Date | string
+    updated_at?: DateTimeFilter<"vertical_delivery_consumer"> | Date | string
     client?: XOR<ClientNullableScalarRelationFilter, clientWhereInput> | null
-    boxes?: Vertical_food_consumer_boxListRelationFilter
+    boxes?: vertical_delivery_consumer_boxListRelationFilter
   }, "id" | "phone_country_code">
 
-  export type vertical_food_consumerOrderByWithAggregationInput = {
+  export type vertical_delivery_consumerOrderByWithAggregationInput = {
     id?: SortOrder
     full_name?: SortOrder
     country_code?: SortOrder
@@ -30734,82 +30734,82 @@ export namespace Prisma {
     client_id?: SortOrderInput | SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
-    _count?: vertical_food_consumerCountOrderByAggregateInput
-    _max?: vertical_food_consumerMaxOrderByAggregateInput
-    _min?: vertical_food_consumerMinOrderByAggregateInput
+    _count?: vertical_delivery_consumerCountOrderByAggregateInput
+    _max?: vertical_delivery_consumerMaxOrderByAggregateInput
+    _min?: vertical_delivery_consumerMinOrderByAggregateInput
   }
 
-  export type vertical_food_consumerScalarWhereWithAggregatesInput = {
-    AND?: vertical_food_consumerScalarWhereWithAggregatesInput | vertical_food_consumerScalarWhereWithAggregatesInput[]
-    OR?: vertical_food_consumerScalarWhereWithAggregatesInput[]
-    NOT?: vertical_food_consumerScalarWhereWithAggregatesInput | vertical_food_consumerScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"vertical_food_consumer"> | string
-    full_name?: StringWithAggregatesFilter<"vertical_food_consumer"> | string
-    country_code?: StringWithAggregatesFilter<"vertical_food_consumer"> | string
-    phone?: StringWithAggregatesFilter<"vertical_food_consumer"> | string
-    status?: Enumfood_consumer_statusWithAggregatesFilter<"vertical_food_consumer"> | $Enums.food_consumer_status
-    client_id?: StringNullableWithAggregatesFilter<"vertical_food_consumer"> | string | null
-    created_at?: DateTimeWithAggregatesFilter<"vertical_food_consumer"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"vertical_food_consumer"> | Date | string
+  export type vertical_delivery_consumerScalarWhereWithAggregatesInput = {
+    AND?: vertical_delivery_consumerScalarWhereWithAggregatesInput | vertical_delivery_consumerScalarWhereWithAggregatesInput[]
+    OR?: vertical_delivery_consumerScalarWhereWithAggregatesInput[]
+    NOT?: vertical_delivery_consumerScalarWhereWithAggregatesInput | vertical_delivery_consumerScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"vertical_delivery_consumer"> | string
+    full_name?: StringWithAggregatesFilter<"vertical_delivery_consumer"> | string
+    country_code?: StringWithAggregatesFilter<"vertical_delivery_consumer"> | string
+    phone?: StringWithAggregatesFilter<"vertical_delivery_consumer"> | string
+    status?: Enumdelivery_consumer_statusWithAggregatesFilter<"vertical_delivery_consumer"> | $Enums.delivery_consumer_status
+    client_id?: StringNullableWithAggregatesFilter<"vertical_delivery_consumer"> | string | null
+    created_at?: DateTimeWithAggregatesFilter<"vertical_delivery_consumer"> | Date | string
+    updated_at?: DateTimeWithAggregatesFilter<"vertical_delivery_consumer"> | Date | string
   }
 
-  export type vertical_food_consumer_boxWhereInput = {
-    AND?: vertical_food_consumer_boxWhereInput | vertical_food_consumer_boxWhereInput[]
-    OR?: vertical_food_consumer_boxWhereInput[]
-    NOT?: vertical_food_consumer_boxWhereInput | vertical_food_consumer_boxWhereInput[]
-    id?: StringFilter<"vertical_food_consumer_box"> | string
-    consumer_id?: StringFilter<"vertical_food_consumer_box"> | string
-    box_id?: StringFilter<"vertical_food_consumer_box"> | string
-    created_at?: DateTimeFilter<"vertical_food_consumer_box"> | Date | string
-    updated_at?: DateTimeFilter<"vertical_food_consumer_box"> | Date | string
+  export type vertical_delivery_consumer_boxWhereInput = {
+    AND?: vertical_delivery_consumer_boxWhereInput | vertical_delivery_consumer_boxWhereInput[]
+    OR?: vertical_delivery_consumer_boxWhereInput[]
+    NOT?: vertical_delivery_consumer_boxWhereInput | vertical_delivery_consumer_boxWhereInput[]
+    id?: StringFilter<"vertical_delivery_consumer_box"> | string
+    consumer_id?: StringFilter<"vertical_delivery_consumer_box"> | string
+    box_id?: StringFilter<"vertical_delivery_consumer_box"> | string
+    created_at?: DateTimeFilter<"vertical_delivery_consumer_box"> | Date | string
+    updated_at?: DateTimeFilter<"vertical_delivery_consumer_box"> | Date | string
     box?: XOR<BoxScalarRelationFilter, boxWhereInput>
-    consumer?: XOR<Vertical_food_consumerScalarRelationFilter, vertical_food_consumerWhereInput>
+    consumer?: XOR<vertical_delivery_consumerScalarRelationFilter, vertical_delivery_consumerWhereInput>
   }
 
-  export type vertical_food_consumer_boxOrderByWithRelationInput = {
+  export type vertical_delivery_consumer_boxOrderByWithRelationInput = {
     id?: SortOrder
     consumer_id?: SortOrder
     box_id?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
     box?: boxOrderByWithRelationInput
-    consumer?: vertical_food_consumerOrderByWithRelationInput
-    _relevance?: vertical_food_consumer_boxOrderByRelevanceInput
+    consumer?: vertical_delivery_consumerOrderByWithRelationInput
+    _relevance?: vertical_delivery_consumer_boxOrderByRelevanceInput
   }
 
-  export type vertical_food_consumer_boxWhereUniqueInput = Prisma.AtLeast<{
+  export type vertical_delivery_consumer_boxWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    AND?: vertical_food_consumer_boxWhereInput | vertical_food_consumer_boxWhereInput[]
-    OR?: vertical_food_consumer_boxWhereInput[]
-    NOT?: vertical_food_consumer_boxWhereInput | vertical_food_consumer_boxWhereInput[]
-    consumer_id?: StringFilter<"vertical_food_consumer_box"> | string
-    box_id?: StringFilter<"vertical_food_consumer_box"> | string
-    created_at?: DateTimeFilter<"vertical_food_consumer_box"> | Date | string
-    updated_at?: DateTimeFilter<"vertical_food_consumer_box"> | Date | string
+    AND?: vertical_delivery_consumer_boxWhereInput | vertical_delivery_consumer_boxWhereInput[]
+    OR?: vertical_delivery_consumer_boxWhereInput[]
+    NOT?: vertical_delivery_consumer_boxWhereInput | vertical_delivery_consumer_boxWhereInput[]
+    consumer_id?: StringFilter<"vertical_delivery_consumer_box"> | string
+    box_id?: StringFilter<"vertical_delivery_consumer_box"> | string
+    created_at?: DateTimeFilter<"vertical_delivery_consumer_box"> | Date | string
+    updated_at?: DateTimeFilter<"vertical_delivery_consumer_box"> | Date | string
     box?: XOR<BoxScalarRelationFilter, boxWhereInput>
-    consumer?: XOR<Vertical_food_consumerScalarRelationFilter, vertical_food_consumerWhereInput>
+    consumer?: XOR<vertical_delivery_consumerScalarRelationFilter, vertical_delivery_consumerWhereInput>
   }, "id">
 
-  export type vertical_food_consumer_boxOrderByWithAggregationInput = {
+  export type vertical_delivery_consumer_boxOrderByWithAggregationInput = {
     id?: SortOrder
     consumer_id?: SortOrder
     box_id?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
-    _count?: vertical_food_consumer_boxCountOrderByAggregateInput
-    _max?: vertical_food_consumer_boxMaxOrderByAggregateInput
-    _min?: vertical_food_consumer_boxMinOrderByAggregateInput
+    _count?: vertical_delivery_consumer_boxCountOrderByAggregateInput
+    _max?: vertical_delivery_consumer_boxMaxOrderByAggregateInput
+    _min?: vertical_delivery_consumer_boxMinOrderByAggregateInput
   }
 
-  export type vertical_food_consumer_boxScalarWhereWithAggregatesInput = {
-    AND?: vertical_food_consumer_boxScalarWhereWithAggregatesInput | vertical_food_consumer_boxScalarWhereWithAggregatesInput[]
-    OR?: vertical_food_consumer_boxScalarWhereWithAggregatesInput[]
-    NOT?: vertical_food_consumer_boxScalarWhereWithAggregatesInput | vertical_food_consumer_boxScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"vertical_food_consumer_box"> | string
-    consumer_id?: StringWithAggregatesFilter<"vertical_food_consumer_box"> | string
-    box_id?: StringWithAggregatesFilter<"vertical_food_consumer_box"> | string
-    created_at?: DateTimeWithAggregatesFilter<"vertical_food_consumer_box"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"vertical_food_consumer_box"> | Date | string
+  export type vertical_delivery_consumer_boxScalarWhereWithAggregatesInput = {
+    AND?: vertical_delivery_consumer_boxScalarWhereWithAggregatesInput | vertical_delivery_consumer_boxScalarWhereWithAggregatesInput[]
+    OR?: vertical_delivery_consumer_boxScalarWhereWithAggregatesInput[]
+    NOT?: vertical_delivery_consumer_boxScalarWhereWithAggregatesInput | vertical_delivery_consumer_boxScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"vertical_delivery_consumer_box"> | string
+    consumer_id?: StringWithAggregatesFilter<"vertical_delivery_consumer_box"> | string
+    box_id?: StringWithAggregatesFilter<"vertical_delivery_consumer_box"> | string
+    created_at?: DateTimeWithAggregatesFilter<"vertical_delivery_consumer_box"> | Date | string
+    updated_at?: DateTimeWithAggregatesFilter<"vertical_delivery_consumer_box"> | Date | string
   }
 
   export type box_lockWhereInput = {
@@ -31579,8 +31579,8 @@ export namespace Prisma {
     profile_pic?: string | null
     boxes?: boxCreateNestedManyWithoutClientInput
     vertical?: verticalCreateNestedOneWithoutClientsInput
-    vertical_food_consumers?: vertical_food_consumerCreateNestedManyWithoutClientInput
-    vertical_food_employees?: vertical_food_employeeCreateNestedManyWithoutClientInput
+    vertical_delivery_consumers?: vertical_delivery_consumerCreateNestedManyWithoutClientInput
+    vertical_delivery_employees?: vertical_delivery_employeeCreateNestedManyWithoutClientInput
     restaurants?: restaurantCreateNestedManyWithoutClientInput
     notifications?: notificationCreateNestedManyWithoutClientInput
   }
@@ -31602,8 +31602,8 @@ export namespace Prisma {
     vertical_id?: string | null
     profile_pic?: string | null
     boxes?: boxUncheckedCreateNestedManyWithoutClientInput
-    vertical_food_consumers?: vertical_food_consumerUncheckedCreateNestedManyWithoutClientInput
-    vertical_food_employees?: vertical_food_employeeUncheckedCreateNestedManyWithoutClientInput
+    vertical_delivery_consumers?: vertical_delivery_consumerUncheckedCreateNestedManyWithoutClientInput
+    vertical_delivery_employees?: vertical_delivery_employeeUncheckedCreateNestedManyWithoutClientInput
     restaurants?: restaurantUncheckedCreateNestedManyWithoutClientInput
     notifications?: notificationUncheckedCreateNestedManyWithoutClientInput
   }
@@ -31625,8 +31625,8 @@ export namespace Prisma {
     profile_pic?: NullableStringFieldUpdateOperationsInput | string | null
     boxes?: boxUpdateManyWithoutClientNestedInput
     vertical?: verticalUpdateOneWithoutClientsNestedInput
-    vertical_food_consumers?: vertical_food_consumerUpdateManyWithoutClientNestedInput
-    vertical_food_employees?: vertical_food_employeeUpdateManyWithoutClientNestedInput
+    vertical_delivery_consumers?: vertical_delivery_consumerUpdateManyWithoutClientNestedInput
+    vertical_delivery_employees?: vertical_delivery_employeeUpdateManyWithoutClientNestedInput
     restaurants?: restaurantUpdateManyWithoutClientNestedInput
     notifications?: notificationUpdateManyWithoutClientNestedInput
   }
@@ -31648,8 +31648,8 @@ export namespace Prisma {
     vertical_id?: NullableStringFieldUpdateOperationsInput | string | null
     profile_pic?: NullableStringFieldUpdateOperationsInput | string | null
     boxes?: boxUncheckedUpdateManyWithoutClientNestedInput
-    vertical_food_consumers?: vertical_food_consumerUncheckedUpdateManyWithoutClientNestedInput
-    vertical_food_employees?: vertical_food_employeeUncheckedUpdateManyWithoutClientNestedInput
+    vertical_delivery_consumers?: vertical_delivery_consumerUncheckedUpdateManyWithoutClientNestedInput
+    vertical_delivery_employees?: vertical_delivery_employeeUncheckedUpdateManyWithoutClientNestedInput
     restaurants?: restaurantUncheckedUpdateManyWithoutClientNestedInput
     notifications?: notificationUncheckedUpdateManyWithoutClientNestedInput
   }
@@ -32151,12 +32151,12 @@ export namespace Prisma {
     updated_at?: Date | string
     vehicle_number?: string | null
     telemetry?: box_telemetry_latestCreateNestedOneWithoutBoxInput
-    connection_employee?: vertical_food_employeeCreateNestedOneWithoutConnected_boxesInput
+    connection_employee?: vertical_delivery_employeeCreateNestedOneWithoutConnected_boxesInput
     client?: clientCreateNestedOneWithoutBoxesInput
     vertical?: verticalCreateNestedOneWithoutBoxesInput
     lock?: box_lockCreateNestedOneWithoutBoxInput
-    boxes?: vertical_food_consumer_boxCreateNestedManyWithoutBoxInput
-    vertical_food_employee_boxes?: vertical_food_employee_boxCreateNestedManyWithoutBoxInput
+    boxes?: vertical_delivery_consumer_boxCreateNestedManyWithoutBoxInput
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxCreateNestedManyWithoutBoxInput
     restaurant_boxes?: restaurant_boxCreateNestedManyWithoutBoxInput
   }
 
@@ -32173,8 +32173,8 @@ export namespace Prisma {
     connection_employee_id?: string | null
     telemetry?: box_telemetry_latestUncheckedCreateNestedOneWithoutBoxInput
     lock?: box_lockUncheckedCreateNestedOneWithoutBoxInput
-    boxes?: vertical_food_consumer_boxUncheckedCreateNestedManyWithoutBoxInput
-    vertical_food_employee_boxes?: vertical_food_employee_boxUncheckedCreateNestedManyWithoutBoxInput
+    boxes?: vertical_delivery_consumer_boxUncheckedCreateNestedManyWithoutBoxInput
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxUncheckedCreateNestedManyWithoutBoxInput
     restaurant_boxes?: restaurant_boxUncheckedCreateNestedManyWithoutBoxInput
   }
 
@@ -32187,12 +32187,12 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     vehicle_number?: NullableStringFieldUpdateOperationsInput | string | null
     telemetry?: box_telemetry_latestUpdateOneWithoutBoxNestedInput
-    connection_employee?: vertical_food_employeeUpdateOneWithoutConnected_boxesNestedInput
+    connection_employee?: vertical_delivery_employeeUpdateOneWithoutConnected_boxesNestedInput
     client?: clientUpdateOneWithoutBoxesNestedInput
     vertical?: verticalUpdateOneWithoutBoxesNestedInput
     lock?: box_lockUpdateOneWithoutBoxNestedInput
-    boxes?: vertical_food_consumer_boxUpdateManyWithoutBoxNestedInput
-    vertical_food_employee_boxes?: vertical_food_employee_boxUpdateManyWithoutBoxNestedInput
+    boxes?: vertical_delivery_consumer_boxUpdateManyWithoutBoxNestedInput
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxUpdateManyWithoutBoxNestedInput
     restaurant_boxes?: restaurant_boxUpdateManyWithoutBoxNestedInput
   }
 
@@ -32209,8 +32209,8 @@ export namespace Prisma {
     connection_employee_id?: NullableStringFieldUpdateOperationsInput | string | null
     telemetry?: box_telemetry_latestUncheckedUpdateOneWithoutBoxNestedInput
     lock?: box_lockUncheckedUpdateOneWithoutBoxNestedInput
-    boxes?: vertical_food_consumer_boxUncheckedUpdateManyWithoutBoxNestedInput
-    vertical_food_employee_boxes?: vertical_food_employee_boxUncheckedUpdateManyWithoutBoxNestedInput
+    boxes?: vertical_delivery_consumer_boxUncheckedUpdateManyWithoutBoxNestedInput
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxUncheckedUpdateManyWithoutBoxNestedInput
     restaurant_boxes?: restaurant_boxUncheckedUpdateManyWithoutBoxNestedInput
   }
 
@@ -32264,7 +32264,7 @@ export namespace Prisma {
     pincode?: string | null
     state?: string | null
     status?: $Enums.restaurant_status
-    employees?: vertical_food_employeeCreateNestedManyWithoutRestaurantInput
+    employees?: vertical_delivery_employeeCreateNestedManyWithoutRestaurantInput
     client?: clientCreateNestedOneWithoutRestaurantsInput
     restaurant_boxes?: restaurant_boxCreateNestedManyWithoutRestaurantInput
   }
@@ -32284,7 +32284,7 @@ export namespace Prisma {
     pincode?: string | null
     state?: string | null
     status?: $Enums.restaurant_status
-    employees?: vertical_food_employeeUncheckedCreateNestedManyWithoutRestaurantInput
+    employees?: vertical_delivery_employeeUncheckedCreateNestedManyWithoutRestaurantInput
     restaurant_boxes?: restaurant_boxUncheckedCreateNestedManyWithoutRestaurantInput
   }
 
@@ -32302,7 +32302,7 @@ export namespace Prisma {
     pincode?: NullableStringFieldUpdateOperationsInput | string | null
     state?: NullableStringFieldUpdateOperationsInput | string | null
     status?: Enumrestaurant_statusFieldUpdateOperationsInput | $Enums.restaurant_status
-    employees?: vertical_food_employeeUpdateManyWithoutRestaurantNestedInput
+    employees?: vertical_delivery_employeeUpdateManyWithoutRestaurantNestedInput
     client?: clientUpdateOneWithoutRestaurantsNestedInput
     restaurant_boxes?: restaurant_boxUpdateManyWithoutRestaurantNestedInput
   }
@@ -32322,7 +32322,7 @@ export namespace Prisma {
     pincode?: NullableStringFieldUpdateOperationsInput | string | null
     state?: NullableStringFieldUpdateOperationsInput | string | null
     status?: Enumrestaurant_statusFieldUpdateOperationsInput | $Enums.restaurant_status
-    employees?: vertical_food_employeeUncheckedUpdateManyWithoutRestaurantNestedInput
+    employees?: vertical_delivery_employeeUncheckedUpdateManyWithoutRestaurantNestedInput
     restaurant_boxes?: restaurant_boxUncheckedUpdateManyWithoutRestaurantNestedInput
   }
 
@@ -32376,7 +32376,7 @@ export namespace Prisma {
     status?: Enumrestaurant_statusFieldUpdateOperationsInput | $Enums.restaurant_status
   }
 
-  export type vertical_food_employeeCreateInput = {
+  export type vertical_delivery_employeeCreateInput = {
     id?: string
     first_name: string
     last_name: string
@@ -32392,12 +32392,12 @@ export namespace Prisma {
     updated_at?: Date | string
     profile_pic?: string | null
     connected_boxes?: boxCreateNestedManyWithoutConnection_employeeInput
-    client?: clientCreateNestedOneWithoutVertical_food_employeesInput
+    client?: clientCreateNestedOneWithoutvertical_delivery_employeesInput
     restaurant?: restaurantCreateNestedOneWithoutEmployeesInput
-    vertical_food_employee_boxes?: vertical_food_employee_boxCreateNestedManyWithoutEmployeeInput
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxCreateNestedManyWithoutEmployeeInput
   }
 
-  export type vertical_food_employeeUncheckedCreateInput = {
+  export type vertical_delivery_employeeUncheckedCreateInput = {
     id?: string
     first_name: string
     last_name: string
@@ -32415,10 +32415,10 @@ export namespace Prisma {
     updated_at?: Date | string
     profile_pic?: string | null
     connected_boxes?: boxUncheckedCreateNestedManyWithoutConnection_employeeInput
-    vertical_food_employee_boxes?: vertical_food_employee_boxUncheckedCreateNestedManyWithoutEmployeeInput
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxUncheckedCreateNestedManyWithoutEmployeeInput
   }
 
-  export type vertical_food_employeeUpdateInput = {
+  export type vertical_delivery_employeeUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     first_name?: StringFieldUpdateOperationsInput | string
     last_name?: StringFieldUpdateOperationsInput | string
@@ -32434,12 +32434,12 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     profile_pic?: NullableStringFieldUpdateOperationsInput | string | null
     connected_boxes?: boxUpdateManyWithoutConnection_employeeNestedInput
-    client?: clientUpdateOneWithoutVertical_food_employeesNestedInput
+    client?: clientUpdateOneWithoutvertical_delivery_employeesNestedInput
     restaurant?: restaurantUpdateOneWithoutEmployeesNestedInput
-    vertical_food_employee_boxes?: vertical_food_employee_boxUpdateManyWithoutEmployeeNestedInput
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxUpdateManyWithoutEmployeeNestedInput
   }
 
-  export type vertical_food_employeeUncheckedUpdateInput = {
+  export type vertical_delivery_employeeUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     first_name?: StringFieldUpdateOperationsInput | string
     last_name?: StringFieldUpdateOperationsInput | string
@@ -32457,10 +32457,10 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     profile_pic?: NullableStringFieldUpdateOperationsInput | string | null
     connected_boxes?: boxUncheckedUpdateManyWithoutConnection_employeeNestedInput
-    vertical_food_employee_boxes?: vertical_food_employee_boxUncheckedUpdateManyWithoutEmployeeNestedInput
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxUncheckedUpdateManyWithoutEmployeeNestedInput
   }
 
-  export type vertical_food_employeeCreateManyInput = {
+  export type vertical_delivery_employeeCreateManyInput = {
     id?: string
     first_name: string
     last_name: string
@@ -32479,7 +32479,7 @@ export namespace Prisma {
     profile_pic?: string | null
   }
 
-  export type vertical_food_employeeUpdateManyMutationInput = {
+  export type vertical_delivery_employeeUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     first_name?: StringFieldUpdateOperationsInput | string
     last_name?: StringFieldUpdateOperationsInput | string
@@ -32496,7 +32496,7 @@ export namespace Prisma {
     profile_pic?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
-  export type vertical_food_employeeUncheckedUpdateManyInput = {
+  export type vertical_delivery_employeeUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     first_name?: StringFieldUpdateOperationsInput | string
     last_name?: StringFieldUpdateOperationsInput | string
@@ -32515,17 +32515,17 @@ export namespace Prisma {
     profile_pic?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
-  export type vertical_food_employee_boxCreateInput = {
+  export type vertical_delivery_employee_boxCreateInput = {
     id?: string
     created_at?: Date | string
     updated_at?: Date | string
     status?: $Enums.employee_box_status
     access?: $Enums.employee_box_access
-    box: boxCreateNestedOneWithoutVertical_food_employee_boxesInput
-    employee?: vertical_food_employeeCreateNestedOneWithoutVertical_food_employee_boxesInput
+    box: boxCreateNestedOneWithoutvertical_delivery_employee_boxesInput
+    employee?: vertical_delivery_employeeCreateNestedOneWithoutvertical_delivery_employee_boxesInput
   }
 
-  export type vertical_food_employee_boxUncheckedCreateInput = {
+  export type vertical_delivery_employee_boxUncheckedCreateInput = {
     id?: string
     employee_id?: string | null
     box_id: string
@@ -32535,17 +32535,17 @@ export namespace Prisma {
     access?: $Enums.employee_box_access
   }
 
-  export type vertical_food_employee_boxUpdateInput = {
+  export type vertical_delivery_employee_boxUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: Enumemployee_box_statusFieldUpdateOperationsInput | $Enums.employee_box_status
     access?: Enumemployee_box_accessFieldUpdateOperationsInput | $Enums.employee_box_access
-    box?: boxUpdateOneRequiredWithoutVertical_food_employee_boxesNestedInput
-    employee?: vertical_food_employeeUpdateOneWithoutVertical_food_employee_boxesNestedInput
+    box?: boxUpdateOneRequiredWithoutvertical_delivery_employee_boxesNestedInput
+    employee?: vertical_delivery_employeeUpdateOneWithoutvertical_delivery_employee_boxesNestedInput
   }
 
-  export type vertical_food_employee_boxUncheckedUpdateInput = {
+  export type vertical_delivery_employee_boxUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     employee_id?: NullableStringFieldUpdateOperationsInput | string | null
     box_id?: StringFieldUpdateOperationsInput | string
@@ -32555,7 +32555,7 @@ export namespace Prisma {
     access?: Enumemployee_box_accessFieldUpdateOperationsInput | $Enums.employee_box_access
   }
 
-  export type vertical_food_employee_boxCreateManyInput = {
+  export type vertical_delivery_employee_boxCreateManyInput = {
     id?: string
     employee_id?: string | null
     box_id: string
@@ -32565,7 +32565,7 @@ export namespace Prisma {
     access?: $Enums.employee_box_access
   }
 
-  export type vertical_food_employee_boxUpdateManyMutationInput = {
+  export type vertical_delivery_employee_boxUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -32573,7 +32573,7 @@ export namespace Prisma {
     access?: Enumemployee_box_accessFieldUpdateOperationsInput | $Enums.employee_box_access
   }
 
-  export type vertical_food_employee_boxUncheckedUpdateManyInput = {
+  export type vertical_delivery_employee_boxUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     employee_id?: NullableStringFieldUpdateOperationsInput | string | null
     box_id?: StringFieldUpdateOperationsInput | string
@@ -32644,7 +32644,7 @@ export namespace Prisma {
     status?: Enumrestaurant_box_statusFieldUpdateOperationsInput | $Enums.restaurant_box_status
   }
 
-  export type vertical_food_employee_deletedCreateInput = {
+  export type vertical_delivery_employee_deletedCreateInput = {
     id?: string
     first_name: string
     last_name: string
@@ -32662,7 +32662,7 @@ export namespace Prisma {
     x_primary_key?: string | null
   }
 
-  export type vertical_food_employee_deletedUncheckedCreateInput = {
+  export type vertical_delivery_employee_deletedUncheckedCreateInput = {
     id?: string
     first_name: string
     last_name: string
@@ -32680,7 +32680,7 @@ export namespace Prisma {
     x_primary_key?: string | null
   }
 
-  export type vertical_food_employee_deletedUpdateInput = {
+  export type vertical_delivery_employee_deletedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     first_name?: StringFieldUpdateOperationsInput | string
     last_name?: StringFieldUpdateOperationsInput | string
@@ -32698,7 +32698,7 @@ export namespace Prisma {
     x_primary_key?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
-  export type vertical_food_employee_deletedUncheckedUpdateInput = {
+  export type vertical_delivery_employee_deletedUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     first_name?: StringFieldUpdateOperationsInput | string
     last_name?: StringFieldUpdateOperationsInput | string
@@ -32716,7 +32716,7 @@ export namespace Prisma {
     x_primary_key?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
-  export type vertical_food_employee_deletedCreateManyInput = {
+  export type vertical_delivery_employee_deletedCreateManyInput = {
     id?: string
     first_name: string
     last_name: string
@@ -32734,7 +32734,7 @@ export namespace Prisma {
     x_primary_key?: string | null
   }
 
-  export type vertical_food_employee_deletedUpdateManyMutationInput = {
+  export type vertical_delivery_employee_deletedUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     first_name?: StringFieldUpdateOperationsInput | string
     last_name?: StringFieldUpdateOperationsInput | string
@@ -32752,7 +32752,7 @@ export namespace Prisma {
     x_primary_key?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
-  export type vertical_food_employee_deletedUncheckedUpdateManyInput = {
+  export type vertical_delivery_employee_deletedUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     first_name?: StringFieldUpdateOperationsInput | string
     last_name?: StringFieldUpdateOperationsInput | string
@@ -33008,95 +33008,95 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type vertical_food_consumerCreateInput = {
+  export type vertical_delivery_consumerCreateInput = {
     id?: string
     full_name: string
     country_code: string
     phone: string
-    status?: $Enums.food_consumer_status
+    status?: $Enums.delivery_consumer_status
     created_at?: Date | string
     updated_at?: Date | string
-    client?: clientCreateNestedOneWithoutVertical_food_consumersInput
-    boxes?: vertical_food_consumer_boxCreateNestedManyWithoutConsumerInput
+    client?: clientCreateNestedOneWithoutvertical_delivery_consumersInput
+    boxes?: vertical_delivery_consumer_boxCreateNestedManyWithoutConsumerInput
   }
 
-  export type vertical_food_consumerUncheckedCreateInput = {
+  export type vertical_delivery_consumerUncheckedCreateInput = {
     id?: string
     full_name: string
     country_code: string
     phone: string
-    status?: $Enums.food_consumer_status
+    status?: $Enums.delivery_consumer_status
     client_id?: string | null
     created_at?: Date | string
     updated_at?: Date | string
-    boxes?: vertical_food_consumer_boxUncheckedCreateNestedManyWithoutConsumerInput
+    boxes?: vertical_delivery_consumer_boxUncheckedCreateNestedManyWithoutConsumerInput
   }
 
-  export type vertical_food_consumerUpdateInput = {
+  export type vertical_delivery_consumerUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     full_name?: StringFieldUpdateOperationsInput | string
     country_code?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
-    status?: Enumfood_consumer_statusFieldUpdateOperationsInput | $Enums.food_consumer_status
+    status?: Enumdelivery_consumer_statusFieldUpdateOperationsInput | $Enums.delivery_consumer_status
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    client?: clientUpdateOneWithoutVertical_food_consumersNestedInput
-    boxes?: vertical_food_consumer_boxUpdateManyWithoutConsumerNestedInput
+    client?: clientUpdateOneWithoutvertical_delivery_consumersNestedInput
+    boxes?: vertical_delivery_consumer_boxUpdateManyWithoutConsumerNestedInput
   }
 
-  export type vertical_food_consumerUncheckedUpdateInput = {
+  export type vertical_delivery_consumerUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     full_name?: StringFieldUpdateOperationsInput | string
     country_code?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
-    status?: Enumfood_consumer_statusFieldUpdateOperationsInput | $Enums.food_consumer_status
+    status?: Enumdelivery_consumer_statusFieldUpdateOperationsInput | $Enums.delivery_consumer_status
     client_id?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    boxes?: vertical_food_consumer_boxUncheckedUpdateManyWithoutConsumerNestedInput
+    boxes?: vertical_delivery_consumer_boxUncheckedUpdateManyWithoutConsumerNestedInput
   }
 
-  export type vertical_food_consumerCreateManyInput = {
+  export type vertical_delivery_consumerCreateManyInput = {
     id?: string
     full_name: string
     country_code: string
     phone: string
-    status?: $Enums.food_consumer_status
+    status?: $Enums.delivery_consumer_status
     client_id?: string | null
     created_at?: Date | string
     updated_at?: Date | string
   }
 
-  export type vertical_food_consumerUpdateManyMutationInput = {
+  export type vertical_delivery_consumerUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     full_name?: StringFieldUpdateOperationsInput | string
     country_code?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
-    status?: Enumfood_consumer_statusFieldUpdateOperationsInput | $Enums.food_consumer_status
+    status?: Enumdelivery_consumer_statusFieldUpdateOperationsInput | $Enums.delivery_consumer_status
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type vertical_food_consumerUncheckedUpdateManyInput = {
+  export type vertical_delivery_consumerUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     full_name?: StringFieldUpdateOperationsInput | string
     country_code?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
-    status?: Enumfood_consumer_statusFieldUpdateOperationsInput | $Enums.food_consumer_status
+    status?: Enumdelivery_consumer_statusFieldUpdateOperationsInput | $Enums.delivery_consumer_status
     client_id?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type vertical_food_consumer_boxCreateInput = {
+  export type vertical_delivery_consumer_boxCreateInput = {
     id?: string
     created_at?: Date | string
     updated_at?: Date | string
     box: boxCreateNestedOneWithoutBoxesInput
-    consumer: vertical_food_consumerCreateNestedOneWithoutBoxesInput
+    consumer: vertical_delivery_consumerCreateNestedOneWithoutBoxesInput
   }
 
-  export type vertical_food_consumer_boxUncheckedCreateInput = {
+  export type vertical_delivery_consumer_boxUncheckedCreateInput = {
     id?: string
     consumer_id: string
     box_id: string
@@ -33104,15 +33104,15 @@ export namespace Prisma {
     updated_at?: Date | string
   }
 
-  export type vertical_food_consumer_boxUpdateInput = {
+  export type vertical_delivery_consumer_boxUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     box?: boxUpdateOneRequiredWithoutBoxesNestedInput
-    consumer?: vertical_food_consumerUpdateOneRequiredWithoutBoxesNestedInput
+    consumer?: vertical_delivery_consumerUpdateOneRequiredWithoutBoxesNestedInput
   }
 
-  export type vertical_food_consumer_boxUncheckedUpdateInput = {
+  export type vertical_delivery_consumer_boxUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     consumer_id?: StringFieldUpdateOperationsInput | string
     box_id?: StringFieldUpdateOperationsInput | string
@@ -33120,7 +33120,7 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type vertical_food_consumer_boxCreateManyInput = {
+  export type vertical_delivery_consumer_boxCreateManyInput = {
     id?: string
     consumer_id: string
     box_id: string
@@ -33128,13 +33128,13 @@ export namespace Prisma {
     updated_at?: Date | string
   }
 
-  export type vertical_food_consumer_boxUpdateManyMutationInput = {
+  export type vertical_delivery_consumer_boxUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type vertical_food_consumer_boxUncheckedUpdateManyInput = {
+  export type vertical_delivery_consumer_boxUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     consumer_id?: StringFieldUpdateOperationsInput | string
     box_id?: StringFieldUpdateOperationsInput | string
@@ -33935,16 +33935,16 @@ export namespace Prisma {
     isNot?: verticalWhereInput | null
   }
 
-  export type Vertical_food_consumerListRelationFilter = {
-    every?: vertical_food_consumerWhereInput
-    some?: vertical_food_consumerWhereInput
-    none?: vertical_food_consumerWhereInput
+  export type vertical_delivery_consumerListRelationFilter = {
+    every?: vertical_delivery_consumerWhereInput
+    some?: vertical_delivery_consumerWhereInput
+    none?: vertical_delivery_consumerWhereInput
   }
 
-  export type Vertical_food_employeeListRelationFilter = {
-    every?: vertical_food_employeeWhereInput
-    some?: vertical_food_employeeWhereInput
-    none?: vertical_food_employeeWhereInput
+  export type vertical_delivery_employeeListRelationFilter = {
+    every?: vertical_delivery_employeeWhereInput
+    some?: vertical_delivery_employeeWhereInput
+    none?: vertical_delivery_employeeWhereInput
   }
 
   export type RestaurantListRelationFilter = {
@@ -33959,11 +33959,11 @@ export namespace Prisma {
     none?: notificationWhereInput
   }
 
-  export type vertical_food_consumerOrderByRelationAggregateInput = {
+  export type vertical_delivery_consumerOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
-  export type vertical_food_employeeOrderByRelationAggregateInput = {
+  export type vertical_delivery_employeeOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -34500,9 +34500,9 @@ export namespace Prisma {
     isNot?: box_telemetry_latestWhereInput | null
   }
 
-  export type Vertical_food_employeeNullableScalarRelationFilter = {
-    is?: vertical_food_employeeWhereInput | null
-    isNot?: vertical_food_employeeWhereInput | null
+  export type vertical_delivery_employeeNullableScalarRelationFilter = {
+    is?: vertical_delivery_employeeWhereInput | null
+    isNot?: vertical_delivery_employeeWhereInput | null
   }
 
   export type ClientNullableScalarRelationFilter = {
@@ -34515,16 +34515,16 @@ export namespace Prisma {
     isNot?: box_lockWhereInput | null
   }
 
-  export type Vertical_food_consumer_boxListRelationFilter = {
-    every?: vertical_food_consumer_boxWhereInput
-    some?: vertical_food_consumer_boxWhereInput
-    none?: vertical_food_consumer_boxWhereInput
+  export type vertical_delivery_consumer_boxListRelationFilter = {
+    every?: vertical_delivery_consumer_boxWhereInput
+    some?: vertical_delivery_consumer_boxWhereInput
+    none?: vertical_delivery_consumer_boxWhereInput
   }
 
-  export type Vertical_food_employee_boxListRelationFilter = {
-    every?: vertical_food_employee_boxWhereInput
-    some?: vertical_food_employee_boxWhereInput
-    none?: vertical_food_employee_boxWhereInput
+  export type vertical_delivery_employee_boxListRelationFilter = {
+    every?: vertical_delivery_employee_boxWhereInput
+    some?: vertical_delivery_employee_boxWhereInput
+    none?: vertical_delivery_employee_boxWhereInput
   }
 
   export type Restaurant_boxListRelationFilter = {
@@ -34533,11 +34533,11 @@ export namespace Prisma {
     none?: restaurant_boxWhereInput
   }
 
-  export type vertical_food_consumer_boxOrderByRelationAggregateInput = {
+  export type vertical_delivery_consumer_boxOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
-  export type vertical_food_employee_boxOrderByRelationAggregateInput = {
+  export type vertical_delivery_employee_boxOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -34730,18 +34730,18 @@ export namespace Prisma {
     isNot?: restaurantWhereInput | null
   }
 
-  export type vertical_food_employeeOrderByRelevanceInput = {
-    fields: vertical_food_employeeOrderByRelevanceFieldEnum | vertical_food_employeeOrderByRelevanceFieldEnum[]
+  export type vertical_delivery_employeeOrderByRelevanceInput = {
+    fields: vertical_delivery_employeeOrderByRelevanceFieldEnum | vertical_delivery_employeeOrderByRelevanceFieldEnum[]
     sort: SortOrder
     search: string
   }
 
-  export type vertical_food_employeeCountry_codeMobile_numberCompoundUniqueInput = {
+  export type vertical_delivery_employeeCountry_codeMobile_numberCompoundUniqueInput = {
     country_code: string
     mobile_number: string
   }
 
-  export type vertical_food_employeeCountOrderByAggregateInput = {
+  export type vertical_delivery_employeeCountOrderByAggregateInput = {
     id?: SortOrder
     first_name?: SortOrder
     last_name?: SortOrder
@@ -34760,7 +34760,7 @@ export namespace Prisma {
     profile_pic?: SortOrder
   }
 
-  export type vertical_food_employeeMaxOrderByAggregateInput = {
+  export type vertical_delivery_employeeMaxOrderByAggregateInput = {
     id?: SortOrder
     first_name?: SortOrder
     last_name?: SortOrder
@@ -34779,7 +34779,7 @@ export namespace Prisma {
     profile_pic?: SortOrder
   }
 
-  export type vertical_food_employeeMinOrderByAggregateInput = {
+  export type vertical_delivery_employeeMinOrderByAggregateInput = {
     id?: SortOrder
     first_name?: SortOrder
     last_name?: SortOrder
@@ -34837,18 +34837,18 @@ export namespace Prisma {
     isNot?: boxWhereInput
   }
 
-  export type vertical_food_employee_boxOrderByRelevanceInput = {
-    fields: vertical_food_employee_boxOrderByRelevanceFieldEnum | vertical_food_employee_boxOrderByRelevanceFieldEnum[]
+  export type vertical_delivery_employee_boxOrderByRelevanceInput = {
+    fields: vertical_delivery_employee_boxOrderByRelevanceFieldEnum | vertical_delivery_employee_boxOrderByRelevanceFieldEnum[]
     sort: SortOrder
     search: string
   }
 
-  export type vertical_food_employee_boxEmployee_idBox_idCompoundUniqueInput = {
+  export type vertical_delivery_employee_boxEmployee_idBox_idCompoundUniqueInput = {
     employee_id: string
     box_id: string
   }
 
-  export type vertical_food_employee_boxCountOrderByAggregateInput = {
+  export type vertical_delivery_employee_boxCountOrderByAggregateInput = {
     id?: SortOrder
     employee_id?: SortOrder
     box_id?: SortOrder
@@ -34858,7 +34858,7 @@ export namespace Prisma {
     access?: SortOrder
   }
 
-  export type vertical_food_employee_boxMaxOrderByAggregateInput = {
+  export type vertical_delivery_employee_boxMaxOrderByAggregateInput = {
     id?: SortOrder
     employee_id?: SortOrder
     box_id?: SortOrder
@@ -34868,7 +34868,7 @@ export namespace Prisma {
     access?: SortOrder
   }
 
-  export type vertical_food_employee_boxMinOrderByAggregateInput = {
+  export type vertical_delivery_employee_boxMinOrderByAggregateInput = {
     id?: SortOrder
     employee_id?: SortOrder
     box_id?: SortOrder
@@ -34953,13 +34953,13 @@ export namespace Prisma {
     _max?: NestedEnumrestaurant_box_statusFilter<$PrismaModel>
   }
 
-  export type vertical_food_employee_deletedOrderByRelevanceInput = {
-    fields: vertical_food_employee_deletedOrderByRelevanceFieldEnum | vertical_food_employee_deletedOrderByRelevanceFieldEnum[]
+  export type vertical_delivery_employee_deletedOrderByRelevanceInput = {
+    fields: vertical_delivery_employee_deletedOrderByRelevanceFieldEnum | vertical_delivery_employee_deletedOrderByRelevanceFieldEnum[]
     sort: SortOrder
     search: string
   }
 
-  export type vertical_food_employee_deletedCountOrderByAggregateInput = {
+  export type vertical_delivery_employee_deletedCountOrderByAggregateInput = {
     id?: SortOrder
     first_name?: SortOrder
     last_name?: SortOrder
@@ -34977,7 +34977,7 @@ export namespace Prisma {
     x_primary_key?: SortOrder
   }
 
-  export type vertical_food_employee_deletedMaxOrderByAggregateInput = {
+  export type vertical_delivery_employee_deletedMaxOrderByAggregateInput = {
     id?: SortOrder
     first_name?: SortOrder
     last_name?: SortOrder
@@ -34995,7 +34995,7 @@ export namespace Prisma {
     x_primary_key?: SortOrder
   }
 
-  export type vertical_food_employee_deletedMinOrderByAggregateInput = {
+  export type vertical_delivery_employee_deletedMinOrderByAggregateInput = {
     id?: SortOrder
     first_name?: SortOrder
     last_name?: SortOrder
@@ -35137,25 +35137,25 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type Enumfood_consumer_statusFilter<$PrismaModel = never> = {
-    equals?: $Enums.food_consumer_status | Enumfood_consumer_statusFieldRefInput<$PrismaModel>
-    in?: $Enums.food_consumer_status[]
-    notIn?: $Enums.food_consumer_status[]
-    not?: NestedEnumfood_consumer_statusFilter<$PrismaModel> | $Enums.food_consumer_status
+  export type Enumdelivery_consumer_statusFilter<$PrismaModel = never> = {
+    equals?: $Enums.delivery_consumer_status | Enumdelivery_consumer_statusFieldRefInput<$PrismaModel>
+    in?: $Enums.delivery_consumer_status[]
+    notIn?: $Enums.delivery_consumer_status[]
+    not?: NestedEnumdelivery_consumer_statusFilter<$PrismaModel> | $Enums.delivery_consumer_status
   }
 
-  export type vertical_food_consumerOrderByRelevanceInput = {
-    fields: vertical_food_consumerOrderByRelevanceFieldEnum | vertical_food_consumerOrderByRelevanceFieldEnum[]
+  export type vertical_delivery_consumerOrderByRelevanceInput = {
+    fields: vertical_delivery_consumerOrderByRelevanceFieldEnum | vertical_delivery_consumerOrderByRelevanceFieldEnum[]
     sort: SortOrder
     search: string
   }
 
-  export type vertical_food_consumerPhoneCountry_codeCompoundUniqueInput = {
+  export type vertical_delivery_consumerPhoneCountry_codeCompoundUniqueInput = {
     phone: string
     country_code: string
   }
 
-  export type vertical_food_consumerCountOrderByAggregateInput = {
+  export type vertical_delivery_consumerCountOrderByAggregateInput = {
     id?: SortOrder
     full_name?: SortOrder
     country_code?: SortOrder
@@ -35166,7 +35166,7 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type vertical_food_consumerMaxOrderByAggregateInput = {
+  export type vertical_delivery_consumerMaxOrderByAggregateInput = {
     id?: SortOrder
     full_name?: SortOrder
     country_code?: SortOrder
@@ -35177,7 +35177,7 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type vertical_food_consumerMinOrderByAggregateInput = {
+  export type vertical_delivery_consumerMinOrderByAggregateInput = {
     id?: SortOrder
     full_name?: SortOrder
     country_code?: SortOrder
@@ -35188,28 +35188,28 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type Enumfood_consumer_statusWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.food_consumer_status | Enumfood_consumer_statusFieldRefInput<$PrismaModel>
-    in?: $Enums.food_consumer_status[]
-    notIn?: $Enums.food_consumer_status[]
-    not?: NestedEnumfood_consumer_statusWithAggregatesFilter<$PrismaModel> | $Enums.food_consumer_status
+  export type Enumdelivery_consumer_statusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.delivery_consumer_status | Enumdelivery_consumer_statusFieldRefInput<$PrismaModel>
+    in?: $Enums.delivery_consumer_status[]
+    notIn?: $Enums.delivery_consumer_status[]
+    not?: NestedEnumdelivery_consumer_statusWithAggregatesFilter<$PrismaModel> | $Enums.delivery_consumer_status
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumfood_consumer_statusFilter<$PrismaModel>
-    _max?: NestedEnumfood_consumer_statusFilter<$PrismaModel>
+    _min?: NestedEnumdelivery_consumer_statusFilter<$PrismaModel>
+    _max?: NestedEnumdelivery_consumer_statusFilter<$PrismaModel>
   }
 
-  export type Vertical_food_consumerScalarRelationFilter = {
-    is?: vertical_food_consumerWhereInput
-    isNot?: vertical_food_consumerWhereInput
+  export type vertical_delivery_consumerScalarRelationFilter = {
+    is?: vertical_delivery_consumerWhereInput
+    isNot?: vertical_delivery_consumerWhereInput
   }
 
-  export type vertical_food_consumer_boxOrderByRelevanceInput = {
-    fields: vertical_food_consumer_boxOrderByRelevanceFieldEnum | vertical_food_consumer_boxOrderByRelevanceFieldEnum[]
+  export type vertical_delivery_consumer_boxOrderByRelevanceInput = {
+    fields: vertical_delivery_consumer_boxOrderByRelevanceFieldEnum | vertical_delivery_consumer_boxOrderByRelevanceFieldEnum[]
     sort: SortOrder
     search: string
   }
 
-  export type vertical_food_consumer_boxCountOrderByAggregateInput = {
+  export type vertical_delivery_consumer_boxCountOrderByAggregateInput = {
     id?: SortOrder
     consumer_id?: SortOrder
     box_id?: SortOrder
@@ -35217,7 +35217,7 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type vertical_food_consumer_boxMaxOrderByAggregateInput = {
+  export type vertical_delivery_consumer_boxMaxOrderByAggregateInput = {
     id?: SortOrder
     consumer_id?: SortOrder
     box_id?: SortOrder
@@ -35225,7 +35225,7 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type vertical_food_consumer_boxMinOrderByAggregateInput = {
+  export type vertical_delivery_consumer_boxMinOrderByAggregateInput = {
     id?: SortOrder
     consumer_id?: SortOrder
     box_id?: SortOrder
@@ -35768,18 +35768,18 @@ export namespace Prisma {
     connect?: verticalWhereUniqueInput
   }
 
-  export type vertical_food_consumerCreateNestedManyWithoutClientInput = {
-    create?: XOR<vertical_food_consumerCreateWithoutClientInput, vertical_food_consumerUncheckedCreateWithoutClientInput> | vertical_food_consumerCreateWithoutClientInput[] | vertical_food_consumerUncheckedCreateWithoutClientInput[]
-    connectOrCreate?: vertical_food_consumerCreateOrConnectWithoutClientInput | vertical_food_consumerCreateOrConnectWithoutClientInput[]
-    createMany?: vertical_food_consumerCreateManyClientInputEnvelope
-    connect?: vertical_food_consumerWhereUniqueInput | vertical_food_consumerWhereUniqueInput[]
+  export type vertical_delivery_consumerCreateNestedManyWithoutClientInput = {
+    create?: XOR<vertical_delivery_consumerCreateWithoutClientInput, vertical_delivery_consumerUncheckedCreateWithoutClientInput> | vertical_delivery_consumerCreateWithoutClientInput[] | vertical_delivery_consumerUncheckedCreateWithoutClientInput[]
+    connectOrCreate?: vertical_delivery_consumerCreateOrConnectWithoutClientInput | vertical_delivery_consumerCreateOrConnectWithoutClientInput[]
+    createMany?: vertical_delivery_consumerCreateManyClientInputEnvelope
+    connect?: vertical_delivery_consumerWhereUniqueInput | vertical_delivery_consumerWhereUniqueInput[]
   }
 
-  export type vertical_food_employeeCreateNestedManyWithoutClientInput = {
-    create?: XOR<vertical_food_employeeCreateWithoutClientInput, vertical_food_employeeUncheckedCreateWithoutClientInput> | vertical_food_employeeCreateWithoutClientInput[] | vertical_food_employeeUncheckedCreateWithoutClientInput[]
-    connectOrCreate?: vertical_food_employeeCreateOrConnectWithoutClientInput | vertical_food_employeeCreateOrConnectWithoutClientInput[]
-    createMany?: vertical_food_employeeCreateManyClientInputEnvelope
-    connect?: vertical_food_employeeWhereUniqueInput | vertical_food_employeeWhereUniqueInput[]
+  export type vertical_delivery_employeeCreateNestedManyWithoutClientInput = {
+    create?: XOR<vertical_delivery_employeeCreateWithoutClientInput, vertical_delivery_employeeUncheckedCreateWithoutClientInput> | vertical_delivery_employeeCreateWithoutClientInput[] | vertical_delivery_employeeUncheckedCreateWithoutClientInput[]
+    connectOrCreate?: vertical_delivery_employeeCreateOrConnectWithoutClientInput | vertical_delivery_employeeCreateOrConnectWithoutClientInput[]
+    createMany?: vertical_delivery_employeeCreateManyClientInputEnvelope
+    connect?: vertical_delivery_employeeWhereUniqueInput | vertical_delivery_employeeWhereUniqueInput[]
   }
 
   export type restaurantCreateNestedManyWithoutClientInput = {
@@ -35803,18 +35803,18 @@ export namespace Prisma {
     connect?: boxWhereUniqueInput | boxWhereUniqueInput[]
   }
 
-  export type vertical_food_consumerUncheckedCreateNestedManyWithoutClientInput = {
-    create?: XOR<vertical_food_consumerCreateWithoutClientInput, vertical_food_consumerUncheckedCreateWithoutClientInput> | vertical_food_consumerCreateWithoutClientInput[] | vertical_food_consumerUncheckedCreateWithoutClientInput[]
-    connectOrCreate?: vertical_food_consumerCreateOrConnectWithoutClientInput | vertical_food_consumerCreateOrConnectWithoutClientInput[]
-    createMany?: vertical_food_consumerCreateManyClientInputEnvelope
-    connect?: vertical_food_consumerWhereUniqueInput | vertical_food_consumerWhereUniqueInput[]
+  export type vertical_delivery_consumerUncheckedCreateNestedManyWithoutClientInput = {
+    create?: XOR<vertical_delivery_consumerCreateWithoutClientInput, vertical_delivery_consumerUncheckedCreateWithoutClientInput> | vertical_delivery_consumerCreateWithoutClientInput[] | vertical_delivery_consumerUncheckedCreateWithoutClientInput[]
+    connectOrCreate?: vertical_delivery_consumerCreateOrConnectWithoutClientInput | vertical_delivery_consumerCreateOrConnectWithoutClientInput[]
+    createMany?: vertical_delivery_consumerCreateManyClientInputEnvelope
+    connect?: vertical_delivery_consumerWhereUniqueInput | vertical_delivery_consumerWhereUniqueInput[]
   }
 
-  export type vertical_food_employeeUncheckedCreateNestedManyWithoutClientInput = {
-    create?: XOR<vertical_food_employeeCreateWithoutClientInput, vertical_food_employeeUncheckedCreateWithoutClientInput> | vertical_food_employeeCreateWithoutClientInput[] | vertical_food_employeeUncheckedCreateWithoutClientInput[]
-    connectOrCreate?: vertical_food_employeeCreateOrConnectWithoutClientInput | vertical_food_employeeCreateOrConnectWithoutClientInput[]
-    createMany?: vertical_food_employeeCreateManyClientInputEnvelope
-    connect?: vertical_food_employeeWhereUniqueInput | vertical_food_employeeWhereUniqueInput[]
+  export type vertical_delivery_employeeUncheckedCreateNestedManyWithoutClientInput = {
+    create?: XOR<vertical_delivery_employeeCreateWithoutClientInput, vertical_delivery_employeeUncheckedCreateWithoutClientInput> | vertical_delivery_employeeCreateWithoutClientInput[] | vertical_delivery_employeeUncheckedCreateWithoutClientInput[]
+    connectOrCreate?: vertical_delivery_employeeCreateOrConnectWithoutClientInput | vertical_delivery_employeeCreateOrConnectWithoutClientInput[]
+    createMany?: vertical_delivery_employeeCreateManyClientInputEnvelope
+    connect?: vertical_delivery_employeeWhereUniqueInput | vertical_delivery_employeeWhereUniqueInput[]
   }
 
   export type restaurantUncheckedCreateNestedManyWithoutClientInput = {
@@ -35859,32 +35859,32 @@ export namespace Prisma {
     update?: XOR<XOR<verticalUpdateToOneWithWhereWithoutClientsInput, verticalUpdateWithoutClientsInput>, verticalUncheckedUpdateWithoutClientsInput>
   }
 
-  export type vertical_food_consumerUpdateManyWithoutClientNestedInput = {
-    create?: XOR<vertical_food_consumerCreateWithoutClientInput, vertical_food_consumerUncheckedCreateWithoutClientInput> | vertical_food_consumerCreateWithoutClientInput[] | vertical_food_consumerUncheckedCreateWithoutClientInput[]
-    connectOrCreate?: vertical_food_consumerCreateOrConnectWithoutClientInput | vertical_food_consumerCreateOrConnectWithoutClientInput[]
-    upsert?: vertical_food_consumerUpsertWithWhereUniqueWithoutClientInput | vertical_food_consumerUpsertWithWhereUniqueWithoutClientInput[]
-    createMany?: vertical_food_consumerCreateManyClientInputEnvelope
-    set?: vertical_food_consumerWhereUniqueInput | vertical_food_consumerWhereUniqueInput[]
-    disconnect?: vertical_food_consumerWhereUniqueInput | vertical_food_consumerWhereUniqueInput[]
-    delete?: vertical_food_consumerWhereUniqueInput | vertical_food_consumerWhereUniqueInput[]
-    connect?: vertical_food_consumerWhereUniqueInput | vertical_food_consumerWhereUniqueInput[]
-    update?: vertical_food_consumerUpdateWithWhereUniqueWithoutClientInput | vertical_food_consumerUpdateWithWhereUniqueWithoutClientInput[]
-    updateMany?: vertical_food_consumerUpdateManyWithWhereWithoutClientInput | vertical_food_consumerUpdateManyWithWhereWithoutClientInput[]
-    deleteMany?: vertical_food_consumerScalarWhereInput | vertical_food_consumerScalarWhereInput[]
+  export type vertical_delivery_consumerUpdateManyWithoutClientNestedInput = {
+    create?: XOR<vertical_delivery_consumerCreateWithoutClientInput, vertical_delivery_consumerUncheckedCreateWithoutClientInput> | vertical_delivery_consumerCreateWithoutClientInput[] | vertical_delivery_consumerUncheckedCreateWithoutClientInput[]
+    connectOrCreate?: vertical_delivery_consumerCreateOrConnectWithoutClientInput | vertical_delivery_consumerCreateOrConnectWithoutClientInput[]
+    upsert?: vertical_delivery_consumerUpsertWithWhereUniqueWithoutClientInput | vertical_delivery_consumerUpsertWithWhereUniqueWithoutClientInput[]
+    createMany?: vertical_delivery_consumerCreateManyClientInputEnvelope
+    set?: vertical_delivery_consumerWhereUniqueInput | vertical_delivery_consumerWhereUniqueInput[]
+    disconnect?: vertical_delivery_consumerWhereUniqueInput | vertical_delivery_consumerWhereUniqueInput[]
+    delete?: vertical_delivery_consumerWhereUniqueInput | vertical_delivery_consumerWhereUniqueInput[]
+    connect?: vertical_delivery_consumerWhereUniqueInput | vertical_delivery_consumerWhereUniqueInput[]
+    update?: vertical_delivery_consumerUpdateWithWhereUniqueWithoutClientInput | vertical_delivery_consumerUpdateWithWhereUniqueWithoutClientInput[]
+    updateMany?: vertical_delivery_consumerUpdateManyWithWhereWithoutClientInput | vertical_delivery_consumerUpdateManyWithWhereWithoutClientInput[]
+    deleteMany?: vertical_delivery_consumerScalarWhereInput | vertical_delivery_consumerScalarWhereInput[]
   }
 
-  export type vertical_food_employeeUpdateManyWithoutClientNestedInput = {
-    create?: XOR<vertical_food_employeeCreateWithoutClientInput, vertical_food_employeeUncheckedCreateWithoutClientInput> | vertical_food_employeeCreateWithoutClientInput[] | vertical_food_employeeUncheckedCreateWithoutClientInput[]
-    connectOrCreate?: vertical_food_employeeCreateOrConnectWithoutClientInput | vertical_food_employeeCreateOrConnectWithoutClientInput[]
-    upsert?: vertical_food_employeeUpsertWithWhereUniqueWithoutClientInput | vertical_food_employeeUpsertWithWhereUniqueWithoutClientInput[]
-    createMany?: vertical_food_employeeCreateManyClientInputEnvelope
-    set?: vertical_food_employeeWhereUniqueInput | vertical_food_employeeWhereUniqueInput[]
-    disconnect?: vertical_food_employeeWhereUniqueInput | vertical_food_employeeWhereUniqueInput[]
-    delete?: vertical_food_employeeWhereUniqueInput | vertical_food_employeeWhereUniqueInput[]
-    connect?: vertical_food_employeeWhereUniqueInput | vertical_food_employeeWhereUniqueInput[]
-    update?: vertical_food_employeeUpdateWithWhereUniqueWithoutClientInput | vertical_food_employeeUpdateWithWhereUniqueWithoutClientInput[]
-    updateMany?: vertical_food_employeeUpdateManyWithWhereWithoutClientInput | vertical_food_employeeUpdateManyWithWhereWithoutClientInput[]
-    deleteMany?: vertical_food_employeeScalarWhereInput | vertical_food_employeeScalarWhereInput[]
+  export type vertical_delivery_employeeUpdateManyWithoutClientNestedInput = {
+    create?: XOR<vertical_delivery_employeeCreateWithoutClientInput, vertical_delivery_employeeUncheckedCreateWithoutClientInput> | vertical_delivery_employeeCreateWithoutClientInput[] | vertical_delivery_employeeUncheckedCreateWithoutClientInput[]
+    connectOrCreate?: vertical_delivery_employeeCreateOrConnectWithoutClientInput | vertical_delivery_employeeCreateOrConnectWithoutClientInput[]
+    upsert?: vertical_delivery_employeeUpsertWithWhereUniqueWithoutClientInput | vertical_delivery_employeeUpsertWithWhereUniqueWithoutClientInput[]
+    createMany?: vertical_delivery_employeeCreateManyClientInputEnvelope
+    set?: vertical_delivery_employeeWhereUniqueInput | vertical_delivery_employeeWhereUniqueInput[]
+    disconnect?: vertical_delivery_employeeWhereUniqueInput | vertical_delivery_employeeWhereUniqueInput[]
+    delete?: vertical_delivery_employeeWhereUniqueInput | vertical_delivery_employeeWhereUniqueInput[]
+    connect?: vertical_delivery_employeeWhereUniqueInput | vertical_delivery_employeeWhereUniqueInput[]
+    update?: vertical_delivery_employeeUpdateWithWhereUniqueWithoutClientInput | vertical_delivery_employeeUpdateWithWhereUniqueWithoutClientInput[]
+    updateMany?: vertical_delivery_employeeUpdateManyWithWhereWithoutClientInput | vertical_delivery_employeeUpdateManyWithWhereWithoutClientInput[]
+    deleteMany?: vertical_delivery_employeeScalarWhereInput | vertical_delivery_employeeScalarWhereInput[]
   }
 
   export type restaurantUpdateManyWithoutClientNestedInput = {
@@ -35929,32 +35929,32 @@ export namespace Prisma {
     deleteMany?: boxScalarWhereInput | boxScalarWhereInput[]
   }
 
-  export type vertical_food_consumerUncheckedUpdateManyWithoutClientNestedInput = {
-    create?: XOR<vertical_food_consumerCreateWithoutClientInput, vertical_food_consumerUncheckedCreateWithoutClientInput> | vertical_food_consumerCreateWithoutClientInput[] | vertical_food_consumerUncheckedCreateWithoutClientInput[]
-    connectOrCreate?: vertical_food_consumerCreateOrConnectWithoutClientInput | vertical_food_consumerCreateOrConnectWithoutClientInput[]
-    upsert?: vertical_food_consumerUpsertWithWhereUniqueWithoutClientInput | vertical_food_consumerUpsertWithWhereUniqueWithoutClientInput[]
-    createMany?: vertical_food_consumerCreateManyClientInputEnvelope
-    set?: vertical_food_consumerWhereUniqueInput | vertical_food_consumerWhereUniqueInput[]
-    disconnect?: vertical_food_consumerWhereUniqueInput | vertical_food_consumerWhereUniqueInput[]
-    delete?: vertical_food_consumerWhereUniqueInput | vertical_food_consumerWhereUniqueInput[]
-    connect?: vertical_food_consumerWhereUniqueInput | vertical_food_consumerWhereUniqueInput[]
-    update?: vertical_food_consumerUpdateWithWhereUniqueWithoutClientInput | vertical_food_consumerUpdateWithWhereUniqueWithoutClientInput[]
-    updateMany?: vertical_food_consumerUpdateManyWithWhereWithoutClientInput | vertical_food_consumerUpdateManyWithWhereWithoutClientInput[]
-    deleteMany?: vertical_food_consumerScalarWhereInput | vertical_food_consumerScalarWhereInput[]
+  export type vertical_delivery_consumerUncheckedUpdateManyWithoutClientNestedInput = {
+    create?: XOR<vertical_delivery_consumerCreateWithoutClientInput, vertical_delivery_consumerUncheckedCreateWithoutClientInput> | vertical_delivery_consumerCreateWithoutClientInput[] | vertical_delivery_consumerUncheckedCreateWithoutClientInput[]
+    connectOrCreate?: vertical_delivery_consumerCreateOrConnectWithoutClientInput | vertical_delivery_consumerCreateOrConnectWithoutClientInput[]
+    upsert?: vertical_delivery_consumerUpsertWithWhereUniqueWithoutClientInput | vertical_delivery_consumerUpsertWithWhereUniqueWithoutClientInput[]
+    createMany?: vertical_delivery_consumerCreateManyClientInputEnvelope
+    set?: vertical_delivery_consumerWhereUniqueInput | vertical_delivery_consumerWhereUniqueInput[]
+    disconnect?: vertical_delivery_consumerWhereUniqueInput | vertical_delivery_consumerWhereUniqueInput[]
+    delete?: vertical_delivery_consumerWhereUniqueInput | vertical_delivery_consumerWhereUniqueInput[]
+    connect?: vertical_delivery_consumerWhereUniqueInput | vertical_delivery_consumerWhereUniqueInput[]
+    update?: vertical_delivery_consumerUpdateWithWhereUniqueWithoutClientInput | vertical_delivery_consumerUpdateWithWhereUniqueWithoutClientInput[]
+    updateMany?: vertical_delivery_consumerUpdateManyWithWhereWithoutClientInput | vertical_delivery_consumerUpdateManyWithWhereWithoutClientInput[]
+    deleteMany?: vertical_delivery_consumerScalarWhereInput | vertical_delivery_consumerScalarWhereInput[]
   }
 
-  export type vertical_food_employeeUncheckedUpdateManyWithoutClientNestedInput = {
-    create?: XOR<vertical_food_employeeCreateWithoutClientInput, vertical_food_employeeUncheckedCreateWithoutClientInput> | vertical_food_employeeCreateWithoutClientInput[] | vertical_food_employeeUncheckedCreateWithoutClientInput[]
-    connectOrCreate?: vertical_food_employeeCreateOrConnectWithoutClientInput | vertical_food_employeeCreateOrConnectWithoutClientInput[]
-    upsert?: vertical_food_employeeUpsertWithWhereUniqueWithoutClientInput | vertical_food_employeeUpsertWithWhereUniqueWithoutClientInput[]
-    createMany?: vertical_food_employeeCreateManyClientInputEnvelope
-    set?: vertical_food_employeeWhereUniqueInput | vertical_food_employeeWhereUniqueInput[]
-    disconnect?: vertical_food_employeeWhereUniqueInput | vertical_food_employeeWhereUniqueInput[]
-    delete?: vertical_food_employeeWhereUniqueInput | vertical_food_employeeWhereUniqueInput[]
-    connect?: vertical_food_employeeWhereUniqueInput | vertical_food_employeeWhereUniqueInput[]
-    update?: vertical_food_employeeUpdateWithWhereUniqueWithoutClientInput | vertical_food_employeeUpdateWithWhereUniqueWithoutClientInput[]
-    updateMany?: vertical_food_employeeUpdateManyWithWhereWithoutClientInput | vertical_food_employeeUpdateManyWithWhereWithoutClientInput[]
-    deleteMany?: vertical_food_employeeScalarWhereInput | vertical_food_employeeScalarWhereInput[]
+  export type vertical_delivery_employeeUncheckedUpdateManyWithoutClientNestedInput = {
+    create?: XOR<vertical_delivery_employeeCreateWithoutClientInput, vertical_delivery_employeeUncheckedCreateWithoutClientInput> | vertical_delivery_employeeCreateWithoutClientInput[] | vertical_delivery_employeeUncheckedCreateWithoutClientInput[]
+    connectOrCreate?: vertical_delivery_employeeCreateOrConnectWithoutClientInput | vertical_delivery_employeeCreateOrConnectWithoutClientInput[]
+    upsert?: vertical_delivery_employeeUpsertWithWhereUniqueWithoutClientInput | vertical_delivery_employeeUpsertWithWhereUniqueWithoutClientInput[]
+    createMany?: vertical_delivery_employeeCreateManyClientInputEnvelope
+    set?: vertical_delivery_employeeWhereUniqueInput | vertical_delivery_employeeWhereUniqueInput[]
+    disconnect?: vertical_delivery_employeeWhereUniqueInput | vertical_delivery_employeeWhereUniqueInput[]
+    delete?: vertical_delivery_employeeWhereUniqueInput | vertical_delivery_employeeWhereUniqueInput[]
+    connect?: vertical_delivery_employeeWhereUniqueInput | vertical_delivery_employeeWhereUniqueInput[]
+    update?: vertical_delivery_employeeUpdateWithWhereUniqueWithoutClientInput | vertical_delivery_employeeUpdateWithWhereUniqueWithoutClientInput[]
+    updateMany?: vertical_delivery_employeeUpdateManyWithWhereWithoutClientInput | vertical_delivery_employeeUpdateManyWithWhereWithoutClientInput[]
+    deleteMany?: vertical_delivery_employeeScalarWhereInput | vertical_delivery_employeeScalarWhereInput[]
   }
 
   export type restaurantUncheckedUpdateManyWithoutClientNestedInput = {
@@ -36195,10 +36195,10 @@ export namespace Prisma {
     connect?: box_telemetry_latestWhereUniqueInput
   }
 
-  export type vertical_food_employeeCreateNestedOneWithoutConnected_boxesInput = {
-    create?: XOR<vertical_food_employeeCreateWithoutConnected_boxesInput, vertical_food_employeeUncheckedCreateWithoutConnected_boxesInput>
-    connectOrCreate?: vertical_food_employeeCreateOrConnectWithoutConnected_boxesInput
-    connect?: vertical_food_employeeWhereUniqueInput
+  export type vertical_delivery_employeeCreateNestedOneWithoutConnected_boxesInput = {
+    create?: XOR<vertical_delivery_employeeCreateWithoutConnected_boxesInput, vertical_delivery_employeeUncheckedCreateWithoutConnected_boxesInput>
+    connectOrCreate?: vertical_delivery_employeeCreateOrConnectWithoutConnected_boxesInput
+    connect?: vertical_delivery_employeeWhereUniqueInput
   }
 
   export type clientCreateNestedOneWithoutBoxesInput = {
@@ -36219,18 +36219,18 @@ export namespace Prisma {
     connect?: box_lockWhereUniqueInput
   }
 
-  export type vertical_food_consumer_boxCreateNestedManyWithoutBoxInput = {
-    create?: XOR<vertical_food_consumer_boxCreateWithoutBoxInput, vertical_food_consumer_boxUncheckedCreateWithoutBoxInput> | vertical_food_consumer_boxCreateWithoutBoxInput[] | vertical_food_consumer_boxUncheckedCreateWithoutBoxInput[]
-    connectOrCreate?: vertical_food_consumer_boxCreateOrConnectWithoutBoxInput | vertical_food_consumer_boxCreateOrConnectWithoutBoxInput[]
-    createMany?: vertical_food_consumer_boxCreateManyBoxInputEnvelope
-    connect?: vertical_food_consumer_boxWhereUniqueInput | vertical_food_consumer_boxWhereUniqueInput[]
+  export type vertical_delivery_consumer_boxCreateNestedManyWithoutBoxInput = {
+    create?: XOR<vertical_delivery_consumer_boxCreateWithoutBoxInput, vertical_delivery_consumer_boxUncheckedCreateWithoutBoxInput> | vertical_delivery_consumer_boxCreateWithoutBoxInput[] | vertical_delivery_consumer_boxUncheckedCreateWithoutBoxInput[]
+    connectOrCreate?: vertical_delivery_consumer_boxCreateOrConnectWithoutBoxInput | vertical_delivery_consumer_boxCreateOrConnectWithoutBoxInput[]
+    createMany?: vertical_delivery_consumer_boxCreateManyBoxInputEnvelope
+    connect?: vertical_delivery_consumer_boxWhereUniqueInput | vertical_delivery_consumer_boxWhereUniqueInput[]
   }
 
-  export type vertical_food_employee_boxCreateNestedManyWithoutBoxInput = {
-    create?: XOR<vertical_food_employee_boxCreateWithoutBoxInput, vertical_food_employee_boxUncheckedCreateWithoutBoxInput> | vertical_food_employee_boxCreateWithoutBoxInput[] | vertical_food_employee_boxUncheckedCreateWithoutBoxInput[]
-    connectOrCreate?: vertical_food_employee_boxCreateOrConnectWithoutBoxInput | vertical_food_employee_boxCreateOrConnectWithoutBoxInput[]
-    createMany?: vertical_food_employee_boxCreateManyBoxInputEnvelope
-    connect?: vertical_food_employee_boxWhereUniqueInput | vertical_food_employee_boxWhereUniqueInput[]
+  export type vertical_delivery_employee_boxCreateNestedManyWithoutBoxInput = {
+    create?: XOR<vertical_delivery_employee_boxCreateWithoutBoxInput, vertical_delivery_employee_boxUncheckedCreateWithoutBoxInput> | vertical_delivery_employee_boxCreateWithoutBoxInput[] | vertical_delivery_employee_boxUncheckedCreateWithoutBoxInput[]
+    connectOrCreate?: vertical_delivery_employee_boxCreateOrConnectWithoutBoxInput | vertical_delivery_employee_boxCreateOrConnectWithoutBoxInput[]
+    createMany?: vertical_delivery_employee_boxCreateManyBoxInputEnvelope
+    connect?: vertical_delivery_employee_boxWhereUniqueInput | vertical_delivery_employee_boxWhereUniqueInput[]
   }
 
   export type restaurant_boxCreateNestedManyWithoutBoxInput = {
@@ -36252,18 +36252,18 @@ export namespace Prisma {
     connect?: box_lockWhereUniqueInput
   }
 
-  export type vertical_food_consumer_boxUncheckedCreateNestedManyWithoutBoxInput = {
-    create?: XOR<vertical_food_consumer_boxCreateWithoutBoxInput, vertical_food_consumer_boxUncheckedCreateWithoutBoxInput> | vertical_food_consumer_boxCreateWithoutBoxInput[] | vertical_food_consumer_boxUncheckedCreateWithoutBoxInput[]
-    connectOrCreate?: vertical_food_consumer_boxCreateOrConnectWithoutBoxInput | vertical_food_consumer_boxCreateOrConnectWithoutBoxInput[]
-    createMany?: vertical_food_consumer_boxCreateManyBoxInputEnvelope
-    connect?: vertical_food_consumer_boxWhereUniqueInput | vertical_food_consumer_boxWhereUniqueInput[]
+  export type vertical_delivery_consumer_boxUncheckedCreateNestedManyWithoutBoxInput = {
+    create?: XOR<vertical_delivery_consumer_boxCreateWithoutBoxInput, vertical_delivery_consumer_boxUncheckedCreateWithoutBoxInput> | vertical_delivery_consumer_boxCreateWithoutBoxInput[] | vertical_delivery_consumer_boxUncheckedCreateWithoutBoxInput[]
+    connectOrCreate?: vertical_delivery_consumer_boxCreateOrConnectWithoutBoxInput | vertical_delivery_consumer_boxCreateOrConnectWithoutBoxInput[]
+    createMany?: vertical_delivery_consumer_boxCreateManyBoxInputEnvelope
+    connect?: vertical_delivery_consumer_boxWhereUniqueInput | vertical_delivery_consumer_boxWhereUniqueInput[]
   }
 
-  export type vertical_food_employee_boxUncheckedCreateNestedManyWithoutBoxInput = {
-    create?: XOR<vertical_food_employee_boxCreateWithoutBoxInput, vertical_food_employee_boxUncheckedCreateWithoutBoxInput> | vertical_food_employee_boxCreateWithoutBoxInput[] | vertical_food_employee_boxUncheckedCreateWithoutBoxInput[]
-    connectOrCreate?: vertical_food_employee_boxCreateOrConnectWithoutBoxInput | vertical_food_employee_boxCreateOrConnectWithoutBoxInput[]
-    createMany?: vertical_food_employee_boxCreateManyBoxInputEnvelope
-    connect?: vertical_food_employee_boxWhereUniqueInput | vertical_food_employee_boxWhereUniqueInput[]
+  export type vertical_delivery_employee_boxUncheckedCreateNestedManyWithoutBoxInput = {
+    create?: XOR<vertical_delivery_employee_boxCreateWithoutBoxInput, vertical_delivery_employee_boxUncheckedCreateWithoutBoxInput> | vertical_delivery_employee_boxCreateWithoutBoxInput[] | vertical_delivery_employee_boxUncheckedCreateWithoutBoxInput[]
+    connectOrCreate?: vertical_delivery_employee_boxCreateOrConnectWithoutBoxInput | vertical_delivery_employee_boxCreateOrConnectWithoutBoxInput[]
+    createMany?: vertical_delivery_employee_boxCreateManyBoxInputEnvelope
+    connect?: vertical_delivery_employee_boxWhereUniqueInput | vertical_delivery_employee_boxWhereUniqueInput[]
   }
 
   export type restaurant_boxUncheckedCreateNestedManyWithoutBoxInput = {
@@ -36287,14 +36287,14 @@ export namespace Prisma {
     update?: XOR<XOR<box_telemetry_latestUpdateToOneWithWhereWithoutBoxInput, box_telemetry_latestUpdateWithoutBoxInput>, box_telemetry_latestUncheckedUpdateWithoutBoxInput>
   }
 
-  export type vertical_food_employeeUpdateOneWithoutConnected_boxesNestedInput = {
-    create?: XOR<vertical_food_employeeCreateWithoutConnected_boxesInput, vertical_food_employeeUncheckedCreateWithoutConnected_boxesInput>
-    connectOrCreate?: vertical_food_employeeCreateOrConnectWithoutConnected_boxesInput
-    upsert?: vertical_food_employeeUpsertWithoutConnected_boxesInput
-    disconnect?: vertical_food_employeeWhereInput | boolean
-    delete?: vertical_food_employeeWhereInput | boolean
-    connect?: vertical_food_employeeWhereUniqueInput
-    update?: XOR<XOR<vertical_food_employeeUpdateToOneWithWhereWithoutConnected_boxesInput, vertical_food_employeeUpdateWithoutConnected_boxesInput>, vertical_food_employeeUncheckedUpdateWithoutConnected_boxesInput>
+  export type vertical_delivery_employeeUpdateOneWithoutConnected_boxesNestedInput = {
+    create?: XOR<vertical_delivery_employeeCreateWithoutConnected_boxesInput, vertical_delivery_employeeUncheckedCreateWithoutConnected_boxesInput>
+    connectOrCreate?: vertical_delivery_employeeCreateOrConnectWithoutConnected_boxesInput
+    upsert?: vertical_delivery_employeeUpsertWithoutConnected_boxesInput
+    disconnect?: vertical_delivery_employeeWhereInput | boolean
+    delete?: vertical_delivery_employeeWhereInput | boolean
+    connect?: vertical_delivery_employeeWhereUniqueInput
+    update?: XOR<XOR<vertical_delivery_employeeUpdateToOneWithWhereWithoutConnected_boxesInput, vertical_delivery_employeeUpdateWithoutConnected_boxesInput>, vertical_delivery_employeeUncheckedUpdateWithoutConnected_boxesInput>
   }
 
   export type clientUpdateOneWithoutBoxesNestedInput = {
@@ -36327,32 +36327,32 @@ export namespace Prisma {
     update?: XOR<XOR<box_lockUpdateToOneWithWhereWithoutBoxInput, box_lockUpdateWithoutBoxInput>, box_lockUncheckedUpdateWithoutBoxInput>
   }
 
-  export type vertical_food_consumer_boxUpdateManyWithoutBoxNestedInput = {
-    create?: XOR<vertical_food_consumer_boxCreateWithoutBoxInput, vertical_food_consumer_boxUncheckedCreateWithoutBoxInput> | vertical_food_consumer_boxCreateWithoutBoxInput[] | vertical_food_consumer_boxUncheckedCreateWithoutBoxInput[]
-    connectOrCreate?: vertical_food_consumer_boxCreateOrConnectWithoutBoxInput | vertical_food_consumer_boxCreateOrConnectWithoutBoxInput[]
-    upsert?: vertical_food_consumer_boxUpsertWithWhereUniqueWithoutBoxInput | vertical_food_consumer_boxUpsertWithWhereUniqueWithoutBoxInput[]
-    createMany?: vertical_food_consumer_boxCreateManyBoxInputEnvelope
-    set?: vertical_food_consumer_boxWhereUniqueInput | vertical_food_consumer_boxWhereUniqueInput[]
-    disconnect?: vertical_food_consumer_boxWhereUniqueInput | vertical_food_consumer_boxWhereUniqueInput[]
-    delete?: vertical_food_consumer_boxWhereUniqueInput | vertical_food_consumer_boxWhereUniqueInput[]
-    connect?: vertical_food_consumer_boxWhereUniqueInput | vertical_food_consumer_boxWhereUniqueInput[]
-    update?: vertical_food_consumer_boxUpdateWithWhereUniqueWithoutBoxInput | vertical_food_consumer_boxUpdateWithWhereUniqueWithoutBoxInput[]
-    updateMany?: vertical_food_consumer_boxUpdateManyWithWhereWithoutBoxInput | vertical_food_consumer_boxUpdateManyWithWhereWithoutBoxInput[]
-    deleteMany?: vertical_food_consumer_boxScalarWhereInput | vertical_food_consumer_boxScalarWhereInput[]
+  export type vertical_delivery_consumer_boxUpdateManyWithoutBoxNestedInput = {
+    create?: XOR<vertical_delivery_consumer_boxCreateWithoutBoxInput, vertical_delivery_consumer_boxUncheckedCreateWithoutBoxInput> | vertical_delivery_consumer_boxCreateWithoutBoxInput[] | vertical_delivery_consumer_boxUncheckedCreateWithoutBoxInput[]
+    connectOrCreate?: vertical_delivery_consumer_boxCreateOrConnectWithoutBoxInput | vertical_delivery_consumer_boxCreateOrConnectWithoutBoxInput[]
+    upsert?: vertical_delivery_consumer_boxUpsertWithWhereUniqueWithoutBoxInput | vertical_delivery_consumer_boxUpsertWithWhereUniqueWithoutBoxInput[]
+    createMany?: vertical_delivery_consumer_boxCreateManyBoxInputEnvelope
+    set?: vertical_delivery_consumer_boxWhereUniqueInput | vertical_delivery_consumer_boxWhereUniqueInput[]
+    disconnect?: vertical_delivery_consumer_boxWhereUniqueInput | vertical_delivery_consumer_boxWhereUniqueInput[]
+    delete?: vertical_delivery_consumer_boxWhereUniqueInput | vertical_delivery_consumer_boxWhereUniqueInput[]
+    connect?: vertical_delivery_consumer_boxWhereUniqueInput | vertical_delivery_consumer_boxWhereUniqueInput[]
+    update?: vertical_delivery_consumer_boxUpdateWithWhereUniqueWithoutBoxInput | vertical_delivery_consumer_boxUpdateWithWhereUniqueWithoutBoxInput[]
+    updateMany?: vertical_delivery_consumer_boxUpdateManyWithWhereWithoutBoxInput | vertical_delivery_consumer_boxUpdateManyWithWhereWithoutBoxInput[]
+    deleteMany?: vertical_delivery_consumer_boxScalarWhereInput | vertical_delivery_consumer_boxScalarWhereInput[]
   }
 
-  export type vertical_food_employee_boxUpdateManyWithoutBoxNestedInput = {
-    create?: XOR<vertical_food_employee_boxCreateWithoutBoxInput, vertical_food_employee_boxUncheckedCreateWithoutBoxInput> | vertical_food_employee_boxCreateWithoutBoxInput[] | vertical_food_employee_boxUncheckedCreateWithoutBoxInput[]
-    connectOrCreate?: vertical_food_employee_boxCreateOrConnectWithoutBoxInput | vertical_food_employee_boxCreateOrConnectWithoutBoxInput[]
-    upsert?: vertical_food_employee_boxUpsertWithWhereUniqueWithoutBoxInput | vertical_food_employee_boxUpsertWithWhereUniqueWithoutBoxInput[]
-    createMany?: vertical_food_employee_boxCreateManyBoxInputEnvelope
-    set?: vertical_food_employee_boxWhereUniqueInput | vertical_food_employee_boxWhereUniqueInput[]
-    disconnect?: vertical_food_employee_boxWhereUniqueInput | vertical_food_employee_boxWhereUniqueInput[]
-    delete?: vertical_food_employee_boxWhereUniqueInput | vertical_food_employee_boxWhereUniqueInput[]
-    connect?: vertical_food_employee_boxWhereUniqueInput | vertical_food_employee_boxWhereUniqueInput[]
-    update?: vertical_food_employee_boxUpdateWithWhereUniqueWithoutBoxInput | vertical_food_employee_boxUpdateWithWhereUniqueWithoutBoxInput[]
-    updateMany?: vertical_food_employee_boxUpdateManyWithWhereWithoutBoxInput | vertical_food_employee_boxUpdateManyWithWhereWithoutBoxInput[]
-    deleteMany?: vertical_food_employee_boxScalarWhereInput | vertical_food_employee_boxScalarWhereInput[]
+  export type vertical_delivery_employee_boxUpdateManyWithoutBoxNestedInput = {
+    create?: XOR<vertical_delivery_employee_boxCreateWithoutBoxInput, vertical_delivery_employee_boxUncheckedCreateWithoutBoxInput> | vertical_delivery_employee_boxCreateWithoutBoxInput[] | vertical_delivery_employee_boxUncheckedCreateWithoutBoxInput[]
+    connectOrCreate?: vertical_delivery_employee_boxCreateOrConnectWithoutBoxInput | vertical_delivery_employee_boxCreateOrConnectWithoutBoxInput[]
+    upsert?: vertical_delivery_employee_boxUpsertWithWhereUniqueWithoutBoxInput | vertical_delivery_employee_boxUpsertWithWhereUniqueWithoutBoxInput[]
+    createMany?: vertical_delivery_employee_boxCreateManyBoxInputEnvelope
+    set?: vertical_delivery_employee_boxWhereUniqueInput | vertical_delivery_employee_boxWhereUniqueInput[]
+    disconnect?: vertical_delivery_employee_boxWhereUniqueInput | vertical_delivery_employee_boxWhereUniqueInput[]
+    delete?: vertical_delivery_employee_boxWhereUniqueInput | vertical_delivery_employee_boxWhereUniqueInput[]
+    connect?: vertical_delivery_employee_boxWhereUniqueInput | vertical_delivery_employee_boxWhereUniqueInput[]
+    update?: vertical_delivery_employee_boxUpdateWithWhereUniqueWithoutBoxInput | vertical_delivery_employee_boxUpdateWithWhereUniqueWithoutBoxInput[]
+    updateMany?: vertical_delivery_employee_boxUpdateManyWithWhereWithoutBoxInput | vertical_delivery_employee_boxUpdateManyWithWhereWithoutBoxInput[]
+    deleteMany?: vertical_delivery_employee_boxScalarWhereInput | vertical_delivery_employee_boxScalarWhereInput[]
   }
 
   export type restaurant_boxUpdateManyWithoutBoxNestedInput = {
@@ -36389,32 +36389,32 @@ export namespace Prisma {
     update?: XOR<XOR<box_lockUpdateToOneWithWhereWithoutBoxInput, box_lockUpdateWithoutBoxInput>, box_lockUncheckedUpdateWithoutBoxInput>
   }
 
-  export type vertical_food_consumer_boxUncheckedUpdateManyWithoutBoxNestedInput = {
-    create?: XOR<vertical_food_consumer_boxCreateWithoutBoxInput, vertical_food_consumer_boxUncheckedCreateWithoutBoxInput> | vertical_food_consumer_boxCreateWithoutBoxInput[] | vertical_food_consumer_boxUncheckedCreateWithoutBoxInput[]
-    connectOrCreate?: vertical_food_consumer_boxCreateOrConnectWithoutBoxInput | vertical_food_consumer_boxCreateOrConnectWithoutBoxInput[]
-    upsert?: vertical_food_consumer_boxUpsertWithWhereUniqueWithoutBoxInput | vertical_food_consumer_boxUpsertWithWhereUniqueWithoutBoxInput[]
-    createMany?: vertical_food_consumer_boxCreateManyBoxInputEnvelope
-    set?: vertical_food_consumer_boxWhereUniqueInput | vertical_food_consumer_boxWhereUniqueInput[]
-    disconnect?: vertical_food_consumer_boxWhereUniqueInput | vertical_food_consumer_boxWhereUniqueInput[]
-    delete?: vertical_food_consumer_boxWhereUniqueInput | vertical_food_consumer_boxWhereUniqueInput[]
-    connect?: vertical_food_consumer_boxWhereUniqueInput | vertical_food_consumer_boxWhereUniqueInput[]
-    update?: vertical_food_consumer_boxUpdateWithWhereUniqueWithoutBoxInput | vertical_food_consumer_boxUpdateWithWhereUniqueWithoutBoxInput[]
-    updateMany?: vertical_food_consumer_boxUpdateManyWithWhereWithoutBoxInput | vertical_food_consumer_boxUpdateManyWithWhereWithoutBoxInput[]
-    deleteMany?: vertical_food_consumer_boxScalarWhereInput | vertical_food_consumer_boxScalarWhereInput[]
+  export type vertical_delivery_consumer_boxUncheckedUpdateManyWithoutBoxNestedInput = {
+    create?: XOR<vertical_delivery_consumer_boxCreateWithoutBoxInput, vertical_delivery_consumer_boxUncheckedCreateWithoutBoxInput> | vertical_delivery_consumer_boxCreateWithoutBoxInput[] | vertical_delivery_consumer_boxUncheckedCreateWithoutBoxInput[]
+    connectOrCreate?: vertical_delivery_consumer_boxCreateOrConnectWithoutBoxInput | vertical_delivery_consumer_boxCreateOrConnectWithoutBoxInput[]
+    upsert?: vertical_delivery_consumer_boxUpsertWithWhereUniqueWithoutBoxInput | vertical_delivery_consumer_boxUpsertWithWhereUniqueWithoutBoxInput[]
+    createMany?: vertical_delivery_consumer_boxCreateManyBoxInputEnvelope
+    set?: vertical_delivery_consumer_boxWhereUniqueInput | vertical_delivery_consumer_boxWhereUniqueInput[]
+    disconnect?: vertical_delivery_consumer_boxWhereUniqueInput | vertical_delivery_consumer_boxWhereUniqueInput[]
+    delete?: vertical_delivery_consumer_boxWhereUniqueInput | vertical_delivery_consumer_boxWhereUniqueInput[]
+    connect?: vertical_delivery_consumer_boxWhereUniqueInput | vertical_delivery_consumer_boxWhereUniqueInput[]
+    update?: vertical_delivery_consumer_boxUpdateWithWhereUniqueWithoutBoxInput | vertical_delivery_consumer_boxUpdateWithWhereUniqueWithoutBoxInput[]
+    updateMany?: vertical_delivery_consumer_boxUpdateManyWithWhereWithoutBoxInput | vertical_delivery_consumer_boxUpdateManyWithWhereWithoutBoxInput[]
+    deleteMany?: vertical_delivery_consumer_boxScalarWhereInput | vertical_delivery_consumer_boxScalarWhereInput[]
   }
 
-  export type vertical_food_employee_boxUncheckedUpdateManyWithoutBoxNestedInput = {
-    create?: XOR<vertical_food_employee_boxCreateWithoutBoxInput, vertical_food_employee_boxUncheckedCreateWithoutBoxInput> | vertical_food_employee_boxCreateWithoutBoxInput[] | vertical_food_employee_boxUncheckedCreateWithoutBoxInput[]
-    connectOrCreate?: vertical_food_employee_boxCreateOrConnectWithoutBoxInput | vertical_food_employee_boxCreateOrConnectWithoutBoxInput[]
-    upsert?: vertical_food_employee_boxUpsertWithWhereUniqueWithoutBoxInput | vertical_food_employee_boxUpsertWithWhereUniqueWithoutBoxInput[]
-    createMany?: vertical_food_employee_boxCreateManyBoxInputEnvelope
-    set?: vertical_food_employee_boxWhereUniqueInput | vertical_food_employee_boxWhereUniqueInput[]
-    disconnect?: vertical_food_employee_boxWhereUniqueInput | vertical_food_employee_boxWhereUniqueInput[]
-    delete?: vertical_food_employee_boxWhereUniqueInput | vertical_food_employee_boxWhereUniqueInput[]
-    connect?: vertical_food_employee_boxWhereUniqueInput | vertical_food_employee_boxWhereUniqueInput[]
-    update?: vertical_food_employee_boxUpdateWithWhereUniqueWithoutBoxInput | vertical_food_employee_boxUpdateWithWhereUniqueWithoutBoxInput[]
-    updateMany?: vertical_food_employee_boxUpdateManyWithWhereWithoutBoxInput | vertical_food_employee_boxUpdateManyWithWhereWithoutBoxInput[]
-    deleteMany?: vertical_food_employee_boxScalarWhereInput | vertical_food_employee_boxScalarWhereInput[]
+  export type vertical_delivery_employee_boxUncheckedUpdateManyWithoutBoxNestedInput = {
+    create?: XOR<vertical_delivery_employee_boxCreateWithoutBoxInput, vertical_delivery_employee_boxUncheckedCreateWithoutBoxInput> | vertical_delivery_employee_boxCreateWithoutBoxInput[] | vertical_delivery_employee_boxUncheckedCreateWithoutBoxInput[]
+    connectOrCreate?: vertical_delivery_employee_boxCreateOrConnectWithoutBoxInput | vertical_delivery_employee_boxCreateOrConnectWithoutBoxInput[]
+    upsert?: vertical_delivery_employee_boxUpsertWithWhereUniqueWithoutBoxInput | vertical_delivery_employee_boxUpsertWithWhereUniqueWithoutBoxInput[]
+    createMany?: vertical_delivery_employee_boxCreateManyBoxInputEnvelope
+    set?: vertical_delivery_employee_boxWhereUniqueInput | vertical_delivery_employee_boxWhereUniqueInput[]
+    disconnect?: vertical_delivery_employee_boxWhereUniqueInput | vertical_delivery_employee_boxWhereUniqueInput[]
+    delete?: vertical_delivery_employee_boxWhereUniqueInput | vertical_delivery_employee_boxWhereUniqueInput[]
+    connect?: vertical_delivery_employee_boxWhereUniqueInput | vertical_delivery_employee_boxWhereUniqueInput[]
+    update?: vertical_delivery_employee_boxUpdateWithWhereUniqueWithoutBoxInput | vertical_delivery_employee_boxUpdateWithWhereUniqueWithoutBoxInput[]
+    updateMany?: vertical_delivery_employee_boxUpdateManyWithWhereWithoutBoxInput | vertical_delivery_employee_boxUpdateManyWithWhereWithoutBoxInput[]
+    deleteMany?: vertical_delivery_employee_boxScalarWhereInput | vertical_delivery_employee_boxScalarWhereInput[]
   }
 
   export type restaurant_boxUncheckedUpdateManyWithoutBoxNestedInput = {
@@ -36431,11 +36431,11 @@ export namespace Prisma {
     deleteMany?: restaurant_boxScalarWhereInput | restaurant_boxScalarWhereInput[]
   }
 
-  export type vertical_food_employeeCreateNestedManyWithoutRestaurantInput = {
-    create?: XOR<vertical_food_employeeCreateWithoutRestaurantInput, vertical_food_employeeUncheckedCreateWithoutRestaurantInput> | vertical_food_employeeCreateWithoutRestaurantInput[] | vertical_food_employeeUncheckedCreateWithoutRestaurantInput[]
-    connectOrCreate?: vertical_food_employeeCreateOrConnectWithoutRestaurantInput | vertical_food_employeeCreateOrConnectWithoutRestaurantInput[]
-    createMany?: vertical_food_employeeCreateManyRestaurantInputEnvelope
-    connect?: vertical_food_employeeWhereUniqueInput | vertical_food_employeeWhereUniqueInput[]
+  export type vertical_delivery_employeeCreateNestedManyWithoutRestaurantInput = {
+    create?: XOR<vertical_delivery_employeeCreateWithoutRestaurantInput, vertical_delivery_employeeUncheckedCreateWithoutRestaurantInput> | vertical_delivery_employeeCreateWithoutRestaurantInput[] | vertical_delivery_employeeUncheckedCreateWithoutRestaurantInput[]
+    connectOrCreate?: vertical_delivery_employeeCreateOrConnectWithoutRestaurantInput | vertical_delivery_employeeCreateOrConnectWithoutRestaurantInput[]
+    createMany?: vertical_delivery_employeeCreateManyRestaurantInputEnvelope
+    connect?: vertical_delivery_employeeWhereUniqueInput | vertical_delivery_employeeWhereUniqueInput[]
   }
 
   export type clientCreateNestedOneWithoutRestaurantsInput = {
@@ -36451,11 +36451,11 @@ export namespace Prisma {
     connect?: restaurant_boxWhereUniqueInput | restaurant_boxWhereUniqueInput[]
   }
 
-  export type vertical_food_employeeUncheckedCreateNestedManyWithoutRestaurantInput = {
-    create?: XOR<vertical_food_employeeCreateWithoutRestaurantInput, vertical_food_employeeUncheckedCreateWithoutRestaurantInput> | vertical_food_employeeCreateWithoutRestaurantInput[] | vertical_food_employeeUncheckedCreateWithoutRestaurantInput[]
-    connectOrCreate?: vertical_food_employeeCreateOrConnectWithoutRestaurantInput | vertical_food_employeeCreateOrConnectWithoutRestaurantInput[]
-    createMany?: vertical_food_employeeCreateManyRestaurantInputEnvelope
-    connect?: vertical_food_employeeWhereUniqueInput | vertical_food_employeeWhereUniqueInput[]
+  export type vertical_delivery_employeeUncheckedCreateNestedManyWithoutRestaurantInput = {
+    create?: XOR<vertical_delivery_employeeCreateWithoutRestaurantInput, vertical_delivery_employeeUncheckedCreateWithoutRestaurantInput> | vertical_delivery_employeeCreateWithoutRestaurantInput[] | vertical_delivery_employeeUncheckedCreateWithoutRestaurantInput[]
+    connectOrCreate?: vertical_delivery_employeeCreateOrConnectWithoutRestaurantInput | vertical_delivery_employeeCreateOrConnectWithoutRestaurantInput[]
+    createMany?: vertical_delivery_employeeCreateManyRestaurantInputEnvelope
+    connect?: vertical_delivery_employeeWhereUniqueInput | vertical_delivery_employeeWhereUniqueInput[]
   }
 
   export type restaurant_boxUncheckedCreateNestedManyWithoutRestaurantInput = {
@@ -36477,18 +36477,18 @@ export namespace Prisma {
     set?: $Enums.restaurant_status
   }
 
-  export type vertical_food_employeeUpdateManyWithoutRestaurantNestedInput = {
-    create?: XOR<vertical_food_employeeCreateWithoutRestaurantInput, vertical_food_employeeUncheckedCreateWithoutRestaurantInput> | vertical_food_employeeCreateWithoutRestaurantInput[] | vertical_food_employeeUncheckedCreateWithoutRestaurantInput[]
-    connectOrCreate?: vertical_food_employeeCreateOrConnectWithoutRestaurantInput | vertical_food_employeeCreateOrConnectWithoutRestaurantInput[]
-    upsert?: vertical_food_employeeUpsertWithWhereUniqueWithoutRestaurantInput | vertical_food_employeeUpsertWithWhereUniqueWithoutRestaurantInput[]
-    createMany?: vertical_food_employeeCreateManyRestaurantInputEnvelope
-    set?: vertical_food_employeeWhereUniqueInput | vertical_food_employeeWhereUniqueInput[]
-    disconnect?: vertical_food_employeeWhereUniqueInput | vertical_food_employeeWhereUniqueInput[]
-    delete?: vertical_food_employeeWhereUniqueInput | vertical_food_employeeWhereUniqueInput[]
-    connect?: vertical_food_employeeWhereUniqueInput | vertical_food_employeeWhereUniqueInput[]
-    update?: vertical_food_employeeUpdateWithWhereUniqueWithoutRestaurantInput | vertical_food_employeeUpdateWithWhereUniqueWithoutRestaurantInput[]
-    updateMany?: vertical_food_employeeUpdateManyWithWhereWithoutRestaurantInput | vertical_food_employeeUpdateManyWithWhereWithoutRestaurantInput[]
-    deleteMany?: vertical_food_employeeScalarWhereInput | vertical_food_employeeScalarWhereInput[]
+  export type vertical_delivery_employeeUpdateManyWithoutRestaurantNestedInput = {
+    create?: XOR<vertical_delivery_employeeCreateWithoutRestaurantInput, vertical_delivery_employeeUncheckedCreateWithoutRestaurantInput> | vertical_delivery_employeeCreateWithoutRestaurantInput[] | vertical_delivery_employeeUncheckedCreateWithoutRestaurantInput[]
+    connectOrCreate?: vertical_delivery_employeeCreateOrConnectWithoutRestaurantInput | vertical_delivery_employeeCreateOrConnectWithoutRestaurantInput[]
+    upsert?: vertical_delivery_employeeUpsertWithWhereUniqueWithoutRestaurantInput | vertical_delivery_employeeUpsertWithWhereUniqueWithoutRestaurantInput[]
+    createMany?: vertical_delivery_employeeCreateManyRestaurantInputEnvelope
+    set?: vertical_delivery_employeeWhereUniqueInput | vertical_delivery_employeeWhereUniqueInput[]
+    disconnect?: vertical_delivery_employeeWhereUniqueInput | vertical_delivery_employeeWhereUniqueInput[]
+    delete?: vertical_delivery_employeeWhereUniqueInput | vertical_delivery_employeeWhereUniqueInput[]
+    connect?: vertical_delivery_employeeWhereUniqueInput | vertical_delivery_employeeWhereUniqueInput[]
+    update?: vertical_delivery_employeeUpdateWithWhereUniqueWithoutRestaurantInput | vertical_delivery_employeeUpdateWithWhereUniqueWithoutRestaurantInput[]
+    updateMany?: vertical_delivery_employeeUpdateManyWithWhereWithoutRestaurantInput | vertical_delivery_employeeUpdateManyWithWhereWithoutRestaurantInput[]
+    deleteMany?: vertical_delivery_employeeScalarWhereInput | vertical_delivery_employeeScalarWhereInput[]
   }
 
   export type clientUpdateOneWithoutRestaurantsNestedInput = {
@@ -36515,18 +36515,18 @@ export namespace Prisma {
     deleteMany?: restaurant_boxScalarWhereInput | restaurant_boxScalarWhereInput[]
   }
 
-  export type vertical_food_employeeUncheckedUpdateManyWithoutRestaurantNestedInput = {
-    create?: XOR<vertical_food_employeeCreateWithoutRestaurantInput, vertical_food_employeeUncheckedCreateWithoutRestaurantInput> | vertical_food_employeeCreateWithoutRestaurantInput[] | vertical_food_employeeUncheckedCreateWithoutRestaurantInput[]
-    connectOrCreate?: vertical_food_employeeCreateOrConnectWithoutRestaurantInput | vertical_food_employeeCreateOrConnectWithoutRestaurantInput[]
-    upsert?: vertical_food_employeeUpsertWithWhereUniqueWithoutRestaurantInput | vertical_food_employeeUpsertWithWhereUniqueWithoutRestaurantInput[]
-    createMany?: vertical_food_employeeCreateManyRestaurantInputEnvelope
-    set?: vertical_food_employeeWhereUniqueInput | vertical_food_employeeWhereUniqueInput[]
-    disconnect?: vertical_food_employeeWhereUniqueInput | vertical_food_employeeWhereUniqueInput[]
-    delete?: vertical_food_employeeWhereUniqueInput | vertical_food_employeeWhereUniqueInput[]
-    connect?: vertical_food_employeeWhereUniqueInput | vertical_food_employeeWhereUniqueInput[]
-    update?: vertical_food_employeeUpdateWithWhereUniqueWithoutRestaurantInput | vertical_food_employeeUpdateWithWhereUniqueWithoutRestaurantInput[]
-    updateMany?: vertical_food_employeeUpdateManyWithWhereWithoutRestaurantInput | vertical_food_employeeUpdateManyWithWhereWithoutRestaurantInput[]
-    deleteMany?: vertical_food_employeeScalarWhereInput | vertical_food_employeeScalarWhereInput[]
+  export type vertical_delivery_employeeUncheckedUpdateManyWithoutRestaurantNestedInput = {
+    create?: XOR<vertical_delivery_employeeCreateWithoutRestaurantInput, vertical_delivery_employeeUncheckedCreateWithoutRestaurantInput> | vertical_delivery_employeeCreateWithoutRestaurantInput[] | vertical_delivery_employeeUncheckedCreateWithoutRestaurantInput[]
+    connectOrCreate?: vertical_delivery_employeeCreateOrConnectWithoutRestaurantInput | vertical_delivery_employeeCreateOrConnectWithoutRestaurantInput[]
+    upsert?: vertical_delivery_employeeUpsertWithWhereUniqueWithoutRestaurantInput | vertical_delivery_employeeUpsertWithWhereUniqueWithoutRestaurantInput[]
+    createMany?: vertical_delivery_employeeCreateManyRestaurantInputEnvelope
+    set?: vertical_delivery_employeeWhereUniqueInput | vertical_delivery_employeeWhereUniqueInput[]
+    disconnect?: vertical_delivery_employeeWhereUniqueInput | vertical_delivery_employeeWhereUniqueInput[]
+    delete?: vertical_delivery_employeeWhereUniqueInput | vertical_delivery_employeeWhereUniqueInput[]
+    connect?: vertical_delivery_employeeWhereUniqueInput | vertical_delivery_employeeWhereUniqueInput[]
+    update?: vertical_delivery_employeeUpdateWithWhereUniqueWithoutRestaurantInput | vertical_delivery_employeeUpdateWithWhereUniqueWithoutRestaurantInput[]
+    updateMany?: vertical_delivery_employeeUpdateManyWithWhereWithoutRestaurantInput | vertical_delivery_employeeUpdateManyWithWhereWithoutRestaurantInput[]
+    deleteMany?: vertical_delivery_employeeScalarWhereInput | vertical_delivery_employeeScalarWhereInput[]
   }
 
   export type restaurant_boxUncheckedUpdateManyWithoutRestaurantNestedInput = {
@@ -36550,9 +36550,9 @@ export namespace Prisma {
     connect?: boxWhereUniqueInput | boxWhereUniqueInput[]
   }
 
-  export type clientCreateNestedOneWithoutVertical_food_employeesInput = {
-    create?: XOR<clientCreateWithoutVertical_food_employeesInput, clientUncheckedCreateWithoutVertical_food_employeesInput>
-    connectOrCreate?: clientCreateOrConnectWithoutVertical_food_employeesInput
+  export type clientCreateNestedOneWithoutvertical_delivery_employeesInput = {
+    create?: XOR<clientCreateWithoutvertical_delivery_employeesInput, clientUncheckedCreateWithoutvertical_delivery_employeesInput>
+    connectOrCreate?: clientCreateOrConnectWithoutvertical_delivery_employeesInput
     connect?: clientWhereUniqueInput
   }
 
@@ -36562,11 +36562,11 @@ export namespace Prisma {
     connect?: restaurantWhereUniqueInput
   }
 
-  export type vertical_food_employee_boxCreateNestedManyWithoutEmployeeInput = {
-    create?: XOR<vertical_food_employee_boxCreateWithoutEmployeeInput, vertical_food_employee_boxUncheckedCreateWithoutEmployeeInput> | vertical_food_employee_boxCreateWithoutEmployeeInput[] | vertical_food_employee_boxUncheckedCreateWithoutEmployeeInput[]
-    connectOrCreate?: vertical_food_employee_boxCreateOrConnectWithoutEmployeeInput | vertical_food_employee_boxCreateOrConnectWithoutEmployeeInput[]
-    createMany?: vertical_food_employee_boxCreateManyEmployeeInputEnvelope
-    connect?: vertical_food_employee_boxWhereUniqueInput | vertical_food_employee_boxWhereUniqueInput[]
+  export type vertical_delivery_employee_boxCreateNestedManyWithoutEmployeeInput = {
+    create?: XOR<vertical_delivery_employee_boxCreateWithoutEmployeeInput, vertical_delivery_employee_boxUncheckedCreateWithoutEmployeeInput> | vertical_delivery_employee_boxCreateWithoutEmployeeInput[] | vertical_delivery_employee_boxUncheckedCreateWithoutEmployeeInput[]
+    connectOrCreate?: vertical_delivery_employee_boxCreateOrConnectWithoutEmployeeInput | vertical_delivery_employee_boxCreateOrConnectWithoutEmployeeInput[]
+    createMany?: vertical_delivery_employee_boxCreateManyEmployeeInputEnvelope
+    connect?: vertical_delivery_employee_boxWhereUniqueInput | vertical_delivery_employee_boxWhereUniqueInput[]
   }
 
   export type boxUncheckedCreateNestedManyWithoutConnection_employeeInput = {
@@ -36576,11 +36576,11 @@ export namespace Prisma {
     connect?: boxWhereUniqueInput | boxWhereUniqueInput[]
   }
 
-  export type vertical_food_employee_boxUncheckedCreateNestedManyWithoutEmployeeInput = {
-    create?: XOR<vertical_food_employee_boxCreateWithoutEmployeeInput, vertical_food_employee_boxUncheckedCreateWithoutEmployeeInput> | vertical_food_employee_boxCreateWithoutEmployeeInput[] | vertical_food_employee_boxUncheckedCreateWithoutEmployeeInput[]
-    connectOrCreate?: vertical_food_employee_boxCreateOrConnectWithoutEmployeeInput | vertical_food_employee_boxCreateOrConnectWithoutEmployeeInput[]
-    createMany?: vertical_food_employee_boxCreateManyEmployeeInputEnvelope
-    connect?: vertical_food_employee_boxWhereUniqueInput | vertical_food_employee_boxWhereUniqueInput[]
+  export type vertical_delivery_employee_boxUncheckedCreateNestedManyWithoutEmployeeInput = {
+    create?: XOR<vertical_delivery_employee_boxCreateWithoutEmployeeInput, vertical_delivery_employee_boxUncheckedCreateWithoutEmployeeInput> | vertical_delivery_employee_boxCreateWithoutEmployeeInput[] | vertical_delivery_employee_boxUncheckedCreateWithoutEmployeeInput[]
+    connectOrCreate?: vertical_delivery_employee_boxCreateOrConnectWithoutEmployeeInput | vertical_delivery_employee_boxCreateOrConnectWithoutEmployeeInput[]
+    createMany?: vertical_delivery_employee_boxCreateManyEmployeeInputEnvelope
+    connect?: vertical_delivery_employee_boxWhereUniqueInput | vertical_delivery_employee_boxWhereUniqueInput[]
   }
 
   export type Enumclient_employee_roleFieldUpdateOperationsInput = {
@@ -36605,14 +36605,14 @@ export namespace Prisma {
     deleteMany?: boxScalarWhereInput | boxScalarWhereInput[]
   }
 
-  export type clientUpdateOneWithoutVertical_food_employeesNestedInput = {
-    create?: XOR<clientCreateWithoutVertical_food_employeesInput, clientUncheckedCreateWithoutVertical_food_employeesInput>
-    connectOrCreate?: clientCreateOrConnectWithoutVertical_food_employeesInput
-    upsert?: clientUpsertWithoutVertical_food_employeesInput
+  export type clientUpdateOneWithoutvertical_delivery_employeesNestedInput = {
+    create?: XOR<clientCreateWithoutvertical_delivery_employeesInput, clientUncheckedCreateWithoutvertical_delivery_employeesInput>
+    connectOrCreate?: clientCreateOrConnectWithoutvertical_delivery_employeesInput
+    upsert?: clientUpsertWithoutvertical_delivery_employeesInput
     disconnect?: clientWhereInput | boolean
     delete?: clientWhereInput | boolean
     connect?: clientWhereUniqueInput
-    update?: XOR<XOR<clientUpdateToOneWithWhereWithoutVertical_food_employeesInput, clientUpdateWithoutVertical_food_employeesInput>, clientUncheckedUpdateWithoutVertical_food_employeesInput>
+    update?: XOR<XOR<clientUpdateToOneWithWhereWithoutvertical_delivery_employeesInput, clientUpdateWithoutvertical_delivery_employeesInput>, clientUncheckedUpdateWithoutvertical_delivery_employeesInput>
   }
 
   export type restaurantUpdateOneWithoutEmployeesNestedInput = {
@@ -36625,18 +36625,18 @@ export namespace Prisma {
     update?: XOR<XOR<restaurantUpdateToOneWithWhereWithoutEmployeesInput, restaurantUpdateWithoutEmployeesInput>, restaurantUncheckedUpdateWithoutEmployeesInput>
   }
 
-  export type vertical_food_employee_boxUpdateManyWithoutEmployeeNestedInput = {
-    create?: XOR<vertical_food_employee_boxCreateWithoutEmployeeInput, vertical_food_employee_boxUncheckedCreateWithoutEmployeeInput> | vertical_food_employee_boxCreateWithoutEmployeeInput[] | vertical_food_employee_boxUncheckedCreateWithoutEmployeeInput[]
-    connectOrCreate?: vertical_food_employee_boxCreateOrConnectWithoutEmployeeInput | vertical_food_employee_boxCreateOrConnectWithoutEmployeeInput[]
-    upsert?: vertical_food_employee_boxUpsertWithWhereUniqueWithoutEmployeeInput | vertical_food_employee_boxUpsertWithWhereUniqueWithoutEmployeeInput[]
-    createMany?: vertical_food_employee_boxCreateManyEmployeeInputEnvelope
-    set?: vertical_food_employee_boxWhereUniqueInput | vertical_food_employee_boxWhereUniqueInput[]
-    disconnect?: vertical_food_employee_boxWhereUniqueInput | vertical_food_employee_boxWhereUniqueInput[]
-    delete?: vertical_food_employee_boxWhereUniqueInput | vertical_food_employee_boxWhereUniqueInput[]
-    connect?: vertical_food_employee_boxWhereUniqueInput | vertical_food_employee_boxWhereUniqueInput[]
-    update?: vertical_food_employee_boxUpdateWithWhereUniqueWithoutEmployeeInput | vertical_food_employee_boxUpdateWithWhereUniqueWithoutEmployeeInput[]
-    updateMany?: vertical_food_employee_boxUpdateManyWithWhereWithoutEmployeeInput | vertical_food_employee_boxUpdateManyWithWhereWithoutEmployeeInput[]
-    deleteMany?: vertical_food_employee_boxScalarWhereInput | vertical_food_employee_boxScalarWhereInput[]
+  export type vertical_delivery_employee_boxUpdateManyWithoutEmployeeNestedInput = {
+    create?: XOR<vertical_delivery_employee_boxCreateWithoutEmployeeInput, vertical_delivery_employee_boxUncheckedCreateWithoutEmployeeInput> | vertical_delivery_employee_boxCreateWithoutEmployeeInput[] | vertical_delivery_employee_boxUncheckedCreateWithoutEmployeeInput[]
+    connectOrCreate?: vertical_delivery_employee_boxCreateOrConnectWithoutEmployeeInput | vertical_delivery_employee_boxCreateOrConnectWithoutEmployeeInput[]
+    upsert?: vertical_delivery_employee_boxUpsertWithWhereUniqueWithoutEmployeeInput | vertical_delivery_employee_boxUpsertWithWhereUniqueWithoutEmployeeInput[]
+    createMany?: vertical_delivery_employee_boxCreateManyEmployeeInputEnvelope
+    set?: vertical_delivery_employee_boxWhereUniqueInput | vertical_delivery_employee_boxWhereUniqueInput[]
+    disconnect?: vertical_delivery_employee_boxWhereUniqueInput | vertical_delivery_employee_boxWhereUniqueInput[]
+    delete?: vertical_delivery_employee_boxWhereUniqueInput | vertical_delivery_employee_boxWhereUniqueInput[]
+    connect?: vertical_delivery_employee_boxWhereUniqueInput | vertical_delivery_employee_boxWhereUniqueInput[]
+    update?: vertical_delivery_employee_boxUpdateWithWhereUniqueWithoutEmployeeInput | vertical_delivery_employee_boxUpdateWithWhereUniqueWithoutEmployeeInput[]
+    updateMany?: vertical_delivery_employee_boxUpdateManyWithWhereWithoutEmployeeInput | vertical_delivery_employee_boxUpdateManyWithWhereWithoutEmployeeInput[]
+    deleteMany?: vertical_delivery_employee_boxScalarWhereInput | vertical_delivery_employee_boxScalarWhereInput[]
   }
 
   export type boxUncheckedUpdateManyWithoutConnection_employeeNestedInput = {
@@ -36653,30 +36653,30 @@ export namespace Prisma {
     deleteMany?: boxScalarWhereInput | boxScalarWhereInput[]
   }
 
-  export type vertical_food_employee_boxUncheckedUpdateManyWithoutEmployeeNestedInput = {
-    create?: XOR<vertical_food_employee_boxCreateWithoutEmployeeInput, vertical_food_employee_boxUncheckedCreateWithoutEmployeeInput> | vertical_food_employee_boxCreateWithoutEmployeeInput[] | vertical_food_employee_boxUncheckedCreateWithoutEmployeeInput[]
-    connectOrCreate?: vertical_food_employee_boxCreateOrConnectWithoutEmployeeInput | vertical_food_employee_boxCreateOrConnectWithoutEmployeeInput[]
-    upsert?: vertical_food_employee_boxUpsertWithWhereUniqueWithoutEmployeeInput | vertical_food_employee_boxUpsertWithWhereUniqueWithoutEmployeeInput[]
-    createMany?: vertical_food_employee_boxCreateManyEmployeeInputEnvelope
-    set?: vertical_food_employee_boxWhereUniqueInput | vertical_food_employee_boxWhereUniqueInput[]
-    disconnect?: vertical_food_employee_boxWhereUniqueInput | vertical_food_employee_boxWhereUniqueInput[]
-    delete?: vertical_food_employee_boxWhereUniqueInput | vertical_food_employee_boxWhereUniqueInput[]
-    connect?: vertical_food_employee_boxWhereUniqueInput | vertical_food_employee_boxWhereUniqueInput[]
-    update?: vertical_food_employee_boxUpdateWithWhereUniqueWithoutEmployeeInput | vertical_food_employee_boxUpdateWithWhereUniqueWithoutEmployeeInput[]
-    updateMany?: vertical_food_employee_boxUpdateManyWithWhereWithoutEmployeeInput | vertical_food_employee_boxUpdateManyWithWhereWithoutEmployeeInput[]
-    deleteMany?: vertical_food_employee_boxScalarWhereInput | vertical_food_employee_boxScalarWhereInput[]
+  export type vertical_delivery_employee_boxUncheckedUpdateManyWithoutEmployeeNestedInput = {
+    create?: XOR<vertical_delivery_employee_boxCreateWithoutEmployeeInput, vertical_delivery_employee_boxUncheckedCreateWithoutEmployeeInput> | vertical_delivery_employee_boxCreateWithoutEmployeeInput[] | vertical_delivery_employee_boxUncheckedCreateWithoutEmployeeInput[]
+    connectOrCreate?: vertical_delivery_employee_boxCreateOrConnectWithoutEmployeeInput | vertical_delivery_employee_boxCreateOrConnectWithoutEmployeeInput[]
+    upsert?: vertical_delivery_employee_boxUpsertWithWhereUniqueWithoutEmployeeInput | vertical_delivery_employee_boxUpsertWithWhereUniqueWithoutEmployeeInput[]
+    createMany?: vertical_delivery_employee_boxCreateManyEmployeeInputEnvelope
+    set?: vertical_delivery_employee_boxWhereUniqueInput | vertical_delivery_employee_boxWhereUniqueInput[]
+    disconnect?: vertical_delivery_employee_boxWhereUniqueInput | vertical_delivery_employee_boxWhereUniqueInput[]
+    delete?: vertical_delivery_employee_boxWhereUniqueInput | vertical_delivery_employee_boxWhereUniqueInput[]
+    connect?: vertical_delivery_employee_boxWhereUniqueInput | vertical_delivery_employee_boxWhereUniqueInput[]
+    update?: vertical_delivery_employee_boxUpdateWithWhereUniqueWithoutEmployeeInput | vertical_delivery_employee_boxUpdateWithWhereUniqueWithoutEmployeeInput[]
+    updateMany?: vertical_delivery_employee_boxUpdateManyWithWhereWithoutEmployeeInput | vertical_delivery_employee_boxUpdateManyWithWhereWithoutEmployeeInput[]
+    deleteMany?: vertical_delivery_employee_boxScalarWhereInput | vertical_delivery_employee_boxScalarWhereInput[]
   }
 
-  export type boxCreateNestedOneWithoutVertical_food_employee_boxesInput = {
-    create?: XOR<boxCreateWithoutVertical_food_employee_boxesInput, boxUncheckedCreateWithoutVertical_food_employee_boxesInput>
-    connectOrCreate?: boxCreateOrConnectWithoutVertical_food_employee_boxesInput
+  export type boxCreateNestedOneWithoutvertical_delivery_employee_boxesInput = {
+    create?: XOR<boxCreateWithoutvertical_delivery_employee_boxesInput, boxUncheckedCreateWithoutvertical_delivery_employee_boxesInput>
+    connectOrCreate?: boxCreateOrConnectWithoutvertical_delivery_employee_boxesInput
     connect?: boxWhereUniqueInput
   }
 
-  export type vertical_food_employeeCreateNestedOneWithoutVertical_food_employee_boxesInput = {
-    create?: XOR<vertical_food_employeeCreateWithoutVertical_food_employee_boxesInput, vertical_food_employeeUncheckedCreateWithoutVertical_food_employee_boxesInput>
-    connectOrCreate?: vertical_food_employeeCreateOrConnectWithoutVertical_food_employee_boxesInput
-    connect?: vertical_food_employeeWhereUniqueInput
+  export type vertical_delivery_employeeCreateNestedOneWithoutvertical_delivery_employee_boxesInput = {
+    create?: XOR<vertical_delivery_employeeCreateWithoutvertical_delivery_employee_boxesInput, vertical_delivery_employeeUncheckedCreateWithoutvertical_delivery_employee_boxesInput>
+    connectOrCreate?: vertical_delivery_employeeCreateOrConnectWithoutvertical_delivery_employee_boxesInput
+    connect?: vertical_delivery_employeeWhereUniqueInput
   }
 
   export type Enumemployee_box_statusFieldUpdateOperationsInput = {
@@ -36687,22 +36687,22 @@ export namespace Prisma {
     set?: $Enums.employee_box_access
   }
 
-  export type boxUpdateOneRequiredWithoutVertical_food_employee_boxesNestedInput = {
-    create?: XOR<boxCreateWithoutVertical_food_employee_boxesInput, boxUncheckedCreateWithoutVertical_food_employee_boxesInput>
-    connectOrCreate?: boxCreateOrConnectWithoutVertical_food_employee_boxesInput
-    upsert?: boxUpsertWithoutVertical_food_employee_boxesInput
+  export type boxUpdateOneRequiredWithoutvertical_delivery_employee_boxesNestedInput = {
+    create?: XOR<boxCreateWithoutvertical_delivery_employee_boxesInput, boxUncheckedCreateWithoutvertical_delivery_employee_boxesInput>
+    connectOrCreate?: boxCreateOrConnectWithoutvertical_delivery_employee_boxesInput
+    upsert?: boxUpsertWithoutvertical_delivery_employee_boxesInput
     connect?: boxWhereUniqueInput
-    update?: XOR<XOR<boxUpdateToOneWithWhereWithoutVertical_food_employee_boxesInput, boxUpdateWithoutVertical_food_employee_boxesInput>, boxUncheckedUpdateWithoutVertical_food_employee_boxesInput>
+    update?: XOR<XOR<boxUpdateToOneWithWhereWithoutvertical_delivery_employee_boxesInput, boxUpdateWithoutvertical_delivery_employee_boxesInput>, boxUncheckedUpdateWithoutvertical_delivery_employee_boxesInput>
   }
 
-  export type vertical_food_employeeUpdateOneWithoutVertical_food_employee_boxesNestedInput = {
-    create?: XOR<vertical_food_employeeCreateWithoutVertical_food_employee_boxesInput, vertical_food_employeeUncheckedCreateWithoutVertical_food_employee_boxesInput>
-    connectOrCreate?: vertical_food_employeeCreateOrConnectWithoutVertical_food_employee_boxesInput
-    upsert?: vertical_food_employeeUpsertWithoutVertical_food_employee_boxesInput
-    disconnect?: vertical_food_employeeWhereInput | boolean
-    delete?: vertical_food_employeeWhereInput | boolean
-    connect?: vertical_food_employeeWhereUniqueInput
-    update?: XOR<XOR<vertical_food_employeeUpdateToOneWithWhereWithoutVertical_food_employee_boxesInput, vertical_food_employeeUpdateWithoutVertical_food_employee_boxesInput>, vertical_food_employeeUncheckedUpdateWithoutVertical_food_employee_boxesInput>
+  export type vertical_delivery_employeeUpdateOneWithoutvertical_delivery_employee_boxesNestedInput = {
+    create?: XOR<vertical_delivery_employeeCreateWithoutvertical_delivery_employee_boxesInput, vertical_delivery_employeeUncheckedCreateWithoutvertical_delivery_employee_boxesInput>
+    connectOrCreate?: vertical_delivery_employeeCreateOrConnectWithoutvertical_delivery_employee_boxesInput
+    upsert?: vertical_delivery_employeeUpsertWithoutvertical_delivery_employee_boxesInput
+    disconnect?: vertical_delivery_employeeWhereInput | boolean
+    delete?: vertical_delivery_employeeWhereInput | boolean
+    connect?: vertical_delivery_employeeWhereUniqueInput
+    update?: XOR<XOR<vertical_delivery_employeeUpdateToOneWithWhereWithoutvertical_delivery_employee_boxesInput, vertical_delivery_employeeUpdateWithoutvertical_delivery_employee_boxesInput>, vertical_delivery_employeeUncheckedUpdateWithoutvertical_delivery_employee_boxesInput>
   }
 
   export type boxCreateNestedOneWithoutRestaurant_boxesInput = {
@@ -36737,66 +36737,66 @@ export namespace Prisma {
     update?: XOR<XOR<restaurantUpdateToOneWithWhereWithoutRestaurant_boxesInput, restaurantUpdateWithoutRestaurant_boxesInput>, restaurantUncheckedUpdateWithoutRestaurant_boxesInput>
   }
 
-  export type clientCreateNestedOneWithoutVertical_food_consumersInput = {
-    create?: XOR<clientCreateWithoutVertical_food_consumersInput, clientUncheckedCreateWithoutVertical_food_consumersInput>
-    connectOrCreate?: clientCreateOrConnectWithoutVertical_food_consumersInput
+  export type clientCreateNestedOneWithoutvertical_delivery_consumersInput = {
+    create?: XOR<clientCreateWithoutvertical_delivery_consumersInput, clientUncheckedCreateWithoutvertical_delivery_consumersInput>
+    connectOrCreate?: clientCreateOrConnectWithoutvertical_delivery_consumersInput
     connect?: clientWhereUniqueInput
   }
 
-  export type vertical_food_consumer_boxCreateNestedManyWithoutConsumerInput = {
-    create?: XOR<vertical_food_consumer_boxCreateWithoutConsumerInput, vertical_food_consumer_boxUncheckedCreateWithoutConsumerInput> | vertical_food_consumer_boxCreateWithoutConsumerInput[] | vertical_food_consumer_boxUncheckedCreateWithoutConsumerInput[]
-    connectOrCreate?: vertical_food_consumer_boxCreateOrConnectWithoutConsumerInput | vertical_food_consumer_boxCreateOrConnectWithoutConsumerInput[]
-    createMany?: vertical_food_consumer_boxCreateManyConsumerInputEnvelope
-    connect?: vertical_food_consumer_boxWhereUniqueInput | vertical_food_consumer_boxWhereUniqueInput[]
+  export type vertical_delivery_consumer_boxCreateNestedManyWithoutConsumerInput = {
+    create?: XOR<vertical_delivery_consumer_boxCreateWithoutConsumerInput, vertical_delivery_consumer_boxUncheckedCreateWithoutConsumerInput> | vertical_delivery_consumer_boxCreateWithoutConsumerInput[] | vertical_delivery_consumer_boxUncheckedCreateWithoutConsumerInput[]
+    connectOrCreate?: vertical_delivery_consumer_boxCreateOrConnectWithoutConsumerInput | vertical_delivery_consumer_boxCreateOrConnectWithoutConsumerInput[]
+    createMany?: vertical_delivery_consumer_boxCreateManyConsumerInputEnvelope
+    connect?: vertical_delivery_consumer_boxWhereUniqueInput | vertical_delivery_consumer_boxWhereUniqueInput[]
   }
 
-  export type vertical_food_consumer_boxUncheckedCreateNestedManyWithoutConsumerInput = {
-    create?: XOR<vertical_food_consumer_boxCreateWithoutConsumerInput, vertical_food_consumer_boxUncheckedCreateWithoutConsumerInput> | vertical_food_consumer_boxCreateWithoutConsumerInput[] | vertical_food_consumer_boxUncheckedCreateWithoutConsumerInput[]
-    connectOrCreate?: vertical_food_consumer_boxCreateOrConnectWithoutConsumerInput | vertical_food_consumer_boxCreateOrConnectWithoutConsumerInput[]
-    createMany?: vertical_food_consumer_boxCreateManyConsumerInputEnvelope
-    connect?: vertical_food_consumer_boxWhereUniqueInput | vertical_food_consumer_boxWhereUniqueInput[]
+  export type vertical_delivery_consumer_boxUncheckedCreateNestedManyWithoutConsumerInput = {
+    create?: XOR<vertical_delivery_consumer_boxCreateWithoutConsumerInput, vertical_delivery_consumer_boxUncheckedCreateWithoutConsumerInput> | vertical_delivery_consumer_boxCreateWithoutConsumerInput[] | vertical_delivery_consumer_boxUncheckedCreateWithoutConsumerInput[]
+    connectOrCreate?: vertical_delivery_consumer_boxCreateOrConnectWithoutConsumerInput | vertical_delivery_consumer_boxCreateOrConnectWithoutConsumerInput[]
+    createMany?: vertical_delivery_consumer_boxCreateManyConsumerInputEnvelope
+    connect?: vertical_delivery_consumer_boxWhereUniqueInput | vertical_delivery_consumer_boxWhereUniqueInput[]
   }
 
-  export type Enumfood_consumer_statusFieldUpdateOperationsInput = {
-    set?: $Enums.food_consumer_status
+  export type Enumdelivery_consumer_statusFieldUpdateOperationsInput = {
+    set?: $Enums.delivery_consumer_status
   }
 
-  export type clientUpdateOneWithoutVertical_food_consumersNestedInput = {
-    create?: XOR<clientCreateWithoutVertical_food_consumersInput, clientUncheckedCreateWithoutVertical_food_consumersInput>
-    connectOrCreate?: clientCreateOrConnectWithoutVertical_food_consumersInput
-    upsert?: clientUpsertWithoutVertical_food_consumersInput
+  export type clientUpdateOneWithoutvertical_delivery_consumersNestedInput = {
+    create?: XOR<clientCreateWithoutvertical_delivery_consumersInput, clientUncheckedCreateWithoutvertical_delivery_consumersInput>
+    connectOrCreate?: clientCreateOrConnectWithoutvertical_delivery_consumersInput
+    upsert?: clientUpsertWithoutvertical_delivery_consumersInput
     disconnect?: clientWhereInput | boolean
     delete?: clientWhereInput | boolean
     connect?: clientWhereUniqueInput
-    update?: XOR<XOR<clientUpdateToOneWithWhereWithoutVertical_food_consumersInput, clientUpdateWithoutVertical_food_consumersInput>, clientUncheckedUpdateWithoutVertical_food_consumersInput>
+    update?: XOR<XOR<clientUpdateToOneWithWhereWithoutvertical_delivery_consumersInput, clientUpdateWithoutvertical_delivery_consumersInput>, clientUncheckedUpdateWithoutvertical_delivery_consumersInput>
   }
 
-  export type vertical_food_consumer_boxUpdateManyWithoutConsumerNestedInput = {
-    create?: XOR<vertical_food_consumer_boxCreateWithoutConsumerInput, vertical_food_consumer_boxUncheckedCreateWithoutConsumerInput> | vertical_food_consumer_boxCreateWithoutConsumerInput[] | vertical_food_consumer_boxUncheckedCreateWithoutConsumerInput[]
-    connectOrCreate?: vertical_food_consumer_boxCreateOrConnectWithoutConsumerInput | vertical_food_consumer_boxCreateOrConnectWithoutConsumerInput[]
-    upsert?: vertical_food_consumer_boxUpsertWithWhereUniqueWithoutConsumerInput | vertical_food_consumer_boxUpsertWithWhereUniqueWithoutConsumerInput[]
-    createMany?: vertical_food_consumer_boxCreateManyConsumerInputEnvelope
-    set?: vertical_food_consumer_boxWhereUniqueInput | vertical_food_consumer_boxWhereUniqueInput[]
-    disconnect?: vertical_food_consumer_boxWhereUniqueInput | vertical_food_consumer_boxWhereUniqueInput[]
-    delete?: vertical_food_consumer_boxWhereUniqueInput | vertical_food_consumer_boxWhereUniqueInput[]
-    connect?: vertical_food_consumer_boxWhereUniqueInput | vertical_food_consumer_boxWhereUniqueInput[]
-    update?: vertical_food_consumer_boxUpdateWithWhereUniqueWithoutConsumerInput | vertical_food_consumer_boxUpdateWithWhereUniqueWithoutConsumerInput[]
-    updateMany?: vertical_food_consumer_boxUpdateManyWithWhereWithoutConsumerInput | vertical_food_consumer_boxUpdateManyWithWhereWithoutConsumerInput[]
-    deleteMany?: vertical_food_consumer_boxScalarWhereInput | vertical_food_consumer_boxScalarWhereInput[]
+  export type vertical_delivery_consumer_boxUpdateManyWithoutConsumerNestedInput = {
+    create?: XOR<vertical_delivery_consumer_boxCreateWithoutConsumerInput, vertical_delivery_consumer_boxUncheckedCreateWithoutConsumerInput> | vertical_delivery_consumer_boxCreateWithoutConsumerInput[] | vertical_delivery_consumer_boxUncheckedCreateWithoutConsumerInput[]
+    connectOrCreate?: vertical_delivery_consumer_boxCreateOrConnectWithoutConsumerInput | vertical_delivery_consumer_boxCreateOrConnectWithoutConsumerInput[]
+    upsert?: vertical_delivery_consumer_boxUpsertWithWhereUniqueWithoutConsumerInput | vertical_delivery_consumer_boxUpsertWithWhereUniqueWithoutConsumerInput[]
+    createMany?: vertical_delivery_consumer_boxCreateManyConsumerInputEnvelope
+    set?: vertical_delivery_consumer_boxWhereUniqueInput | vertical_delivery_consumer_boxWhereUniqueInput[]
+    disconnect?: vertical_delivery_consumer_boxWhereUniqueInput | vertical_delivery_consumer_boxWhereUniqueInput[]
+    delete?: vertical_delivery_consumer_boxWhereUniqueInput | vertical_delivery_consumer_boxWhereUniqueInput[]
+    connect?: vertical_delivery_consumer_boxWhereUniqueInput | vertical_delivery_consumer_boxWhereUniqueInput[]
+    update?: vertical_delivery_consumer_boxUpdateWithWhereUniqueWithoutConsumerInput | vertical_delivery_consumer_boxUpdateWithWhereUniqueWithoutConsumerInput[]
+    updateMany?: vertical_delivery_consumer_boxUpdateManyWithWhereWithoutConsumerInput | vertical_delivery_consumer_boxUpdateManyWithWhereWithoutConsumerInput[]
+    deleteMany?: vertical_delivery_consumer_boxScalarWhereInput | vertical_delivery_consumer_boxScalarWhereInput[]
   }
 
-  export type vertical_food_consumer_boxUncheckedUpdateManyWithoutConsumerNestedInput = {
-    create?: XOR<vertical_food_consumer_boxCreateWithoutConsumerInput, vertical_food_consumer_boxUncheckedCreateWithoutConsumerInput> | vertical_food_consumer_boxCreateWithoutConsumerInput[] | vertical_food_consumer_boxUncheckedCreateWithoutConsumerInput[]
-    connectOrCreate?: vertical_food_consumer_boxCreateOrConnectWithoutConsumerInput | vertical_food_consumer_boxCreateOrConnectWithoutConsumerInput[]
-    upsert?: vertical_food_consumer_boxUpsertWithWhereUniqueWithoutConsumerInput | vertical_food_consumer_boxUpsertWithWhereUniqueWithoutConsumerInput[]
-    createMany?: vertical_food_consumer_boxCreateManyConsumerInputEnvelope
-    set?: vertical_food_consumer_boxWhereUniqueInput | vertical_food_consumer_boxWhereUniqueInput[]
-    disconnect?: vertical_food_consumer_boxWhereUniqueInput | vertical_food_consumer_boxWhereUniqueInput[]
-    delete?: vertical_food_consumer_boxWhereUniqueInput | vertical_food_consumer_boxWhereUniqueInput[]
-    connect?: vertical_food_consumer_boxWhereUniqueInput | vertical_food_consumer_boxWhereUniqueInput[]
-    update?: vertical_food_consumer_boxUpdateWithWhereUniqueWithoutConsumerInput | vertical_food_consumer_boxUpdateWithWhereUniqueWithoutConsumerInput[]
-    updateMany?: vertical_food_consumer_boxUpdateManyWithWhereWithoutConsumerInput | vertical_food_consumer_boxUpdateManyWithWhereWithoutConsumerInput[]
-    deleteMany?: vertical_food_consumer_boxScalarWhereInput | vertical_food_consumer_boxScalarWhereInput[]
+  export type vertical_delivery_consumer_boxUncheckedUpdateManyWithoutConsumerNestedInput = {
+    create?: XOR<vertical_delivery_consumer_boxCreateWithoutConsumerInput, vertical_delivery_consumer_boxUncheckedCreateWithoutConsumerInput> | vertical_delivery_consumer_boxCreateWithoutConsumerInput[] | vertical_delivery_consumer_boxUncheckedCreateWithoutConsumerInput[]
+    connectOrCreate?: vertical_delivery_consumer_boxCreateOrConnectWithoutConsumerInput | vertical_delivery_consumer_boxCreateOrConnectWithoutConsumerInput[]
+    upsert?: vertical_delivery_consumer_boxUpsertWithWhereUniqueWithoutConsumerInput | vertical_delivery_consumer_boxUpsertWithWhereUniqueWithoutConsumerInput[]
+    createMany?: vertical_delivery_consumer_boxCreateManyConsumerInputEnvelope
+    set?: vertical_delivery_consumer_boxWhereUniqueInput | vertical_delivery_consumer_boxWhereUniqueInput[]
+    disconnect?: vertical_delivery_consumer_boxWhereUniqueInput | vertical_delivery_consumer_boxWhereUniqueInput[]
+    delete?: vertical_delivery_consumer_boxWhereUniqueInput | vertical_delivery_consumer_boxWhereUniqueInput[]
+    connect?: vertical_delivery_consumer_boxWhereUniqueInput | vertical_delivery_consumer_boxWhereUniqueInput[]
+    update?: vertical_delivery_consumer_boxUpdateWithWhereUniqueWithoutConsumerInput | vertical_delivery_consumer_boxUpdateWithWhereUniqueWithoutConsumerInput[]
+    updateMany?: vertical_delivery_consumer_boxUpdateManyWithWhereWithoutConsumerInput | vertical_delivery_consumer_boxUpdateManyWithWhereWithoutConsumerInput[]
+    deleteMany?: vertical_delivery_consumer_boxScalarWhereInput | vertical_delivery_consumer_boxScalarWhereInput[]
   }
 
   export type boxCreateNestedOneWithoutBoxesInput = {
@@ -36805,10 +36805,10 @@ export namespace Prisma {
     connect?: boxWhereUniqueInput
   }
 
-  export type vertical_food_consumerCreateNestedOneWithoutBoxesInput = {
-    create?: XOR<vertical_food_consumerCreateWithoutBoxesInput, vertical_food_consumerUncheckedCreateWithoutBoxesInput>
-    connectOrCreate?: vertical_food_consumerCreateOrConnectWithoutBoxesInput
-    connect?: vertical_food_consumerWhereUniqueInput
+  export type vertical_delivery_consumerCreateNestedOneWithoutBoxesInput = {
+    create?: XOR<vertical_delivery_consumerCreateWithoutBoxesInput, vertical_delivery_consumerUncheckedCreateWithoutBoxesInput>
+    connectOrCreate?: vertical_delivery_consumerCreateOrConnectWithoutBoxesInput
+    connect?: vertical_delivery_consumerWhereUniqueInput
   }
 
   export type boxUpdateOneRequiredWithoutBoxesNestedInput = {
@@ -36819,12 +36819,12 @@ export namespace Prisma {
     update?: XOR<XOR<boxUpdateToOneWithWhereWithoutBoxesInput, boxUpdateWithoutBoxesInput>, boxUncheckedUpdateWithoutBoxesInput>
   }
 
-  export type vertical_food_consumerUpdateOneRequiredWithoutBoxesNestedInput = {
-    create?: XOR<vertical_food_consumerCreateWithoutBoxesInput, vertical_food_consumerUncheckedCreateWithoutBoxesInput>
-    connectOrCreate?: vertical_food_consumerCreateOrConnectWithoutBoxesInput
-    upsert?: vertical_food_consumerUpsertWithoutBoxesInput
-    connect?: vertical_food_consumerWhereUniqueInput
-    update?: XOR<XOR<vertical_food_consumerUpdateToOneWithWhereWithoutBoxesInput, vertical_food_consumerUpdateWithoutBoxesInput>, vertical_food_consumerUncheckedUpdateWithoutBoxesInput>
+  export type vertical_delivery_consumerUpdateOneRequiredWithoutBoxesNestedInput = {
+    create?: XOR<vertical_delivery_consumerCreateWithoutBoxesInput, vertical_delivery_consumerUncheckedCreateWithoutBoxesInput>
+    connectOrCreate?: vertical_delivery_consumerCreateOrConnectWithoutBoxesInput
+    upsert?: vertical_delivery_consumerUpsertWithoutBoxesInput
+    connect?: vertical_delivery_consumerWhereUniqueInput
+    update?: XOR<XOR<vertical_delivery_consumerUpdateToOneWithWhereWithoutBoxesInput, vertical_delivery_consumerUpdateWithoutBoxesInput>, vertical_delivery_consumerUncheckedUpdateWithoutBoxesInput>
   }
 
   export type boxCreateNestedOneWithoutLockInput = {
@@ -37369,21 +37369,21 @@ export namespace Prisma {
     _max?: NestedEnumrestaurant_box_statusFilter<$PrismaModel>
   }
 
-  export type NestedEnumfood_consumer_statusFilter<$PrismaModel = never> = {
-    equals?: $Enums.food_consumer_status | Enumfood_consumer_statusFieldRefInput<$PrismaModel>
-    in?: $Enums.food_consumer_status[]
-    notIn?: $Enums.food_consumer_status[]
-    not?: NestedEnumfood_consumer_statusFilter<$PrismaModel> | $Enums.food_consumer_status
+  export type NestedEnumdelivery_consumer_statusFilter<$PrismaModel = never> = {
+    equals?: $Enums.delivery_consumer_status | Enumdelivery_consumer_statusFieldRefInput<$PrismaModel>
+    in?: $Enums.delivery_consumer_status[]
+    notIn?: $Enums.delivery_consumer_status[]
+    not?: NestedEnumdelivery_consumer_statusFilter<$PrismaModel> | $Enums.delivery_consumer_status
   }
 
-  export type NestedEnumfood_consumer_statusWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.food_consumer_status | Enumfood_consumer_statusFieldRefInput<$PrismaModel>
-    in?: $Enums.food_consumer_status[]
-    notIn?: $Enums.food_consumer_status[]
-    not?: NestedEnumfood_consumer_statusWithAggregatesFilter<$PrismaModel> | $Enums.food_consumer_status
+  export type NestedEnumdelivery_consumer_statusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.delivery_consumer_status | Enumdelivery_consumer_statusFieldRefInput<$PrismaModel>
+    in?: $Enums.delivery_consumer_status[]
+    notIn?: $Enums.delivery_consumer_status[]
+    not?: NestedEnumdelivery_consumer_statusWithAggregatesFilter<$PrismaModel> | $Enums.delivery_consumer_status
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumfood_consumer_statusFilter<$PrismaModel>
-    _max?: NestedEnumfood_consumer_statusFilter<$PrismaModel>
+    _min?: NestedEnumdelivery_consumer_statusFilter<$PrismaModel>
+    _max?: NestedEnumdelivery_consumer_statusFilter<$PrismaModel>
   }
 
   export type NestedEnumbox_lock_statusFilter<$PrismaModel = never> = {
@@ -37624,11 +37624,11 @@ export namespace Prisma {
     updated_at?: Date | string
     vehicle_number?: string | null
     telemetry?: box_telemetry_latestCreateNestedOneWithoutBoxInput
-    connection_employee?: vertical_food_employeeCreateNestedOneWithoutConnected_boxesInput
+    connection_employee?: vertical_delivery_employeeCreateNestedOneWithoutConnected_boxesInput
     client?: clientCreateNestedOneWithoutBoxesInput
     lock?: box_lockCreateNestedOneWithoutBoxInput
-    boxes?: vertical_food_consumer_boxCreateNestedManyWithoutBoxInput
-    vertical_food_employee_boxes?: vertical_food_employee_boxCreateNestedManyWithoutBoxInput
+    boxes?: vertical_delivery_consumer_boxCreateNestedManyWithoutBoxInput
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxCreateNestedManyWithoutBoxInput
     restaurant_boxes?: restaurant_boxCreateNestedManyWithoutBoxInput
   }
 
@@ -37644,8 +37644,8 @@ export namespace Prisma {
     connection_employee_id?: string | null
     telemetry?: box_telemetry_latestUncheckedCreateNestedOneWithoutBoxInput
     lock?: box_lockUncheckedCreateNestedOneWithoutBoxInput
-    boxes?: vertical_food_consumer_boxUncheckedCreateNestedManyWithoutBoxInput
-    vertical_food_employee_boxes?: vertical_food_employee_boxUncheckedCreateNestedManyWithoutBoxInput
+    boxes?: vertical_delivery_consumer_boxUncheckedCreateNestedManyWithoutBoxInput
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxUncheckedCreateNestedManyWithoutBoxInput
     restaurant_boxes?: restaurant_boxUncheckedCreateNestedManyWithoutBoxInput
   }
 
@@ -37675,8 +37675,8 @@ export namespace Prisma {
     updated_at?: Date | string
     profile_pic?: string | null
     boxes?: boxCreateNestedManyWithoutClientInput
-    vertical_food_consumers?: vertical_food_consumerCreateNestedManyWithoutClientInput
-    vertical_food_employees?: vertical_food_employeeCreateNestedManyWithoutClientInput
+    vertical_delivery_consumers?: vertical_delivery_consumerCreateNestedManyWithoutClientInput
+    vertical_delivery_employees?: vertical_delivery_employeeCreateNestedManyWithoutClientInput
     restaurants?: restaurantCreateNestedManyWithoutClientInput
     notifications?: notificationCreateNestedManyWithoutClientInput
   }
@@ -37697,8 +37697,8 @@ export namespace Prisma {
     updated_at?: Date | string
     profile_pic?: string | null
     boxes?: boxUncheckedCreateNestedManyWithoutClientInput
-    vertical_food_consumers?: vertical_food_consumerUncheckedCreateNestedManyWithoutClientInput
-    vertical_food_employees?: vertical_food_employeeUncheckedCreateNestedManyWithoutClientInput
+    vertical_delivery_consumers?: vertical_delivery_consumerUncheckedCreateNestedManyWithoutClientInput
+    vertical_delivery_employees?: vertical_delivery_employeeUncheckedCreateNestedManyWithoutClientInput
     restaurants?: restaurantUncheckedCreateNestedManyWithoutClientInput
     notifications?: notificationUncheckedCreateNestedManyWithoutClientInput
   }
@@ -37843,11 +37843,11 @@ export namespace Prisma {
     updated_at?: Date | string
     vehicle_number?: string | null
     telemetry?: box_telemetry_latestCreateNestedOneWithoutBoxInput
-    connection_employee?: vertical_food_employeeCreateNestedOneWithoutConnected_boxesInput
+    connection_employee?: vertical_delivery_employeeCreateNestedOneWithoutConnected_boxesInput
     vertical?: verticalCreateNestedOneWithoutBoxesInput
     lock?: box_lockCreateNestedOneWithoutBoxInput
-    boxes?: vertical_food_consumer_boxCreateNestedManyWithoutBoxInput
-    vertical_food_employee_boxes?: vertical_food_employee_boxCreateNestedManyWithoutBoxInput
+    boxes?: vertical_delivery_consumer_boxCreateNestedManyWithoutBoxInput
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxCreateNestedManyWithoutBoxInput
     restaurant_boxes?: restaurant_boxCreateNestedManyWithoutBoxInput
   }
 
@@ -37863,8 +37863,8 @@ export namespace Prisma {
     connection_employee_id?: string | null
     telemetry?: box_telemetry_latestUncheckedCreateNestedOneWithoutBoxInput
     lock?: box_lockUncheckedCreateNestedOneWithoutBoxInput
-    boxes?: vertical_food_consumer_boxUncheckedCreateNestedManyWithoutBoxInput
-    vertical_food_employee_boxes?: vertical_food_employee_boxUncheckedCreateNestedManyWithoutBoxInput
+    boxes?: vertical_delivery_consumer_boxUncheckedCreateNestedManyWithoutBoxInput
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxUncheckedCreateNestedManyWithoutBoxInput
     restaurant_boxes?: restaurant_boxUncheckedCreateNestedManyWithoutBoxInput
   }
 
@@ -37903,39 +37903,39 @@ export namespace Prisma {
     create: XOR<verticalCreateWithoutClientsInput, verticalUncheckedCreateWithoutClientsInput>
   }
 
-  export type vertical_food_consumerCreateWithoutClientInput = {
+  export type vertical_delivery_consumerCreateWithoutClientInput = {
     id?: string
     full_name: string
     country_code: string
     phone: string
-    status?: $Enums.food_consumer_status
+    status?: $Enums.delivery_consumer_status
     created_at?: Date | string
     updated_at?: Date | string
-    boxes?: vertical_food_consumer_boxCreateNestedManyWithoutConsumerInput
+    boxes?: vertical_delivery_consumer_boxCreateNestedManyWithoutConsumerInput
   }
 
-  export type vertical_food_consumerUncheckedCreateWithoutClientInput = {
+  export type vertical_delivery_consumerUncheckedCreateWithoutClientInput = {
     id?: string
     full_name: string
     country_code: string
     phone: string
-    status?: $Enums.food_consumer_status
+    status?: $Enums.delivery_consumer_status
     created_at?: Date | string
     updated_at?: Date | string
-    boxes?: vertical_food_consumer_boxUncheckedCreateNestedManyWithoutConsumerInput
+    boxes?: vertical_delivery_consumer_boxUncheckedCreateNestedManyWithoutConsumerInput
   }
 
-  export type vertical_food_consumerCreateOrConnectWithoutClientInput = {
-    where: vertical_food_consumerWhereUniqueInput
-    create: XOR<vertical_food_consumerCreateWithoutClientInput, vertical_food_consumerUncheckedCreateWithoutClientInput>
+  export type vertical_delivery_consumerCreateOrConnectWithoutClientInput = {
+    where: vertical_delivery_consumerWhereUniqueInput
+    create: XOR<vertical_delivery_consumerCreateWithoutClientInput, vertical_delivery_consumerUncheckedCreateWithoutClientInput>
   }
 
-  export type vertical_food_consumerCreateManyClientInputEnvelope = {
-    data: vertical_food_consumerCreateManyClientInput | vertical_food_consumerCreateManyClientInput[]
+  export type vertical_delivery_consumerCreateManyClientInputEnvelope = {
+    data: vertical_delivery_consumerCreateManyClientInput | vertical_delivery_consumerCreateManyClientInput[]
     skipDuplicates?: boolean
   }
 
-  export type vertical_food_employeeCreateWithoutClientInput = {
+  export type vertical_delivery_employeeCreateWithoutClientInput = {
     id?: string
     first_name: string
     last_name: string
@@ -37952,10 +37952,10 @@ export namespace Prisma {
     profile_pic?: string | null
     connected_boxes?: boxCreateNestedManyWithoutConnection_employeeInput
     restaurant?: restaurantCreateNestedOneWithoutEmployeesInput
-    vertical_food_employee_boxes?: vertical_food_employee_boxCreateNestedManyWithoutEmployeeInput
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxCreateNestedManyWithoutEmployeeInput
   }
 
-  export type vertical_food_employeeUncheckedCreateWithoutClientInput = {
+  export type vertical_delivery_employeeUncheckedCreateWithoutClientInput = {
     id?: string
     first_name: string
     last_name: string
@@ -37972,16 +37972,16 @@ export namespace Prisma {
     updated_at?: Date | string
     profile_pic?: string | null
     connected_boxes?: boxUncheckedCreateNestedManyWithoutConnection_employeeInput
-    vertical_food_employee_boxes?: vertical_food_employee_boxUncheckedCreateNestedManyWithoutEmployeeInput
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxUncheckedCreateNestedManyWithoutEmployeeInput
   }
 
-  export type vertical_food_employeeCreateOrConnectWithoutClientInput = {
-    where: vertical_food_employeeWhereUniqueInput
-    create: XOR<vertical_food_employeeCreateWithoutClientInput, vertical_food_employeeUncheckedCreateWithoutClientInput>
+  export type vertical_delivery_employeeCreateOrConnectWithoutClientInput = {
+    where: vertical_delivery_employeeWhereUniqueInput
+    create: XOR<vertical_delivery_employeeCreateWithoutClientInput, vertical_delivery_employeeUncheckedCreateWithoutClientInput>
   }
 
-  export type vertical_food_employeeCreateManyClientInputEnvelope = {
-    data: vertical_food_employeeCreateManyClientInput | vertical_food_employeeCreateManyClientInput[]
+  export type vertical_delivery_employeeCreateManyClientInputEnvelope = {
+    data: vertical_delivery_employeeCreateManyClientInput | vertical_delivery_employeeCreateManyClientInput[]
     skipDuplicates?: boolean
   }
 
@@ -37999,7 +37999,7 @@ export namespace Prisma {
     pincode?: string | null
     state?: string | null
     status?: $Enums.restaurant_status
-    employees?: vertical_food_employeeCreateNestedManyWithoutRestaurantInput
+    employees?: vertical_delivery_employeeCreateNestedManyWithoutRestaurantInput
     restaurant_boxes?: restaurant_boxCreateNestedManyWithoutRestaurantInput
   }
 
@@ -38017,7 +38017,7 @@ export namespace Prisma {
     pincode?: string | null
     state?: string | null
     status?: $Enums.restaurant_status
-    employees?: vertical_food_employeeUncheckedCreateNestedManyWithoutRestaurantInput
+    employees?: vertical_delivery_employeeUncheckedCreateNestedManyWithoutRestaurantInput
     restaurant_boxes?: restaurant_boxUncheckedCreateNestedManyWithoutRestaurantInput
   }
 
@@ -38118,72 +38118,72 @@ export namespace Prisma {
     faq_categories?: faq_categoryUncheckedUpdateManyWithoutVerticalNestedInput
   }
 
-  export type vertical_food_consumerUpsertWithWhereUniqueWithoutClientInput = {
-    where: vertical_food_consumerWhereUniqueInput
-    update: XOR<vertical_food_consumerUpdateWithoutClientInput, vertical_food_consumerUncheckedUpdateWithoutClientInput>
-    create: XOR<vertical_food_consumerCreateWithoutClientInput, vertical_food_consumerUncheckedCreateWithoutClientInput>
+  export type vertical_delivery_consumerUpsertWithWhereUniqueWithoutClientInput = {
+    where: vertical_delivery_consumerWhereUniqueInput
+    update: XOR<vertical_delivery_consumerUpdateWithoutClientInput, vertical_delivery_consumerUncheckedUpdateWithoutClientInput>
+    create: XOR<vertical_delivery_consumerCreateWithoutClientInput, vertical_delivery_consumerUncheckedCreateWithoutClientInput>
   }
 
-  export type vertical_food_consumerUpdateWithWhereUniqueWithoutClientInput = {
-    where: vertical_food_consumerWhereUniqueInput
-    data: XOR<vertical_food_consumerUpdateWithoutClientInput, vertical_food_consumerUncheckedUpdateWithoutClientInput>
+  export type vertical_delivery_consumerUpdateWithWhereUniqueWithoutClientInput = {
+    where: vertical_delivery_consumerWhereUniqueInput
+    data: XOR<vertical_delivery_consumerUpdateWithoutClientInput, vertical_delivery_consumerUncheckedUpdateWithoutClientInput>
   }
 
-  export type vertical_food_consumerUpdateManyWithWhereWithoutClientInput = {
-    where: vertical_food_consumerScalarWhereInput
-    data: XOR<vertical_food_consumerUpdateManyMutationInput, vertical_food_consumerUncheckedUpdateManyWithoutClientInput>
+  export type vertical_delivery_consumerUpdateManyWithWhereWithoutClientInput = {
+    where: vertical_delivery_consumerScalarWhereInput
+    data: XOR<vertical_delivery_consumerUpdateManyMutationInput, vertical_delivery_consumerUncheckedUpdateManyWithoutClientInput>
   }
 
-  export type vertical_food_consumerScalarWhereInput = {
-    AND?: vertical_food_consumerScalarWhereInput | vertical_food_consumerScalarWhereInput[]
-    OR?: vertical_food_consumerScalarWhereInput[]
-    NOT?: vertical_food_consumerScalarWhereInput | vertical_food_consumerScalarWhereInput[]
-    id?: StringFilter<"vertical_food_consumer"> | string
-    full_name?: StringFilter<"vertical_food_consumer"> | string
-    country_code?: StringFilter<"vertical_food_consumer"> | string
-    phone?: StringFilter<"vertical_food_consumer"> | string
-    status?: Enumfood_consumer_statusFilter<"vertical_food_consumer"> | $Enums.food_consumer_status
-    client_id?: StringNullableFilter<"vertical_food_consumer"> | string | null
-    created_at?: DateTimeFilter<"vertical_food_consumer"> | Date | string
-    updated_at?: DateTimeFilter<"vertical_food_consumer"> | Date | string
+  export type vertical_delivery_consumerScalarWhereInput = {
+    AND?: vertical_delivery_consumerScalarWhereInput | vertical_delivery_consumerScalarWhereInput[]
+    OR?: vertical_delivery_consumerScalarWhereInput[]
+    NOT?: vertical_delivery_consumerScalarWhereInput | vertical_delivery_consumerScalarWhereInput[]
+    id?: StringFilter<"vertical_delivery_consumer"> | string
+    full_name?: StringFilter<"vertical_delivery_consumer"> | string
+    country_code?: StringFilter<"vertical_delivery_consumer"> | string
+    phone?: StringFilter<"vertical_delivery_consumer"> | string
+    status?: Enumdelivery_consumer_statusFilter<"vertical_delivery_consumer"> | $Enums.delivery_consumer_status
+    client_id?: StringNullableFilter<"vertical_delivery_consumer"> | string | null
+    created_at?: DateTimeFilter<"vertical_delivery_consumer"> | Date | string
+    updated_at?: DateTimeFilter<"vertical_delivery_consumer"> | Date | string
   }
 
-  export type vertical_food_employeeUpsertWithWhereUniqueWithoutClientInput = {
-    where: vertical_food_employeeWhereUniqueInput
-    update: XOR<vertical_food_employeeUpdateWithoutClientInput, vertical_food_employeeUncheckedUpdateWithoutClientInput>
-    create: XOR<vertical_food_employeeCreateWithoutClientInput, vertical_food_employeeUncheckedCreateWithoutClientInput>
+  export type vertical_delivery_employeeUpsertWithWhereUniqueWithoutClientInput = {
+    where: vertical_delivery_employeeWhereUniqueInput
+    update: XOR<vertical_delivery_employeeUpdateWithoutClientInput, vertical_delivery_employeeUncheckedUpdateWithoutClientInput>
+    create: XOR<vertical_delivery_employeeCreateWithoutClientInput, vertical_delivery_employeeUncheckedCreateWithoutClientInput>
   }
 
-  export type vertical_food_employeeUpdateWithWhereUniqueWithoutClientInput = {
-    where: vertical_food_employeeWhereUniqueInput
-    data: XOR<vertical_food_employeeUpdateWithoutClientInput, vertical_food_employeeUncheckedUpdateWithoutClientInput>
+  export type vertical_delivery_employeeUpdateWithWhereUniqueWithoutClientInput = {
+    where: vertical_delivery_employeeWhereUniqueInput
+    data: XOR<vertical_delivery_employeeUpdateWithoutClientInput, vertical_delivery_employeeUncheckedUpdateWithoutClientInput>
   }
 
-  export type vertical_food_employeeUpdateManyWithWhereWithoutClientInput = {
-    where: vertical_food_employeeScalarWhereInput
-    data: XOR<vertical_food_employeeUpdateManyMutationInput, vertical_food_employeeUncheckedUpdateManyWithoutClientInput>
+  export type vertical_delivery_employeeUpdateManyWithWhereWithoutClientInput = {
+    where: vertical_delivery_employeeScalarWhereInput
+    data: XOR<vertical_delivery_employeeUpdateManyMutationInput, vertical_delivery_employeeUncheckedUpdateManyWithoutClientInput>
   }
 
-  export type vertical_food_employeeScalarWhereInput = {
-    AND?: vertical_food_employeeScalarWhereInput | vertical_food_employeeScalarWhereInput[]
-    OR?: vertical_food_employeeScalarWhereInput[]
-    NOT?: vertical_food_employeeScalarWhereInput | vertical_food_employeeScalarWhereInput[]
-    id?: StringFilter<"vertical_food_employee"> | string
-    first_name?: StringFilter<"vertical_food_employee"> | string
-    last_name?: StringFilter<"vertical_food_employee"> | string
-    country_code?: StringFilter<"vertical_food_employee"> | string
-    mobile_number?: StringFilter<"vertical_food_employee"> | string
-    email?: StringFilter<"vertical_food_employee"> | string
-    password?: StringNullableFilter<"vertical_food_employee"> | string | null
-    employee_display_id?: StringFilter<"vertical_food_employee"> | string
-    joining_date?: DateTimeFilter<"vertical_food_employee"> | Date | string
-    client_id?: StringNullableFilter<"vertical_food_employee"> | string | null
-    restaurant_id?: StringNullableFilter<"vertical_food_employee"> | string | null
-    role?: Enumclient_employee_roleFilter<"vertical_food_employee"> | $Enums.client_employee_role
-    status?: Enumemployee_statusFilter<"vertical_food_employee"> | $Enums.employee_status
-    created_at?: DateTimeFilter<"vertical_food_employee"> | Date | string
-    updated_at?: DateTimeFilter<"vertical_food_employee"> | Date | string
-    profile_pic?: StringNullableFilter<"vertical_food_employee"> | string | null
+  export type vertical_delivery_employeeScalarWhereInput = {
+    AND?: vertical_delivery_employeeScalarWhereInput | vertical_delivery_employeeScalarWhereInput[]
+    OR?: vertical_delivery_employeeScalarWhereInput[]
+    NOT?: vertical_delivery_employeeScalarWhereInput | vertical_delivery_employeeScalarWhereInput[]
+    id?: StringFilter<"vertical_delivery_employee"> | string
+    first_name?: StringFilter<"vertical_delivery_employee"> | string
+    last_name?: StringFilter<"vertical_delivery_employee"> | string
+    country_code?: StringFilter<"vertical_delivery_employee"> | string
+    mobile_number?: StringFilter<"vertical_delivery_employee"> | string
+    email?: StringFilter<"vertical_delivery_employee"> | string
+    password?: StringNullableFilter<"vertical_delivery_employee"> | string | null
+    employee_display_id?: StringFilter<"vertical_delivery_employee"> | string
+    joining_date?: DateTimeFilter<"vertical_delivery_employee"> | Date | string
+    client_id?: StringNullableFilter<"vertical_delivery_employee"> | string | null
+    restaurant_id?: StringNullableFilter<"vertical_delivery_employee"> | string | null
+    role?: Enumclient_employee_roleFilter<"vertical_delivery_employee"> | $Enums.client_employee_role
+    status?: Enumemployee_statusFilter<"vertical_delivery_employee"> | $Enums.employee_status
+    created_at?: DateTimeFilter<"vertical_delivery_employee"> | Date | string
+    updated_at?: DateTimeFilter<"vertical_delivery_employee"> | Date | string
+    profile_pic?: StringNullableFilter<"vertical_delivery_employee"> | string | null
   }
 
   export type restaurantUpsertWithWhereUniqueWithoutClientInput = {
@@ -38722,7 +38722,7 @@ export namespace Prisma {
     create: XOR<box_telemetry_latestCreateWithoutBoxInput, box_telemetry_latestUncheckedCreateWithoutBoxInput>
   }
 
-  export type vertical_food_employeeCreateWithoutConnected_boxesInput = {
+  export type vertical_delivery_employeeCreateWithoutConnected_boxesInput = {
     id?: string
     first_name: string
     last_name: string
@@ -38737,12 +38737,12 @@ export namespace Prisma {
     created_at?: Date | string
     updated_at?: Date | string
     profile_pic?: string | null
-    client?: clientCreateNestedOneWithoutVertical_food_employeesInput
+    client?: clientCreateNestedOneWithoutvertical_delivery_employeesInput
     restaurant?: restaurantCreateNestedOneWithoutEmployeesInput
-    vertical_food_employee_boxes?: vertical_food_employee_boxCreateNestedManyWithoutEmployeeInput
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxCreateNestedManyWithoutEmployeeInput
   }
 
-  export type vertical_food_employeeUncheckedCreateWithoutConnected_boxesInput = {
+  export type vertical_delivery_employeeUncheckedCreateWithoutConnected_boxesInput = {
     id?: string
     first_name: string
     last_name: string
@@ -38759,12 +38759,12 @@ export namespace Prisma {
     created_at?: Date | string
     updated_at?: Date | string
     profile_pic?: string | null
-    vertical_food_employee_boxes?: vertical_food_employee_boxUncheckedCreateNestedManyWithoutEmployeeInput
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxUncheckedCreateNestedManyWithoutEmployeeInput
   }
 
-  export type vertical_food_employeeCreateOrConnectWithoutConnected_boxesInput = {
-    where: vertical_food_employeeWhereUniqueInput
-    create: XOR<vertical_food_employeeCreateWithoutConnected_boxesInput, vertical_food_employeeUncheckedCreateWithoutConnected_boxesInput>
+  export type vertical_delivery_employeeCreateOrConnectWithoutConnected_boxesInput = {
+    where: vertical_delivery_employeeWhereUniqueInput
+    create: XOR<vertical_delivery_employeeCreateWithoutConnected_boxesInput, vertical_delivery_employeeUncheckedCreateWithoutConnected_boxesInput>
   }
 
   export type clientCreateWithoutBoxesInput = {
@@ -38783,8 +38783,8 @@ export namespace Prisma {
     updated_at?: Date | string
     profile_pic?: string | null
     vertical?: verticalCreateNestedOneWithoutClientsInput
-    vertical_food_consumers?: vertical_food_consumerCreateNestedManyWithoutClientInput
-    vertical_food_employees?: vertical_food_employeeCreateNestedManyWithoutClientInput
+    vertical_delivery_consumers?: vertical_delivery_consumerCreateNestedManyWithoutClientInput
+    vertical_delivery_employees?: vertical_delivery_employeeCreateNestedManyWithoutClientInput
     restaurants?: restaurantCreateNestedManyWithoutClientInput
     notifications?: notificationCreateNestedManyWithoutClientInput
   }
@@ -38805,8 +38805,8 @@ export namespace Prisma {
     updated_at?: Date | string
     vertical_id?: string | null
     profile_pic?: string | null
-    vertical_food_consumers?: vertical_food_consumerUncheckedCreateNestedManyWithoutClientInput
-    vertical_food_employees?: vertical_food_employeeUncheckedCreateNestedManyWithoutClientInput
+    vertical_delivery_consumers?: vertical_delivery_consumerUncheckedCreateNestedManyWithoutClientInput
+    vertical_delivery_employees?: vertical_delivery_employeeUncheckedCreateNestedManyWithoutClientInput
     restaurants?: restaurantUncheckedCreateNestedManyWithoutClientInput
     notifications?: notificationUncheckedCreateNestedManyWithoutClientInput
   }
@@ -38860,40 +38860,40 @@ export namespace Prisma {
     create: XOR<box_lockCreateWithoutBoxInput, box_lockUncheckedCreateWithoutBoxInput>
   }
 
-  export type vertical_food_consumer_boxCreateWithoutBoxInput = {
+  export type vertical_delivery_consumer_boxCreateWithoutBoxInput = {
     id?: string
     created_at?: Date | string
     updated_at?: Date | string
-    consumer: vertical_food_consumerCreateNestedOneWithoutBoxesInput
+    consumer: vertical_delivery_consumerCreateNestedOneWithoutBoxesInput
   }
 
-  export type vertical_food_consumer_boxUncheckedCreateWithoutBoxInput = {
+  export type vertical_delivery_consumer_boxUncheckedCreateWithoutBoxInput = {
     id?: string
     consumer_id: string
     created_at?: Date | string
     updated_at?: Date | string
   }
 
-  export type vertical_food_consumer_boxCreateOrConnectWithoutBoxInput = {
-    where: vertical_food_consumer_boxWhereUniqueInput
-    create: XOR<vertical_food_consumer_boxCreateWithoutBoxInput, vertical_food_consumer_boxUncheckedCreateWithoutBoxInput>
+  export type vertical_delivery_consumer_boxCreateOrConnectWithoutBoxInput = {
+    where: vertical_delivery_consumer_boxWhereUniqueInput
+    create: XOR<vertical_delivery_consumer_boxCreateWithoutBoxInput, vertical_delivery_consumer_boxUncheckedCreateWithoutBoxInput>
   }
 
-  export type vertical_food_consumer_boxCreateManyBoxInputEnvelope = {
-    data: vertical_food_consumer_boxCreateManyBoxInput | vertical_food_consumer_boxCreateManyBoxInput[]
+  export type vertical_delivery_consumer_boxCreateManyBoxInputEnvelope = {
+    data: vertical_delivery_consumer_boxCreateManyBoxInput | vertical_delivery_consumer_boxCreateManyBoxInput[]
     skipDuplicates?: boolean
   }
 
-  export type vertical_food_employee_boxCreateWithoutBoxInput = {
+  export type vertical_delivery_employee_boxCreateWithoutBoxInput = {
     id?: string
     created_at?: Date | string
     updated_at?: Date | string
     status?: $Enums.employee_box_status
     access?: $Enums.employee_box_access
-    employee?: vertical_food_employeeCreateNestedOneWithoutVertical_food_employee_boxesInput
+    employee?: vertical_delivery_employeeCreateNestedOneWithoutvertical_delivery_employee_boxesInput
   }
 
-  export type vertical_food_employee_boxUncheckedCreateWithoutBoxInput = {
+  export type vertical_delivery_employee_boxUncheckedCreateWithoutBoxInput = {
     id?: string
     employee_id?: string | null
     created_at?: Date | string
@@ -38902,13 +38902,13 @@ export namespace Prisma {
     access?: $Enums.employee_box_access
   }
 
-  export type vertical_food_employee_boxCreateOrConnectWithoutBoxInput = {
-    where: vertical_food_employee_boxWhereUniqueInput
-    create: XOR<vertical_food_employee_boxCreateWithoutBoxInput, vertical_food_employee_boxUncheckedCreateWithoutBoxInput>
+  export type vertical_delivery_employee_boxCreateOrConnectWithoutBoxInput = {
+    where: vertical_delivery_employee_boxWhereUniqueInput
+    create: XOR<vertical_delivery_employee_boxCreateWithoutBoxInput, vertical_delivery_employee_boxUncheckedCreateWithoutBoxInput>
   }
 
-  export type vertical_food_employee_boxCreateManyBoxInputEnvelope = {
-    data: vertical_food_employee_boxCreateManyBoxInput | vertical_food_employee_boxCreateManyBoxInput[]
+  export type vertical_delivery_employee_boxCreateManyBoxInputEnvelope = {
+    data: vertical_delivery_employee_boxCreateManyBoxInput | vertical_delivery_employee_boxCreateManyBoxInput[]
     skipDuplicates?: boolean
   }
 
@@ -39005,18 +39005,18 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type vertical_food_employeeUpsertWithoutConnected_boxesInput = {
-    update: XOR<vertical_food_employeeUpdateWithoutConnected_boxesInput, vertical_food_employeeUncheckedUpdateWithoutConnected_boxesInput>
-    create: XOR<vertical_food_employeeCreateWithoutConnected_boxesInput, vertical_food_employeeUncheckedCreateWithoutConnected_boxesInput>
-    where?: vertical_food_employeeWhereInput
+  export type vertical_delivery_employeeUpsertWithoutConnected_boxesInput = {
+    update: XOR<vertical_delivery_employeeUpdateWithoutConnected_boxesInput, vertical_delivery_employeeUncheckedUpdateWithoutConnected_boxesInput>
+    create: XOR<vertical_delivery_employeeCreateWithoutConnected_boxesInput, vertical_delivery_employeeUncheckedCreateWithoutConnected_boxesInput>
+    where?: vertical_delivery_employeeWhereInput
   }
 
-  export type vertical_food_employeeUpdateToOneWithWhereWithoutConnected_boxesInput = {
-    where?: vertical_food_employeeWhereInput
-    data: XOR<vertical_food_employeeUpdateWithoutConnected_boxesInput, vertical_food_employeeUncheckedUpdateWithoutConnected_boxesInput>
+  export type vertical_delivery_employeeUpdateToOneWithWhereWithoutConnected_boxesInput = {
+    where?: vertical_delivery_employeeWhereInput
+    data: XOR<vertical_delivery_employeeUpdateWithoutConnected_boxesInput, vertical_delivery_employeeUncheckedUpdateWithoutConnected_boxesInput>
   }
 
-  export type vertical_food_employeeUpdateWithoutConnected_boxesInput = {
+  export type vertical_delivery_employeeUpdateWithoutConnected_boxesInput = {
     id?: StringFieldUpdateOperationsInput | string
     first_name?: StringFieldUpdateOperationsInput | string
     last_name?: StringFieldUpdateOperationsInput | string
@@ -39031,12 +39031,12 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     profile_pic?: NullableStringFieldUpdateOperationsInput | string | null
-    client?: clientUpdateOneWithoutVertical_food_employeesNestedInput
+    client?: clientUpdateOneWithoutvertical_delivery_employeesNestedInput
     restaurant?: restaurantUpdateOneWithoutEmployeesNestedInput
-    vertical_food_employee_boxes?: vertical_food_employee_boxUpdateManyWithoutEmployeeNestedInput
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxUpdateManyWithoutEmployeeNestedInput
   }
 
-  export type vertical_food_employeeUncheckedUpdateWithoutConnected_boxesInput = {
+  export type vertical_delivery_employeeUncheckedUpdateWithoutConnected_boxesInput = {
     id?: StringFieldUpdateOperationsInput | string
     first_name?: StringFieldUpdateOperationsInput | string
     last_name?: StringFieldUpdateOperationsInput | string
@@ -39053,7 +39053,7 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     profile_pic?: NullableStringFieldUpdateOperationsInput | string | null
-    vertical_food_employee_boxes?: vertical_food_employee_boxUncheckedUpdateManyWithoutEmployeeNestedInput
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxUncheckedUpdateManyWithoutEmployeeNestedInput
   }
 
   export type clientUpsertWithoutBoxesInput = {
@@ -39083,8 +39083,8 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     profile_pic?: NullableStringFieldUpdateOperationsInput | string | null
     vertical?: verticalUpdateOneWithoutClientsNestedInput
-    vertical_food_consumers?: vertical_food_consumerUpdateManyWithoutClientNestedInput
-    vertical_food_employees?: vertical_food_employeeUpdateManyWithoutClientNestedInput
+    vertical_delivery_consumers?: vertical_delivery_consumerUpdateManyWithoutClientNestedInput
+    vertical_delivery_employees?: vertical_delivery_employeeUpdateManyWithoutClientNestedInput
     restaurants?: restaurantUpdateManyWithoutClientNestedInput
     notifications?: notificationUpdateManyWithoutClientNestedInput
   }
@@ -39105,8 +39105,8 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     vertical_id?: NullableStringFieldUpdateOperationsInput | string | null
     profile_pic?: NullableStringFieldUpdateOperationsInput | string | null
-    vertical_food_consumers?: vertical_food_consumerUncheckedUpdateManyWithoutClientNestedInput
-    vertical_food_employees?: vertical_food_employeeUncheckedUpdateManyWithoutClientNestedInput
+    vertical_delivery_consumers?: vertical_delivery_consumerUncheckedUpdateManyWithoutClientNestedInput
+    vertical_delivery_employees?: vertical_delivery_employeeUncheckedUpdateManyWithoutClientNestedInput
     restaurants?: restaurantUncheckedUpdateManyWithoutClientNestedInput
     notifications?: notificationUncheckedUpdateManyWithoutClientNestedInput
   }
@@ -39167,60 +39167,60 @@ export namespace Prisma {
     updated_status?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type vertical_food_consumer_boxUpsertWithWhereUniqueWithoutBoxInput = {
-    where: vertical_food_consumer_boxWhereUniqueInput
-    update: XOR<vertical_food_consumer_boxUpdateWithoutBoxInput, vertical_food_consumer_boxUncheckedUpdateWithoutBoxInput>
-    create: XOR<vertical_food_consumer_boxCreateWithoutBoxInput, vertical_food_consumer_boxUncheckedCreateWithoutBoxInput>
+  export type vertical_delivery_consumer_boxUpsertWithWhereUniqueWithoutBoxInput = {
+    where: vertical_delivery_consumer_boxWhereUniqueInput
+    update: XOR<vertical_delivery_consumer_boxUpdateWithoutBoxInput, vertical_delivery_consumer_boxUncheckedUpdateWithoutBoxInput>
+    create: XOR<vertical_delivery_consumer_boxCreateWithoutBoxInput, vertical_delivery_consumer_boxUncheckedCreateWithoutBoxInput>
   }
 
-  export type vertical_food_consumer_boxUpdateWithWhereUniqueWithoutBoxInput = {
-    where: vertical_food_consumer_boxWhereUniqueInput
-    data: XOR<vertical_food_consumer_boxUpdateWithoutBoxInput, vertical_food_consumer_boxUncheckedUpdateWithoutBoxInput>
+  export type vertical_delivery_consumer_boxUpdateWithWhereUniqueWithoutBoxInput = {
+    where: vertical_delivery_consumer_boxWhereUniqueInput
+    data: XOR<vertical_delivery_consumer_boxUpdateWithoutBoxInput, vertical_delivery_consumer_boxUncheckedUpdateWithoutBoxInput>
   }
 
-  export type vertical_food_consumer_boxUpdateManyWithWhereWithoutBoxInput = {
-    where: vertical_food_consumer_boxScalarWhereInput
-    data: XOR<vertical_food_consumer_boxUpdateManyMutationInput, vertical_food_consumer_boxUncheckedUpdateManyWithoutBoxInput>
+  export type vertical_delivery_consumer_boxUpdateManyWithWhereWithoutBoxInput = {
+    where: vertical_delivery_consumer_boxScalarWhereInput
+    data: XOR<vertical_delivery_consumer_boxUpdateManyMutationInput, vertical_delivery_consumer_boxUncheckedUpdateManyWithoutBoxInput>
   }
 
-  export type vertical_food_consumer_boxScalarWhereInput = {
-    AND?: vertical_food_consumer_boxScalarWhereInput | vertical_food_consumer_boxScalarWhereInput[]
-    OR?: vertical_food_consumer_boxScalarWhereInput[]
-    NOT?: vertical_food_consumer_boxScalarWhereInput | vertical_food_consumer_boxScalarWhereInput[]
-    id?: StringFilter<"vertical_food_consumer_box"> | string
-    consumer_id?: StringFilter<"vertical_food_consumer_box"> | string
-    box_id?: StringFilter<"vertical_food_consumer_box"> | string
-    created_at?: DateTimeFilter<"vertical_food_consumer_box"> | Date | string
-    updated_at?: DateTimeFilter<"vertical_food_consumer_box"> | Date | string
+  export type vertical_delivery_consumer_boxScalarWhereInput = {
+    AND?: vertical_delivery_consumer_boxScalarWhereInput | vertical_delivery_consumer_boxScalarWhereInput[]
+    OR?: vertical_delivery_consumer_boxScalarWhereInput[]
+    NOT?: vertical_delivery_consumer_boxScalarWhereInput | vertical_delivery_consumer_boxScalarWhereInput[]
+    id?: StringFilter<"vertical_delivery_consumer_box"> | string
+    consumer_id?: StringFilter<"vertical_delivery_consumer_box"> | string
+    box_id?: StringFilter<"vertical_delivery_consumer_box"> | string
+    created_at?: DateTimeFilter<"vertical_delivery_consumer_box"> | Date | string
+    updated_at?: DateTimeFilter<"vertical_delivery_consumer_box"> | Date | string
   }
 
-  export type vertical_food_employee_boxUpsertWithWhereUniqueWithoutBoxInput = {
-    where: vertical_food_employee_boxWhereUniqueInput
-    update: XOR<vertical_food_employee_boxUpdateWithoutBoxInput, vertical_food_employee_boxUncheckedUpdateWithoutBoxInput>
-    create: XOR<vertical_food_employee_boxCreateWithoutBoxInput, vertical_food_employee_boxUncheckedCreateWithoutBoxInput>
+  export type vertical_delivery_employee_boxUpsertWithWhereUniqueWithoutBoxInput = {
+    where: vertical_delivery_employee_boxWhereUniqueInput
+    update: XOR<vertical_delivery_employee_boxUpdateWithoutBoxInput, vertical_delivery_employee_boxUncheckedUpdateWithoutBoxInput>
+    create: XOR<vertical_delivery_employee_boxCreateWithoutBoxInput, vertical_delivery_employee_boxUncheckedCreateWithoutBoxInput>
   }
 
-  export type vertical_food_employee_boxUpdateWithWhereUniqueWithoutBoxInput = {
-    where: vertical_food_employee_boxWhereUniqueInput
-    data: XOR<vertical_food_employee_boxUpdateWithoutBoxInput, vertical_food_employee_boxUncheckedUpdateWithoutBoxInput>
+  export type vertical_delivery_employee_boxUpdateWithWhereUniqueWithoutBoxInput = {
+    where: vertical_delivery_employee_boxWhereUniqueInput
+    data: XOR<vertical_delivery_employee_boxUpdateWithoutBoxInput, vertical_delivery_employee_boxUncheckedUpdateWithoutBoxInput>
   }
 
-  export type vertical_food_employee_boxUpdateManyWithWhereWithoutBoxInput = {
-    where: vertical_food_employee_boxScalarWhereInput
-    data: XOR<vertical_food_employee_boxUpdateManyMutationInput, vertical_food_employee_boxUncheckedUpdateManyWithoutBoxInput>
+  export type vertical_delivery_employee_boxUpdateManyWithWhereWithoutBoxInput = {
+    where: vertical_delivery_employee_boxScalarWhereInput
+    data: XOR<vertical_delivery_employee_boxUpdateManyMutationInput, vertical_delivery_employee_boxUncheckedUpdateManyWithoutBoxInput>
   }
 
-  export type vertical_food_employee_boxScalarWhereInput = {
-    AND?: vertical_food_employee_boxScalarWhereInput | vertical_food_employee_boxScalarWhereInput[]
-    OR?: vertical_food_employee_boxScalarWhereInput[]
-    NOT?: vertical_food_employee_boxScalarWhereInput | vertical_food_employee_boxScalarWhereInput[]
-    id?: StringFilter<"vertical_food_employee_box"> | string
-    employee_id?: StringNullableFilter<"vertical_food_employee_box"> | string | null
-    box_id?: StringFilter<"vertical_food_employee_box"> | string
-    created_at?: DateTimeFilter<"vertical_food_employee_box"> | Date | string
-    updated_at?: DateTimeFilter<"vertical_food_employee_box"> | Date | string
-    status?: Enumemployee_box_statusFilter<"vertical_food_employee_box"> | $Enums.employee_box_status
-    access?: Enumemployee_box_accessFilter<"vertical_food_employee_box"> | $Enums.employee_box_access
+  export type vertical_delivery_employee_boxScalarWhereInput = {
+    AND?: vertical_delivery_employee_boxScalarWhereInput | vertical_delivery_employee_boxScalarWhereInput[]
+    OR?: vertical_delivery_employee_boxScalarWhereInput[]
+    NOT?: vertical_delivery_employee_boxScalarWhereInput | vertical_delivery_employee_boxScalarWhereInput[]
+    id?: StringFilter<"vertical_delivery_employee_box"> | string
+    employee_id?: StringNullableFilter<"vertical_delivery_employee_box"> | string | null
+    box_id?: StringFilter<"vertical_delivery_employee_box"> | string
+    created_at?: DateTimeFilter<"vertical_delivery_employee_box"> | Date | string
+    updated_at?: DateTimeFilter<"vertical_delivery_employee_box"> | Date | string
+    status?: Enumemployee_box_statusFilter<"vertical_delivery_employee_box"> | $Enums.employee_box_status
+    access?: Enumemployee_box_accessFilter<"vertical_delivery_employee_box"> | $Enums.employee_box_access
   }
 
   export type restaurant_boxUpsertWithWhereUniqueWithoutBoxInput = {
@@ -39251,7 +39251,7 @@ export namespace Prisma {
     status?: Enumrestaurant_box_statusFilter<"restaurant_box"> | $Enums.restaurant_box_status
   }
 
-  export type vertical_food_employeeCreateWithoutRestaurantInput = {
+  export type vertical_delivery_employeeCreateWithoutRestaurantInput = {
     id?: string
     first_name: string
     last_name: string
@@ -39267,11 +39267,11 @@ export namespace Prisma {
     updated_at?: Date | string
     profile_pic?: string | null
     connected_boxes?: boxCreateNestedManyWithoutConnection_employeeInput
-    client?: clientCreateNestedOneWithoutVertical_food_employeesInput
-    vertical_food_employee_boxes?: vertical_food_employee_boxCreateNestedManyWithoutEmployeeInput
+    client?: clientCreateNestedOneWithoutvertical_delivery_employeesInput
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxCreateNestedManyWithoutEmployeeInput
   }
 
-  export type vertical_food_employeeUncheckedCreateWithoutRestaurantInput = {
+  export type vertical_delivery_employeeUncheckedCreateWithoutRestaurantInput = {
     id?: string
     first_name: string
     last_name: string
@@ -39288,16 +39288,16 @@ export namespace Prisma {
     updated_at?: Date | string
     profile_pic?: string | null
     connected_boxes?: boxUncheckedCreateNestedManyWithoutConnection_employeeInput
-    vertical_food_employee_boxes?: vertical_food_employee_boxUncheckedCreateNestedManyWithoutEmployeeInput
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxUncheckedCreateNestedManyWithoutEmployeeInput
   }
 
-  export type vertical_food_employeeCreateOrConnectWithoutRestaurantInput = {
-    where: vertical_food_employeeWhereUniqueInput
-    create: XOR<vertical_food_employeeCreateWithoutRestaurantInput, vertical_food_employeeUncheckedCreateWithoutRestaurantInput>
+  export type vertical_delivery_employeeCreateOrConnectWithoutRestaurantInput = {
+    where: vertical_delivery_employeeWhereUniqueInput
+    create: XOR<vertical_delivery_employeeCreateWithoutRestaurantInput, vertical_delivery_employeeUncheckedCreateWithoutRestaurantInput>
   }
 
-  export type vertical_food_employeeCreateManyRestaurantInputEnvelope = {
-    data: vertical_food_employeeCreateManyRestaurantInput | vertical_food_employeeCreateManyRestaurantInput[]
+  export type vertical_delivery_employeeCreateManyRestaurantInputEnvelope = {
+    data: vertical_delivery_employeeCreateManyRestaurantInput | vertical_delivery_employeeCreateManyRestaurantInput[]
     skipDuplicates?: boolean
   }
 
@@ -39318,8 +39318,8 @@ export namespace Prisma {
     profile_pic?: string | null
     boxes?: boxCreateNestedManyWithoutClientInput
     vertical?: verticalCreateNestedOneWithoutClientsInput
-    vertical_food_consumers?: vertical_food_consumerCreateNestedManyWithoutClientInput
-    vertical_food_employees?: vertical_food_employeeCreateNestedManyWithoutClientInput
+    vertical_delivery_consumers?: vertical_delivery_consumerCreateNestedManyWithoutClientInput
+    vertical_delivery_employees?: vertical_delivery_employeeCreateNestedManyWithoutClientInput
     notifications?: notificationCreateNestedManyWithoutClientInput
   }
 
@@ -39340,8 +39340,8 @@ export namespace Prisma {
     vertical_id?: string | null
     profile_pic?: string | null
     boxes?: boxUncheckedCreateNestedManyWithoutClientInput
-    vertical_food_consumers?: vertical_food_consumerUncheckedCreateNestedManyWithoutClientInput
-    vertical_food_employees?: vertical_food_employeeUncheckedCreateNestedManyWithoutClientInput
+    vertical_delivery_consumers?: vertical_delivery_consumerUncheckedCreateNestedManyWithoutClientInput
+    vertical_delivery_employees?: vertical_delivery_employeeUncheckedCreateNestedManyWithoutClientInput
     notifications?: notificationUncheckedCreateNestedManyWithoutClientInput
   }
 
@@ -39376,20 +39376,20 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type vertical_food_employeeUpsertWithWhereUniqueWithoutRestaurantInput = {
-    where: vertical_food_employeeWhereUniqueInput
-    update: XOR<vertical_food_employeeUpdateWithoutRestaurantInput, vertical_food_employeeUncheckedUpdateWithoutRestaurantInput>
-    create: XOR<vertical_food_employeeCreateWithoutRestaurantInput, vertical_food_employeeUncheckedCreateWithoutRestaurantInput>
+  export type vertical_delivery_employeeUpsertWithWhereUniqueWithoutRestaurantInput = {
+    where: vertical_delivery_employeeWhereUniqueInput
+    update: XOR<vertical_delivery_employeeUpdateWithoutRestaurantInput, vertical_delivery_employeeUncheckedUpdateWithoutRestaurantInput>
+    create: XOR<vertical_delivery_employeeCreateWithoutRestaurantInput, vertical_delivery_employeeUncheckedCreateWithoutRestaurantInput>
   }
 
-  export type vertical_food_employeeUpdateWithWhereUniqueWithoutRestaurantInput = {
-    where: vertical_food_employeeWhereUniqueInput
-    data: XOR<vertical_food_employeeUpdateWithoutRestaurantInput, vertical_food_employeeUncheckedUpdateWithoutRestaurantInput>
+  export type vertical_delivery_employeeUpdateWithWhereUniqueWithoutRestaurantInput = {
+    where: vertical_delivery_employeeWhereUniqueInput
+    data: XOR<vertical_delivery_employeeUpdateWithoutRestaurantInput, vertical_delivery_employeeUncheckedUpdateWithoutRestaurantInput>
   }
 
-  export type vertical_food_employeeUpdateManyWithWhereWithoutRestaurantInput = {
-    where: vertical_food_employeeScalarWhereInput
-    data: XOR<vertical_food_employeeUpdateManyMutationInput, vertical_food_employeeUncheckedUpdateManyWithoutRestaurantInput>
+  export type vertical_delivery_employeeUpdateManyWithWhereWithoutRestaurantInput = {
+    where: vertical_delivery_employeeScalarWhereInput
+    data: XOR<vertical_delivery_employeeUpdateManyMutationInput, vertical_delivery_employeeUncheckedUpdateManyWithoutRestaurantInput>
   }
 
   export type clientUpsertWithoutRestaurantsInput = {
@@ -39420,8 +39420,8 @@ export namespace Prisma {
     profile_pic?: NullableStringFieldUpdateOperationsInput | string | null
     boxes?: boxUpdateManyWithoutClientNestedInput
     vertical?: verticalUpdateOneWithoutClientsNestedInput
-    vertical_food_consumers?: vertical_food_consumerUpdateManyWithoutClientNestedInput
-    vertical_food_employees?: vertical_food_employeeUpdateManyWithoutClientNestedInput
+    vertical_delivery_consumers?: vertical_delivery_consumerUpdateManyWithoutClientNestedInput
+    vertical_delivery_employees?: vertical_delivery_employeeUpdateManyWithoutClientNestedInput
     notifications?: notificationUpdateManyWithoutClientNestedInput
   }
 
@@ -39442,8 +39442,8 @@ export namespace Prisma {
     vertical_id?: NullableStringFieldUpdateOperationsInput | string | null
     profile_pic?: NullableStringFieldUpdateOperationsInput | string | null
     boxes?: boxUncheckedUpdateManyWithoutClientNestedInput
-    vertical_food_consumers?: vertical_food_consumerUncheckedUpdateManyWithoutClientNestedInput
-    vertical_food_employees?: vertical_food_employeeUncheckedUpdateManyWithoutClientNestedInput
+    vertical_delivery_consumers?: vertical_delivery_consumerUncheckedUpdateManyWithoutClientNestedInput
+    vertical_delivery_employees?: vertical_delivery_employeeUncheckedUpdateManyWithoutClientNestedInput
     notifications?: notificationUncheckedUpdateManyWithoutClientNestedInput
   }
 
@@ -39475,8 +39475,8 @@ export namespace Prisma {
     client?: clientCreateNestedOneWithoutBoxesInput
     vertical?: verticalCreateNestedOneWithoutBoxesInput
     lock?: box_lockCreateNestedOneWithoutBoxInput
-    boxes?: vertical_food_consumer_boxCreateNestedManyWithoutBoxInput
-    vertical_food_employee_boxes?: vertical_food_employee_boxCreateNestedManyWithoutBoxInput
+    boxes?: vertical_delivery_consumer_boxCreateNestedManyWithoutBoxInput
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxCreateNestedManyWithoutBoxInput
     restaurant_boxes?: restaurant_boxCreateNestedManyWithoutBoxInput
   }
 
@@ -39492,8 +39492,8 @@ export namespace Prisma {
     vehicle_number?: string | null
     telemetry?: box_telemetry_latestUncheckedCreateNestedOneWithoutBoxInput
     lock?: box_lockUncheckedCreateNestedOneWithoutBoxInput
-    boxes?: vertical_food_consumer_boxUncheckedCreateNestedManyWithoutBoxInput
-    vertical_food_employee_boxes?: vertical_food_employee_boxUncheckedCreateNestedManyWithoutBoxInput
+    boxes?: vertical_delivery_consumer_boxUncheckedCreateNestedManyWithoutBoxInput
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxUncheckedCreateNestedManyWithoutBoxInput
     restaurant_boxes?: restaurant_boxUncheckedCreateNestedManyWithoutBoxInput
   }
 
@@ -39507,7 +39507,7 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type clientCreateWithoutVertical_food_employeesInput = {
+  export type clientCreateWithoutvertical_delivery_employeesInput = {
     id?: string
     name: string
     client_display_id: string
@@ -39524,12 +39524,12 @@ export namespace Prisma {
     profile_pic?: string | null
     boxes?: boxCreateNestedManyWithoutClientInput
     vertical?: verticalCreateNestedOneWithoutClientsInput
-    vertical_food_consumers?: vertical_food_consumerCreateNestedManyWithoutClientInput
+    vertical_delivery_consumers?: vertical_delivery_consumerCreateNestedManyWithoutClientInput
     restaurants?: restaurantCreateNestedManyWithoutClientInput
     notifications?: notificationCreateNestedManyWithoutClientInput
   }
 
-  export type clientUncheckedCreateWithoutVertical_food_employeesInput = {
+  export type clientUncheckedCreateWithoutvertical_delivery_employeesInput = {
     id?: string
     name: string
     client_display_id: string
@@ -39546,14 +39546,14 @@ export namespace Prisma {
     vertical_id?: string | null
     profile_pic?: string | null
     boxes?: boxUncheckedCreateNestedManyWithoutClientInput
-    vertical_food_consumers?: vertical_food_consumerUncheckedCreateNestedManyWithoutClientInput
+    vertical_delivery_consumers?: vertical_delivery_consumerUncheckedCreateNestedManyWithoutClientInput
     restaurants?: restaurantUncheckedCreateNestedManyWithoutClientInput
     notifications?: notificationUncheckedCreateNestedManyWithoutClientInput
   }
 
-  export type clientCreateOrConnectWithoutVertical_food_employeesInput = {
+  export type clientCreateOrConnectWithoutvertical_delivery_employeesInput = {
     where: clientWhereUniqueInput
-    create: XOR<clientCreateWithoutVertical_food_employeesInput, clientUncheckedCreateWithoutVertical_food_employeesInput>
+    create: XOR<clientCreateWithoutvertical_delivery_employeesInput, clientUncheckedCreateWithoutvertical_delivery_employeesInput>
   }
 
   export type restaurantCreateWithoutEmployeesInput = {
@@ -39597,16 +39597,16 @@ export namespace Prisma {
     create: XOR<restaurantCreateWithoutEmployeesInput, restaurantUncheckedCreateWithoutEmployeesInput>
   }
 
-  export type vertical_food_employee_boxCreateWithoutEmployeeInput = {
+  export type vertical_delivery_employee_boxCreateWithoutEmployeeInput = {
     id?: string
     created_at?: Date | string
     updated_at?: Date | string
     status?: $Enums.employee_box_status
     access?: $Enums.employee_box_access
-    box: boxCreateNestedOneWithoutVertical_food_employee_boxesInput
+    box: boxCreateNestedOneWithoutvertical_delivery_employee_boxesInput
   }
 
-  export type vertical_food_employee_boxUncheckedCreateWithoutEmployeeInput = {
+  export type vertical_delivery_employee_boxUncheckedCreateWithoutEmployeeInput = {
     id?: string
     box_id: string
     created_at?: Date | string
@@ -39615,13 +39615,13 @@ export namespace Prisma {
     access?: $Enums.employee_box_access
   }
 
-  export type vertical_food_employee_boxCreateOrConnectWithoutEmployeeInput = {
-    where: vertical_food_employee_boxWhereUniqueInput
-    create: XOR<vertical_food_employee_boxCreateWithoutEmployeeInput, vertical_food_employee_boxUncheckedCreateWithoutEmployeeInput>
+  export type vertical_delivery_employee_boxCreateOrConnectWithoutEmployeeInput = {
+    where: vertical_delivery_employee_boxWhereUniqueInput
+    create: XOR<vertical_delivery_employee_boxCreateWithoutEmployeeInput, vertical_delivery_employee_boxUncheckedCreateWithoutEmployeeInput>
   }
 
-  export type vertical_food_employee_boxCreateManyEmployeeInputEnvelope = {
-    data: vertical_food_employee_boxCreateManyEmployeeInput | vertical_food_employee_boxCreateManyEmployeeInput[]
+  export type vertical_delivery_employee_boxCreateManyEmployeeInputEnvelope = {
+    data: vertical_delivery_employee_boxCreateManyEmployeeInput | vertical_delivery_employee_boxCreateManyEmployeeInput[]
     skipDuplicates?: boolean
   }
 
@@ -39641,18 +39641,18 @@ export namespace Prisma {
     data: XOR<boxUpdateManyMutationInput, boxUncheckedUpdateManyWithoutConnection_employeeInput>
   }
 
-  export type clientUpsertWithoutVertical_food_employeesInput = {
-    update: XOR<clientUpdateWithoutVertical_food_employeesInput, clientUncheckedUpdateWithoutVertical_food_employeesInput>
-    create: XOR<clientCreateWithoutVertical_food_employeesInput, clientUncheckedCreateWithoutVertical_food_employeesInput>
+  export type clientUpsertWithoutvertical_delivery_employeesInput = {
+    update: XOR<clientUpdateWithoutvertical_delivery_employeesInput, clientUncheckedUpdateWithoutvertical_delivery_employeesInput>
+    create: XOR<clientCreateWithoutvertical_delivery_employeesInput, clientUncheckedCreateWithoutvertical_delivery_employeesInput>
     where?: clientWhereInput
   }
 
-  export type clientUpdateToOneWithWhereWithoutVertical_food_employeesInput = {
+  export type clientUpdateToOneWithWhereWithoutvertical_delivery_employeesInput = {
     where?: clientWhereInput
-    data: XOR<clientUpdateWithoutVertical_food_employeesInput, clientUncheckedUpdateWithoutVertical_food_employeesInput>
+    data: XOR<clientUpdateWithoutvertical_delivery_employeesInput, clientUncheckedUpdateWithoutvertical_delivery_employeesInput>
   }
 
-  export type clientUpdateWithoutVertical_food_employeesInput = {
+  export type clientUpdateWithoutvertical_delivery_employeesInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     client_display_id?: StringFieldUpdateOperationsInput | string
@@ -39669,12 +39669,12 @@ export namespace Prisma {
     profile_pic?: NullableStringFieldUpdateOperationsInput | string | null
     boxes?: boxUpdateManyWithoutClientNestedInput
     vertical?: verticalUpdateOneWithoutClientsNestedInput
-    vertical_food_consumers?: vertical_food_consumerUpdateManyWithoutClientNestedInput
+    vertical_delivery_consumers?: vertical_delivery_consumerUpdateManyWithoutClientNestedInput
     restaurants?: restaurantUpdateManyWithoutClientNestedInput
     notifications?: notificationUpdateManyWithoutClientNestedInput
   }
 
-  export type clientUncheckedUpdateWithoutVertical_food_employeesInput = {
+  export type clientUncheckedUpdateWithoutvertical_delivery_employeesInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     client_display_id?: StringFieldUpdateOperationsInput | string
@@ -39691,7 +39691,7 @@ export namespace Prisma {
     vertical_id?: NullableStringFieldUpdateOperationsInput | string | null
     profile_pic?: NullableStringFieldUpdateOperationsInput | string | null
     boxes?: boxUncheckedUpdateManyWithoutClientNestedInput
-    vertical_food_consumers?: vertical_food_consumerUncheckedUpdateManyWithoutClientNestedInput
+    vertical_delivery_consumers?: vertical_delivery_consumerUncheckedUpdateManyWithoutClientNestedInput
     restaurants?: restaurantUncheckedUpdateManyWithoutClientNestedInput
     notifications?: notificationUncheckedUpdateManyWithoutClientNestedInput
   }
@@ -39743,23 +39743,23 @@ export namespace Prisma {
     restaurant_boxes?: restaurant_boxUncheckedUpdateManyWithoutRestaurantNestedInput
   }
 
-  export type vertical_food_employee_boxUpsertWithWhereUniqueWithoutEmployeeInput = {
-    where: vertical_food_employee_boxWhereUniqueInput
-    update: XOR<vertical_food_employee_boxUpdateWithoutEmployeeInput, vertical_food_employee_boxUncheckedUpdateWithoutEmployeeInput>
-    create: XOR<vertical_food_employee_boxCreateWithoutEmployeeInput, vertical_food_employee_boxUncheckedCreateWithoutEmployeeInput>
+  export type vertical_delivery_employee_boxUpsertWithWhereUniqueWithoutEmployeeInput = {
+    where: vertical_delivery_employee_boxWhereUniqueInput
+    update: XOR<vertical_delivery_employee_boxUpdateWithoutEmployeeInput, vertical_delivery_employee_boxUncheckedUpdateWithoutEmployeeInput>
+    create: XOR<vertical_delivery_employee_boxCreateWithoutEmployeeInput, vertical_delivery_employee_boxUncheckedCreateWithoutEmployeeInput>
   }
 
-  export type vertical_food_employee_boxUpdateWithWhereUniqueWithoutEmployeeInput = {
-    where: vertical_food_employee_boxWhereUniqueInput
-    data: XOR<vertical_food_employee_boxUpdateWithoutEmployeeInput, vertical_food_employee_boxUncheckedUpdateWithoutEmployeeInput>
+  export type vertical_delivery_employee_boxUpdateWithWhereUniqueWithoutEmployeeInput = {
+    where: vertical_delivery_employee_boxWhereUniqueInput
+    data: XOR<vertical_delivery_employee_boxUpdateWithoutEmployeeInput, vertical_delivery_employee_boxUncheckedUpdateWithoutEmployeeInput>
   }
 
-  export type vertical_food_employee_boxUpdateManyWithWhereWithoutEmployeeInput = {
-    where: vertical_food_employee_boxScalarWhereInput
-    data: XOR<vertical_food_employee_boxUpdateManyMutationInput, vertical_food_employee_boxUncheckedUpdateManyWithoutEmployeeInput>
+  export type vertical_delivery_employee_boxUpdateManyWithWhereWithoutEmployeeInput = {
+    where: vertical_delivery_employee_boxScalarWhereInput
+    data: XOR<vertical_delivery_employee_boxUpdateManyMutationInput, vertical_delivery_employee_boxUncheckedUpdateManyWithoutEmployeeInput>
   }
 
-  export type boxCreateWithoutVertical_food_employee_boxesInput = {
+  export type boxCreateWithoutvertical_delivery_employee_boxesInput = {
     id?: string
     name?: string | null
     box_display_id: string
@@ -39768,15 +39768,15 @@ export namespace Prisma {
     updated_at?: Date | string
     vehicle_number?: string | null
     telemetry?: box_telemetry_latestCreateNestedOneWithoutBoxInput
-    connection_employee?: vertical_food_employeeCreateNestedOneWithoutConnected_boxesInput
+    connection_employee?: vertical_delivery_employeeCreateNestedOneWithoutConnected_boxesInput
     client?: clientCreateNestedOneWithoutBoxesInput
     vertical?: verticalCreateNestedOneWithoutBoxesInput
     lock?: box_lockCreateNestedOneWithoutBoxInput
-    boxes?: vertical_food_consumer_boxCreateNestedManyWithoutBoxInput
+    boxes?: vertical_delivery_consumer_boxCreateNestedManyWithoutBoxInput
     restaurant_boxes?: restaurant_boxCreateNestedManyWithoutBoxInput
   }
 
-  export type boxUncheckedCreateWithoutVertical_food_employee_boxesInput = {
+  export type boxUncheckedCreateWithoutvertical_delivery_employee_boxesInput = {
     id?: string
     name?: string | null
     box_display_id: string
@@ -39789,16 +39789,16 @@ export namespace Prisma {
     connection_employee_id?: string | null
     telemetry?: box_telemetry_latestUncheckedCreateNestedOneWithoutBoxInput
     lock?: box_lockUncheckedCreateNestedOneWithoutBoxInput
-    boxes?: vertical_food_consumer_boxUncheckedCreateNestedManyWithoutBoxInput
+    boxes?: vertical_delivery_consumer_boxUncheckedCreateNestedManyWithoutBoxInput
     restaurant_boxes?: restaurant_boxUncheckedCreateNestedManyWithoutBoxInput
   }
 
-  export type boxCreateOrConnectWithoutVertical_food_employee_boxesInput = {
+  export type boxCreateOrConnectWithoutvertical_delivery_employee_boxesInput = {
     where: boxWhereUniqueInput
-    create: XOR<boxCreateWithoutVertical_food_employee_boxesInput, boxUncheckedCreateWithoutVertical_food_employee_boxesInput>
+    create: XOR<boxCreateWithoutvertical_delivery_employee_boxesInput, boxUncheckedCreateWithoutvertical_delivery_employee_boxesInput>
   }
 
-  export type vertical_food_employeeCreateWithoutVertical_food_employee_boxesInput = {
+  export type vertical_delivery_employeeCreateWithoutvertical_delivery_employee_boxesInput = {
     id?: string
     first_name: string
     last_name: string
@@ -39814,11 +39814,11 @@ export namespace Prisma {
     updated_at?: Date | string
     profile_pic?: string | null
     connected_boxes?: boxCreateNestedManyWithoutConnection_employeeInput
-    client?: clientCreateNestedOneWithoutVertical_food_employeesInput
+    client?: clientCreateNestedOneWithoutvertical_delivery_employeesInput
     restaurant?: restaurantCreateNestedOneWithoutEmployeesInput
   }
 
-  export type vertical_food_employeeUncheckedCreateWithoutVertical_food_employee_boxesInput = {
+  export type vertical_delivery_employeeUncheckedCreateWithoutvertical_delivery_employee_boxesInput = {
     id?: string
     first_name: string
     last_name: string
@@ -39838,23 +39838,23 @@ export namespace Prisma {
     connected_boxes?: boxUncheckedCreateNestedManyWithoutConnection_employeeInput
   }
 
-  export type vertical_food_employeeCreateOrConnectWithoutVertical_food_employee_boxesInput = {
-    where: vertical_food_employeeWhereUniqueInput
-    create: XOR<vertical_food_employeeCreateWithoutVertical_food_employee_boxesInput, vertical_food_employeeUncheckedCreateWithoutVertical_food_employee_boxesInput>
+  export type vertical_delivery_employeeCreateOrConnectWithoutvertical_delivery_employee_boxesInput = {
+    where: vertical_delivery_employeeWhereUniqueInput
+    create: XOR<vertical_delivery_employeeCreateWithoutvertical_delivery_employee_boxesInput, vertical_delivery_employeeUncheckedCreateWithoutvertical_delivery_employee_boxesInput>
   }
 
-  export type boxUpsertWithoutVertical_food_employee_boxesInput = {
-    update: XOR<boxUpdateWithoutVertical_food_employee_boxesInput, boxUncheckedUpdateWithoutVertical_food_employee_boxesInput>
-    create: XOR<boxCreateWithoutVertical_food_employee_boxesInput, boxUncheckedCreateWithoutVertical_food_employee_boxesInput>
+  export type boxUpsertWithoutvertical_delivery_employee_boxesInput = {
+    update: XOR<boxUpdateWithoutvertical_delivery_employee_boxesInput, boxUncheckedUpdateWithoutvertical_delivery_employee_boxesInput>
+    create: XOR<boxCreateWithoutvertical_delivery_employee_boxesInput, boxUncheckedCreateWithoutvertical_delivery_employee_boxesInput>
     where?: boxWhereInput
   }
 
-  export type boxUpdateToOneWithWhereWithoutVertical_food_employee_boxesInput = {
+  export type boxUpdateToOneWithWhereWithoutvertical_delivery_employee_boxesInput = {
     where?: boxWhereInput
-    data: XOR<boxUpdateWithoutVertical_food_employee_boxesInput, boxUncheckedUpdateWithoutVertical_food_employee_boxesInput>
+    data: XOR<boxUpdateWithoutvertical_delivery_employee_boxesInput, boxUncheckedUpdateWithoutvertical_delivery_employee_boxesInput>
   }
 
-  export type boxUpdateWithoutVertical_food_employee_boxesInput = {
+  export type boxUpdateWithoutvertical_delivery_employee_boxesInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: NullableStringFieldUpdateOperationsInput | string | null
     box_display_id?: StringFieldUpdateOperationsInput | string
@@ -39863,15 +39863,15 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     vehicle_number?: NullableStringFieldUpdateOperationsInput | string | null
     telemetry?: box_telemetry_latestUpdateOneWithoutBoxNestedInput
-    connection_employee?: vertical_food_employeeUpdateOneWithoutConnected_boxesNestedInput
+    connection_employee?: vertical_delivery_employeeUpdateOneWithoutConnected_boxesNestedInput
     client?: clientUpdateOneWithoutBoxesNestedInput
     vertical?: verticalUpdateOneWithoutBoxesNestedInput
     lock?: box_lockUpdateOneWithoutBoxNestedInput
-    boxes?: vertical_food_consumer_boxUpdateManyWithoutBoxNestedInput
+    boxes?: vertical_delivery_consumer_boxUpdateManyWithoutBoxNestedInput
     restaurant_boxes?: restaurant_boxUpdateManyWithoutBoxNestedInput
   }
 
-  export type boxUncheckedUpdateWithoutVertical_food_employee_boxesInput = {
+  export type boxUncheckedUpdateWithoutvertical_delivery_employee_boxesInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: NullableStringFieldUpdateOperationsInput | string | null
     box_display_id?: StringFieldUpdateOperationsInput | string
@@ -39884,22 +39884,22 @@ export namespace Prisma {
     connection_employee_id?: NullableStringFieldUpdateOperationsInput | string | null
     telemetry?: box_telemetry_latestUncheckedUpdateOneWithoutBoxNestedInput
     lock?: box_lockUncheckedUpdateOneWithoutBoxNestedInput
-    boxes?: vertical_food_consumer_boxUncheckedUpdateManyWithoutBoxNestedInput
+    boxes?: vertical_delivery_consumer_boxUncheckedUpdateManyWithoutBoxNestedInput
     restaurant_boxes?: restaurant_boxUncheckedUpdateManyWithoutBoxNestedInput
   }
 
-  export type vertical_food_employeeUpsertWithoutVertical_food_employee_boxesInput = {
-    update: XOR<vertical_food_employeeUpdateWithoutVertical_food_employee_boxesInput, vertical_food_employeeUncheckedUpdateWithoutVertical_food_employee_boxesInput>
-    create: XOR<vertical_food_employeeCreateWithoutVertical_food_employee_boxesInput, vertical_food_employeeUncheckedCreateWithoutVertical_food_employee_boxesInput>
-    where?: vertical_food_employeeWhereInput
+  export type vertical_delivery_employeeUpsertWithoutvertical_delivery_employee_boxesInput = {
+    update: XOR<vertical_delivery_employeeUpdateWithoutvertical_delivery_employee_boxesInput, vertical_delivery_employeeUncheckedUpdateWithoutvertical_delivery_employee_boxesInput>
+    create: XOR<vertical_delivery_employeeCreateWithoutvertical_delivery_employee_boxesInput, vertical_delivery_employeeUncheckedCreateWithoutvertical_delivery_employee_boxesInput>
+    where?: vertical_delivery_employeeWhereInput
   }
 
-  export type vertical_food_employeeUpdateToOneWithWhereWithoutVertical_food_employee_boxesInput = {
-    where?: vertical_food_employeeWhereInput
-    data: XOR<vertical_food_employeeUpdateWithoutVertical_food_employee_boxesInput, vertical_food_employeeUncheckedUpdateWithoutVertical_food_employee_boxesInput>
+  export type vertical_delivery_employeeUpdateToOneWithWhereWithoutvertical_delivery_employee_boxesInput = {
+    where?: vertical_delivery_employeeWhereInput
+    data: XOR<vertical_delivery_employeeUpdateWithoutvertical_delivery_employee_boxesInput, vertical_delivery_employeeUncheckedUpdateWithoutvertical_delivery_employee_boxesInput>
   }
 
-  export type vertical_food_employeeUpdateWithoutVertical_food_employee_boxesInput = {
+  export type vertical_delivery_employeeUpdateWithoutvertical_delivery_employee_boxesInput = {
     id?: StringFieldUpdateOperationsInput | string
     first_name?: StringFieldUpdateOperationsInput | string
     last_name?: StringFieldUpdateOperationsInput | string
@@ -39915,11 +39915,11 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     profile_pic?: NullableStringFieldUpdateOperationsInput | string | null
     connected_boxes?: boxUpdateManyWithoutConnection_employeeNestedInput
-    client?: clientUpdateOneWithoutVertical_food_employeesNestedInput
+    client?: clientUpdateOneWithoutvertical_delivery_employeesNestedInput
     restaurant?: restaurantUpdateOneWithoutEmployeesNestedInput
   }
 
-  export type vertical_food_employeeUncheckedUpdateWithoutVertical_food_employee_boxesInput = {
+  export type vertical_delivery_employeeUncheckedUpdateWithoutvertical_delivery_employee_boxesInput = {
     id?: StringFieldUpdateOperationsInput | string
     first_name?: StringFieldUpdateOperationsInput | string
     last_name?: StringFieldUpdateOperationsInput | string
@@ -39948,12 +39948,12 @@ export namespace Prisma {
     updated_at?: Date | string
     vehicle_number?: string | null
     telemetry?: box_telemetry_latestCreateNestedOneWithoutBoxInput
-    connection_employee?: vertical_food_employeeCreateNestedOneWithoutConnected_boxesInput
+    connection_employee?: vertical_delivery_employeeCreateNestedOneWithoutConnected_boxesInput
     client?: clientCreateNestedOneWithoutBoxesInput
     vertical?: verticalCreateNestedOneWithoutBoxesInput
     lock?: box_lockCreateNestedOneWithoutBoxInput
-    boxes?: vertical_food_consumer_boxCreateNestedManyWithoutBoxInput
-    vertical_food_employee_boxes?: vertical_food_employee_boxCreateNestedManyWithoutBoxInput
+    boxes?: vertical_delivery_consumer_boxCreateNestedManyWithoutBoxInput
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxCreateNestedManyWithoutBoxInput
   }
 
   export type boxUncheckedCreateWithoutRestaurant_boxesInput = {
@@ -39969,8 +39969,8 @@ export namespace Prisma {
     connection_employee_id?: string | null
     telemetry?: box_telemetry_latestUncheckedCreateNestedOneWithoutBoxInput
     lock?: box_lockUncheckedCreateNestedOneWithoutBoxInput
-    boxes?: vertical_food_consumer_boxUncheckedCreateNestedManyWithoutBoxInput
-    vertical_food_employee_boxes?: vertical_food_employee_boxUncheckedCreateNestedManyWithoutBoxInput
+    boxes?: vertical_delivery_consumer_boxUncheckedCreateNestedManyWithoutBoxInput
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxUncheckedCreateNestedManyWithoutBoxInput
   }
 
   export type boxCreateOrConnectWithoutRestaurant_boxesInput = {
@@ -39992,7 +39992,7 @@ export namespace Prisma {
     pincode?: string | null
     state?: string | null
     status?: $Enums.restaurant_status
-    employees?: vertical_food_employeeCreateNestedManyWithoutRestaurantInput
+    employees?: vertical_delivery_employeeCreateNestedManyWithoutRestaurantInput
     client?: clientCreateNestedOneWithoutRestaurantsInput
   }
 
@@ -40011,7 +40011,7 @@ export namespace Prisma {
     pincode?: string | null
     state?: string | null
     status?: $Enums.restaurant_status
-    employees?: vertical_food_employeeUncheckedCreateNestedManyWithoutRestaurantInput
+    employees?: vertical_delivery_employeeUncheckedCreateNestedManyWithoutRestaurantInput
   }
 
   export type restaurantCreateOrConnectWithoutRestaurant_boxesInput = {
@@ -40039,12 +40039,12 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     vehicle_number?: NullableStringFieldUpdateOperationsInput | string | null
     telemetry?: box_telemetry_latestUpdateOneWithoutBoxNestedInput
-    connection_employee?: vertical_food_employeeUpdateOneWithoutConnected_boxesNestedInput
+    connection_employee?: vertical_delivery_employeeUpdateOneWithoutConnected_boxesNestedInput
     client?: clientUpdateOneWithoutBoxesNestedInput
     vertical?: verticalUpdateOneWithoutBoxesNestedInput
     lock?: box_lockUpdateOneWithoutBoxNestedInput
-    boxes?: vertical_food_consumer_boxUpdateManyWithoutBoxNestedInput
-    vertical_food_employee_boxes?: vertical_food_employee_boxUpdateManyWithoutBoxNestedInput
+    boxes?: vertical_delivery_consumer_boxUpdateManyWithoutBoxNestedInput
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxUpdateManyWithoutBoxNestedInput
   }
 
   export type boxUncheckedUpdateWithoutRestaurant_boxesInput = {
@@ -40060,8 +40060,8 @@ export namespace Prisma {
     connection_employee_id?: NullableStringFieldUpdateOperationsInput | string | null
     telemetry?: box_telemetry_latestUncheckedUpdateOneWithoutBoxNestedInput
     lock?: box_lockUncheckedUpdateOneWithoutBoxNestedInput
-    boxes?: vertical_food_consumer_boxUncheckedUpdateManyWithoutBoxNestedInput
-    vertical_food_employee_boxes?: vertical_food_employee_boxUncheckedUpdateManyWithoutBoxNestedInput
+    boxes?: vertical_delivery_consumer_boxUncheckedUpdateManyWithoutBoxNestedInput
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxUncheckedUpdateManyWithoutBoxNestedInput
   }
 
   export type restaurantUpsertWithoutRestaurant_boxesInput = {
@@ -40089,7 +40089,7 @@ export namespace Prisma {
     pincode?: NullableStringFieldUpdateOperationsInput | string | null
     state?: NullableStringFieldUpdateOperationsInput | string | null
     status?: Enumrestaurant_statusFieldUpdateOperationsInput | $Enums.restaurant_status
-    employees?: vertical_food_employeeUpdateManyWithoutRestaurantNestedInput
+    employees?: vertical_delivery_employeeUpdateManyWithoutRestaurantNestedInput
     client?: clientUpdateOneWithoutRestaurantsNestedInput
   }
 
@@ -40108,10 +40108,10 @@ export namespace Prisma {
     pincode?: NullableStringFieldUpdateOperationsInput | string | null
     state?: NullableStringFieldUpdateOperationsInput | string | null
     status?: Enumrestaurant_statusFieldUpdateOperationsInput | $Enums.restaurant_status
-    employees?: vertical_food_employeeUncheckedUpdateManyWithoutRestaurantNestedInput
+    employees?: vertical_delivery_employeeUncheckedUpdateManyWithoutRestaurantNestedInput
   }
 
-  export type clientCreateWithoutVertical_food_consumersInput = {
+  export type clientCreateWithoutvertical_delivery_consumersInput = {
     id?: string
     name: string
     client_display_id: string
@@ -40128,12 +40128,12 @@ export namespace Prisma {
     profile_pic?: string | null
     boxes?: boxCreateNestedManyWithoutClientInput
     vertical?: verticalCreateNestedOneWithoutClientsInput
-    vertical_food_employees?: vertical_food_employeeCreateNestedManyWithoutClientInput
+    vertical_delivery_employees?: vertical_delivery_employeeCreateNestedManyWithoutClientInput
     restaurants?: restaurantCreateNestedManyWithoutClientInput
     notifications?: notificationCreateNestedManyWithoutClientInput
   }
 
-  export type clientUncheckedCreateWithoutVertical_food_consumersInput = {
+  export type clientUncheckedCreateWithoutvertical_delivery_consumersInput = {
     id?: string
     name: string
     client_display_id: string
@@ -40150,52 +40150,52 @@ export namespace Prisma {
     vertical_id?: string | null
     profile_pic?: string | null
     boxes?: boxUncheckedCreateNestedManyWithoutClientInput
-    vertical_food_employees?: vertical_food_employeeUncheckedCreateNestedManyWithoutClientInput
+    vertical_delivery_employees?: vertical_delivery_employeeUncheckedCreateNestedManyWithoutClientInput
     restaurants?: restaurantUncheckedCreateNestedManyWithoutClientInput
     notifications?: notificationUncheckedCreateNestedManyWithoutClientInput
   }
 
-  export type clientCreateOrConnectWithoutVertical_food_consumersInput = {
+  export type clientCreateOrConnectWithoutvertical_delivery_consumersInput = {
     where: clientWhereUniqueInput
-    create: XOR<clientCreateWithoutVertical_food_consumersInput, clientUncheckedCreateWithoutVertical_food_consumersInput>
+    create: XOR<clientCreateWithoutvertical_delivery_consumersInput, clientUncheckedCreateWithoutvertical_delivery_consumersInput>
   }
 
-  export type vertical_food_consumer_boxCreateWithoutConsumerInput = {
+  export type vertical_delivery_consumer_boxCreateWithoutConsumerInput = {
     id?: string
     created_at?: Date | string
     updated_at?: Date | string
     box: boxCreateNestedOneWithoutBoxesInput
   }
 
-  export type vertical_food_consumer_boxUncheckedCreateWithoutConsumerInput = {
+  export type vertical_delivery_consumer_boxUncheckedCreateWithoutConsumerInput = {
     id?: string
     box_id: string
     created_at?: Date | string
     updated_at?: Date | string
   }
 
-  export type vertical_food_consumer_boxCreateOrConnectWithoutConsumerInput = {
-    where: vertical_food_consumer_boxWhereUniqueInput
-    create: XOR<vertical_food_consumer_boxCreateWithoutConsumerInput, vertical_food_consumer_boxUncheckedCreateWithoutConsumerInput>
+  export type vertical_delivery_consumer_boxCreateOrConnectWithoutConsumerInput = {
+    where: vertical_delivery_consumer_boxWhereUniqueInput
+    create: XOR<vertical_delivery_consumer_boxCreateWithoutConsumerInput, vertical_delivery_consumer_boxUncheckedCreateWithoutConsumerInput>
   }
 
-  export type vertical_food_consumer_boxCreateManyConsumerInputEnvelope = {
-    data: vertical_food_consumer_boxCreateManyConsumerInput | vertical_food_consumer_boxCreateManyConsumerInput[]
+  export type vertical_delivery_consumer_boxCreateManyConsumerInputEnvelope = {
+    data: vertical_delivery_consumer_boxCreateManyConsumerInput | vertical_delivery_consumer_boxCreateManyConsumerInput[]
     skipDuplicates?: boolean
   }
 
-  export type clientUpsertWithoutVertical_food_consumersInput = {
-    update: XOR<clientUpdateWithoutVertical_food_consumersInput, clientUncheckedUpdateWithoutVertical_food_consumersInput>
-    create: XOR<clientCreateWithoutVertical_food_consumersInput, clientUncheckedCreateWithoutVertical_food_consumersInput>
+  export type clientUpsertWithoutvertical_delivery_consumersInput = {
+    update: XOR<clientUpdateWithoutvertical_delivery_consumersInput, clientUncheckedUpdateWithoutvertical_delivery_consumersInput>
+    create: XOR<clientCreateWithoutvertical_delivery_consumersInput, clientUncheckedCreateWithoutvertical_delivery_consumersInput>
     where?: clientWhereInput
   }
 
-  export type clientUpdateToOneWithWhereWithoutVertical_food_consumersInput = {
+  export type clientUpdateToOneWithWhereWithoutvertical_delivery_consumersInput = {
     where?: clientWhereInput
-    data: XOR<clientUpdateWithoutVertical_food_consumersInput, clientUncheckedUpdateWithoutVertical_food_consumersInput>
+    data: XOR<clientUpdateWithoutvertical_delivery_consumersInput, clientUncheckedUpdateWithoutvertical_delivery_consumersInput>
   }
 
-  export type clientUpdateWithoutVertical_food_consumersInput = {
+  export type clientUpdateWithoutvertical_delivery_consumersInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     client_display_id?: StringFieldUpdateOperationsInput | string
@@ -40212,12 +40212,12 @@ export namespace Prisma {
     profile_pic?: NullableStringFieldUpdateOperationsInput | string | null
     boxes?: boxUpdateManyWithoutClientNestedInput
     vertical?: verticalUpdateOneWithoutClientsNestedInput
-    vertical_food_employees?: vertical_food_employeeUpdateManyWithoutClientNestedInput
+    vertical_delivery_employees?: vertical_delivery_employeeUpdateManyWithoutClientNestedInput
     restaurants?: restaurantUpdateManyWithoutClientNestedInput
     notifications?: notificationUpdateManyWithoutClientNestedInput
   }
 
-  export type clientUncheckedUpdateWithoutVertical_food_consumersInput = {
+  export type clientUncheckedUpdateWithoutvertical_delivery_consumersInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     client_display_id?: StringFieldUpdateOperationsInput | string
@@ -40234,25 +40234,25 @@ export namespace Prisma {
     vertical_id?: NullableStringFieldUpdateOperationsInput | string | null
     profile_pic?: NullableStringFieldUpdateOperationsInput | string | null
     boxes?: boxUncheckedUpdateManyWithoutClientNestedInput
-    vertical_food_employees?: vertical_food_employeeUncheckedUpdateManyWithoutClientNestedInput
+    vertical_delivery_employees?: vertical_delivery_employeeUncheckedUpdateManyWithoutClientNestedInput
     restaurants?: restaurantUncheckedUpdateManyWithoutClientNestedInput
     notifications?: notificationUncheckedUpdateManyWithoutClientNestedInput
   }
 
-  export type vertical_food_consumer_boxUpsertWithWhereUniqueWithoutConsumerInput = {
-    where: vertical_food_consumer_boxWhereUniqueInput
-    update: XOR<vertical_food_consumer_boxUpdateWithoutConsumerInput, vertical_food_consumer_boxUncheckedUpdateWithoutConsumerInput>
-    create: XOR<vertical_food_consumer_boxCreateWithoutConsumerInput, vertical_food_consumer_boxUncheckedCreateWithoutConsumerInput>
+  export type vertical_delivery_consumer_boxUpsertWithWhereUniqueWithoutConsumerInput = {
+    where: vertical_delivery_consumer_boxWhereUniqueInput
+    update: XOR<vertical_delivery_consumer_boxUpdateWithoutConsumerInput, vertical_delivery_consumer_boxUncheckedUpdateWithoutConsumerInput>
+    create: XOR<vertical_delivery_consumer_boxCreateWithoutConsumerInput, vertical_delivery_consumer_boxUncheckedCreateWithoutConsumerInput>
   }
 
-  export type vertical_food_consumer_boxUpdateWithWhereUniqueWithoutConsumerInput = {
-    where: vertical_food_consumer_boxWhereUniqueInput
-    data: XOR<vertical_food_consumer_boxUpdateWithoutConsumerInput, vertical_food_consumer_boxUncheckedUpdateWithoutConsumerInput>
+  export type vertical_delivery_consumer_boxUpdateWithWhereUniqueWithoutConsumerInput = {
+    where: vertical_delivery_consumer_boxWhereUniqueInput
+    data: XOR<vertical_delivery_consumer_boxUpdateWithoutConsumerInput, vertical_delivery_consumer_boxUncheckedUpdateWithoutConsumerInput>
   }
 
-  export type vertical_food_consumer_boxUpdateManyWithWhereWithoutConsumerInput = {
-    where: vertical_food_consumer_boxScalarWhereInput
-    data: XOR<vertical_food_consumer_boxUpdateManyMutationInput, vertical_food_consumer_boxUncheckedUpdateManyWithoutConsumerInput>
+  export type vertical_delivery_consumer_boxUpdateManyWithWhereWithoutConsumerInput = {
+    where: vertical_delivery_consumer_boxScalarWhereInput
+    data: XOR<vertical_delivery_consumer_boxUpdateManyMutationInput, vertical_delivery_consumer_boxUncheckedUpdateManyWithoutConsumerInput>
   }
 
   export type boxCreateWithoutBoxesInput = {
@@ -40264,11 +40264,11 @@ export namespace Prisma {
     updated_at?: Date | string
     vehicle_number?: string | null
     telemetry?: box_telemetry_latestCreateNestedOneWithoutBoxInput
-    connection_employee?: vertical_food_employeeCreateNestedOneWithoutConnected_boxesInput
+    connection_employee?: vertical_delivery_employeeCreateNestedOneWithoutConnected_boxesInput
     client?: clientCreateNestedOneWithoutBoxesInput
     vertical?: verticalCreateNestedOneWithoutBoxesInput
     lock?: box_lockCreateNestedOneWithoutBoxInput
-    vertical_food_employee_boxes?: vertical_food_employee_boxCreateNestedManyWithoutBoxInput
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxCreateNestedManyWithoutBoxInput
     restaurant_boxes?: restaurant_boxCreateNestedManyWithoutBoxInput
   }
 
@@ -40285,7 +40285,7 @@ export namespace Prisma {
     connection_employee_id?: string | null
     telemetry?: box_telemetry_latestUncheckedCreateNestedOneWithoutBoxInput
     lock?: box_lockUncheckedCreateNestedOneWithoutBoxInput
-    vertical_food_employee_boxes?: vertical_food_employee_boxUncheckedCreateNestedManyWithoutBoxInput
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxUncheckedCreateNestedManyWithoutBoxInput
     restaurant_boxes?: restaurant_boxUncheckedCreateNestedManyWithoutBoxInput
   }
 
@@ -40294,31 +40294,31 @@ export namespace Prisma {
     create: XOR<boxCreateWithoutBoxesInput, boxUncheckedCreateWithoutBoxesInput>
   }
 
-  export type vertical_food_consumerCreateWithoutBoxesInput = {
+  export type vertical_delivery_consumerCreateWithoutBoxesInput = {
     id?: string
     full_name: string
     country_code: string
     phone: string
-    status?: $Enums.food_consumer_status
+    status?: $Enums.delivery_consumer_status
     created_at?: Date | string
     updated_at?: Date | string
-    client?: clientCreateNestedOneWithoutVertical_food_consumersInput
+    client?: clientCreateNestedOneWithoutvertical_delivery_consumersInput
   }
 
-  export type vertical_food_consumerUncheckedCreateWithoutBoxesInput = {
+  export type vertical_delivery_consumerUncheckedCreateWithoutBoxesInput = {
     id?: string
     full_name: string
     country_code: string
     phone: string
-    status?: $Enums.food_consumer_status
+    status?: $Enums.delivery_consumer_status
     client_id?: string | null
     created_at?: Date | string
     updated_at?: Date | string
   }
 
-  export type vertical_food_consumerCreateOrConnectWithoutBoxesInput = {
-    where: vertical_food_consumerWhereUniqueInput
-    create: XOR<vertical_food_consumerCreateWithoutBoxesInput, vertical_food_consumerUncheckedCreateWithoutBoxesInput>
+  export type vertical_delivery_consumerCreateOrConnectWithoutBoxesInput = {
+    where: vertical_delivery_consumerWhereUniqueInput
+    create: XOR<vertical_delivery_consumerCreateWithoutBoxesInput, vertical_delivery_consumerUncheckedCreateWithoutBoxesInput>
   }
 
   export type boxUpsertWithoutBoxesInput = {
@@ -40341,11 +40341,11 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     vehicle_number?: NullableStringFieldUpdateOperationsInput | string | null
     telemetry?: box_telemetry_latestUpdateOneWithoutBoxNestedInput
-    connection_employee?: vertical_food_employeeUpdateOneWithoutConnected_boxesNestedInput
+    connection_employee?: vertical_delivery_employeeUpdateOneWithoutConnected_boxesNestedInput
     client?: clientUpdateOneWithoutBoxesNestedInput
     vertical?: verticalUpdateOneWithoutBoxesNestedInput
     lock?: box_lockUpdateOneWithoutBoxNestedInput
-    vertical_food_employee_boxes?: vertical_food_employee_boxUpdateManyWithoutBoxNestedInput
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxUpdateManyWithoutBoxNestedInput
     restaurant_boxes?: restaurant_boxUpdateManyWithoutBoxNestedInput
   }
 
@@ -40362,38 +40362,38 @@ export namespace Prisma {
     connection_employee_id?: NullableStringFieldUpdateOperationsInput | string | null
     telemetry?: box_telemetry_latestUncheckedUpdateOneWithoutBoxNestedInput
     lock?: box_lockUncheckedUpdateOneWithoutBoxNestedInput
-    vertical_food_employee_boxes?: vertical_food_employee_boxUncheckedUpdateManyWithoutBoxNestedInput
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxUncheckedUpdateManyWithoutBoxNestedInput
     restaurant_boxes?: restaurant_boxUncheckedUpdateManyWithoutBoxNestedInput
   }
 
-  export type vertical_food_consumerUpsertWithoutBoxesInput = {
-    update: XOR<vertical_food_consumerUpdateWithoutBoxesInput, vertical_food_consumerUncheckedUpdateWithoutBoxesInput>
-    create: XOR<vertical_food_consumerCreateWithoutBoxesInput, vertical_food_consumerUncheckedCreateWithoutBoxesInput>
-    where?: vertical_food_consumerWhereInput
+  export type vertical_delivery_consumerUpsertWithoutBoxesInput = {
+    update: XOR<vertical_delivery_consumerUpdateWithoutBoxesInput, vertical_delivery_consumerUncheckedUpdateWithoutBoxesInput>
+    create: XOR<vertical_delivery_consumerCreateWithoutBoxesInput, vertical_delivery_consumerUncheckedCreateWithoutBoxesInput>
+    where?: vertical_delivery_consumerWhereInput
   }
 
-  export type vertical_food_consumerUpdateToOneWithWhereWithoutBoxesInput = {
-    where?: vertical_food_consumerWhereInput
-    data: XOR<vertical_food_consumerUpdateWithoutBoxesInput, vertical_food_consumerUncheckedUpdateWithoutBoxesInput>
+  export type vertical_delivery_consumerUpdateToOneWithWhereWithoutBoxesInput = {
+    where?: vertical_delivery_consumerWhereInput
+    data: XOR<vertical_delivery_consumerUpdateWithoutBoxesInput, vertical_delivery_consumerUncheckedUpdateWithoutBoxesInput>
   }
 
-  export type vertical_food_consumerUpdateWithoutBoxesInput = {
+  export type vertical_delivery_consumerUpdateWithoutBoxesInput = {
     id?: StringFieldUpdateOperationsInput | string
     full_name?: StringFieldUpdateOperationsInput | string
     country_code?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
-    status?: Enumfood_consumer_statusFieldUpdateOperationsInput | $Enums.food_consumer_status
+    status?: Enumdelivery_consumer_statusFieldUpdateOperationsInput | $Enums.delivery_consumer_status
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    client?: clientUpdateOneWithoutVertical_food_consumersNestedInput
+    client?: clientUpdateOneWithoutvertical_delivery_consumersNestedInput
   }
 
-  export type vertical_food_consumerUncheckedUpdateWithoutBoxesInput = {
+  export type vertical_delivery_consumerUncheckedUpdateWithoutBoxesInput = {
     id?: StringFieldUpdateOperationsInput | string
     full_name?: StringFieldUpdateOperationsInput | string
     country_code?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
-    status?: Enumfood_consumer_statusFieldUpdateOperationsInput | $Enums.food_consumer_status
+    status?: Enumdelivery_consumer_statusFieldUpdateOperationsInput | $Enums.delivery_consumer_status
     client_id?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -40408,11 +40408,11 @@ export namespace Prisma {
     updated_at?: Date | string
     vehicle_number?: string | null
     telemetry?: box_telemetry_latestCreateNestedOneWithoutBoxInput
-    connection_employee?: vertical_food_employeeCreateNestedOneWithoutConnected_boxesInput
+    connection_employee?: vertical_delivery_employeeCreateNestedOneWithoutConnected_boxesInput
     client?: clientCreateNestedOneWithoutBoxesInput
     vertical?: verticalCreateNestedOneWithoutBoxesInput
-    boxes?: vertical_food_consumer_boxCreateNestedManyWithoutBoxInput
-    vertical_food_employee_boxes?: vertical_food_employee_boxCreateNestedManyWithoutBoxInput
+    boxes?: vertical_delivery_consumer_boxCreateNestedManyWithoutBoxInput
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxCreateNestedManyWithoutBoxInput
     restaurant_boxes?: restaurant_boxCreateNestedManyWithoutBoxInput
   }
 
@@ -40428,8 +40428,8 @@ export namespace Prisma {
     vehicle_number?: string | null
     connection_employee_id?: string | null
     telemetry?: box_telemetry_latestUncheckedCreateNestedOneWithoutBoxInput
-    boxes?: vertical_food_consumer_boxUncheckedCreateNestedManyWithoutBoxInput
-    vertical_food_employee_boxes?: vertical_food_employee_boxUncheckedCreateNestedManyWithoutBoxInput
+    boxes?: vertical_delivery_consumer_boxUncheckedCreateNestedManyWithoutBoxInput
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxUncheckedCreateNestedManyWithoutBoxInput
     restaurant_boxes?: restaurant_boxUncheckedCreateNestedManyWithoutBoxInput
   }
 
@@ -40458,11 +40458,11 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     vehicle_number?: NullableStringFieldUpdateOperationsInput | string | null
     telemetry?: box_telemetry_latestUpdateOneWithoutBoxNestedInput
-    connection_employee?: vertical_food_employeeUpdateOneWithoutConnected_boxesNestedInput
+    connection_employee?: vertical_delivery_employeeUpdateOneWithoutConnected_boxesNestedInput
     client?: clientUpdateOneWithoutBoxesNestedInput
     vertical?: verticalUpdateOneWithoutBoxesNestedInput
-    boxes?: vertical_food_consumer_boxUpdateManyWithoutBoxNestedInput
-    vertical_food_employee_boxes?: vertical_food_employee_boxUpdateManyWithoutBoxNestedInput
+    boxes?: vertical_delivery_consumer_boxUpdateManyWithoutBoxNestedInput
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxUpdateManyWithoutBoxNestedInput
     restaurant_boxes?: restaurant_boxUpdateManyWithoutBoxNestedInput
   }
 
@@ -40478,8 +40478,8 @@ export namespace Prisma {
     vehicle_number?: NullableStringFieldUpdateOperationsInput | string | null
     connection_employee_id?: NullableStringFieldUpdateOperationsInput | string | null
     telemetry?: box_telemetry_latestUncheckedUpdateOneWithoutBoxNestedInput
-    boxes?: vertical_food_consumer_boxUncheckedUpdateManyWithoutBoxNestedInput
-    vertical_food_employee_boxes?: vertical_food_employee_boxUncheckedUpdateManyWithoutBoxNestedInput
+    boxes?: vertical_delivery_consumer_boxUncheckedUpdateManyWithoutBoxNestedInput
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxUncheckedUpdateManyWithoutBoxNestedInput
     restaurant_boxes?: restaurant_boxUncheckedUpdateManyWithoutBoxNestedInput
   }
 
@@ -40500,8 +40500,8 @@ export namespace Prisma {
     profile_pic?: string | null
     boxes?: boxCreateNestedManyWithoutClientInput
     vertical?: verticalCreateNestedOneWithoutClientsInput
-    vertical_food_consumers?: vertical_food_consumerCreateNestedManyWithoutClientInput
-    vertical_food_employees?: vertical_food_employeeCreateNestedManyWithoutClientInput
+    vertical_delivery_consumers?: vertical_delivery_consumerCreateNestedManyWithoutClientInput
+    vertical_delivery_employees?: vertical_delivery_employeeCreateNestedManyWithoutClientInput
     restaurants?: restaurantCreateNestedManyWithoutClientInput
   }
 
@@ -40522,8 +40522,8 @@ export namespace Prisma {
     vertical_id?: string | null
     profile_pic?: string | null
     boxes?: boxUncheckedCreateNestedManyWithoutClientInput
-    vertical_food_consumers?: vertical_food_consumerUncheckedCreateNestedManyWithoutClientInput
-    vertical_food_employees?: vertical_food_employeeUncheckedCreateNestedManyWithoutClientInput
+    vertical_delivery_consumers?: vertical_delivery_consumerUncheckedCreateNestedManyWithoutClientInput
+    vertical_delivery_employees?: vertical_delivery_employeeUncheckedCreateNestedManyWithoutClientInput
     restaurants?: restaurantUncheckedCreateNestedManyWithoutClientInput
   }
 
@@ -40560,8 +40560,8 @@ export namespace Prisma {
     profile_pic?: NullableStringFieldUpdateOperationsInput | string | null
     boxes?: boxUpdateManyWithoutClientNestedInput
     vertical?: verticalUpdateOneWithoutClientsNestedInput
-    vertical_food_consumers?: vertical_food_consumerUpdateManyWithoutClientNestedInput
-    vertical_food_employees?: vertical_food_employeeUpdateManyWithoutClientNestedInput
+    vertical_delivery_consumers?: vertical_delivery_consumerUpdateManyWithoutClientNestedInput
+    vertical_delivery_employees?: vertical_delivery_employeeUpdateManyWithoutClientNestedInput
     restaurants?: restaurantUpdateManyWithoutClientNestedInput
   }
 
@@ -40582,8 +40582,8 @@ export namespace Prisma {
     vertical_id?: NullableStringFieldUpdateOperationsInput | string | null
     profile_pic?: NullableStringFieldUpdateOperationsInput | string | null
     boxes?: boxUncheckedUpdateManyWithoutClientNestedInput
-    vertical_food_consumers?: vertical_food_consumerUncheckedUpdateManyWithoutClientNestedInput
-    vertical_food_employees?: vertical_food_employeeUncheckedUpdateManyWithoutClientNestedInput
+    vertical_delivery_consumers?: vertical_delivery_consumerUncheckedUpdateManyWithoutClientNestedInput
+    vertical_delivery_employees?: vertical_delivery_employeeUncheckedUpdateManyWithoutClientNestedInput
     restaurants?: restaurantUncheckedUpdateManyWithoutClientNestedInput
   }
 
@@ -40595,12 +40595,12 @@ export namespace Prisma {
     created_at?: Date | string
     updated_at?: Date | string
     vehicle_number?: string | null
-    connection_employee?: vertical_food_employeeCreateNestedOneWithoutConnected_boxesInput
+    connection_employee?: vertical_delivery_employeeCreateNestedOneWithoutConnected_boxesInput
     client?: clientCreateNestedOneWithoutBoxesInput
     vertical?: verticalCreateNestedOneWithoutBoxesInput
     lock?: box_lockCreateNestedOneWithoutBoxInput
-    boxes?: vertical_food_consumer_boxCreateNestedManyWithoutBoxInput
-    vertical_food_employee_boxes?: vertical_food_employee_boxCreateNestedManyWithoutBoxInput
+    boxes?: vertical_delivery_consumer_boxCreateNestedManyWithoutBoxInput
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxCreateNestedManyWithoutBoxInput
     restaurant_boxes?: restaurant_boxCreateNestedManyWithoutBoxInput
   }
 
@@ -40616,8 +40616,8 @@ export namespace Prisma {
     vehicle_number?: string | null
     connection_employee_id?: string | null
     lock?: box_lockUncheckedCreateNestedOneWithoutBoxInput
-    boxes?: vertical_food_consumer_boxUncheckedCreateNestedManyWithoutBoxInput
-    vertical_food_employee_boxes?: vertical_food_employee_boxUncheckedCreateNestedManyWithoutBoxInput
+    boxes?: vertical_delivery_consumer_boxUncheckedCreateNestedManyWithoutBoxInput
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxUncheckedCreateNestedManyWithoutBoxInput
     restaurant_boxes?: restaurant_boxUncheckedCreateNestedManyWithoutBoxInput
   }
 
@@ -40645,12 +40645,12 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     vehicle_number?: NullableStringFieldUpdateOperationsInput | string | null
-    connection_employee?: vertical_food_employeeUpdateOneWithoutConnected_boxesNestedInput
+    connection_employee?: vertical_delivery_employeeUpdateOneWithoutConnected_boxesNestedInput
     client?: clientUpdateOneWithoutBoxesNestedInput
     vertical?: verticalUpdateOneWithoutBoxesNestedInput
     lock?: box_lockUpdateOneWithoutBoxNestedInput
-    boxes?: vertical_food_consumer_boxUpdateManyWithoutBoxNestedInput
-    vertical_food_employee_boxes?: vertical_food_employee_boxUpdateManyWithoutBoxNestedInput
+    boxes?: vertical_delivery_consumer_boxUpdateManyWithoutBoxNestedInput
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxUpdateManyWithoutBoxNestedInput
     restaurant_boxes?: restaurant_boxUpdateManyWithoutBoxNestedInput
   }
 
@@ -40666,8 +40666,8 @@ export namespace Prisma {
     vehicle_number?: NullableStringFieldUpdateOperationsInput | string | null
     connection_employee_id?: NullableStringFieldUpdateOperationsInput | string | null
     lock?: box_lockUncheckedUpdateOneWithoutBoxNestedInput
-    boxes?: vertical_food_consumer_boxUncheckedUpdateManyWithoutBoxNestedInput
-    vertical_food_employee_boxes?: vertical_food_employee_boxUncheckedUpdateManyWithoutBoxNestedInput
+    boxes?: vertical_delivery_consumer_boxUncheckedUpdateManyWithoutBoxNestedInput
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxUncheckedUpdateManyWithoutBoxNestedInput
     restaurant_boxes?: restaurant_boxUncheckedUpdateManyWithoutBoxNestedInput
   }
 
@@ -40771,11 +40771,11 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     vehicle_number?: NullableStringFieldUpdateOperationsInput | string | null
     telemetry?: box_telemetry_latestUpdateOneWithoutBoxNestedInput
-    connection_employee?: vertical_food_employeeUpdateOneWithoutConnected_boxesNestedInput
+    connection_employee?: vertical_delivery_employeeUpdateOneWithoutConnected_boxesNestedInput
     client?: clientUpdateOneWithoutBoxesNestedInput
     lock?: box_lockUpdateOneWithoutBoxNestedInput
-    boxes?: vertical_food_consumer_boxUpdateManyWithoutBoxNestedInput
-    vertical_food_employee_boxes?: vertical_food_employee_boxUpdateManyWithoutBoxNestedInput
+    boxes?: vertical_delivery_consumer_boxUpdateManyWithoutBoxNestedInput
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxUpdateManyWithoutBoxNestedInput
     restaurant_boxes?: restaurant_boxUpdateManyWithoutBoxNestedInput
   }
 
@@ -40791,8 +40791,8 @@ export namespace Prisma {
     connection_employee_id?: NullableStringFieldUpdateOperationsInput | string | null
     telemetry?: box_telemetry_latestUncheckedUpdateOneWithoutBoxNestedInput
     lock?: box_lockUncheckedUpdateOneWithoutBoxNestedInput
-    boxes?: vertical_food_consumer_boxUncheckedUpdateManyWithoutBoxNestedInput
-    vertical_food_employee_boxes?: vertical_food_employee_boxUncheckedUpdateManyWithoutBoxNestedInput
+    boxes?: vertical_delivery_consumer_boxUncheckedUpdateManyWithoutBoxNestedInput
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxUncheckedUpdateManyWithoutBoxNestedInput
     restaurant_boxes?: restaurant_boxUncheckedUpdateManyWithoutBoxNestedInput
   }
 
@@ -40824,8 +40824,8 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     profile_pic?: NullableStringFieldUpdateOperationsInput | string | null
     boxes?: boxUpdateManyWithoutClientNestedInput
-    vertical_food_consumers?: vertical_food_consumerUpdateManyWithoutClientNestedInput
-    vertical_food_employees?: vertical_food_employeeUpdateManyWithoutClientNestedInput
+    vertical_delivery_consumers?: vertical_delivery_consumerUpdateManyWithoutClientNestedInput
+    vertical_delivery_employees?: vertical_delivery_employeeUpdateManyWithoutClientNestedInput
     restaurants?: restaurantUpdateManyWithoutClientNestedInput
     notifications?: notificationUpdateManyWithoutClientNestedInput
   }
@@ -40846,8 +40846,8 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     profile_pic?: NullableStringFieldUpdateOperationsInput | string | null
     boxes?: boxUncheckedUpdateManyWithoutClientNestedInput
-    vertical_food_consumers?: vertical_food_consumerUncheckedUpdateManyWithoutClientNestedInput
-    vertical_food_employees?: vertical_food_employeeUncheckedUpdateManyWithoutClientNestedInput
+    vertical_delivery_consumers?: vertical_delivery_consumerUncheckedUpdateManyWithoutClientNestedInput
+    vertical_delivery_employees?: vertical_delivery_employeeUncheckedUpdateManyWithoutClientNestedInput
     restaurants?: restaurantUncheckedUpdateManyWithoutClientNestedInput
     notifications?: notificationUncheckedUpdateManyWithoutClientNestedInput
   }
@@ -40919,17 +40919,17 @@ export namespace Prisma {
     connection_employee_id?: string | null
   }
 
-  export type vertical_food_consumerCreateManyClientInput = {
+  export type vertical_delivery_consumerCreateManyClientInput = {
     id?: string
     full_name: string
     country_code: string
     phone: string
-    status?: $Enums.food_consumer_status
+    status?: $Enums.delivery_consumer_status
     created_at?: Date | string
     updated_at?: Date | string
   }
 
-  export type vertical_food_employeeCreateManyClientInput = {
+  export type vertical_delivery_employeeCreateManyClientInput = {
     id?: string
     first_name: string
     last_name: string
@@ -40987,11 +40987,11 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     vehicle_number?: NullableStringFieldUpdateOperationsInput | string | null
     telemetry?: box_telemetry_latestUpdateOneWithoutBoxNestedInput
-    connection_employee?: vertical_food_employeeUpdateOneWithoutConnected_boxesNestedInput
+    connection_employee?: vertical_delivery_employeeUpdateOneWithoutConnected_boxesNestedInput
     vertical?: verticalUpdateOneWithoutBoxesNestedInput
     lock?: box_lockUpdateOneWithoutBoxNestedInput
-    boxes?: vertical_food_consumer_boxUpdateManyWithoutBoxNestedInput
-    vertical_food_employee_boxes?: vertical_food_employee_boxUpdateManyWithoutBoxNestedInput
+    boxes?: vertical_delivery_consumer_boxUpdateManyWithoutBoxNestedInput
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxUpdateManyWithoutBoxNestedInput
     restaurant_boxes?: restaurant_boxUpdateManyWithoutBoxNestedInput
   }
 
@@ -41007,8 +41007,8 @@ export namespace Prisma {
     connection_employee_id?: NullableStringFieldUpdateOperationsInput | string | null
     telemetry?: box_telemetry_latestUncheckedUpdateOneWithoutBoxNestedInput
     lock?: box_lockUncheckedUpdateOneWithoutBoxNestedInput
-    boxes?: vertical_food_consumer_boxUncheckedUpdateManyWithoutBoxNestedInput
-    vertical_food_employee_boxes?: vertical_food_employee_boxUncheckedUpdateManyWithoutBoxNestedInput
+    boxes?: vertical_delivery_consumer_boxUncheckedUpdateManyWithoutBoxNestedInput
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxUncheckedUpdateManyWithoutBoxNestedInput
     restaurant_boxes?: restaurant_boxUncheckedUpdateManyWithoutBoxNestedInput
   }
 
@@ -41024,39 +41024,39 @@ export namespace Prisma {
     connection_employee_id?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
-  export type vertical_food_consumerUpdateWithoutClientInput = {
+  export type vertical_delivery_consumerUpdateWithoutClientInput = {
     id?: StringFieldUpdateOperationsInput | string
     full_name?: StringFieldUpdateOperationsInput | string
     country_code?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
-    status?: Enumfood_consumer_statusFieldUpdateOperationsInput | $Enums.food_consumer_status
+    status?: Enumdelivery_consumer_statusFieldUpdateOperationsInput | $Enums.delivery_consumer_status
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    boxes?: vertical_food_consumer_boxUpdateManyWithoutConsumerNestedInput
+    boxes?: vertical_delivery_consumer_boxUpdateManyWithoutConsumerNestedInput
   }
 
-  export type vertical_food_consumerUncheckedUpdateWithoutClientInput = {
+  export type vertical_delivery_consumerUncheckedUpdateWithoutClientInput = {
     id?: StringFieldUpdateOperationsInput | string
     full_name?: StringFieldUpdateOperationsInput | string
     country_code?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
-    status?: Enumfood_consumer_statusFieldUpdateOperationsInput | $Enums.food_consumer_status
+    status?: Enumdelivery_consumer_statusFieldUpdateOperationsInput | $Enums.delivery_consumer_status
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    boxes?: vertical_food_consumer_boxUncheckedUpdateManyWithoutConsumerNestedInput
+    boxes?: vertical_delivery_consumer_boxUncheckedUpdateManyWithoutConsumerNestedInput
   }
 
-  export type vertical_food_consumerUncheckedUpdateManyWithoutClientInput = {
+  export type vertical_delivery_consumerUncheckedUpdateManyWithoutClientInput = {
     id?: StringFieldUpdateOperationsInput | string
     full_name?: StringFieldUpdateOperationsInput | string
     country_code?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
-    status?: Enumfood_consumer_statusFieldUpdateOperationsInput | $Enums.food_consumer_status
+    status?: Enumdelivery_consumer_statusFieldUpdateOperationsInput | $Enums.delivery_consumer_status
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type vertical_food_employeeUpdateWithoutClientInput = {
+  export type vertical_delivery_employeeUpdateWithoutClientInput = {
     id?: StringFieldUpdateOperationsInput | string
     first_name?: StringFieldUpdateOperationsInput | string
     last_name?: StringFieldUpdateOperationsInput | string
@@ -41073,10 +41073,10 @@ export namespace Prisma {
     profile_pic?: NullableStringFieldUpdateOperationsInput | string | null
     connected_boxes?: boxUpdateManyWithoutConnection_employeeNestedInput
     restaurant?: restaurantUpdateOneWithoutEmployeesNestedInput
-    vertical_food_employee_boxes?: vertical_food_employee_boxUpdateManyWithoutEmployeeNestedInput
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxUpdateManyWithoutEmployeeNestedInput
   }
 
-  export type vertical_food_employeeUncheckedUpdateWithoutClientInput = {
+  export type vertical_delivery_employeeUncheckedUpdateWithoutClientInput = {
     id?: StringFieldUpdateOperationsInput | string
     first_name?: StringFieldUpdateOperationsInput | string
     last_name?: StringFieldUpdateOperationsInput | string
@@ -41093,10 +41093,10 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     profile_pic?: NullableStringFieldUpdateOperationsInput | string | null
     connected_boxes?: boxUncheckedUpdateManyWithoutConnection_employeeNestedInput
-    vertical_food_employee_boxes?: vertical_food_employee_boxUncheckedUpdateManyWithoutEmployeeNestedInput
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxUncheckedUpdateManyWithoutEmployeeNestedInput
   }
 
-  export type vertical_food_employeeUncheckedUpdateManyWithoutClientInput = {
+  export type vertical_delivery_employeeUncheckedUpdateManyWithoutClientInput = {
     id?: StringFieldUpdateOperationsInput | string
     first_name?: StringFieldUpdateOperationsInput | string
     last_name?: StringFieldUpdateOperationsInput | string
@@ -41128,7 +41128,7 @@ export namespace Prisma {
     pincode?: NullableStringFieldUpdateOperationsInput | string | null
     state?: NullableStringFieldUpdateOperationsInput | string | null
     status?: Enumrestaurant_statusFieldUpdateOperationsInput | $Enums.restaurant_status
-    employees?: vertical_food_employeeUpdateManyWithoutRestaurantNestedInput
+    employees?: vertical_delivery_employeeUpdateManyWithoutRestaurantNestedInput
     restaurant_boxes?: restaurant_boxUpdateManyWithoutRestaurantNestedInput
   }
 
@@ -41146,7 +41146,7 @@ export namespace Prisma {
     pincode?: NullableStringFieldUpdateOperationsInput | string | null
     state?: NullableStringFieldUpdateOperationsInput | string | null
     status?: Enumrestaurant_statusFieldUpdateOperationsInput | $Enums.restaurant_status
-    employees?: vertical_food_employeeUncheckedUpdateManyWithoutRestaurantNestedInput
+    employees?: vertical_delivery_employeeUncheckedUpdateManyWithoutRestaurantNestedInput
     restaurant_boxes?: restaurant_boxUncheckedUpdateManyWithoutRestaurantNestedInput
   }
 
@@ -41335,14 +41335,14 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type vertical_food_consumer_boxCreateManyBoxInput = {
+  export type vertical_delivery_consumer_boxCreateManyBoxInput = {
     id?: string
     consumer_id: string
     created_at?: Date | string
     updated_at?: Date | string
   }
 
-  export type vertical_food_employee_boxCreateManyBoxInput = {
+  export type vertical_delivery_employee_boxCreateManyBoxInput = {
     id?: string
     employee_id?: string | null
     created_at?: Date | string
@@ -41359,37 +41359,37 @@ export namespace Prisma {
     status?: $Enums.restaurant_box_status
   }
 
-  export type vertical_food_consumer_boxUpdateWithoutBoxInput = {
+  export type vertical_delivery_consumer_boxUpdateWithoutBoxInput = {
     id?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    consumer?: vertical_food_consumerUpdateOneRequiredWithoutBoxesNestedInput
+    consumer?: vertical_delivery_consumerUpdateOneRequiredWithoutBoxesNestedInput
   }
 
-  export type vertical_food_consumer_boxUncheckedUpdateWithoutBoxInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    consumer_id?: StringFieldUpdateOperationsInput | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type vertical_food_consumer_boxUncheckedUpdateManyWithoutBoxInput = {
+  export type vertical_delivery_consumer_boxUncheckedUpdateWithoutBoxInput = {
     id?: StringFieldUpdateOperationsInput | string
     consumer_id?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type vertical_food_employee_boxUpdateWithoutBoxInput = {
+  export type vertical_delivery_consumer_boxUncheckedUpdateManyWithoutBoxInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    consumer_id?: StringFieldUpdateOperationsInput | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type vertical_delivery_employee_boxUpdateWithoutBoxInput = {
     id?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: Enumemployee_box_statusFieldUpdateOperationsInput | $Enums.employee_box_status
     access?: Enumemployee_box_accessFieldUpdateOperationsInput | $Enums.employee_box_access
-    employee?: vertical_food_employeeUpdateOneWithoutVertical_food_employee_boxesNestedInput
+    employee?: vertical_delivery_employeeUpdateOneWithoutvertical_delivery_employee_boxesNestedInput
   }
 
-  export type vertical_food_employee_boxUncheckedUpdateWithoutBoxInput = {
+  export type vertical_delivery_employee_boxUncheckedUpdateWithoutBoxInput = {
     id?: StringFieldUpdateOperationsInput | string
     employee_id?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -41398,7 +41398,7 @@ export namespace Prisma {
     access?: Enumemployee_box_accessFieldUpdateOperationsInput | $Enums.employee_box_access
   }
 
-  export type vertical_food_employee_boxUncheckedUpdateManyWithoutBoxInput = {
+  export type vertical_delivery_employee_boxUncheckedUpdateManyWithoutBoxInput = {
     id?: StringFieldUpdateOperationsInput | string
     employee_id?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -41431,7 +41431,7 @@ export namespace Prisma {
     status?: Enumrestaurant_box_statusFieldUpdateOperationsInput | $Enums.restaurant_box_status
   }
 
-  export type vertical_food_employeeCreateManyRestaurantInput = {
+  export type vertical_delivery_employeeCreateManyRestaurantInput = {
     id?: string
     first_name: string
     last_name: string
@@ -41457,7 +41457,7 @@ export namespace Prisma {
     status?: $Enums.restaurant_box_status
   }
 
-  export type vertical_food_employeeUpdateWithoutRestaurantInput = {
+  export type vertical_delivery_employeeUpdateWithoutRestaurantInput = {
     id?: StringFieldUpdateOperationsInput | string
     first_name?: StringFieldUpdateOperationsInput | string
     last_name?: StringFieldUpdateOperationsInput | string
@@ -41473,11 +41473,11 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     profile_pic?: NullableStringFieldUpdateOperationsInput | string | null
     connected_boxes?: boxUpdateManyWithoutConnection_employeeNestedInput
-    client?: clientUpdateOneWithoutVertical_food_employeesNestedInput
-    vertical_food_employee_boxes?: vertical_food_employee_boxUpdateManyWithoutEmployeeNestedInput
+    client?: clientUpdateOneWithoutvertical_delivery_employeesNestedInput
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxUpdateManyWithoutEmployeeNestedInput
   }
 
-  export type vertical_food_employeeUncheckedUpdateWithoutRestaurantInput = {
+  export type vertical_delivery_employeeUncheckedUpdateWithoutRestaurantInput = {
     id?: StringFieldUpdateOperationsInput | string
     first_name?: StringFieldUpdateOperationsInput | string
     last_name?: StringFieldUpdateOperationsInput | string
@@ -41494,10 +41494,10 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     profile_pic?: NullableStringFieldUpdateOperationsInput | string | null
     connected_boxes?: boxUncheckedUpdateManyWithoutConnection_employeeNestedInput
-    vertical_food_employee_boxes?: vertical_food_employee_boxUncheckedUpdateManyWithoutEmployeeNestedInput
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxUncheckedUpdateManyWithoutEmployeeNestedInput
   }
 
-  export type vertical_food_employeeUncheckedUpdateManyWithoutRestaurantInput = {
+  export type vertical_delivery_employeeUncheckedUpdateManyWithoutRestaurantInput = {
     id?: StringFieldUpdateOperationsInput | string
     first_name?: StringFieldUpdateOperationsInput | string
     last_name?: StringFieldUpdateOperationsInput | string
@@ -41551,7 +41551,7 @@ export namespace Prisma {
     vehicle_number?: string | null
   }
 
-  export type vertical_food_employee_boxCreateManyEmployeeInput = {
+  export type vertical_delivery_employee_boxCreateManyEmployeeInput = {
     id?: string
     box_id: string
     created_at?: Date | string
@@ -41572,8 +41572,8 @@ export namespace Prisma {
     client?: clientUpdateOneWithoutBoxesNestedInput
     vertical?: verticalUpdateOneWithoutBoxesNestedInput
     lock?: box_lockUpdateOneWithoutBoxNestedInput
-    boxes?: vertical_food_consumer_boxUpdateManyWithoutBoxNestedInput
-    vertical_food_employee_boxes?: vertical_food_employee_boxUpdateManyWithoutBoxNestedInput
+    boxes?: vertical_delivery_consumer_boxUpdateManyWithoutBoxNestedInput
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxUpdateManyWithoutBoxNestedInput
     restaurant_boxes?: restaurant_boxUpdateManyWithoutBoxNestedInput
   }
 
@@ -41589,8 +41589,8 @@ export namespace Prisma {
     vehicle_number?: NullableStringFieldUpdateOperationsInput | string | null
     telemetry?: box_telemetry_latestUncheckedUpdateOneWithoutBoxNestedInput
     lock?: box_lockUncheckedUpdateOneWithoutBoxNestedInput
-    boxes?: vertical_food_consumer_boxUncheckedUpdateManyWithoutBoxNestedInput
-    vertical_food_employee_boxes?: vertical_food_employee_boxUncheckedUpdateManyWithoutBoxNestedInput
+    boxes?: vertical_delivery_consumer_boxUncheckedUpdateManyWithoutBoxNestedInput
+    vertical_delivery_employee_boxes?: vertical_delivery_employee_boxUncheckedUpdateManyWithoutBoxNestedInput
     restaurant_boxes?: restaurant_boxUncheckedUpdateManyWithoutBoxNestedInput
   }
 
@@ -41606,25 +41606,16 @@ export namespace Prisma {
     vehicle_number?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
-  export type vertical_food_employee_boxUpdateWithoutEmployeeInput = {
+  export type vertical_delivery_employee_boxUpdateWithoutEmployeeInput = {
     id?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: Enumemployee_box_statusFieldUpdateOperationsInput | $Enums.employee_box_status
     access?: Enumemployee_box_accessFieldUpdateOperationsInput | $Enums.employee_box_access
-    box?: boxUpdateOneRequiredWithoutVertical_food_employee_boxesNestedInput
+    box?: boxUpdateOneRequiredWithoutvertical_delivery_employee_boxesNestedInput
   }
 
-  export type vertical_food_employee_boxUncheckedUpdateWithoutEmployeeInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    box_id?: StringFieldUpdateOperationsInput | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    status?: Enumemployee_box_statusFieldUpdateOperationsInput | $Enums.employee_box_status
-    access?: Enumemployee_box_accessFieldUpdateOperationsInput | $Enums.employee_box_access
-  }
-
-  export type vertical_food_employee_boxUncheckedUpdateManyWithoutEmployeeInput = {
+  export type vertical_delivery_employee_boxUncheckedUpdateWithoutEmployeeInput = {
     id?: StringFieldUpdateOperationsInput | string
     box_id?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -41633,28 +41624,37 @@ export namespace Prisma {
     access?: Enumemployee_box_accessFieldUpdateOperationsInput | $Enums.employee_box_access
   }
 
-  export type vertical_food_consumer_boxCreateManyConsumerInput = {
+  export type vertical_delivery_employee_boxUncheckedUpdateManyWithoutEmployeeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    box_id?: StringFieldUpdateOperationsInput | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: Enumemployee_box_statusFieldUpdateOperationsInput | $Enums.employee_box_status
+    access?: Enumemployee_box_accessFieldUpdateOperationsInput | $Enums.employee_box_access
+  }
+
+  export type vertical_delivery_consumer_boxCreateManyConsumerInput = {
     id?: string
     box_id: string
     created_at?: Date | string
     updated_at?: Date | string
   }
 
-  export type vertical_food_consumer_boxUpdateWithoutConsumerInput = {
+  export type vertical_delivery_consumer_boxUpdateWithoutConsumerInput = {
     id?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     box?: boxUpdateOneRequiredWithoutBoxesNestedInput
   }
 
-  export type vertical_food_consumer_boxUncheckedUpdateWithoutConsumerInput = {
+  export type vertical_delivery_consumer_boxUncheckedUpdateWithoutConsumerInput = {
     id?: StringFieldUpdateOperationsInput | string
     box_id?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type vertical_food_consumer_boxUncheckedUpdateManyWithoutConsumerInput = {
+  export type vertical_delivery_consumer_boxUncheckedUpdateManyWithoutConsumerInput = {
     id?: StringFieldUpdateOperationsInput | string
     box_id?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string

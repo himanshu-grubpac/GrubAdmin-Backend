@@ -29,10 +29,8 @@ function getPrismaInstance(): PrismaClient {
 		adapter: newAdapter,
 	});
 
-	if (process.env.NODE_ENV !== "production") {
-		globalForPrisma.prisma = newPrisma;
-		globalForPrisma.adapter = newAdapter;
-	}
+	globalForPrisma.prisma = newPrisma;
+	globalForPrisma.adapter = newAdapter;
 
 	return newPrisma;
 }

@@ -636,13 +636,9 @@ export const suspendRestaurantResources = async (
 
 		if (resource_status === "suspend") {
 			if (boxIds.length > 0) {
-				await tx.box.updateMany({
+				await tx.restaurant_box.deleteMany({
 					where: {
-						id: { in: boxIds },
-						client_id: client_id,
-					},
-					data: {
-						status: "suspended",
+						restaurant_id: { in: toSuspend.map(r => r.id) },
 					},
 				});
 			}

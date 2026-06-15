@@ -1,18 +1,20 @@
-import { getVerticalFoodBoxes } from "../db/actions/box.actions";
+import { prisma } from "@/db";
 
 async function main() {
-    const clientId = "01KSSR97Y9JCVVZ3Z7DMV6EY1E";
-    const employeeId = "01KT17GD1NMV7M9MKYK511VG6X"; // Prema Sharma
-    
-    const result = await getVerticalFoodBoxes({
-        client_id: clientId,
-        status: "active",
-        employee_id: employeeId,
-        fetchAll: true
+    const boxes = await prisma.box.findMany({
+        where: {
+            client_id: "01KSSR97Y9JCVVZ3Z7DMV6EY1E",
+            status: "active",
+            connection_employee_id: "01KT17GD1NMV7M9MKYK511VG6X",
+        },
+        include: {
+            restaurants: { select: { name: true } },
+            telemetry: true,
+        },
     });
     console.log("=== PREMA SHARMA BOXES ===");
-    console.log("Count:", result.count);
-    console.log("Boxes:", result.boxes.map(b => ({ id: b.id, display_id: b.box_display_id, name: b.name, power: b.power_status, restaurants: b.restaurants.map((r: any) => r.name) })));
+    console.log("Count:", boxes.length);
+    console.log("Boxes:", boxes.map(b => ({ id: b.id, display_id: b.box_display_id, name: b.name, power: b.telemetry?.power_status, restaurants: b.restaurants.map(r => r.name) })));
 }
 
 main().catch(console.error);

@@ -139,6 +139,16 @@ export const createBoxHandler = createHandlers(
 			effected_name: box.name ?? undefined,
 		});
 
+		services.adminNotifications.notifyCreation({
+			title: "Box added!",
+			description: `Box - ${box.name ?? box_id} has been added to the inventory.`,
+			itemId: box.id,
+			itemName: box.name ?? box_id,
+			itemType: "Box",
+			employeeId: admin?.id,
+			employeeName: admin?.first_name,
+		});
+
 		return context.json<APIResponse<ResponseData>>(
 			{
 				success: true,

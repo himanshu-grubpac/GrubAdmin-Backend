@@ -20,7 +20,18 @@ export const getAdminLogsHandler = createHandlers(
 			admin_id,
 			subject_id,
 			client_id,
+			filters,
 		} = context.req.valid("query");
+
+		// Parse filters from JSON string if present
+		let parsedFilters: any = filters;
+		if (typeof filters === "string") {
+			try {
+				parsedFilters = JSON.parse(filters);
+			} catch {
+				parsedFilters = undefined;
+			}
+		}
 
 		const result = await getSystemLogs({
 			category: category as any,
@@ -33,6 +44,7 @@ export const getAdminLogsHandler = createHandlers(
 			actor_id: admin_id,
 			subject_id,
 			client_id,
+			filters: parsedFilters,
 		});
 
 		return context.json<APIResponse<any>>(

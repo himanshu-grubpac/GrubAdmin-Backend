@@ -348,20 +348,42 @@ export const createVerticalDeliveryEmployee = async (
 		}
 	}
 
-	return prisma.vertical_delivery_employee.create({
-		data: {
-			first_name,
-			last_name,
-			email,
-			country_code,
-			mobile_number,
-			client_id,
-			employee_display_id,
-			joining_date,
-			role,
-			restaurant_id,
-		},
-	});
+	try {
+		return await prisma.vertical_delivery_employee.create({
+			data: {
+				first_name,
+				last_name,
+				email,
+				country_code,
+				mobile_number,
+				client_id,
+				employee_display_id,
+				joining_date,
+				role,
+				restaurant_id,
+			},
+		});
+	} catch (error: any) {
+		if (error?.code === "P2002") {
+			const target = error.meta?.target as string[] | undefined;
+			if (target?.includes("email")) {
+				throw new APIError(undefined, "delivery.common.EMAIL_ALREADY_EXISTS");
+			}
+			if (target?.includes("employee_display_id")) {
+				throw new APIError("Employee ID already exists", undefined, undefined, 400);
+			}
+			if (target?.includes("mobile_number")) {
+				throw new APIError("Mobile number already exists for this client", undefined, undefined, 400);
+			}
+		}
+		if (error?.code === "P2003") {
+			throw new APIError("Invalid reference: restaurant or client not found", undefined, undefined, 400);
+		}
+		if (error?.code === "P2000") {
+			throw new APIError("One or more field values exceed maximum length", undefined, undefined, 400);
+		}
+		throw error;
+	}
 };
 
 interface GetVerticalDeliveryEmployeesArgs {

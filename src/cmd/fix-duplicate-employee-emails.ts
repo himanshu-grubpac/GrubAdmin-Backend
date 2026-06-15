@@ -3,6 +3,13 @@ import { prisma } from "../db/index.ts";
 async function main() {
 	console.log("Checking for duplicate employee emails...");
 	try {
+		await prisma.vertical_delivery_employee.findFirst({ take: 1 });
+	} catch {
+		console.log("Table 'vertical_delivery_employee' does not exist. Skipping.");
+		return;
+	}
+
+	try {
 		const duplicates = await prisma.vertical_delivery_employee.groupBy({
 			by: ["email"],
 			_count: { email: true },
@@ -41,7 +48,7 @@ async function main() {
 		console.error("Error fixing duplicate employee emails:", error);
 		process.exit(1);
 	} finally {
-		await prisma.$disconnect();
+		process.exit(0);
 	}
 }
 
