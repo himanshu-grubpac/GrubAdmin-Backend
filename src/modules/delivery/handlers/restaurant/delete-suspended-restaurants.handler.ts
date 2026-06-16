@@ -33,7 +33,7 @@ export const deleteSuspendedRestaurantsHandler = createHandlers(
                 success: true,
                 code: 200,
                 data: {
-                    deleted_count: result.count,
+                    deleted_count: result.deleted_count,
                     deleted_restaurant_ids: result.deleted_restaurant_ids,
                     affected_box_ids: result.affected_box_ids,
                     affected_employee_count: result.affected_employee_count,

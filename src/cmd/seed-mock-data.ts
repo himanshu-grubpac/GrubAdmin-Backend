@@ -111,7 +111,7 @@ async function main() {
       role: "manager" as const,
       status: "active" as const,
       client_id: clientId,
-      restaurant_id: restaurants[0].id, // Central
+      restaurant_id: restaurants[0]!.id, // Central
     },
     {
       first_name: "Amit",
@@ -123,7 +123,7 @@ async function main() {
       role: "manager" as const,
       status: "active" as const,
       client_id: clientId,
-      restaurant_id: restaurants[1].id, // Noida
+      restaurant_id: restaurants[1]!.id, // Noida
     },
     {
       first_name: "Karan",
@@ -135,7 +135,7 @@ async function main() {
       role: "delivery" as const,
       status: "active" as const,
       client_id: clientId,
-      restaurant_id: restaurants[0].id,
+      restaurant_id: restaurants[0]!.id,
     },
     {
       first_name: "Vikram",
@@ -147,7 +147,7 @@ async function main() {
       role: "delivery" as const,
       status: "active" as const,
       client_id: clientId,
-      restaurant_id: restaurants[1].id,
+      restaurant_id: restaurants[1]!.id,
     },
     {
       first_name: "Sunil",
@@ -159,7 +159,7 @@ async function main() {
       role: "delivery" as const,
       status: "active" as const,
       client_id: clientId,
-      restaurant_id: restaurants[2].id, // Gurgaon
+      restaurant_id: restaurants[2]!.id, // Gurgaon
     },
   ];
 
@@ -180,7 +180,7 @@ async function main() {
       client_id: clientId,
       status: "active" as const,
       vehicle_number: "DL-3C-AS-1234",
-      connection_employee_id: employees[2].id, // Karan Singh (Driver)
+      connection_employee_id: employees[2]!.id, // Karan Singh (Driver)
     },
     {
       name: "GrubPac Box CP-2",
@@ -189,7 +189,7 @@ async function main() {
       client_id: clientId,
       status: "active" as const,
       vehicle_number: "DL-3C-AS-5678",
-      connection_employee_id: employees[3].id, // Vikram Yadav (Driver)
+      connection_employee_id: employees[3]!.id, // Vikram Yadav (Driver)
     },
     {
       name: "GrubPac Box ND-1",
@@ -198,7 +198,7 @@ async function main() {
       client_id: clientId,
       status: "active" as const,
       vehicle_number: "UP-16-DF-4321",
-      connection_employee_id: employees[4].id, // Sunil Kumar (Driver)
+      connection_employee_id: employees[4]!.id, // Sunil Kumar (Driver)
     },
     {
       name: "GrubPac Box ND-2",
@@ -222,7 +222,7 @@ async function main() {
   console.log("Seeding telemetries...");
   const telemetriesData = [
     {
-      box_id: boxes[0].id,
+      box_id: boxes[0]!.id,
       health_status: "healthy" as const,
       power_status: "on" as const,
       battery_percentage: 87,
@@ -233,7 +233,7 @@ async function main() {
       connection_status: "connected" as const,
     },
     {
-      box_id: boxes[1].id,
+      box_id: boxes[1]!.id,
       health_status: "attention" as const,
       power_status: "on" as const,
       battery_percentage: 32,
@@ -244,7 +244,7 @@ async function main() {
       connection_status: "connected" as const,
     },
     {
-      box_id: boxes[2].id,
+      box_id: boxes[2]!.id,
       health_status: "critical" as const,
       power_status: "on" as const,
       battery_percentage: 8,
@@ -255,7 +255,7 @@ async function main() {
       connection_status: "connected" as const,
     },
     {
-      box_id: boxes[3].id,
+      box_id: boxes[3]!.id,
       health_status: "healthy" as const,
       power_status: "off" as const,
       battery_percentage: 0,
@@ -275,10 +275,10 @@ async function main() {
   // 6. Connect boxes to restaurants (restaurant_box mapping)
   console.log("Mapping boxes to restaurants...");
   const restaurantBoxes = [
-    { restaurant_id: restaurants[0].id, box_id: boxes[0].id, status: "shared" as const },
-    { restaurant_id: restaurants[0].id, box_id: boxes[1].id, status: "shared" as const },
-    { restaurant_id: restaurants[1].id, box_id: boxes[2].id, status: "shared" as const },
-    { restaurant_id: restaurants[2].id, box_id: boxes[3].id, status: "shared" as const },
+    { restaurant_id: restaurants[0]!.id, box_id: boxes[0]!.id, status: "shared" as const },
+    { restaurant_id: restaurants[0]!.id, box_id: boxes[1]!.id, status: "shared" as const },
+    { restaurant_id: restaurants[1]!.id, box_id: boxes[2]!.id, status: "shared" as const },
+    { restaurant_id: restaurants[2]!.id, box_id: boxes[3]!.id, status: "shared" as const },
   ];
 
   for (const rb of restaurantBoxes) {
@@ -288,9 +288,9 @@ async function main() {
   // 7. Connect boxes to employees (vertical_delivery_employee_box mapping)
   console.log("Mapping boxes to employees...");
   const employeeBoxes = [
-    { employee_id: employees[2].id, box_id: boxes[0].id, status: "shared" as const },
-    { employee_id: employees[3].id, box_id: boxes[1].id, status: "shared" as const },
-    { employee_id: employees[4].id, box_id: boxes[2].id, status: "shared" as const },
+    { employee_id: employees[2]!.id, box_id: boxes[0]!.id, status: "shared" as const },
+    { employee_id: employees[3]!.id, box_id: boxes[1]!.id, status: "shared" as const },
+    { employee_id: employees[4]!.id, box_id: boxes[2]!.id, status: "shared" as const },
   ];
 
   for (const eb of employeeBoxes) {
@@ -302,10 +302,10 @@ async function main() {
   const notificationsData = [
     {
       client_id: clientId,
-      box_id: boxes[2].id,
-      box_display_id: boxes[2].box_display_id,
-      box_name: boxes[2].name,
-      restaurant_name: restaurants[1].name,
+      box_id: boxes[2]!.id,
+      box_display_id: boxes[2]!.box_display_id,
+      box_name: boxes[2]!.name,
+      restaurant_name: restaurants[1]!.name,
       type: "error" as const,
       title: "Critical Telemetry Event: High Core Temperature",
       description: "GrubPac GP-ND01 exceeded maximum temperature threshhold. Core zone registered 24°C.",
@@ -313,10 +313,10 @@ async function main() {
     },
     {
       client_id: clientId,
-      box_id: boxes[1].id,
-      box_display_id: boxes[1].box_display_id,
-      box_name: boxes[1].name,
-      restaurant_name: restaurants[0].name,
+      box_id: boxes[1]!.id,
+      box_display_id: boxes[1]!.box_display_id,
+      box_name: boxes[1]!.name,
+      restaurant_name: restaurants[0]!.name,
       type: "warning" as const,
       title: "Low Battery Warning",
       description: "GrubPac GP-CP02 is operating under 35% battery (currently 32%). Connect to a power source soon.",
@@ -324,10 +324,10 @@ async function main() {
     },
     {
       client_id: clientId,
-      box_id: boxes[0].id,
-      box_display_id: boxes[0].box_display_id,
-      box_name: boxes[0].name,
-      restaurant_name: restaurants[0].name,
+      box_id: boxes[0]!.id,
+      box_display_id: boxes[0]!.box_display_id,
+      box_name: boxes[0]!.name,
+      restaurant_name: restaurants[0]!.name,
       type: "success" as const,
       title: "Delivery Mission Successful",
       description: "GrubPac GP-CP01 completed transit and unlocked safely for recipient consumer.",

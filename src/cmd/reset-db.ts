@@ -49,10 +49,10 @@ export const resetDb = async () => {
 
     // Clear MongoDB collections
     await connectMongoDB();
-    const mongoCollections = await mongoose.connection.db.listCollections().toArray();
+    const mongoCollections = await mongoose.connection.db!.listCollections().toArray();
     for (const col of mongoCollections) {
       logger.info(`  Clearing MongoDB collection: ${col.name}`);
-      await mongoose.connection.db.dropCollection(col.name);
+      await mongoose.connection.db!.dropCollection(col.name);
     }
     logger.info("MongoDB collections cleared.");
 

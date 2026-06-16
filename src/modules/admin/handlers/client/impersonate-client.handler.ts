@@ -17,7 +17,7 @@ export const impersonateClientHandler = createHandlers(
 		const admin = context.get("admin");
 		const role = context.get("role");
 
-		logger.info(`[Impersonation] Request initiated by admin ${admin.id} (${admin.first_name} ${admin.last_name || ""}) for client ${clientId}`);
+		logger.info(`[Impersonation] Request initiated by admin ${admin!.id} (${admin!.first_name} ${admin!.last_name || ""}) for client ${clientId}`);
 
 		if (!clientId) {
 			throw new APIError("Client ID is required", undefined, undefined, 400);
@@ -67,7 +67,7 @@ export const impersonateClientHandler = createHandlers(
 		const impersonationToken = JWT.signImpersonationToken({
 			id: client.id,
 			role: "impersonation",
-			admin_id: admin.id,
+			admin_id: admin!.id,
 			client_id: client.id,
 			is_impersonation: true,
 			admin_role: userType as "admin" | "employee",
@@ -76,7 +76,7 @@ export const impersonateClientHandler = createHandlers(
 			return_url: returnUrl,
 		});
 
-		logger.info(`[Impersonation] Token generated successfully for admin ${admin.id} → client ${client.id} (${client.name})`);
+		logger.info(`[Impersonation] Token generated successfully for admin ${admin!.id} → client ${client.id} (${client.name})`);
 
 		const ip = context.req.header("x-forwarded-for")?.split(",")[0] ||
 				   context.req.header("x-real-ip") ||
@@ -85,16 +85,16 @@ export const impersonateClientHandler = createHandlers(
 		await services.adminLogger.log({
 			module: "client",
 			action: "impersonation",
-			admin_id: admin.id,
-			admin_name: `${admin.first_name} ${admin.last_name || ""}`.trim(),
-			role_id: admin.role_id,
+			admin_id: admin!.id,
+			admin_name: `${admin!.first_name} ${admin!.last_name || ""}`.trim(),
+			role_id: admin!.role_id,
 			role_name: role?.name || "Admin",
 			ip,
 			effected_id: client.id,
 			effected_name: client.name,
 		});
 
-		logger.info(`[Impersonation] Successfully completed for admin ${admin.id} → client ${client.id}`);
+		logger.info(`[Impersonation] Successfully completed for admin ${admin!.id} → client ${client.id}`);
 
 		const deliveryBaseUrl = CLIENT_DASHBOARD_URL || "http://13.127.79.155";
 		const redirectUrl = `${deliveryBaseUrl}/impersonate?token=${impersonationToken}`;

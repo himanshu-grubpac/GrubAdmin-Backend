@@ -3,6 +3,7 @@ import { prisma } from "..";
 import { type Prisma, type client_employee_role } from "../types";
 import { BoxConfig } from "@/db/mongo-schema";
 import { nullifyEmptyFKs } from "@/utils/clean-query.ts";
+import { RestaurantLifecycleService } from "@/services/resource-lifecycle";
 
 interface CreateRestaurantArgs {
 	name: string;
@@ -550,159 +551,18 @@ export const suspendRestaurantResources = async (
 ) => {
 	const { client_id, ids, resource_status = "suspend", destination_restaurant_id } = args;
 
-	const restaurants = await prisma.restaurant.findMany({
-		where: {
-			id: {
-				in: ids,
-			},
-			client_id,
-		},
-		include: {
-			restaurant_boxes: true,
-		},
-	});
+	const lifecycleService = new RestaurantLifecycleService();
 
-	if (restaurants.length === 0) {
-		throw new APIError(
-			undefined,
-			"delivery.restaurant.resource.NOT_FOUND",
-			{ ids },
-			404
-		);
-	}
+	const finalDestinationId =
+		destination_restaurant_id === "" || destination_restaurant_id === null || destination_restaurant_id === undefined
+			? null
+			: destination_restaurant_id;
 
-	if (restaurants.length !== ids.length) {
-		throw new APIError(
-			undefined,
-			"delivery.restaurant.resource.PARTIAL_FOUND",
-			{
-				requested_ids: ids,
-				found_count: restaurants.length,
-			},
-			409
-		);
-	}
-
-	if (destination_restaurant_id) {
-		const destRestaurant = await prisma.restaurant.findUnique({
-			where: { id: destination_restaurant_id, client_id, status: "active" },
-		});
-
-		if (!destRestaurant) {
-			throw new APIError(
-				undefined,
-				"delivery.restaurant.resource.NOT_FOUND",
-				{ id: destination_restaurant_id },
-				404
-			);
-		}
-
-		if (ids.includes(destination_restaurant_id)) {
-			throw new APIError(
-				"Self-reassignment target is not allowed",
-				undefined,
-				undefined,
-				400
-			);
-		}
-	}
-
-	const toSuspend = restaurants.filter((r) => r.status !== "suspended");
-
-	if (toSuspend.length === 0) {
-		throw new APIError(
-			undefined,
-			"delivery.common.ALREADY_IN_STATE",
-			{ ids, state: "suspended" },
-			409
-		);
-	}
-
-	const boxIds = restaurants
-		.map((restaurant) => restaurant.restaurant_boxes.map((rb) => rb.box_id))
-		.flat();
-
-	await prisma.$transaction(async (tx) => {
-		// ALWAYS suspend the target restaurants
-		await tx.restaurant.updateMany({
-			where: {
-				id: { in: toSuspend.map(r => r.id) },
-				client_id,
-			},
-			data: {
-				status: "suspended",
-			},
-		});
-
-		if (resource_status === "suspend") {
-			if (boxIds.length > 0) {
-				await tx.restaurant_box.deleteMany({
-					where: {
-						restaurant_id: { in: toSuspend.map(r => r.id) },
-					},
-				});
-			}
-
-			await tx.vertical_delivery_employee.updateMany({
-				where: {
-					restaurant_id: { in: ids },
-					client_id,
-				},
-				data: {
-					status: "suspended",
-				},
-			});
-		} else if (resource_status === "assign") {
-			// If destination_restaurant_id is provided, reassign boxes. Otherwise unassign.
-			if (boxIds.length > 0) {
-				await tx.restaurant_box.deleteMany({
-					where: { box_id: { in: boxIds } }
-				});
-				if (destination_restaurant_id) {
-					await tx.restaurant_box.createMany({
-						data: boxIds.map(box_id => ({ box_id, restaurant_id: destination_restaurant_id, status: "shared" }))
-					});
-				}
-			}
-
-			// Reassign or unassign employees
-			const employeesToMove = await tx.vertical_delivery_employee.findMany({
-				where: {
-					restaurant_id: { in: ids },
-					client_id,
-				}
-			});
-
-			const managersToMove = employeesToMove.filter(e => e.role === "manager");
-
-			if (destination_restaurant_id && managersToMove.length > 0) {
-				const destManager = await tx.vertical_delivery_employee.findFirst({
-					where: { restaurant_id: destination_restaurant_id, role: "manager" }
-				});
-
-				if (destManager) {
-					throw new APIError(
-						"This destination restaurant already has an active manager! Cannot assign another.",
-						"delivery.restaurant.assign.manager.SUSPENSION_CONFLICT",
-						{ 
-							suspended_restaurant_ids: ids,
-							destination_id: destination_restaurant_id
-						},
-						409
-					);
-				}
-			}
-
-			await tx.vertical_delivery_employee.updateMany({
-				where: {
-					restaurant_id: { in: ids },
-					client_id,
-				},
-				data: {
-					restaurant_id: destination_restaurant_id || null,
-				},
-			});
-		}
+	await lifecycleService.suspendWithResources({
+		client_id,
+		restaurant_ids: ids,
+		action: resource_status,
+		destination_restaurant_id: finalDestinationId,
 	});
 };
 
@@ -719,168 +579,13 @@ interface DeleteRestaurantsArgs {
 export const deleteRestaurants = async (args: DeleteRestaurantsArgs) => {
 	const { client_id, ids, destination_restaurant_id } = args;
 
-	const restaurants = await prisma.restaurant.findMany({
-		where: {
-			id: { in: ids },
-			client_id,
-		},
-		include: { 
-			restaurant_boxes: true,
-			client: true,
-		},
-	});
+	const lifecycleService = new RestaurantLifecycleService();
 
-	if (restaurants.length === 0) {
-		throw new APIError(undefined, "delivery.restaurant.resource.NOT_FOUND", { ids }, 404);
-	}
-
-	if (restaurants.length !== ids.length) {
-		throw new APIError(
-			undefined,
-			"delivery.restaurant.resource.PARTIAL_FOUND",
-			{
-				requested_ids: ids,
-				found_count: restaurants.length,
-			},
-			409
-		);
-	}
-
-	// Fetch managers for archiving
-	const managers = await prisma.vertical_delivery_employee.findMany({
-		where: {
-			restaurant_id: { in: ids },
-			role: "manager",
-			status: { not: "suspended" },
-		},
-	});
-
-	if (destination_restaurant_id) {
-		const destRestaurant = await prisma.restaurant.findUnique({
-			where: { id: destination_restaurant_id, client_id },
-		});
-
-		if (!destRestaurant) {
-			throw new APIError(
-				undefined,
-				"delivery.restaurant.resource.NOT_FOUND",
-				{ id: destination_restaurant_id },
-				404
-			);
-		}
-
-		if (destRestaurant.status !== "active") {
-			throw new APIError(
-				undefined,
-				"delivery.restaurant.resource.REASSIGNMENT_TO_NON_ACTIVE",
-				undefined,
-				409
-			);
-		}
-
-		if (ids.includes(destination_restaurant_id)) {
-			throw new APIError(
-				"Self-reassignment target is not allowed",
-				undefined,
-				undefined,
-				400
-			);
-		}
-	}
-
-	const boxIds = restaurants.flatMap((r) => r.restaurant_boxes.map((rb) => rb.box_id));
-
-	// Pre-deletion checks for active resources
-	const employeeCount = await prisma.vertical_delivery_employee.count({
-		where: { restaurant_id: { in: ids }, client_id },
-	});
-
-	if ((boxIds.length > 0 || employeeCount > 0) && !destination_restaurant_id) {
-		throw new APIError(
-			"Cannot delete restaurant(s) with active resources (employees/boxes) assigned unless a destination restaurant is provided for reassignment.",
-			"delivery.restaurant.delete.ACTIVE_DEPENDENCIES",
-			{ box_count: boxIds.length, employee_count: employeeCount },
-			409
-		);
-	}
-
-	// Execute atomic operations in transaction
-	await prisma.$transaction(async (tx) => {
-		// Archive restaurants to restaurant_deleted
-		await tx.restaurant_deleted.createMany({
-			data: restaurants.map((r) => {
-				const manager = managers.find((m) => m.restaurant_id === r.id);
-				return {
-					id: r.id,
-					name: r.name,
-					client_id: r.client_id,
-					client_name: r.client?.name ?? "",
-					manager_id: manager?.id || null,
-					manager_name: manager ? `${manager.first_name} ${manager.last_name}` : "",
-					city: r.city,
-					google_place_id: r.google_place_id,
-					latitude: r.latitude,
-					line_one: r.line_one,
-					line_two: r.line_two,
-					longitude: r.longitude,
-					pincode: r.pincode,
-					state: r.state,
-					x_primary_key: r.id,
-				};
-			}),
-		});
-
-		// Reassign or Unassign boxes from restaurants in Postgres
-		if (boxIds.length > 0) {
-			await tx.restaurant_box.deleteMany({
-				where: { restaurant_id: { in: ids } },
-			});
-			if (destination_restaurant_id) {
-				await tx.restaurant_box.createMany({
-					data: boxIds.map(box_id => ({ box_id, restaurant_id: destination_restaurant_id, status: "shared" }))
-				});
-			}
-		}
-
-		// Reassign or Unassign employees from restaurants
-		await tx.vertical_delivery_employee.updateMany({
-			where: {
-				restaurant_id: { in: ids },
-				client_id,
-			},
-			data: { restaurant_id: destination_restaurant_id ?? null },
-		});
-
-		// Delete restaurants
-		await tx.restaurant.deleteMany({
-			where: { id: { in: ids }, client_id },
-		});
-
-		// Synchronize MongoDB BoxConfig mappings to prevent orphaned records inside transaction
-		if (boxIds.length > 0) {
-			if (destination_restaurant_id) {
-				await BoxConfig.updateMany(
-					{ box_id: { $in: boxIds } },
-					{ $set: { restaurant_id: destination_restaurant_id } }
-				);
-			} else {
-				await BoxConfig.updateMany(
-					{ box_id: { $in: boxIds } },
-					{ $set: { driver_id: null, restaurant_id: null } }
-				);
-				await tx.vertical_delivery_employee_box.deleteMany({
-					where: { box_id: { in: boxIds } }
-				});
-			}
-		}
-	});
-
-	return {
-		count: restaurants.length,
-		deleted_restaurant_ids: ids,
-		affected_box_ids: boxIds,
-		affected_employee_count: employeeCount,
-	};
+	return lifecycleService.deleteWithResources(
+		ids,
+		client_id,
+		destination_restaurant_id ?? null,
+	);
 };
 
 // ────────────────────────────────────────────
@@ -899,49 +604,16 @@ export const reactivateRestaurants = async (
 ) => {
 	const { client_id, ids, reactivate_employees, reactivate_boxes } = args;
 
-	const restaurants = await prisma.restaurant.findMany({
-		where: {
-			id: { in: ids },
-			client_id,
-			status: "suspended",
-		},
-	});
+	const lifecycleService = new RestaurantLifecycleService();
 
-	if (restaurants.length === 0) {
-		throw new APIError(
-			"No suspended restaurants found to reactivate",
-			undefined,
-			{ ids },
-			404,
-		);
-	}
+	const result = await lifecycleService.reactivateWithResources(
+		ids,
+		client_id,
+		reactivate_employees ?? false,
+		reactivate_boxes ?? false,
+	);
 
-	await prisma.$transaction(async (tx) => {
-		await tx.restaurant.updateMany({
-			where: { id: { in: ids }, client_id },
-			data: { status: "active" },
-		});
-
-		if (reactivate_employees) {
-			await tx.vertical_delivery_employee.updateMany({
-				where: { restaurant_id: { in: ids }, client_id, status: "suspended" },
-				data: { status: "active" },
-			});
-		}
-
-		if (reactivate_boxes) {
-			const restaurantBoxIds = await tx.restaurant_box.findMany({
-				where: { restaurant_id: { in: ids } },
-				select: { box_id: true },
-			});
-			await tx.box.updateMany({
-				where: { id: { in: restaurantBoxIds.map((b) => b.box_id) } },
-				data: { status: "active" },
-			});
-		}
-	});
-
-	return { count: restaurants.length };
+	return { count: result.restaurant_results.updated_count };
 };
 
 // ────────────────────────────────────────────
@@ -953,92 +625,9 @@ export const deleteSuspendedRestaurants = async (
 ) => {
 	const { client_id, ids } = args;
 
-	const restaurants = await prisma.restaurant.findMany({
-		where: {
-			id: { in: ids },
-			client_id,
-		},
-		include: { 
-			restaurant_boxes: true,
-			client: true,
-		},
-	});
+	const lifecycleService = new RestaurantLifecycleService();
 
-	if (restaurants.length === 0) {
-		throw new APIError(
-			undefined,
-			"delivery.restaurant.resource.NOT_FOUND",
-			{ ids }
-		);
-	}
-
-	const employeeCount = await prisma.vertical_delivery_employee.count({
-		where: { restaurant_id: { in: ids }, client_id },
-	});
-
-	// Archive restaurants to restaurant_deleted
-	const restaurantManagers = await prisma.vertical_delivery_employee.findMany({
-		where: { restaurant_id: { in: ids }, role: "manager" }
-	});
-
-	const boxIds = restaurants.flatMap((r) => r.restaurant_boxes.map((rb) => rb.box_id));
-
-	await prisma.$transaction(async (tx) => {
-		await tx.restaurant_deleted.createMany({
-			data: restaurants.map((r) => {
-				const manager = restaurantManagers.find(m => m.restaurant_id === r.id);
-				return {
-					id: r.id,
-					name: r.name,
-					client_id: r.client_id,
-					client_name: r.client?.name ?? "",
-					manager_id: manager?.id || null,
-					manager_name: manager ? `${manager.first_name} ${manager.last_name}` : "",
-					city: r.city,
-					google_place_id: r.google_place_id,
-					latitude: r.latitude,
-					line_one: r.line_one,
-					line_two: r.line_two,
-					longitude: r.longitude,
-					pincode: r.pincode,
-					state: r.state,
-					x_primary_key: r.id,
-				};
-			}),
-		});
-
-		if (boxIds.length > 0) {
-			await tx.restaurant_box.deleteMany({
-				where: { restaurant_id: { in: ids } },
-			});
-		}
-
-		await tx.vertical_delivery_employee.updateMany({
-			where: { restaurant_id: { in: ids }, client_id },
-			data: { restaurant_id: null },
-		});
-
-		await tx.restaurant.deleteMany({
-			where: { id: { in: ids }, client_id },
-		});
-
-		if (boxIds.length > 0) {
-			await BoxConfig.updateMany(
-				{ box_id: { $in: boxIds } },
-				{ $set: { driver_id: null, restaurant_id: null } }
-			);
-			await tx.vertical_delivery_employee_box.deleteMany({
-				where: { box_id: { in: boxIds } }
-			});
-		}
-	});
-
-	return {
-		count: restaurants.length,
-		deleted_restaurant_ids: ids,
-		affected_box_ids: boxIds,
-		affected_employee_count: employeeCount,
-	};
+	return lifecycleService.deleteWithResources(ids, client_id, null);
 };
 
 // ────────────────────────────────────────────

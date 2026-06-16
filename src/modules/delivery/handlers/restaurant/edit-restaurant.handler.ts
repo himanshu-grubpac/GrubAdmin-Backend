@@ -32,7 +32,7 @@ export const editRestaurantHandler = createHandlers(
 		const body = context.req.valid("json");
 		const { id, name, state, city, pincode, line_one, line_two, google_place_id, latitude, longitude, lattitude, longtitude, status } = body as any;
 
-		if (type === "manager") {
+		if ((type as string) === "manager") {
 			const managerObj = user as any;
 			if (managerObj.restaurant_id !== id) {
 				throw new APIError(

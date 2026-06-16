@@ -68,12 +68,12 @@ export const createAdminHandler = createHandlers(
 			role_id: roleId,
 			first_name,
 			email,
-			country_code,
-			mobile_number,
-			joining_date: joining_date || null,
-			location: location?.trim() || null,
-			employee_id: employee_id?.trim() || null,
-			last_name,
+			country_code: country_code ?? undefined,
+			mobile_number: mobile_number ?? undefined,
+			joining_date: joining_date ?? undefined,
+			location: location?.trim() ?? undefined,
+			employee_id: employee_id?.trim() ?? undefined,
+			last_name: last_name ?? undefined,
 		});
 
 		services.adminLogger.log({

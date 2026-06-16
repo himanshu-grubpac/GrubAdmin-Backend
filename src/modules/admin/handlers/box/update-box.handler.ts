@@ -8,6 +8,7 @@ import type {
 	box,
 	hardware_state,
 	box_health_status,
+	box_status,
 } from "@/db/types";
 import { updateBox } from "@/db/actions/box.actions.ts";
 import type { APIResponse } from "@/types/api";
@@ -52,7 +53,7 @@ export const updateBoxHandler = createHandlers(
 			box_display_id: box_id,
 			name,
 			vehicle_number,
-			status,
+			status: status as box_status | undefined,
 			power_status: power_status as hardware_state,
 			health_status: health_status as box_health_status,
 			ioniser_status: ioniser_status as hardware_state,

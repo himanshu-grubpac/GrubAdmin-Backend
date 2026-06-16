@@ -14,7 +14,7 @@ export const deleteVerticalHandler = createHandlers(
 	async (context) => {
 		const { admin, role: adminRole, ip } = context.var;
 
-		if (!admin?.is_super_admin && !adminRole?.is_super_admin) {
+		if (!adminRole?.is_super_admin) {
 			throw new APIError(
 				"Only Super Admin can delete verticals",
 				undefined,
@@ -39,7 +39,7 @@ export const deleteVerticalHandler = createHandlers(
 			effected_name: vertical.name,
 		});
 
-		return context.json<APIResponse>(
+		return context.json(
 			{
 				success: true,
 				message: "Vertical deleted successfully",

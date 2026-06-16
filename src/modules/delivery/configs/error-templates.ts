@@ -119,6 +119,20 @@ export const deliveryErrorTemplates: ErrorTemplateMap = {
 		},
 	},
 	restaurant: {
+		lifecycle: {
+			LOCK_FAILED: {
+				message: "Could not acquire resource lock. Please retry the operation.",
+				code: 409,
+				error_toast_title: "Resource Conflict",
+				error_toast_description: "Another operation is currently in progress for this restaurant. Please wait and try again.",
+			},
+			CONCURRENT_MODIFICATION: {
+				message: "Resource state was modified concurrently. Please retry.",
+				code: 409,
+				error_toast_title: "Concurrent Modification",
+				error_toast_description: "The resource was modified by another operation. Please review the current state and try again.",
+			},
+		},
 		assign: {
 			manager: {
 				REASSIGNMENT_CONFLICT: {
@@ -314,6 +328,12 @@ export const deliveryErrorTemplates: ErrorTemplateMap = {
 			code: 400,
 			error_toast_title: "Ownership Error",
 			error_toast_description: "You can only assign employees to restaurants within your own organization.",
+		},
+		ALREADY_IN_STATE: {
+			message: "The resource is already in the requested state.",
+			code: 409,
+			error_toast_title: "No Change Required",
+			error_toast_description: "One or more selected resources are already in the target state. No changes were applied.",
 		},
 	},
 };

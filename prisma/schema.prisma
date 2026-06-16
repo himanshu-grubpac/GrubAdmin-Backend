@@ -447,6 +447,7 @@ enum role_status {
 enum box_status {
   active
   suspended
+  unassigned
 }
 
 enum box_lock_status {
