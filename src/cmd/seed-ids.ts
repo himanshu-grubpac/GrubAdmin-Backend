@@ -113,6 +113,8 @@ export const SEED_IDS = {
   CONFIG_SUPPORT_EMAIL: deterministicUlid(),
   CONFIG_MAX_LOGIN: deterministicUlid(),
   CONFIG_OTP_EXPIRY: deterministicUlid(),
+  CONFIG_ICON_BASE_URL: deterministicUlid(),
+  CONFIG_FAQ_BASE_URL: deterministicUlid(),
 
   ARCHIVED_ADMIN: deterministicUlid(),
   ARCHIVED_CLIENT: deterministicUlid(),

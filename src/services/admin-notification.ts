@@ -15,6 +15,16 @@ interface DeleteNotificationArgs {
 	employeeName: string;
 }
 
+interface CreationNotificationArgs {
+	title: string;
+	description: string;
+	itemId?: string;
+	itemName?: string;
+	itemType?: string;
+	employeeId?: string;
+	employeeName?: string;
+}
+
 interface NotifySuperAdminArgs {
 	title: string;
 	description: string;
@@ -56,6 +66,21 @@ export class AdminNotificationService {
 			employee_name: args.employeeName,
 			status: "unread",
 			goal: "deletion",
+			item_id: args.itemId,
+			item_name: args.itemName,
+			item_type: args.itemType,
+		});
+	}
+
+	async notifyCreation(args: CreationNotificationArgs) {
+		await this.notifySuperAdmin({
+			title: args.title,
+			description: args.description,
+			type: "success",
+			status: "unread",
+			goal: "creation",
+			employee_id: args.employeeId,
+			employee_name: args.employeeName,
 			item_id: args.itemId,
 			item_name: args.itemName,
 			item_type: args.itemType,

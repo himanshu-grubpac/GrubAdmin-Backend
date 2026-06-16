@@ -97,6 +97,9 @@ export const deliveryImpersonateHandler = createHandlers(
 
 		const deliveryBaseUrl = CLIENT_DASHBOARD_URL || "http://13.127.79.155";
 
+		// Use return_url from token payload if provided, otherwise default to dashboard
+		const targetPath = payload.return_url || "/delivery/dashboard";
+
 		return context.json({
 			success: true,
 			code: 200,
@@ -108,7 +111,7 @@ export const deliveryImpersonateHandler = createHandlers(
 					email: clientRecord.email,
 					client_display_id: clientRecord.client_display_id,
 				},
-				redirect_url: `${deliveryBaseUrl}/delivery/dashboard`,
+				redirect_url: `${deliveryBaseUrl}${targetPath}`,
 			},
 			message: "Impersonation successful. You are now logged in as the customer.",
 		});

@@ -1,9 +1,13 @@
+// Single source of truth for all allowed verticals in the system.
+// Every layer (DB, API validation, frontend options) MUST derive from this.
 export const BOX_VERTICALS = [
 	"camping",
 	"medical",
 	"delivery",
 	"hospitality",
 ] as const;
+
+export type VerticalName = (typeof BOX_VERTICALS)[number];
 
 export const DELIVERY_VERTICAL_NAME = "Delivery";
 
@@ -178,6 +182,7 @@ export const NOTIFICATIONS_TYPE = ["success", "warning", "error"] as const;
 
 export const NOTIFICATION_GOAL = [
 	"deletion",
+	"creation",
 	"update_permission_and_roles",
 	"update_profile",
 	"export",

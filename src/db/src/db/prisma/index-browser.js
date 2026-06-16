@@ -289,7 +289,7 @@ exports.Prisma.RestaurantScalarFieldEnum = {
   status: 'status'
 };
 
-exports.Prisma.Vertical_food_employeeScalarFieldEnum = {
+exports.Prisma.vertical_delivery_employeeScalarFieldEnum = {
   id: 'id',
   first_name: 'first_name',
   last_name: 'last_name',
@@ -308,7 +308,7 @@ exports.Prisma.Vertical_food_employeeScalarFieldEnum = {
   profile_pic: 'profile_pic'
 };
 
-exports.Prisma.Vertical_food_employee_boxScalarFieldEnum = {
+exports.Prisma.vertical_delivery_employee_boxScalarFieldEnum = {
   id: 'id',
   employee_id: 'employee_id',
   box_id: 'box_id',
@@ -327,7 +327,7 @@ exports.Prisma.Restaurant_boxScalarFieldEnum = {
   status: 'status'
 };
 
-exports.Prisma.Vertical_food_employee_deletedScalarFieldEnum = {
+exports.Prisma.vertical_delivery_employee_deletedScalarFieldEnum = {
   id: 'id',
   first_name: 'first_name',
   last_name: 'last_name',
@@ -379,7 +379,7 @@ exports.Prisma.Box_deletedScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.Vertical_food_consumerScalarFieldEnum = {
+exports.Prisma.vertical_delivery_consumerScalarFieldEnum = {
   id: 'id',
   full_name: 'full_name',
   country_code: 'country_code',
@@ -390,7 +390,7 @@ exports.Prisma.Vertical_food_consumerScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.Vertical_food_consumer_boxScalarFieldEnum = {
+exports.Prisma.vertical_delivery_consumer_boxScalarFieldEnum = {
   id: 'id',
   consumer_id: 'consumer_id',
   box_id: 'box_id',
@@ -606,7 +606,7 @@ exports.Prisma.restaurantOrderByRelevanceFieldEnum = {
   state: 'state'
 };
 
-exports.Prisma.vertical_food_employeeOrderByRelevanceFieldEnum = {
+exports.Prisma.vertical_delivery_employeeOrderByRelevanceFieldEnum = {
   id: 'id',
   first_name: 'first_name',
   last_name: 'last_name',
@@ -620,7 +620,7 @@ exports.Prisma.vertical_food_employeeOrderByRelevanceFieldEnum = {
   profile_pic: 'profile_pic'
 };
 
-exports.Prisma.vertical_food_employee_boxOrderByRelevanceFieldEnum = {
+exports.Prisma.vertical_delivery_employee_boxOrderByRelevanceFieldEnum = {
   id: 'id',
   employee_id: 'employee_id',
   box_id: 'box_id'
@@ -632,7 +632,7 @@ exports.Prisma.restaurant_boxOrderByRelevanceFieldEnum = {
   box_id: 'box_id'
 };
 
-exports.Prisma.vertical_food_employee_deletedOrderByRelevanceFieldEnum = {
+exports.Prisma.vertical_delivery_employee_deletedOrderByRelevanceFieldEnum = {
   id: 'id',
   first_name: 'first_name',
   last_name: 'last_name',
@@ -675,7 +675,7 @@ exports.Prisma.box_deletedOrderByRelevanceFieldEnum = {
   x_primary_key: 'x_primary_key'
 };
 
-exports.Prisma.vertical_food_consumerOrderByRelevanceFieldEnum = {
+exports.Prisma.vertical_delivery_consumerOrderByRelevanceFieldEnum = {
   id: 'id',
   full_name: 'full_name',
   country_code: 'country_code',
@@ -683,7 +683,7 @@ exports.Prisma.vertical_food_consumerOrderByRelevanceFieldEnum = {
   client_id: 'client_id'
 };
 
-exports.Prisma.vertical_food_consumer_boxOrderByRelevanceFieldEnum = {
+exports.Prisma.vertical_delivery_consumer_boxOrderByRelevanceFieldEnum = {
   id: 'id',
   consumer_id: 'consumer_id',
   box_id: 'box_id'
@@ -774,7 +774,7 @@ exports.restaurant_box_status = exports.$Enums.restaurant_box_status = {
   blocked: 'blocked'
 };
 
-exports.food_consumer_status = exports.$Enums.food_consumer_status = {
+exports.delivery_consumer_status = exports.$Enums.delivery_consumer_status = {
   pending: 'pending',
   delivered: 'delivered',
   cancelled: 'cancelled'
@@ -826,14 +826,14 @@ exports.Prisma.ModelName = {
   role: 'role',
   box: 'box',
   restaurant: 'restaurant',
-  vertical_food_employee: 'vertical_food_employee',
-  vertical_food_employee_box: 'vertical_food_employee_box',
+  vertical_delivery_employee: 'vertical_delivery_employee',
+  vertical_delivery_employee_box: 'vertical_delivery_employee_box',
   restaurant_box: 'restaurant_box',
-  vertical_food_employee_deleted: 'vertical_food_employee_deleted',
+  vertical_delivery_employee_deleted: 'vertical_delivery_employee_deleted',
   restaurant_deleted: 'restaurant_deleted',
   box_deleted: 'box_deleted',
-  vertical_food_consumer: 'vertical_food_consumer',
-  vertical_food_consumer_box: 'vertical_food_consumer_box',
+  vertical_delivery_consumer: 'vertical_delivery_consumer',
+  vertical_delivery_consumer_box: 'vertical_delivery_consumer_box',
   box_lock: 'box_lock',
   notification: 'notification',
   box_telemetry_latest: 'box_telemetry_latest'

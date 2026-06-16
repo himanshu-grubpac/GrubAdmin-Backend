@@ -25,6 +25,14 @@ export const deleteClientHandler = createHandlers(
 
 		const deletedClient = await deleteClient(id);
 
+		services.adminNotifications.notifyDeletion({
+			itemType: "Client",
+			itemName: deletedClient.name ?? "",
+			itemId: deletedClient.id,
+			employeeName: admin?.first_name ?? "",
+			employeeId: admin?.id ?? "",
+		});
+
 		services.adminLogger.log({
 			module: "client",
 			action: "delete",

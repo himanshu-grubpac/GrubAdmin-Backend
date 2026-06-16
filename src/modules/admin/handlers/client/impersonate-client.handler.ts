@@ -61,6 +61,9 @@ export const impersonateClientHandler = createHandlers(
 
 		const userType = context.get("type");
 
+		const body = await context.req.json().catch(() => ({}));
+		const returnUrl = body?.return_url || null;
+
 		const impersonationToken = JWT.signImpersonationToken({
 			id: client.id,
 			role: "impersonation",
@@ -70,6 +73,7 @@ export const impersonateClientHandler = createHandlers(
 			admin_role: userType as "admin" | "employee",
 			vertical_name: verticalName,
 			client_name: client.name,
+			return_url: returnUrl,
 		});
 
 		logger.info(`[Impersonation] Token generated successfully for admin ${admin.id} → client ${client.id} (${client.name})`);

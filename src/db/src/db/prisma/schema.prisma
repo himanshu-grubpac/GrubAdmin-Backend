@@ -41,7 +41,6 @@ model admin_dismissed {
   joining_date   DateTime?
   role           String?
   employee_id    String?
-  x_primary_key  String?
   created_at     DateTime  @default(now())
   updated_at     DateTime  @updatedAt
 }
@@ -96,8 +95,8 @@ model client {
   profile_pic             String?
   boxes                   box[]
   vertical                vertical?                @relation(fields: [vertical_id], references: [id])
-  vertical_food_consumers vertical_food_consumer[]
-  vertical_food_employees vertical_food_employee[]
+  vertical_delivery_consumers vertical_delivery_consumer[]
+  vertical_delivery_employees vertical_delivery_employee[]
   restaurants             restaurant[]
   notifications           notification[]
 
@@ -208,13 +207,13 @@ model box {
   telemetry box_telemetry_latest?
 
   connection_employee_id String?
-  connection_employee    vertical_food_employee? @relation("box_connection", fields: [connection_employee_id], references: [id])
+  connection_employee    vertical_delivery_employee? @relation("box_connection", fields: [connection_employee_id], references: [id])
   client                 client?                 @relation(fields: [client_id], references: [id])
   vertical               vertical?               @relation(fields: [vertical_id], references: [id])
   lock                   box_lock?
 
-  boxes                        vertical_food_consumer_box[] @relation("vertical_food_consumer_boxes")
-  vertical_food_employee_boxes vertical_food_employee_box[] @relation("vertical_food_employee_boxes")
+  boxes                            vertical_delivery_consumer_box[] @relation("vertical_delivery_consumer_boxes")
+  vertical_delivery_employee_boxes vertical_delivery_employee_box[] @relation("vertical_delivery_employee_boxes")
   restaurant_boxes             restaurant_box[]
 
   @@index([client_id], map: "box_client_id_fkey")
@@ -237,56 +236,61 @@ model restaurant {
   pincode          String?
   state            String?
   status           restaurant_status        @default(active)
-  employees        vertical_food_employee[]
+  employees        vertical_delivery_employee[]
   client           client?                  @relation(fields: [client_id], references: [id])
   restaurant_boxes restaurant_box[]
 
   @@index([client_id], map: "restaurant_client_id_fkey")
 }
 
-model vertical_food_employee {
-  id                           String                       @id @default(ulid())
-  first_name                   String
-  last_name                    String
-  country_code                 String
-  mobile_number                String
-  email                        String                       @unique
-  password                     String?
-  employee_display_id          String                       @unique
-  joining_date                 DateTime                     @default(now())
-  client_id                    String?
-  restaurant_id                String?
-  role                         client_employee_role
-  status                       employee_status              @default(unassigned)
-  created_at                   DateTime                     @default(now())
-  updated_at                   DateTime                     @updatedAt
-  profile_pic                  String?
-  connected_boxes              box[]                        @relation("box_connection")
-  client                       client?                      @relation(fields: [client_id], references: [id])
-  restaurant                   restaurant?                  @relation(fields: [restaurant_id], references: [id])
-  vertical_food_employee_boxes vertical_food_employee_box[] @relation("vertical_food_employee_boxes")
+model vertical_delivery_employee {
+  id                              String                           @id @default(ulid())
+  first_name                      String
+  last_name                       String
+  country_code                    String
+  mobile_number                   String
+  email                           String                           // 1. Remove @unique
+  password                        String?
+  employee_display_id             String                           // 2. Remove @unique
+  joining_date                    DateTime                         @default(now())
+  client_id                       String?
+  restaurant_id                   String?
+  role                            client_employee_role
+  status                          employee_status                  @default(unassigned)
+  created_at                      DateTime                         @default(now())
+  updated_at                      DateTime                         @updatedAt
+  profile_pic                     String?
+  connected_boxes                 box[]                            @relation("box_connection")
+  client                          client?                          @relation(fields: [client_id], references: [id])
+  restaurant                      restaurant?                      @relation(fields: [restaurant_id], references: [id])
+  vertical_delivery_employee_boxes vertical_delivery_employee_box[] @relation("vertical_delivery_employee_boxes")
 
-  @@unique([country_code, mobile_number])
-  @@index([client_id], map: "vertical_food_employee_client_id_fkey")
-  @@index([restaurant_id], map: "vertical_food_employee_restaurant_id_fkey")
-  @@map("vertical_food_employee")
+  // 3. Define composite uniqueness rules scoped under tenant client_id
+  @@unique([client_id, email])
+  @@unique([client_id, employee_display_id])
+  @@unique([client_id, country_code, mobile_number]) // Optional: if mobile must be unique per client
+  
+  @@index([client_id], map: "vertical_delivery_employee_client_id_fkey")
+  @@index([restaurant_id], map: "vertical_delivery_employee_restaurant_id_fkey")
+  @@map("vertical_delivery_employee")
 }
 
-model vertical_food_employee_box {
-  id          String                  @id @default(ulid())
+
+model vertical_delivery_employee_box {
+  id          String                       @id @default(ulid())
   employee_id String?
   box_id      String
-  created_at  DateTime                @default(now())
-  updated_at  DateTime                @updatedAt
-  status      employee_box_status     @default(shared)
-  access      employee_box_access     @default(direct)
-  box         box                     @relation("vertical_food_employee_boxes", fields: [box_id], references: [id], onDelete: Cascade)
-  employee    vertical_food_employee? @relation("vertical_food_employee_boxes", fields: [employee_id], references: [id], onDelete: Cascade)
+  created_at  DateTime                     @default(now())
+  updated_at  DateTime                     @updatedAt
+  status      employee_box_status          @default(shared)
+  access      employee_box_access          @default(direct)
+  box         box                          @relation("vertical_delivery_employee_boxes", fields: [box_id], references: [id], onDelete: Cascade)
+  employee    vertical_delivery_employee?  @relation("vertical_delivery_employee_boxes", fields: [employee_id], references: [id], onDelete: Cascade)
 
   @@unique([employee_id, box_id])
-  @@index([box_id], map: "vertical_food_employee_box_box_id_fkey")
-  @@index([employee_id], map: "vertical_food_employee_box_employee_id_fkey")
-  @@map("vertical_food_employee_box")
+  @@index([box_id], map: "vertical_delivery_employee_box_box_id_fkey")
+  @@index([employee_id], map: "vertical_delivery_employee_box_employee_id_fkey")
+  @@map("vertical_delivery_employee_box")
 }
 
 model restaurant_box {
@@ -303,7 +307,7 @@ model restaurant_box {
   @@index([restaurant_id], map: "restaurant_box_restaurant_id_fkey")
 }
 
-model vertical_food_employee_deleted {
+model vertical_delivery_employee_deleted {
   id                  String   @id @default(ulid())
   first_name          String
   last_name           String
@@ -320,7 +324,7 @@ model vertical_food_employee_deleted {
   client_id           String?
   x_primary_key       String?
 
-  @@map("vertical_food_employee_deleted")
+  @@map("vertical_delivery_employee_deleted")
 }
 
 model restaurant_deleted {
@@ -357,34 +361,34 @@ model box_deleted {
   updated_at     DateTime @updatedAt
 }
 
-model vertical_food_consumer {
-  id           String                       @id @default(ulid())
+model vertical_delivery_consumer {
+  id           String                          @id @default(ulid())
   full_name    String
   country_code String
   phone        String
-  status       food_consumer_status         @default(pending)
+  status       delivery_consumer_status        @default(pending)
   client_id    String?
-  created_at   DateTime                     @default(now())
-  updated_at   DateTime                     @updatedAt
-  client       client?                      @relation(fields: [client_id], references: [id])
-  boxes        vertical_food_consumer_box[] @relation("vertical_food_consumer_boxes")
+  created_at   DateTime                        @default(now())
+  updated_at   DateTime                        @updatedAt
+  client       client?                         @relation(fields: [client_id], references: [id])
+  boxes        vertical_delivery_consumer_box[] @relation("vertical_delivery_consumer_boxes")
 
   @@unique([phone, country_code])
-  @@index([client_id], map: "vertical_food_consumer_client_id_fkey")
-  @@map("vertical_food_consumer")
+  @@index([client_id], map: "vertical_delivery_consumer_client_id_fkey")
+  @@map("vertical_delivery_consumer")
 }
 
-model vertical_food_consumer_box {
-  id          String                 @id @default(ulid())
+model vertical_delivery_consumer_box {
+  id          String                    @id @default(ulid())
   consumer_id String
   box_id      String
-  created_at  DateTime               @default(now())
-  updated_at  DateTime               @updatedAt
-  box         box                    @relation("vertical_food_consumer_boxes", fields: [box_id], references: [id], onDelete: Cascade)
-  consumer    vertical_food_consumer @relation("vertical_food_consumer_boxes", fields: [consumer_id], references: [id], onDelete: Cascade)
+  created_at  DateTime                  @default(now())
+  updated_at  DateTime                  @updatedAt
+  box         box                       @relation("vertical_delivery_consumer_boxes", fields: [box_id], references: [id], onDelete: Cascade)
+  consumer    vertical_delivery_consumer @relation("vertical_delivery_consumer_boxes", fields: [consumer_id], references: [id], onDelete: Cascade)
 
-  @@index([box_id], map: "vertical_food_consumer_box_box_id_fkey")
-  @@index([consumer_id], map: "vertical_food_consumer_box_consumer_id_fkey")
+  @@index([box_id], map: "vertical_delivery_consumer_box_box_id_fkey")
+  @@index([consumer_id], map: "vertical_delivery_consumer_box_consumer_id_fkey")
 }
 
 model box_lock {
@@ -535,7 +539,7 @@ model box_telemetry_latest {
   box box @relation(fields: [box_id], references: [id], onDelete: Cascade)
 }
 
-enum food_consumer_status {
+enum delivery_consumer_status {
   pending
   delivered
   cancelled

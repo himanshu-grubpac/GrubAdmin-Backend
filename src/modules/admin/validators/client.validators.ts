@@ -7,73 +7,91 @@ import {
 import { validatorErrorHandler } from "@/utils/zod";
 import { zValidator } from "@hono/zod-validator";
 import z from "zod";
+import { Country, State } from "country-state-city";
 
 export const createClientRequestBodyValidator = zValidator(
 	"json",
-	z.object({
-		name: z
-			.string({
-				error: "Please provide a name",
-			})
-			.trim()
-			.min(1, {
-				error: "Name must not be empty",
+	z
+		.object({
+			name: z
+				.string({
+					error: "Please provide a name",
+				})
+				.trim()
+				.min(1, {
+					error: "Name must not be empty",
+				}),
+			client_id: z
+				.string({
+					error: "Please provide a client_id",
+				})
+				.trim()
+				.min(1, "Client ID must not be empty"),
+			email: z.string().trim().toLowerCase().email({
+				error: "Please provide a valid email",
 			}),
-		client_id: z
-			.string({
-				error: "Please provide a client_id",
-			})
-			.trim()
-			.min(1, "Client ID must not be empty"),
-		email: z.string().trim().toLowerCase().email({
-			error: "Please provide a valid email",
+			country_code: z
+				.string({
+					error: "Please provide a valid country code",
+				})
+				.trim()
+				.min(1, "CountryCode must not be empty"),
+			mobile_number: z
+				.string({
+					error: "Please provide a valid mobile number",
+				})
+				.trim()
+				.min(10, {
+					error: "Mobile number must be 10 characters long",
+				})
+				.max(10, {
+					error: "Mobile number must be 10 characters long",
+				}),
+			country: z
+				.string({
+					error: "Please provide a country",
+				})
+				.trim()
+				.min(1, {
+					error: "Country must not be empty",
+				}),
+			state: z
+				.string()
+				.nullable()
+				.optional()
+				.transform((val: string | null | undefined) => val?.trim() || null)
+				.default(null),
+			organization_name: z
+				.string({
+					error: "Please provide an organization name",
+				})
+				.trim()
+				.min(1, {
+					error: "organization name must not be empty",
+				})
+				.optional(),
+			vertical_id: z.ulid({
+				error: "Please provide a vertical id that is a valid ulid",
+			}),
+		})
+		.superRefine((data: { country?: string; state?: string | null }, ctx: z.RefinementCtx) => {
+			const countryName = data.country;
+			if (!countryName) return;
+
+			const country = Country.getAllCountries().find(
+				(c) => c.name.toLowerCase() === countryName.toLowerCase(),
+			);
+			if (!country) return;
+
+			const states = State.getStatesOfCountry(country.isoCode);
+			if (states.length > 0 && !data.state) {
+				ctx.addIssue({
+					code: z.ZodIssueCode.custom,
+					message: "State / Province is required for the selected region",
+					path: ["state"],
+				});
+			}
 		}),
-		country_code: z
-			.string({
-				error: "Please provide a valid country code",
-			})
-			.trim()
-			.min(1, "CountryCode must not be empty"),
-		mobile_number: z
-			.string({
-				error: "Please provide a valid mobile number",
-			})
-			.trim()
-			.min(10, {
-				error: "Mobile number must be 10 characters long",
-			})
-			.max(10, {
-				error: "Mobile number must be 10 characters long",
-			}),
-		country: z
-			.string({
-				error: "Please provide a country",
-			})
-			.trim()
-			.min(1, {
-				error: "Country must not be empty",
-			}),
-		state: z
-			.string({
-				error: "Please provide a state",
-			})
-			.trim()
-			.min(1, {
-				error: "Region must not be empty",
-			}),
-		organization_name: z
-			.string({
-				error: "Please provide an organization name",
-			})
-			.trim()
-			.min(1, {
-				error: "organization name must not be empty",
-			})
-			.optional(),
-		vertical_id: z.ulid({
-			error: "Please provide a vertical id that is a valid ulid",
-		}),
-	}),
 	(result, c) => {
 		if (!result.success) {
 			const issues = result.error.issues;
@@ -220,16 +238,39 @@ export const exportClientRequestQueryValidator = zValidator(
 
 export const updateClientRequestBodyValidator = zValidator(
 	"json",
-	z.object({
-		name: z.string().trim().min(1, "Name must not be empty").optional(),
-		email: z.string().trim().toLowerCase().email("Please provide a valid email").optional(),
-		country_code: z.string().trim().min(1, "CountryCode must not be empty").optional(),
-		mobile_number: z.string().trim().length(10, "Mobile number must be 10 characters long").optional(),
-		country: z.string().trim().min(1, "Country must not be empty").optional(),
-		state: z.string().trim().min(1, "Region must not be empty").optional(),
-		organization_name: z.string().trim().min(1, "organization name must not be empty").optional(),
-		vertical_id: z.ulid("Please provide a vertical id that is a valid ulid").optional(),
-	}),
+	z
+		.object({
+			name: z.string().trim().min(1, "Name must not be empty").optional(),
+			email: z.string().trim().toLowerCase().email("Please provide a valid email").optional(),
+			country_code: z.string().trim().min(1, "CountryCode must not be empty").optional(),
+			mobile_number: z.string().trim().length(10, "Mobile number must be 10 characters long").optional(),
+			country: z.string().trim().min(1, "Country must not be empty").optional(),
+			state: z
+				.string()
+				.nullable()
+				.optional()
+				.transform((val: string | null | undefined) => val?.trim() || null),
+			organization_name: z.string().trim().min(1, "organization name must not be empty").optional(),
+			vertical_id: z.ulid("Please provide a vertical id that is a valid ulid").optional(),
+		})
+		.superRefine((data: { country?: string; state?: string | null }, ctx: z.RefinementCtx) => {
+			const countryCode = data.country;
+			if (!countryCode || data.state === undefined) return;
+
+			const country = Country.getAllCountries().find(
+				(c) => c.name.toLowerCase() === countryCode.toLowerCase(),
+			);
+			if (!country) return;
+
+			const states = State.getStatesOfCountry(country.isoCode);
+			if (states.length > 0 && !data.state) {
+				ctx.addIssue({
+					code: z.ZodIssueCode.custom,
+					message: "State / Province is required for the selected region",
+					path: ["state"],
+				});
+			}
+		}),
 	(response) => {
 		if (!response.success) {
 			validatorErrorHandler(response.error);

@@ -272,7 +272,7 @@ model vertical_delivery_employee {
   
   @@index([client_id], map: "vertical_delivery_employee_client_id_fkey")
   @@index([restaurant_id], map: "vertical_delivery_employee_restaurant_id_fkey")
-  @@map("vertical_food_employee")
+  @@map("vertical_delivery_employee")
 }
 
 
@@ -290,7 +290,7 @@ model vertical_delivery_employee_box {
   @@unique([employee_id, box_id])
   @@index([box_id], map: "vertical_delivery_employee_box_box_id_fkey")
   @@index([employee_id], map: "vertical_delivery_employee_box_employee_id_fkey")
-  @@map("vertical_food_employee_box")
+  @@map("vertical_delivery_employee_box")
 }
 
 model restaurant_box {
@@ -324,7 +324,7 @@ model vertical_delivery_employee_deleted {
   client_id           String?
   x_primary_key       String?
 
-  @@map("vertical_food_employee_deleted")
+  @@map("vertical_delivery_employee_deleted")
 }
 
 model restaurant_deleted {
@@ -375,7 +375,7 @@ model vertical_delivery_consumer {
 
   @@unique([phone, country_code])
   @@index([client_id], map: "vertical_delivery_consumer_client_id_fkey")
-  @@map("vertical_food_consumer")
+  @@map("vertical_delivery_consumer")
 }
 
 model vertical_delivery_consumer_box {

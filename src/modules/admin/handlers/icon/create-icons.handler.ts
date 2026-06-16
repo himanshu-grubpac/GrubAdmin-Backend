@@ -6,11 +6,16 @@ import { APIError } from "@/types/error";
 import { services } from "@/services";
 import { ICON_FOLDER_PREFIX } from "@/configs/constants.ts";
 import { createIcons } from "@/db/actions/icon.actions.ts";
+import type { icon } from "@/db/types";
 import { Permission } from "@/utils/permission.ts";
 
 const ALLOWED_MIME_TYPES = ["image/png", "image/jpeg", "image/svg+xml", "image/webp"];
 const ALLOWED_EXTENSIONS = ["png", "jpg", "jpeg", "svg", "webp"];
 const MAX_FILE_SIZE = 2 * 1024 * 1024;
+
+interface ResponseData {
+	icons: icon[];
+}
 
 function validateIconFile(file: any) {
 	if (!(file instanceof File)) {
@@ -106,7 +111,7 @@ export const createIconsHandler = createHandlers(
 
 			const createdIcons = await createIcons({ icons: data });
 
-			return context.json<APIResponse>(
+			return context.json<APIResponse<ResponseData>>(
 				{
 					success: true,
 					code: 200,
@@ -120,7 +125,6 @@ export const createIconsHandler = createHandlers(
 			console.error("Icon Creation/S3 upload flow crashed. Commencing rollback...");
 			console.error("Detailed internal error info:", error);
 
-
 			if (uploadedKeys.length > 0) {
 				try {
 					await services.s3.deleteFromS3(uploadedKeys, ICON_FOLDER_PREFIX);
@@ -130,7 +134,9 @@ export const createIconsHandler = createHandlers(
 			}
 
 			const status = error instanceof APIError ? error.code : 500;
-			const message = error instanceof APIError ? error.message : "S3 upload or database transaction failed";
+			const message = error instanceof APIError
+				? error.message
+				: String(error?.message || error || "S3 upload or database transaction failed");
 
 			throw new APIError(message, undefined, undefined, status);
 		}
