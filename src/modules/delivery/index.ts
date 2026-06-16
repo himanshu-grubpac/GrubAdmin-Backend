@@ -28,6 +28,7 @@ import {
 	getSupportQuestionsHandler,
 	searchSupportQuestionsHandler,
 	getSupportAnswerHandler,
+	downloadSupportAttachmentHandler,
 } from "delivery/handlers/support";
 import {
 	createEmployeeHandler,
@@ -156,6 +157,7 @@ deliveryRouter.get("/support/category", ...getSupportCategoriesHandler);
 deliveryRouter.get("/support/faq", ...getSupportQuestionsHandler);
 deliveryRouter.get("/support/search", ...searchSupportQuestionsHandler);
 deliveryRouter.get("/support/answer", ...getSupportAnswerHandler);
+deliveryRouter.get("/support/faq/attachment/download", ...downloadSupportAttachmentHandler);
 
 /**
  * Name: Delivery Employee Router

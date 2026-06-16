@@ -1,6 +1,7 @@
 import {
 	DeleteObjectsCommand,
 	GetBucketLocationCommand,
+	GetObjectCommand,
 	ListObjectsV2Command,
 	type ObjectCannedACL,
 	PutObjectCommand,
@@ -156,6 +157,34 @@ export class s3Service {
 			);
 		} catch (error) {
 			console.error("Critical: Failed to clean up uploaded S3 objects during rollback:", error);
+		}
+	}
+
+	async getObjectFromS3(key: string) {
+		const download = async () => {
+			const command = new GetObjectCommand({
+				Bucket: this.bucket,
+				Key: key,
+			});
+			return await this.client.send(command);
+		};
+
+		try {
+			return await download();
+		} catch (error: any) {
+			const isRedirect = error.$metadata?.httpStatusCode === 301 || 
+				String(error?.message || error || "").includes("must be addressed using the specified endpoint");
+
+			if (isRedirect) {
+				await this.resolveBucketRegion();
+				try {
+					return await download();
+				} catch (retryError: any) {
+					console.error("S3 getObject retry failed:", retryError);
+					throw retryError;
+				}
+			}
+			throw error;
 		}
 	}
 
