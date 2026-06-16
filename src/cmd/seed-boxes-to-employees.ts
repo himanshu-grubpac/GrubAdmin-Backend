@@ -65,7 +65,7 @@ async function main() {
     drivers.forEach(d => console.log(`    - ${d.first_name} ${d.last_name} (${d.id}, ${d.status})`));
 
     if (drivers.length > 0) {
-        const firstDriver = drivers[0];
+        const firstDriver = drivers[0]!;
         console.log(`\nStep 4: Connecting ${firstDriver.first_name} ${firstDriver.last_name} to GP-CP02...`);
         await prisma.box.update({
             where: { id: BOX_GP_CP02 },
@@ -100,7 +100,7 @@ async function main() {
     console.log("Expected result in UI:");
     console.log("  - Manager Harish Verma: 2 permitted boxes (GP-CP01, GP-CP02)");
     if (drivers.length > 0) {
-        console.log(`  - Driver ${drivers[0].first_name} ${drivers[0].last_name}: shows in 'Box Connected' group`);
+        console.log(`  - Driver ${drivers[0]!.first_name} ${drivers[0]!.last_name}: shows in 'Box Connected' group`);
     }
 }
 

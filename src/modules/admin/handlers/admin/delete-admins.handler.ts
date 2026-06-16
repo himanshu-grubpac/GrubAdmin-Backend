@@ -48,7 +48,7 @@ export const deleteAdminsHandler = createHandlers(
 		}
 
 		if (!loggedInAdminRole?.is_super_admin) {
-			const hasSuperAdmin = adminsToBeDeleted.admins.some((a) => a.role?.is_super_admin);
+			const hasSuperAdmin = adminsToBeDeleted.admins.some((a) => (a as any).role?.is_super_admin);
 			if (hasSuperAdmin) {
 				throw new APIError("Unauthorized: You cannot delete a Super Admin", undefined, undefined, 403);
 			}

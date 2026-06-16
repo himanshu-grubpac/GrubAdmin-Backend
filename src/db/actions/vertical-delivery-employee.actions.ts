@@ -804,7 +804,7 @@ export const reactivateVerticalDeliveryEmployees = async (
 		for (const emp of employees) {
 			if (emp.role === "manager" && emp.restaurant_id) {
 				managerRestaurantCounts[emp.restaurant_id] = (managerRestaurantCounts[emp.restaurant_id] || 0) + 1;
-				if (managerRestaurantCounts[emp.restaurant_id] > 1) {
+				if ((managerRestaurantCounts[emp.restaurant_id] || 0) > 1) {
 					throw new APIError(
 						"You cannot reactivate multiple managers for the same restaurant. Only one manager can be reactivated and reassigned to the same restaurant.",
 						undefined,

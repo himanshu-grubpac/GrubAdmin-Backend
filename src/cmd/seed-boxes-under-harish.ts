@@ -44,12 +44,12 @@ async function main() {
     });
 
     const activeDriver = drivers.find(d => d.status === "active");
-    const driverId = activeDriver ? activeDriver.id : (drivers[0] ? drivers[0].id : null);
+    const driverId = activeDriver ? activeDriver.id : (drivers[0] ? drivers[0]!.id : null);
 
     if (activeDriver) {
         console.log(`  Found active driver for GP-CP01 / GP-CP02: ${activeDriver.first_name} ${activeDriver.last_name} (${activeDriver.id})`);
     } else if (drivers[0]) {
-        console.log(`  No active driver found. Using driver: ${drivers[0].first_name} ${drivers[0].last_name} (${drivers[0].id})`);
+        console.log(`  No active driver found. Using driver: ${drivers[0]!.first_name} ${drivers[0]!.last_name} (${drivers[0]!.id})`);
     } else {
         console.log("  Warning: No drivers found in DB!");
     }
@@ -107,7 +107,7 @@ async function main() {
     console.log("\nCreating box telemetry records...");
     const telemetries = [
         {
-            box_id: seededBoxes[0].id,
+            box_id: seededBoxes[0]!.id,
             health_status: "healthy" as const,
             power_status: "on" as const,
             battery_percentage: 87,
@@ -118,7 +118,7 @@ async function main() {
             connection_status: "connected" as const,
         },
         {
-            box_id: seededBoxes[1].id,
+            box_id: seededBoxes[1]!.id,
             health_status: "attention" as const,
             power_status: "on" as const,
             battery_percentage: 32,
@@ -129,7 +129,7 @@ async function main() {
             connection_status: "connected" as const,
         },
         {
-            box_id: seededBoxes[2].id,
+            box_id: seededBoxes[2]!.id,
             health_status: "critical" as const,
             power_status: "on" as const,
             battery_percentage: 8,
@@ -140,7 +140,7 @@ async function main() {
             connection_status: "connected" as const,
         },
         {
-            box_id: seededBoxes[3].id,
+            box_id: seededBoxes[3]!.id,
             health_status: "healthy" as const,
             power_status: "off" as const,
             battery_percentage: 0,
@@ -160,10 +160,10 @@ async function main() {
     // Step 5: Map boxes to restaurants (restaurant_box)
     console.log("\nMapping boxes to restaurants...");
     const restaurantMappings = [
-        { restaurant_id: RESTAURANT_GGC, box_id: seededBoxes[0].id, status: "shared" as const },
-        { restaurant_id: RESTAURANT_GGC, box_id: seededBoxes[1].id, status: "shared" as const },
-        { restaurant_id: RESTAURANT_GEN, box_id: seededBoxes[2].id, status: "shared" as const },
-        { restaurant_id: RESTAURANT_GEN, box_id: seededBoxes[3].id, status: "shared" as const }
+        { restaurant_id: RESTAURANT_GGC, box_id: seededBoxes[0]!.id, status: "shared" as const },
+        { restaurant_id: RESTAURANT_GGC, box_id: seededBoxes[1]!.id, status: "shared" as const },
+        { restaurant_id: RESTAURANT_GEN, box_id: seededBoxes[2]!.id, status: "shared" as const },
+        { restaurant_id: RESTAURANT_GEN, box_id: seededBoxes[3]!.id, status: "shared" as const }
     ];
 
     for (const rm of restaurantMappings) {
@@ -175,7 +175,7 @@ async function main() {
     if (driverId) {
         console.log("\nMapping connected boxes to drivers in employee box mappings...");
         const employeeMappings = [
-            { employee_id: driverId, box_id: seededBoxes[0].id, status: "shared" as const }
+            { employee_id: driverId, box_id: seededBoxes[0]!.id, status: "shared" as const }
         ];
 
         for (const em of employeeMappings) {

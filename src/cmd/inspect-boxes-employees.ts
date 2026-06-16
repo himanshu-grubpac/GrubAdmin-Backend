@@ -19,7 +19,7 @@ async function main() {
     console.log("All Boxes:", boxes.map(b => ({
         id: b.id,
         display_id: b.box_display_id,
-        customer_id: b.customer_id,
+        client_id: b.client_id,
         status: b.status,
         connection_employee_id: b.connection_employee_id,
         restaurant_boxes: b.restaurant_boxes,

@@ -45,7 +45,7 @@ export const sentResetPasswordOtpHandler = createHandlers(
 				});
 
 		await services.mailer.sendEmail({
-			from: process.env.MAIL,  // Use configured mail env var, not a hardcoded personal address
+			from: process.env.MAIL ?? "",  // Use configured mail env var, not a hardcoded personal address
 			subject: "Reset Password OTP",
 			to: normalizedEmail,
 			text: `Your OTP for resetting your password is ${otp}`,

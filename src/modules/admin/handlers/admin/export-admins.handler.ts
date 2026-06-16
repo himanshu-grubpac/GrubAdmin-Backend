@@ -54,7 +54,7 @@ export const exportAdminsHandler = createHandlers(
 						role_id: typeof role === "string" ? [role] : role,
 						fetchAll: fetch_all,
 						excludeRoles: !include_roles,
-						status,
+						status: status as "active" | "suspended" | "unassigned" | undefined,
 					});
 
 		

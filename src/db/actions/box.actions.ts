@@ -515,8 +515,6 @@ export const getBoxes = async (
 		prisma.box.count({
 			where: {
 				...boxesQueryArgs.where,
-				skip: undefined,
-				take: undefined,
 			},
 		}),
 	]);
@@ -818,8 +816,6 @@ export const getVerticalDeliveryBoxes = async (args: GetVerticalDeliveryBoxesArg
 		prisma.box.count({
 			where: {
 				...boxesQueryArgs.where,
-				skip: undefined,
-				take: undefined,
 			},
 		}),
 	]);

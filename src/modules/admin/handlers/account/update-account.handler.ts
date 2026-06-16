@@ -54,7 +54,7 @@ export const updateAccountHandler = createHandlers(
 		const isPasswordChanging = !!new_password;
 		const isNameChanged = !!((first_name && first_name !== user.first_name) || (last_name && last_name !== user.last_name));
 		const isLocationChanged = !!(assigned_location && assigned_location !== user.location);
-		const isDateChanged = !!(joining_date && joining_date.toISOString() !== user.joining_date?.toISOString());
+		const isDateChanged = !!(joining_date && new Date(joining_date).toISOString() !== user.joining_date?.toISOString());
 
 		if ((isDateChanged || isLocationChanged) && type !== "admin") {
 			throw new APIError("You are not authorized to change the joining date or assigned location.", "admin.auth.UNAUTHORIZED", undefined, 403);
@@ -77,7 +77,7 @@ export const updateAccountHandler = createHandlers(
 			const profileUpdateOtp = await getAdminUpdateOtp(user_id);
 
 			if (profileUpdateOtp && profileUpdateOtp.email) {
-				const timeSinceLastOtp = Date.now() - new Date(profileUpdateOtp.updatedAt).getTime();
+				const timeSinceLastOtp = Date.now() - Number(profileUpdateOtp.updatedAt);
 				if (timeSinceLastOtp < 60 * 1000) {
 					throw new APIError("An OTP has already been sent recently. Please wait a minute before requesting another.", "admin.account.OTP_ALREADY_SENT", undefined, 400);
 				}
@@ -114,7 +114,7 @@ export const updateAccountHandler = createHandlers(
 			const profileUpdateOtp = await getAdminUpdateOtp(user_id);
 
 			if (profileUpdateOtp && profileUpdateOtp.mobile_number) {
-				const timeSinceLastOtp = Date.now() - new Date(profileUpdateOtp.updatedAt).getTime();
+				const timeSinceLastOtp = Date.now() - Number(profileUpdateOtp.updatedAt);
 				if (timeSinceLastOtp < 60 * 1000) {
 					throw new APIError("An OTP has already been sent recently. Please wait a minute before requesting another.", "admin.account.OTP_ALREADY_SENT", undefined, 400);
 				}

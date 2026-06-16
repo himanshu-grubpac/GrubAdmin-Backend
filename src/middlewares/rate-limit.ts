@@ -34,7 +34,7 @@ export function rateLimit(options: RateLimitOptions): MiddlewareHandler {
 		const key = keyGenerator
 			? keyGenerator(c)
 			: (
-					c.req.header("x-forwarded-for")?.split(",")[0].trim() ||
+					c.req.header("x-forwarded-for")?.split(",")[0]?.trim() ||
 					c.req.header("x-real-ip") ||
 					"unknown"
 			  );

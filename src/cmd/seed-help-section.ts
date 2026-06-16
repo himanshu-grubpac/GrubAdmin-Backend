@@ -202,7 +202,7 @@ async function main() {
             data: {
                 id: ulid(),
                 question_id: questionRecord.id,
-                category_id: categoryRecords[faq.category]
+                category_id: categoryRecords[faq.category]!
             }
         });
 

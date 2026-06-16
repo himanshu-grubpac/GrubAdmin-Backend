@@ -30,10 +30,10 @@ async function main() {
 			});
 
 			const [keep, ...toFix] = employees;
-			console.log(`  Keeping: ${keep.email} (id: ${keep.id})`);
+			console.log(`  Keeping: ${keep!.email} (id: ${keep!.id})`);
 
 			for (let i = 0; i < toFix.length; i++) {
-				const emp = toFix[i];
+				const emp = toFix[i]!;
 				const newEmail = `${emp.email}+fix_${i + 1}_${emp.id.slice(0, 8)}`;
 				await prisma.vertical_delivery_employee.update({
 					where: { id: emp.id },
