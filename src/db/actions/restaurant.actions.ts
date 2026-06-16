@@ -70,11 +70,7 @@ export const getRestaurantById = async (args: GetRestaurantByIdArgs) => {
 							box: { status: { not: "suspended" } },
 						},
 					},
-					employees: {
-						where: {
-							status: { not: "suspended" },
-						},
-					},
+					employees: true,
 				},
 			},
 			restaurant_boxes: {
@@ -88,9 +84,6 @@ export const getRestaurantById = async (args: GetRestaurantByIdArgs) => {
 				},
 			},
 			employees: {
-				where: {
-					status: { not: "suspended" },
-				},
 				select: {
 					id: true,
 					role: true,
@@ -262,17 +255,12 @@ export const getRestaurants = async (args: GetRestaurantArgs) => {
 							box: { status: { not: "suspended" } },
 						},
 					},
-					employees: {
-						where: {
-							status: { not: "suspended" },
-						},
-					},
+					employees: true,
 				},
 			},
 			employees: {
 				where: {
 					role: { in: ["manager", "delivery"] },
-					status: { not: "suspended" },
 				},
 				select: {
 					role: true,
@@ -368,17 +356,12 @@ export const getRestaurantDropdowns = async (
 							box: { status: { not: "suspended" } },
 						},
 					},
-					employees: {
-						where: {
-							status: { not: "suspended" },
-						},
-					},
+					employees: true,
 				},
 			},
 			employees: {
 				where: {
 					role: { in: ["manager", "delivery"] },
-					status: { not: "suspended" },
 				},
 				select: {
 					role: true,
