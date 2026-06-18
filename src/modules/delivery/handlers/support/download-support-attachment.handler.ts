@@ -38,7 +38,7 @@ export const downloadSupportAttachmentHandler = createHandlers(
 			}
 
 			// Convert stream to binary data (Uint8Array)
-			const fileBuffer = await s3Response.Body.transformToByteArray();
+			const fileBuffer = new Uint8Array(await s3Response.Body.transformToByteArray());
 
 			// Parse original filename (removes 26-char ULID and hyphen prefix, e.g., '01KV2...-' -> '')
 			const baseName = pathParam.split("/").pop() || pathParam;

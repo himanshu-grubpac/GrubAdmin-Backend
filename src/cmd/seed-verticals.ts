@@ -3,10 +3,10 @@ import { logger } from "@/utils/logger";
 import { SEED_IDS } from "./seed-ids";
 
 const VERTICALS = [
-  { id: SEED_IDS.VERTICAL_MEDICAL, name: "Medical" },
-  { id: SEED_IDS.VERTICAL_CAMPING, name: "Camping" },
-  { id: SEED_IDS.VERTICAL_HOSPITALITY, name: "Hospitality" },
-  { id: SEED_IDS.VERTICAL_DELIVERY, name: "Delivery" },
+  { id: SEED_IDS.VERTICAL_DELIVERY, name: "Delivery", display_order: 1 },
+  { id: SEED_IDS.VERTICAL_MEDICAL, name: "Medical", display_order: 2 },
+  { id: SEED_IDS.VERTICAL_HOSPITALITY, name: "Hospitality", display_order: 3 },
+  { id: SEED_IDS.VERTICAL_CAMPING, name: "Camping", display_order: 4 },
 ] as const;
 
 const ICONS = [
@@ -28,8 +28,8 @@ export const seedVerticals = async (): Promise<void> => {
   for (const v of VERTICALS) {
     await prisma.vertical.upsert({
       where: { id: v.id },
-      update: { name: v.name },
-      create: { id: v.id, name: v.name },
+      update: { name: v.name, display_order: v.display_order },
+      create: { id: v.id, name: v.name, display_order: v.display_order },
     });
     logger.info(`  Vertical "${v.name}" ready.`);
   }
