@@ -87,7 +87,7 @@ export const downloadSupportAttachmentRequestQueryValidator = zValidator(
 	"query",
 	z.object({
 		path: z.string({
-			required_error: "Please provide a valid path",
+			error: "Please provide a valid path",
 		}).min(1, "Please provide a valid path"),
 	}),
 	(response) => {

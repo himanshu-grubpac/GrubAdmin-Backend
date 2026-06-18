@@ -65,16 +65,17 @@ model icon {
 }
 
 model vertical {
-  id             String          @id @default(ulid())
-  name           String          @unique
-  status         vertical_status @default(active)
-  created_at     DateTime        @default(now())
-  updated_at     DateTime        @updatedAt
-  boxes          box[]
-  clients        client[]
-  faq_categories faq_category[]
+	id             String          @id @default(ulid())
+	name           String          @unique
+	status         vertical_status @default(active)
+	display_order  Int             @default(999)
+	created_at     DateTime        @default(now())
+	updated_at     DateTime        @updatedAt
+	boxes          box[]
+	clients        client[]
+	faq_categories faq_category[]
 
-  @@index([name])
+	@@index([name])
 }
 
 model client {

@@ -108,6 +108,9 @@ export const getVerticals = async () => {
 		where: {
 			status: "active",
 		},
+		orderBy: {
+			display_order: "asc",
+		},
 	});
 };
 

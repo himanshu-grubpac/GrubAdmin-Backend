@@ -14,7 +14,7 @@ function parseOriginalFilename(pathParam: string): string {
 // Query validator schema replication for testing
 const downloadQuerySchema = z.object({
 	path: z.string({
-		required_error: "Please provide a valid path",
+		error: "Please provide a valid path",
 	}).min(1, "Please provide a valid path"),
 });
 

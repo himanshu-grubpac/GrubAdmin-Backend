@@ -1,10 +1,10 @@
 // Single source of truth for all allowed verticals in the system.
 // Every layer (DB, API validation, frontend options) MUST derive from this.
 export const BOX_VERTICALS = [
-	"camping",
-	"medical",
 	"delivery",
+	"medical",
 	"hospitality",
+	"camping",
 ] as const;
 
 export type VerticalName = (typeof BOX_VERTICALS)[number];
