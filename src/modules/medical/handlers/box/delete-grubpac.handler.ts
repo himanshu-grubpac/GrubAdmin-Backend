@@ -5,7 +5,7 @@ import type { APIResponse } from "@/types/api";
 import { deleteMedicalBoxes } from "@/db/actions/medical/box.actions";
 
 export const deleteGrubpacHandler = createHandlers(
-	medicalAuthGuard(["admin", "manager"]),
+	medicalAuthGuard(["admin"]),
 	deleteBoxesRequestBodyValidator,
 	async (context) => {
 		const { client_id } = context.var;

@@ -5,7 +5,7 @@ import type { APIResponse } from "@/types/api";
 import { prisma } from "@/db";
 
 export const updateGrubpacHandler = createHandlers(
-	medicalAuthGuard(["admin", "manager"]),
+	medicalAuthGuard(["admin"]),
 	updateGrubpacRequestBodyValidator,
 	async (context) => {
 		const { client_id } = context.var;
