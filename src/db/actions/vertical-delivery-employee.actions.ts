@@ -541,6 +541,7 @@ export const getVerticalDeliveryEmployees = async (
 					include: {
 						restaurant_boxes: !!include_boxes
 							? {
+								where: { status: "shared" },
 								include: {
 									box: {
 										include: {
@@ -590,97 +591,117 @@ export const getVerticalDeliveryEmployees = async (
 		throw new APIError(employeesCountResponse.reason, undefined, undefined, 400);
 	}
 
-	return {
-		employees: employeesResponse.value.map((employee: any) => {
-			const {
-				vertical_delivery_employee_boxes,
-				connected_boxes,
-				_count,
-				...rest
-			} = employee;
+		return {
+				employees: employeesResponse.value.map((employee: any) => {
+					const {
+						vertical_delivery_employee_boxes,
+						connected_boxes,
+						_count,
+						...rest
+					} = employee;
 
-			const flattenBox = (box: any) => {
-				if (!box) return null;
-				const { telemetry, ...boxData } = box;
-				const { id: _telemetryId, box_id: _telemetryBoxId, updated_at: _telemetryUpdatedAt, ...telemetryData } = (telemetry || {}) as any;
-				return { ...boxData, ...telemetryData };
+					const flattenBox = (box: any) => {
+						if (!box) return null;
+						const { telemetry, ...boxData } = box;
+						const { id: _telemetryId, box_id: _telemetryBoxId, updated_at: _telemetryUpdatedAt, ...telemetryData } = (telemetry || {}) as any;
+						return { ...boxData, ...telemetryData };
+					};
+
+					// Physical connections
+					const directConnections = (connected_boxes || []).map(flattenBox).filter(Boolean);
+					const connectedBoxesMap = new Map(directConnections.map((b: any) => [b.id, b]));
+					const connectedBoxes = Array.from(connectedBoxesMap.values());
+
+					// Employee-level shared permissions
+					const sharedPermissions = (vertical_delivery_employee_boxes || []).map((p: any) => ({
+						...p,
+						box: flattenBox(p.box)
+					}));
+
+					// Restaurant-level box assignments (via restaurant_box)
+					const restaurantBoxes: any[] = [];
+					if ((employee as any).restaurant?.restaurant_boxes) {
+						for (const rb of (employee as any).restaurant.restaurant_boxes) {
+							if (rb.box) {
+								restaurantBoxes.push({
+									box: flattenBox(rb.box),
+									boxClientId: rb.box.client_id,
+								});
+							}
+						}
+					}
+
+					// For managers: derive box visibility from restaurant's assigned boxes
+					let boxes: any[] = [];
+					let allBoxes: any[] = [];
+
+					if (rest.role === "manager" && (employee as any).restaurant) {
+						// Blocked box IDs from employee-level permissions
+						const blockedBoxIds = new Set(
+							sharedPermissions.filter((p: any) => p.status === "blocked").map((p: any) => p.box_id),
+						);
+
+						// Direct boxes: box.client_id matches employee's client_id (owned by same client)
+						const directBoxes = restaurantBoxes
+							.filter((rb: any) => rb.boxClientId === client_id && !blockedBoxIds.has(rb.box.id))
+							.map((rb: any) => rb.box);
+
+						// Shared boxes: box.client_id does NOT match employee's client_id
+						const sharedBoxes = restaurantBoxes
+							.filter((rb: any) => rb.boxClientId !== client_id && !blockedBoxIds.has(rb.box.id))
+							.map((rb: any) => rb.box);
+
+						boxes = directBoxes;
+						// Deduplicate all_boxes
+						const allMap = new Map<string, any>();
+						for (const b of directBoxes) allMap.set(b.id, b);
+						for (const b of sharedBoxes) if (!allMap.has(b.id)) allMap.set(b.id, b);
+						allBoxes = Array.from(allMap.values());
+					} else {
+						// For non-manager roles: use employee-level shared permissions
+						const nonBlockedPermissions = sharedPermissions.filter((p: any) => p.status !== "blocked");
+						// Non-managers don't have direct restaurant ownership; use shared permissions as all_boxes
+						const permsMap = new Map<string, any>();
+						for (const p of nonBlockedPermissions) {
+							if (p.box) {
+								permsMap.set(p.box.id, p.box);
+							}
+						}
+						allBoxes = Array.from(permsMap.values());
+						boxes = [];
+					}
+
+					const firstConnectedBox = connectedBoxes[0] || null;
+					let handler_status = "disconnected";
+					if (firstConnectedBox) {
+						handler_status = firstConnectedBox.power_status === "off" ? "offline" : (firstConnectedBox.connection_status === "connected" ? "connected" : "disconnected");
+					}
+
+					return {
+						...rest,
+						restaurant: rest.restaurant ? withFullAddress(rest.restaurant) : null,
+						handler_status,
+						handler_employee: {
+							...rest,
+							employee_id: rest.employee_display_id,
+							password: undefined,
+						},
+						handler_box: firstConnectedBox,
+						connected_boxes_status: connectedBoxes.length > 0,
+						connected_boxes_count: connectedBoxes.length,
+						connected_boxes: connectedBoxes,
+						// Backward-compatible shared_boxes (now = all_boxes)
+						shared_boxes_count: allBoxes.length,
+						shared_boxes: allBoxes,
+						// New fields per business requirement
+						boxes,
+						boxes_count: boxes.length,
+						all_boxes: allBoxes,
+						all_boxes_count: allBoxes.length,
+					};
+				}),
+				count: employeesCountResponse.value,
 			};
-
-			// Combine direct connections and shared permissions
-			const directBoxes = (connected_boxes || []).map(flattenBox);
-			const sharedPermissions = (vertical_delivery_employee_boxes || []).map((p: any) => ({
-				...p,
-				box: flattenBox(p.box)
-			}));
-			const managedBoxes: any[] = [];
-
-			// Also include boxes from the primary assigned restaurant
-			if ((employee as any).restaurant?.restaurant_boxes) {
-				for (const rb of (employee as any).restaurant.restaurant_boxes) {
-					if (rb.box) {
-						managedBoxes.push(flattenBox(rb.box));
-					}
-				}
-			}
-
-			// Aggregate unique boxes by ID
-			const sharedBoxesMap = new Map();
-			const connectedBoxesMap = new Map();
-
-			// 1. Physical Connections (connected_boxes)
-			for (const b of directBoxes) {
-				connectedBoxesMap.set(b.id, b);
-			}
-
-			// 2. Shared Permissions / Management (shared_boxes)
-			if (rest.role === "manager") {
-				// For managers, prioritize all boxes from their managed restaurants (except blocked)
-				const blockedBoxIds = new Set(
-					sharedPermissions.filter((p: any) => p.status === "blocked").map((p: any) => p.box_id),
-				);
-				for (const b of managedBoxes) {
-					if (!blockedBoxIds.has(b.id)) {
-						sharedBoxesMap.set(b.id, b);
-					}
-				}
-			} else {
-				// For other roles, include shared permissions
-				for (const p of sharedPermissions) {
-					if (p.box && p.status !== "blocked") {
-						sharedBoxesMap.set(p.box.id, p.box);
-					}
-				}
-			}
-
-			const sharedBoxes = Array.from(sharedBoxesMap.values());
-			const connectedBoxes = Array.from(connectedBoxesMap.values());
-
-			const firstConnectedBox = connectedBoxes[0] || null;
-			let handler_status = "disconnected";
-			if (firstConnectedBox) {
-				handler_status = firstConnectedBox.power_status === "off" ? "offline" : (firstConnectedBox.connection_status === "connected" ? "connected" : "disconnected");
-			}
-
-
-			return {
-				...rest,
-				restaurant: rest.restaurant ? withFullAddress(rest.restaurant) : null,
-				handler_status,
-				handler_employee: {
-					...rest,
-					employee_id: rest.employee_display_id,
-					password: undefined,
-				},
-				handler_box: firstConnectedBox,
-				connected_boxes_status: connectedBoxes.length > 0,
-				connected_boxes_count: connectedBoxes.length,
-				connected_boxes: connectedBoxes,
-				shared_boxes_count: sharedBoxes.length,
-				shared_boxes: sharedBoxes,
-			};
-		}),
-		count: employeesCountResponse.value,
-	};
 };
 
 // ────────────────────────────────────────────────────
@@ -955,7 +976,20 @@ export const getVerticalDeliveryEmployeeById = async (
 		},
 		omit: { password: true },
 		include: {
-			restaurant: true,
+			restaurant: {
+				include: {
+					restaurant_boxes: {
+						where: { status: "shared" },
+						include: {
+							box: {
+								include: {
+									telemetry: true,
+								},
+							},
+						},
+					},
+				},
+			},
 			vertical_delivery_employee_boxes: {
 				take: 20, // Strict limit on relationship serialization
 				orderBy: { created_at: "desc" },

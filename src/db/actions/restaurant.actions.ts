@@ -4,6 +4,7 @@ import { type Prisma, type client_employee_role } from "../types";
 import { BoxConfig } from "@/db/mongo-schema";
 import { nullifyEmptyFKs } from "@/utils/clean-query.ts";
 import { RestaurantLifecycleService } from "@/services/resource-lifecycle";
+import { getRestaurantBoxVisibility } from "@/db/actions/box-visibility.actions";
 
 interface CreateRestaurantArgs {
 	name: string;
@@ -107,16 +108,20 @@ export const getRestaurantById = async (args: GetRestaurantByIdArgs) => {
 
 	const manager = restaurant.employees.find((e: any) => e.role === "manager") || null;
 
+	const boxVisibility = await getRestaurantBoxVisibility(id, client_id);
+
 	return {
 		...restaurant,
 		manager: manager || null,
 		_count: {
-			boxes: restaurant._count.restaurant_boxes,
+			boxes: boxVisibility.all_boxes_count,
 			total_employees: restaurant._count.employees,
 			managers: restaurant.employees.filter((e: any) => e.role === "manager").length,
 			drivers: restaurant.employees.filter((e: any) => e.role === "delivery").length,
 			suspended_boxes: restaurant.restaurant_boxes.length,
 		},
+		boxes_count: boxVisibility.boxes_count,
+		all_boxes_count: boxVisibility.all_boxes_count,
 	};
 };
 
