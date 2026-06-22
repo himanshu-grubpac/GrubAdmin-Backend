@@ -1,4 +1,4 @@
-import { ClientAdminLog, DeliveryEmployeeLog, RestaurantLog, GrubpacLog } from "@/db/mongo-schema";
+import { ClientAdminLog, DeliveryEmployeeLog, RestaurantLog, GrubpacLog, DepartmentLog } from "@/db/mongo-schema";
 import { logger } from "@/utils/logger.ts";
 import { DEFAULT_IP_ADDRESS } from "@/configs/constants.ts";
 import { LOG_CONFIG } from "@/configs/log.config.ts";
@@ -8,7 +8,8 @@ export type LogCategory =
 	| "Employee" 
 	| "GrubPac" 
 	| "GrubLock" 
-	| "Profile";
+	| "Profile"
+	| "Department";
 
 export type LogType = 
 	| "Creation"
@@ -94,14 +95,17 @@ export class SystemLogService {
 				case "Restaurant":
 					Model = RestaurantLog;
 					break;
-				case "GrubPac":
-				case "GrubLock":
-					Model = GrubpacLog;
-					break;
-				case "Profile":
-				default:
-					Model = ClientAdminLog;
-					break;
+			case "Department":
+				Model = DepartmentLog;
+				break;
+			case "GrubPac":
+			case "GrubLock":
+				Model = GrubpacLog;
+				break;
+			case "Profile":
+			default:
+				Model = ClientAdminLog;
+				break;
 			}
 
 			await Model.create({
@@ -133,6 +137,23 @@ export class SystemLogService {
 		const subjectLabel = subject ? `[${subject.name}, ${subject.id}]` : "";
 
 		switch (category) {
+			case "Department":
+				if (type === "Creation") return `${actorLabel} added new department - ${subjectLabel}`;
+				if (type === "Deletion") return `${actorLabel} deleted department ${subjectLabel}`;
+				if (type === "Suspension") return `${actorLabel} suspended department ${subjectLabel}`;
+				if (type === "Activation") return `${actorLabel} reactivated department ${subjectLabel}`;
+				if (type === "Updation") {
+					const changes = metadata.changes || [];
+					if (Array.isArray(changes) && changes.length > 0) {
+						const fieldList = changes.map((c: any) => c.field || "field").join(", ");
+						return `${actorLabel} updated ${fieldList} of ${subjectLabel}`;
+					}
+					return `${actorLabel} updated ${metadata.field || "field"} of ${subjectLabel} from ${metadata.old_value || "X"} to ${metadata.new_value || "Y"}`;
+				}
+				if (type === "Assignment") return `${actorLabel} assigned employee(s) to ${subjectLabel}`;
+				if (type === "Reassignment") return `${actorLabel} reassigned resources from ${subjectLabel}`;
+				break;
+
 			case "Restaurant":
 				if (type === "Creation") return `${actorLabel} added new restaurant - ${subjectLabel}`;
 				if (type === "Deletion") return `${actorLabel} deleted ${subjectLabel}`;

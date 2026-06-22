@@ -6,5 +6,6 @@ export * from "./admin-notification.model.ts";
 export * from "./delivery-employee-otp.model.ts";
 export * from "./delivery-employee-update-otp.model.ts";
 export * from "./delivery-transfer-ownership-otp.model.ts";
+export * from "./medical-employee-otp.model.ts";
 export * from "./box-config.model.ts";
 export * from "./system-log.model";

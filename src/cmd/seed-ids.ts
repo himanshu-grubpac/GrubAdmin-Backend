@@ -75,6 +75,19 @@ export const SEED_IDS = {
   EMPLOYEE_UNASSIGNED: deterministicUlid(),
   EMPLOYEE_MEDICAL_DELIVERY: deterministicUlid(),
 
+  MEDICAL_DEPARTMENT_1: deterministicUlid(),
+  MEDICAL_DEPARTMENT_2: deterministicUlid(),
+  MEDICAL_DEPARTMENT_3: deterministicUlid(),
+
+  MEDICAL_EMPLOYEE_MANAGER_1: deterministicUlid(),
+  MEDICAL_EMPLOYEE_MANAGER_2: deterministicUlid(),
+  MEDICAL_EMPLOYEE_DELIVERY_1: deterministicUlid(),
+  MEDICAL_EMPLOYEE_DELIVERY_2: deterministicUlid(),
+  MEDICAL_EMPLOYEE_SUSPENDED: deterministicUlid(),
+
+  MEDICAL_CONSUMER_1: deterministicUlid(),
+  MEDICAL_CONSUMER_2: deterministicUlid(),
+
   FAQ_CATEGORY_GETTING_STARTED: deterministicUlid(),
   FAQ_CATEGORY_TROUBLESHOOTING: deterministicUlid(),
   FAQ_CATEGORY_BILLING: deterministicUlid(),

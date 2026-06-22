@@ -159,6 +159,7 @@ export const LOG_MODULES = [
 	"grublock",
 	"authentication",
 	"verticals",
+	"department",
 ] as const;
 
 export const LOG_ACTIONS = [
