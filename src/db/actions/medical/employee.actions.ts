@@ -508,7 +508,7 @@ export const getMedicalEmployees = async (
 		include: {
 			department: !!include_department || !!include_boxes,
 			connected_boxes: include_boxes ? { include: { telemetry: true } } : false,
-			medical_employee_boxes: include_boxes
+			employee_boxes: include_boxes
 				? {
 					include: {
 						box: {
@@ -804,7 +804,7 @@ export const getMedicalEmployeeById = async (
 		omit: { password: true },
 		include: {
 			department: true,
-			medical_employee_boxes: {
+			employee_boxes: {
 				take: 20,
 				orderBy: { created_at: "desc" },
 				include: { box: true },
