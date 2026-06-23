@@ -607,13 +607,20 @@ export const getVerticalDeliveryEmployees = async (
 						return { ...boxData, ...telemetryData };
 					};
 
-			// Combine direct connections and shared permissions
-			const directBoxes = (connected_boxes || []).map(flattenBox);
-			const sharedPermissions = (vertical_delivery_employee_boxes || []).map((p: any) => ({
-				...p,
-				box: flattenBox(p.box)
-			}));
-			const managedBoxes: any[] = [];
+					// Physical connections
+					const directConnections = (connected_boxes || []).map(flattenBox).filter(Boolean);
+					const connectedBoxesMap = new Map(directConnections.map((b: any) => [b.id, b]));
+					const connectedBoxes = Array.from(connectedBoxesMap.values()) as {
+						id: string;
+						power_status?: string | null;
+						connection_status?: string | null;
+					}[];
+
+					// Employee-level shared permissions
+					const sharedPermissions = (vertical_delivery_employee_boxes || []).map((p: any) => ({
+						...p,
+						box: flattenBox(p.box)
+					}));
 
 					// Restaurant-level box assignments (via restaurant_box)
 					const restaurantBoxes: any[] = [];

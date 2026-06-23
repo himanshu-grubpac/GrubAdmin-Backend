@@ -67,6 +67,51 @@ export const deleteBoxesRequestBodyValidator = zValidator(
 	},
 );
 
+export const reassignBoxesRequestBodyValidator = zValidator(
+	"json",
+	z.object({
+		box_ids: z.string().ulid("Please provide valid box ids").array().optional(),
+		ids: z.string().ulid("Please provide valid box ids").array().optional(),
+		destination_floor_id: z.union([
+			z.string().ulid("Please provide a valid floor id"),
+			z.literal(""),
+			z.null(),
+		]).optional(),
+		floor_id: z.union([
+			z.string().ulid("Please provide a valid floor id"),
+			z.literal(""),
+			z.null(),
+		]).optional(),
+		room: z.string().optional().nullable(),
+	}).refine((data) => {
+		const targetIds = data.box_ids || data.ids;
+		return !!(targetIds && targetIds.length > 0);
+	}, {
+		message: "Please provide at least one box id",
+		path: ["box_ids"],
+	}).transform((data) => ({
+		box_ids: data.box_ids || data.ids || [],
+		destination_floor_id: data.destination_floor_id ?? data.floor_id ?? null,
+		room: data.room ?? null,
+	})),
+	(r) => {
+		if (!r.success) validatorErrorHandler(r.error);
+	},
+);
+
+export const updateGrubpacRequestBodyValidator = zValidator(
+	"json",
+	z.object({
+		id: z.string().ulid("Please provide a valid box id"),
+		name: z.string().max(100, "Name cannot exceed 100 characters").optional(),
+		box_id: z.string().max(50, "Box ID cannot exceed 50 characters").optional(),
+		ext_temp: z.coerce.number().optional(),
+	}).strict(),
+	(r) => {
+		if (!r.success) validatorErrorHandler(r.error);
+	},
+);
+
 export const actionGrubpacRequestBodyValidator = zValidator(
 	"json",
 	z.object({
@@ -78,6 +123,8 @@ export const actionGrubpacRequestBodyValidator = zValidator(
 		zone1_temp: z.coerce.number().optional(),
 		zone2_temp: z.coerce.number().optional(),
 		ext_temp: z.coerce.number().optional(),
+		assign_floor_id: z.string().ulid().optional().nullable(),
+		room: z.string().optional().nullable(),
 		adas_status: z.string().optional(),
 		bluetooth_status: z.string().optional(),
 		camera_status: z.string().optional(),
@@ -109,6 +156,16 @@ export const searchBoxesRequestQueryValidator = zValidator(
 		limit: data.limit ?? 50,
 		query: data.query ?? data.search,
 	})),
+	(r) => {
+		if (!r.success) validatorErrorHandler(r.error);
+	},
+);
+
+export const getGrubpacDetailsRequestQueryValidator = zValidator(
+	"query",
+	z.object({
+		id: z.string().ulid("Please provide a valid box id"),
+	}),
 	(r) => {
 		if (!r.success) validatorErrorHandler(r.error);
 	},

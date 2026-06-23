@@ -2,7 +2,7 @@ import { loggerService } from "@/services/system-log.ts";
 import { createHandlers } from "@/utils/hono-factory.ts";
 import { hospitalityAuthGuard } from "@/middlewares/auth";
 import { suspendBoxesRequestBodyValidator } from "hospitality/validators/box.validators.ts";
-import { suspendVerticalDeliveryBoxes } from "@/db/actions/box.actions.ts";
+import { toggleSuspendHospitalityBoxes } from "@/db/actions/hospitality/box.actions.ts";
 import type { APIResponse } from "@/types/api";
 import { resolveMessageTemplate } from "@/utils/message";
 
@@ -13,9 +13,13 @@ export const suspendGrubpacHandler = createHandlers(
 		const { client_id } = context.var;
 		const { ids } = context.req.valid("json");
 
-		const result = await suspendVerticalDeliveryBoxes(ids, client_id);
+		const result = await toggleSuspendHospitalityBoxes({
+			ids,
+			client_id,
+			state: "suspended",
+		});
 
-		const updatedCount = result.updated_boxes.length;
+		const updatedCount = result.updated_count;
 		const alreadyCount = result.already_in_state_count;
 
 		let message = `${updatedCount} box${updatedCount === 1 ? "" : "es"} suspended successfully.`;

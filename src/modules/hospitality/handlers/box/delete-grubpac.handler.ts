@@ -2,7 +2,7 @@ import { loggerService } from "@/services/system-log.ts";
 import { createHandlers } from "@/utils/hono-factory.ts";
 import { hospitalityAuthGuard } from "@/middlewares/auth";
 import { deleteBoxesRequestBodyValidator } from "hospitality/validators/box.validators.ts";
-import { deleteVerticalDeliveryBoxes } from "@/db/actions/box.actions.ts";
+import { deleteHospitalityBoxes } from "@/db/actions/hospitality/box.actions.ts";
 import type { APIResponse } from "@/types/api";
 
 export const deleteGrubpacHandler = createHandlers(
@@ -12,7 +12,7 @@ export const deleteGrubpacHandler = createHandlers(
 		const { client_id } = context.var;
 		const { ids } = context.req.valid("json");
 
-		await deleteVerticalDeliveryBoxes(ids, client_id);
+		await deleteHospitalityBoxes({ ids, client_id });
 
 		try {
 			const subjects = (context.req.valid("json") as any)?.ids || ((context.req.valid("json") as any)?.id ? [(context.req.valid("json") as any)?.id] : ["Unknown"]);
