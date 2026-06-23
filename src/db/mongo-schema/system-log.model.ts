@@ -82,3 +82,4 @@ export const ClientAdminLog = model<SystemLogModel>("client_admin_log", systemLo
 export const DeliveryEmployeeLog = model<SystemLogModel>("delivery_employee_log", systemLogSchema, "delivery_employee_logs");
 export const RestaurantLog = model<SystemLogModel>("restaurant_log", systemLogSchema, "restaurant_logs");
 export const GrubpacLog = model<SystemLogModel>("grubpac_log", systemLogSchema, "grubpac_logs");
+export const DepartmentLog = model<SystemLogModel>("department_log", systemLogSchema, "department_logs");

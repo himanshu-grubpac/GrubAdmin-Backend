@@ -100,6 +100,9 @@ model client {
   vertical_delivery_employees vertical_delivery_employee[]
   restaurants             restaurant[]
   notifications           notification[]
+  medical_employees       vertical_medical_employee[]
+  medical_departments     vertical_medical_department[]
+  medical_consumers       vertical_medical_consumer[]
   hospitality_floors      vertical_hospitality_floor[] @relation("ClientToHospitalityFloor")
 
   @@unique([vertical_id, email])
@@ -210,6 +213,8 @@ model box {
 
   connection_employee_id String?
   connection_employee    vertical_delivery_employee? @relation("box_connection", fields: [connection_employee_id], references: [id])
+  medical_connection_employee_id String?
+  medical_connection_employee    vertical_medical_employee? @relation("medical_box_connection", fields: [medical_connection_employee_id], references: [id])
   client                 client?                 @relation(fields: [client_id], references: [id])
   vertical               vertical?               @relation(fields: [vertical_id], references: [id])
   lock                   box_lock?
@@ -217,11 +222,15 @@ model box {
   boxes                            vertical_delivery_consumer_box[] @relation("vertical_delivery_consumer_boxes")
   vertical_delivery_employee_boxes vertical_delivery_employee_box[] @relation("vertical_delivery_employee_boxes")
   restaurant_boxes             restaurant_box[]
+  medical_employee_boxes       vertical_medical_employee_box[] @relation("vertical_medical_employee_boxes")
+  medical_consumer_boxes       vertical_medical_consumer_box[] @relation("vertical_medical_consumer_boxes")
+  medical_department_boxes     vertical_medical_department_box[]
   hospitality_floor_boxes      vertical_hospitality_floor_box[] @relation("BoxToHospitalityFloor")
 
   @@index([client_id], map: "box_client_id_fkey")
   @@index([vertical_id], map: "box_vertical_id_fkey")
   @@index([connection_employee_id], map: "box_connection_employee_id_fkey")
+  @@index([medical_connection_employee_id], map: "box_medical_connection_employee_id_fkey")
 }
 
 model restaurant {
@@ -542,6 +551,185 @@ model box_telemetry_latest {
 
   box box @relation(fields: [box_id], references: [id], onDelete: Cascade)
 }
+
+// ── Medical Vertical ─────────────────────────────────────────────────────────
+
+model vertical_medical_department {
+  id              String                          @id @default(ulid())
+  name            String
+  client_id       String?
+  status          medical_department_status        @default(active)
+  created_at      DateTime                         @default(now())
+  updated_at      DateTime                         @updatedAt
+  client          client?                          @relation(fields: [client_id], references: [id])
+  employees       vertical_medical_employee[]
+  department_boxes vertical_medical_department_box[]
+
+  @@unique([client_id, name])
+  @@index([client_id], map: "vertical_medical_department_client_id_fkey")
+  @@map("vertical_medical_department")
+}
+
+model vertical_medical_department_box {
+  id            String                           @id @default(ulid())
+  department_id String
+  box_id        String
+  created_at    DateTime                         @default(now())
+  updated_at    DateTime                         @updatedAt
+  status        medical_department_box_status     @default(shared)
+  department    vertical_medical_department       @relation(fields: [department_id], references: [id], onDelete: Cascade)
+  box           box                              @relation(fields: [box_id], references: [id], onDelete: Cascade)
+
+  @@unique([department_id, box_id])
+  @@index([box_id], map: "vertical_medical_department_box_box_id_fkey")
+  @@index([department_id], map: "vertical_medical_department_box_department_id_fkey")
+  @@map("vertical_medical_department_box")
+}
+
+model vertical_medical_employee {
+  id                  String                          @id @default(ulid())
+  first_name          String
+  last_name           String
+  country_code        String
+  mobile_number       String
+  email               String
+  password            String?
+  employee_display_id String
+  joining_date        DateTime                        @default(now())
+  client_id           String?
+  department_id       String?
+  role                medical_employee_role
+  status              employee_status                 @default(unassigned)
+  profile_pic         String?
+  created_at          DateTime                        @default(now())
+  updated_at          DateTime                        @updatedAt
+  client              client?                         @relation(fields: [client_id], references: [id])
+  department          vertical_medical_department?     @relation(fields: [department_id], references: [id])
+  connected_boxes     box[]                           @relation("medical_box_connection")
+  employee_boxes      vertical_medical_employee_box[]  @relation("vertical_medical_employee_boxes")
+
+  @@unique([client_id, email])
+  @@unique([client_id, employee_display_id])
+  @@unique([client_id, country_code, mobile_number])
+  @@index([client_id], map: "vertical_medical_employee_client_id_fkey")
+  @@index([department_id], map: "vertical_medical_employee_department_id_fkey")
+  @@map("vertical_medical_employee")
+}
+
+model vertical_medical_employee_box {
+  id          String                         @id @default(ulid())
+  employee_id String?
+  box_id      String
+  status      medical_employee_box_status    @default(shared)
+  access      medical_employee_box_access    @default(direct)
+  created_at  DateTime                       @default(now())
+  updated_at  DateTime                       @updatedAt
+  box         box                            @relation("vertical_medical_employee_boxes", fields: [box_id], references: [id], onDelete: Cascade)
+  employee    vertical_medical_employee?     @relation("vertical_medical_employee_boxes", fields: [employee_id], references: [id], onDelete: SetNull)
+
+  @@unique([employee_id, box_id])
+  @@index([box_id], map: "vertical_medical_employee_box_box_id_fkey")
+  @@index([employee_id], map: "vertical_medical_employee_box_employee_id_fkey")
+  @@map("vertical_medical_employee_box")
+}
+
+model vertical_medical_consumer {
+  id           String                            @id @default(ulid())
+  full_name    String
+  country_code String
+  phone        String
+  status       medical_consumer_status           @default(pending)
+  client_id    String?
+  created_at   DateTime                          @default(now())
+  updated_at   DateTime                          @updatedAt
+  client       client?                           @relation(fields: [client_id], references: [id])
+  boxes        vertical_medical_consumer_box[]    @relation("vertical_medical_consumer_boxes")
+
+  @@unique([phone, country_code])
+  @@index([client_id], map: "vertical_medical_consumer_client_id_fkey")
+  @@map("vertical_medical_consumer")
+}
+
+model vertical_medical_consumer_box {
+  id          String                      @id @default(ulid())
+  consumer_id String
+  box_id      String
+  created_at  DateTime                    @default(now())
+  updated_at  DateTime                    @updatedAt
+  box         box                         @relation("vertical_medical_consumer_boxes", fields: [box_id], references: [id], onDelete: Cascade, map: "vertical_medical_consumer_box_box_fkey")
+  consumer    vertical_medical_consumer   @relation("vertical_medical_consumer_boxes", fields: [consumer_id], references: [id], onDelete: Cascade, map: "vertical_medical_consumer_box_consumer_fkey")
+
+  @@index([box_id])
+  @@index([consumer_id])
+}
+
+model vertical_medical_employee_deleted {
+  id                  String   @id @default(ulid())
+  first_name          String
+  last_name           String
+  country_code        String
+  mobile_number       String
+  email               String
+  employee_display_id String
+  joining_date        DateTime
+  client_name         String
+  role_name           String
+  department_name     String?
+  profile_pic         String?
+  client_id           String?
+  x_primary_key       String?
+  created_at          DateTime @default(now())
+  updated_at          DateTime @updatedAt
+
+  @@map("vertical_medical_employee_deleted")
+}
+
+model vertical_medical_department_deleted {
+  id              String   @id @default(ulid())
+  name            String
+  client_id       String?
+  client_name     String?
+  x_primary_key   String?
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+}
+
+// ── Medical Enums ────────────────────────────────────────────────────────────
+
+enum medical_department_status {
+  active
+  suspended
+}
+
+enum medical_department_box_status {
+  shared
+  not_shared
+  blocked
+}
+
+enum medical_employee_role {
+  manager
+  delivery
+}
+
+enum medical_employee_box_status {
+  shared
+  blocked
+}
+
+enum medical_employee_box_access {
+  direct
+  public
+  all_employees
+}
+
+enum medical_consumer_status {
+  pending
+  delivered
+  cancelled
+}
+
+// ── Shared Enums ─────────────────────────────────────────────────────────────
 
 enum delivery_consumer_status {
   pending

@@ -10,6 +10,7 @@
 
 import { deliveryErrorTemplates } from "@/modules/delivery/configs/error-templates";
 import { adminErrorTemplates } from "@/modules/admin/configs/error-templates";
+import { medicalErrorTemplates } from "@/modules/medical/configs/error-templates";
 import { hospitalityErrorTemplates } from "@/modules/hospitality/configs/error-templates";
 
 // Re-export types for consumers that do `import type { ErrorTemplateMap } from "@/configs/error-templates"`
@@ -37,5 +38,6 @@ import type { ErrorTemplateMap } from "@/configs/template-types";
 export const errorTemplates: ErrorTemplateMap = {
 	delivery: deliveryErrorTemplates,
 	admin: adminErrorTemplates,
+	medical: medicalErrorTemplates,
 	hospitality: hospitalityErrorTemplates,
 };

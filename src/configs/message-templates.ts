@@ -10,6 +10,7 @@
 
 import { deliveryMessageTemplates } from "@/modules/delivery/configs/message-templates";
 import { adminMessageTemplates } from "@/modules/admin/configs/message-templates";
+import { medicalMessageTemplates } from "@/modules/medical/configs/message-templates";
 import { hospitalityMessageTemplates } from "@/modules/hospitality/configs/message-templates";
 
 // Re-export types for consumers that do `import type { MessageTemplateMap } from "@/configs/message-templates"`
@@ -37,5 +38,6 @@ import type { MessageTemplateMap } from "@/configs/template-types";
 export const messageTemplates: MessageTemplateMap = {
 	delivery: deliveryMessageTemplates,
 	admin: adminMessageTemplates,
+	medical: medicalMessageTemplates,
 	hospitality: hospitalityMessageTemplates,
 };

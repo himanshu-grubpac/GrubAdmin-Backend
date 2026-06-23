@@ -68,6 +68,18 @@ export const LOG_CONFIG = {
 				OTP: true,
 			},
 		},
+		Department: {
+			enabled: true,
+			types: {
+				Creation: true,
+				Deletion: true,
+				Suspension: true,
+				Activation: true,
+				Updation: true,
+				Assignment: true,
+				Reassignment: true,
+			},
+		},
 		Profile: {
 			enabled: true,
 			types: {

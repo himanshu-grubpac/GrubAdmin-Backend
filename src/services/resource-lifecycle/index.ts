@@ -1,4 +1,5 @@
 export { RestaurantLifecycleService } from "./restaurant-lifecycle.service";
+export { DepartmentLifecycleService } from "./department-lifecycle.service";
 export { EmployeeLifecycleService } from "./employee-lifecycle.service";
 export { BoxLifecycleService } from "./box-lifecycle.service";
 export type {

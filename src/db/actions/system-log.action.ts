@@ -1,4 +1,4 @@
-import { ClientAdminLog, DeliveryEmployeeLog, RestaurantLog, GrubpacLog } from "@/db/mongo-schema";
+import { ClientAdminLog, DeliveryEmployeeLog, RestaurantLog, GrubpacLog, DepartmentLog } from "@/db/mongo-schema";
 import type { LogCategory, LogType } from "@/services/system-log.ts";
 
 interface GetLogsArgs {
@@ -124,12 +124,13 @@ export const getSystemLogs = async (args: GetLogsArgs) => {
 			Models.push(GrubpacLog);
 			Models.push(ClientAdminLog);
 		}
-		if (cats.includes("Profile")) Models.push(ClientAdminLog);
+		if (cats.includes("Department")) Models.push(DepartmentLog);
+	if (cats.includes("Profile")) Models.push(ClientAdminLog);
 		
 		// Fallback if category didn't match specific models
-		if (Models.length === 0) Models = [ClientAdminLog, DeliveryEmployeeLog, RestaurantLog, GrubpacLog];
+		if (Models.length === 0) Models = [ClientAdminLog, DeliveryEmployeeLog, RestaurantLog, GrubpacLog, DepartmentLog];
 	} else {
-		Models = [ClientAdminLog, DeliveryEmployeeLog, RestaurantLog, GrubpacLog];
+		Models = [ClientAdminLog, DeliveryEmployeeLog, RestaurantLog, GrubpacLog, DepartmentLog];
 	}
 
 	Models = [...new Set(Models)]; // unique models

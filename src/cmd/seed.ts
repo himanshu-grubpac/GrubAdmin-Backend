@@ -11,6 +11,7 @@ import { seedEmployees } from "./seed-employees";
 import { seedFaq } from "./seed-faq";
 import { seedNotifications } from "./seed-notifications";
 import { seedArchived } from "./seed-archived";
+import { seedMedical } from "./seed-medical";
 import { SEED_IDS } from "./seed-ids";
 
 export const seed = async () => {
@@ -109,7 +110,15 @@ export const seed = async () => {
     logger.error(`Failed to seed notifications: ${err}`);
   }
 
-  // 13. Archived entities (depends on verticals)
+  // 13. Medical vertical (depends on clients, boxes)
+  try {
+    await seedMedical();
+    logger.info("Medical vertical seeding completed.");
+  } catch (err) {
+    logger.error(`Failed to seed medical vertical: ${err}`);
+  }
+
+  // 14. Archived entities (depends on verticals)
   try {
     await seedArchived();
     logger.info("Archived entities seeding completed.");
@@ -117,7 +126,7 @@ export const seed = async () => {
     logger.error(`Failed to seed archived entities: ${err}`);
   }
 
-  // 14. MongoDB seed
+  // 15. MongoDB seed
   try {
     await seedMongoData();
     logger.info("MongoDB seed data completed.");
