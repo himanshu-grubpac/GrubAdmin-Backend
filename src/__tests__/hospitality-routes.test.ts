@@ -36,6 +36,9 @@ describe("Hospitality route registration", () => {
 			"DELETE /api/v1/hospitality/account",
 			"GET /api/v1/hospitality/grubpac",
 			"GET /api/v1/hospitality/grubpac/search",
+			"GET /api/v1/hospitality/grubpac/details",
+			"PUT /api/v1/hospitality/grubpac",
+			"PATCH /api/v1/hospitality/grubpac/reassign",
 			"PATCH /api/v1/hospitality/grubpac/suspend",
 			"PATCH /api/v1/hospitality/grubpac/reactivate",
 		];

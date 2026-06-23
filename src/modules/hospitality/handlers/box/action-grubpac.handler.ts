@@ -2,11 +2,8 @@ import { loggerService } from "@/services/system-log.ts";
 import { createHandlers } from "@/utils/hono-factory.ts";
 import { hospitalityAuthGuard } from "@/middlewares/auth";
 import { actionGrubpacRequestBodyValidator } from "hospitality/validators/box.validators.ts";
-import { actionGrubpac } from "@/db/actions/box.actions.ts";
+import { actionHospitalityBoxes } from "@/db/actions/hospitality/box.actions.ts";
 import type { APIResponse } from "@/types/api";
-import { 
-	type hardware_state,
-} from "@/db/types";
 
 export const actionGrubpacHandler = createHandlers(
 	hospitalityAuthGuard(),
@@ -21,6 +18,9 @@ export const actionGrubpacHandler = createHandlers(
 			dual_zone_status,
 			zone1_temp,
 			zone2_temp,
+			ext_temp,
+			assign_floor_id,
+			room,
 			adas_status,
 			bluetooth_status,
 			camera_status,
@@ -36,28 +36,31 @@ export const actionGrubpacHandler = createHandlers(
 			port_big_status,
 		} = context.req.valid("json");
 
-		await actionGrubpac({
+		await actionHospitalityBoxes({
 			ids,
+			client_id,
 			status,
-			power_status: power_status as hardware_state,
-			ioniser_status: ioniser_status as hardware_state,
-			dual_zone_status: dual_zone_status as hardware_state,
+			power_status,
+			ioniser_status,
+			dual_zone_status,
 			zone1_temp,
 			zone2_temp,
-			adas_status: adas_status as hardware_state,
-			bluetooth_status: bluetooth_status as hardware_state,
-			camera_status: camera_status as hardware_state,
-			gps_status: gps_status as hardware_state,
-			gyrosensor_status: gyrosensor_status as hardware_state,
-			save_to_memory_status: save_to_memory_status as hardware_state,
-			sim_status: sim_status as hardware_state,
-			solar_status: solar_status as hardware_state,
-			wifi_status: wifi_status as hardware_state,
-			turn_signal_status: turn_signal_status as hardware_state,
-			advert_screen_status: advert_screen_status as hardware_state,
-			port_small_status: port_small_status as hardware_state,
-			port_big_status: port_big_status as hardware_state,
-			client_id,
+			ext_temp,
+			assign_floor_id,
+			room,
+			adas_status,
+			bluetooth_status,
+			camera_status,
+			gps_status,
+			gyrosensor_status,
+			save_to_memory_status,
+			sim_status,
+			solar_status,
+			wifi_status,
+			turn_signal_status,
+			advert_screen_status,
+			port_small_status,
+			port_big_status,
 		});
 
 		try {

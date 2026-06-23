@@ -1,9 +1,8 @@
 import { createHandlers } from "@/utils/hono-factory.ts";
 import { hospitalityAuthGuard } from "@/middlewares/auth";
 import { searchBoxesRequestQueryValidator } from "hospitality/validators/box.validators.ts";
-import { searchVerticalDeliveryBoxes } from "@/db/actions/box.actions.ts";
+import { searchHospitalityBoxes } from "@/db/actions/hospitality/box.actions.ts";
 import type { APIResponse } from "@/types/api";
-import type { box_status } from "@/db/types";
 
 export const searchGrubpacHandler = createHandlers(
 	hospitalityAuthGuard(),
@@ -12,10 +11,10 @@ export const searchGrubpacHandler = createHandlers(
 		const { client_id } = context.var;
 		const { query, limit, status } = context.req.valid("query");
 
-		const boxes = await searchVerticalDeliveryBoxes({
+		const boxes = await searchHospitalityBoxes({
 			query: query || "",
 			limit,
-			status: status as box_status,
+			status: status as any,
 			client_id,
 		});
 

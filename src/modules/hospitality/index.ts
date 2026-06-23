@@ -27,6 +27,9 @@ import {
 	suspendGrubpacHandler,
 	reactivateGrubpacHandler,
 	searchGrubpacHandler,
+	getGrubpacDetailsHandler,
+	updateGrubpacHandler,
+	reassignGrubpacHandler,
 } from "hospitality/handlers/box";
 import {
 	getNotificationsHandler,
@@ -62,6 +65,9 @@ hospitalityRouter.delete("/account", ...deleteAccountHandler);
 /* Box (Grubpac) Router */
 hospitalityRouter.get("/grubpac", ...getGrubpacHandler);
 hospitalityRouter.get("/grubpac/search", ...searchGrubpacHandler);
+hospitalityRouter.get("/grubpac/details", ...getGrubpacDetailsHandler);
+hospitalityRouter.put("/grubpac", ...updateGrubpacHandler);
+hospitalityRouter.patch("/grubpac/reassign", ...reassignGrubpacHandler);
 hospitalityRouter.delete("/grubpac", ...deleteGrubpacHandler);
 hospitalityRouter.patch("/grubpac/suspend", ...suspendGrubpacHandler);
 hospitalityRouter.patch("/grubpac/reactivate", ...reactivateGrubpacHandler);
