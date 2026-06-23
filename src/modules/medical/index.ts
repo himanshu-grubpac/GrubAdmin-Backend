@@ -42,10 +42,7 @@ import {
 } from "medical/handlers/employee";
 import {
 	getGrubpacHandler,
-	deleteGrubpacHandler,
 	reassignGrubpacHandler,
-	createGrubpacHandler,
-	updateGrubpacHandler,
 	actionGrubpacHandler,
 	getGrubpacDetailsHandler,
 	suspendGrubpacHandler,
@@ -118,9 +115,6 @@ medicalRouter.get("/grubpac", ...getGrubpacHandler);
 medicalRouter.get("/grubpac/search", ...searchGrubpacHandler);
 medicalRouter.get("/grubpac/details", ...getGrubpacDetailsHandler);
 medicalRouter.patch("/grubpac/action", ...actionGrubpacHandler);
-medicalRouter.post("/grubpac", ...createGrubpacHandler);
-medicalRouter.put("/grubpac", ...updateGrubpacHandler);
-medicalRouter.delete("/grubpac", ...deleteGrubpacHandler);
 medicalRouter.patch("/grubpac/reassign", ...reassignGrubpacHandler);
 medicalRouter.patch("/grubpac/reassign/employee", ...reassignBoxEmployeeHandler);
 medicalRouter.patch("/grubpac/block/employee", ...blockBoxEmployeeHandler);
