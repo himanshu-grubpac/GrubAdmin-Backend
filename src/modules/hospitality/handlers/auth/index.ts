@@ -7,3 +7,4 @@ export * from "./send-forget-password-magic-link.handler";
 export * from "./verify-forget-password-magic-link.handler";
 export * from "./reset-password-magic-link.handler";
 export * from "./set-new-password.handler";
+export * from "./impersonate.handler";
