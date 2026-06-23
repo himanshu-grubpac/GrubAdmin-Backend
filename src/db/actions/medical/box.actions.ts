@@ -477,3 +477,65 @@ export const assignMedicalBoxToEmployee = async (
 
 	return { assigned_count: box_ids.length * employee_ids.length };
 };
+
+export const getMedicalEmployeeBoxes = async (employeeId: string) => {
+	const assignments = await prisma.vertical_medical_employee_box.findMany({
+		where: { employee_id: employeeId },
+		include: {
+			box: {
+				include: {
+					vertical: true,
+					medical_connection_employee: true,
+					medical_employee_boxes: true,
+					telemetry: true,
+				},
+			},
+		},
+	});
+
+	return assignments
+		.filter((a) => a.box)
+		.map((a) => a.box);
+};
+
+export const getMedicalDashboardMetrics = async (client_id: string) => {
+	const [
+		department_count,
+		employee_count,
+		active_box_count,
+		active_cold_chain_count,
+		temperature_alarm_count,
+	] = await Promise.all([
+		prisma.vertical_medical_department.count({
+			where: { client_id, status: "active" },
+		}),
+		prisma.vertical_medical_employee.count({
+			where: { client_id, status: { not: "suspended" } },
+		}),
+		prisma.box.count({
+			where: { client_id, status: "active" },
+		}),
+		prisma.box.count({
+			where: {
+				client_id,
+				status: "active",
+				telemetry: { power_status: "on" },
+			},
+		}),
+		prisma.box.count({
+			where: {
+				client_id,
+				status: "active",
+				telemetry: { health_status: { in: ["critical", "attention"] } },
+			},
+		}),
+	]);
+
+	return {
+		department_count,
+		employee_count,
+		active_box_count,
+		active_cold_chain_count,
+		temperature_alarm_count,
+	};
+};

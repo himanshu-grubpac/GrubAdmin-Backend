@@ -75,7 +75,7 @@ export const seedMedical = async (): Promise<void> => {
 			update: emp,
 			create: {
 				...empData,
-				department: { connect: { id: department_id } },
+				department_id,
 			},
 		});
 		logger.info(`  Employee "${emp.first_name} ${emp.last_name}" (${emp.role}) ready.`);

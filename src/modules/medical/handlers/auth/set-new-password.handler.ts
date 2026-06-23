@@ -47,7 +47,7 @@ export const setNewPasswordHandler = createHandlers(
 			throw new APIError("Authentication token is required!", "medical.auth.login.AUTH_TOKEN_REQUIRED");
 		}
 
-		const hashedPassword = await Bcrypt.createHash({ data: password });
+		const hashedPassword = await Bcrypt.generateHash({ data: password });
 
 		await updateMedicalEmployee({
 			id: employee.employee.id,

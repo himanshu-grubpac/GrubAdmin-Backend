@@ -1,0 +1,94 @@
+import { createHandlers } from "@/utils/hono-factory.ts";
+import { medicalAuthGuard } from "@/middlewares/auth";
+import { confirmUpdateAccountRequestBodyValidator } from "medical/validators/account.validators.ts";
+import {
+	deleteMedicalEmployeeUpdateOtp,
+	getMedicalEmployeeUpdateOtp,
+} from "@/db/actions/medical-employee-update-otp.actions.ts";
+import {
+	isOtpAttemptLocked,
+	incrementOtpAttempt,
+	resetOtpAttempt,
+	getOtpLockoutRemaining,
+} from "@/db/actions/otp-attempt.actions";
+import { Bcrypt } from "@/utils/bcrypt.ts";
+import { APIError } from "@/types/error";
+import { updateMedicalEmployee } from "@/db/actions/medical/employee.actions";
+import type { APIResponse } from "@/types/api";
+import { resolveMessageTemplate } from "@/utils/message";
+import { getCookie, deleteCookie } from "hono/cookie";
+
+export const confirmUpdateAccountHandler = createHandlers(
+	medicalAuthGuard(),
+	confirmUpdateAccountRequestBodyValidator,
+	async (context) => {
+		const { user, type } = context.var;
+		const { otp, otp_id: otp_id_body } = context.req.valid("json");
+		const otp_id_cookie = getCookie(context, "otp_id");
+		const target_otp_id = otp_id_body || otp_id_cookie;
+
+		const ip_address = context.req.header("x-forwarded-for") ||
+			context.req.header("x-real-ip") ||
+			context.req.header("cf-connecting-ip") ||
+			"unknown";
+
+		const normalizedEmail = user.email ? user.email.trim().toLowerCase() : "unknown";
+
+		const isLocked = await isOtpAttemptLocked({ email: normalizedEmail, ip_address });
+		if (isLocked) {
+			const remainingMinutes = await getOtpLockoutRemaining({ email: normalizedEmail, ip_address });
+			throw new APIError(
+				`Account temporarily locked due to too many failed attempts. Try again in ${remainingMinutes} minutes.`,
+				undefined,
+				undefined,
+				429,
+			);
+		}
+
+		const updatedDetails = await getMedicalEmployeeUpdateOtp(user.id, target_otp_id);
+
+		if (!updatedDetails) {
+			await incrementOtpAttempt({ email: normalizedEmail, ip_address });
+			throw new APIError("No pending change requests found.", undefined, undefined, 400);
+		}
+
+		const isMatch = await Bcrypt.compareHash({
+			data: otp,
+			hashedValue: updatedDetails.otp,
+		});
+
+		if (!isMatch) {
+			await incrementOtpAttempt({ email: normalizedEmail, ip_address });
+			throw new APIError(undefined, "medical.auth.login.OTP_INVALID", undefined, 400);
+		}
+
+		await resetOtpAttempt({ email: normalizedEmail, ip_address });
+
+		const updateData: Record<string, unknown> = { id: user.id, type };
+
+		if (updatedDetails.email) updateData.email = updatedDetails.email;
+		if (updatedDetails.mobile_number) updateData.mobile_number = updatedDetails.mobile_number;
+		if (updatedDetails.country_code) updateData.country_code = updatedDetails.country_code;
+		if (updatedDetails.first_name) updateData.first_name = updatedDetails.first_name;
+		if (updatedDetails.last_name !== null && updatedDetails.last_name !== undefined) {
+			updateData.last_name = updatedDetails.last_name;
+		}
+		if (updatedDetails.organization_name) updateData.organization = updatedDetails.organization_name;
+
+		await updateMedicalEmployee(updateData as Parameters<typeof updateMedicalEmployee>[0]);
+
+		await deleteMedicalEmployeeUpdateOtp(user.id);
+		deleteCookie(context, "otp_id", { path: "/" });
+
+		const response = {
+			success: true as const,
+			...resolveMessageTemplate("medical.common.UPDATE_SUCCESS", { id: user.id }),
+			is_otp: false,
+			has_changed: true,
+			message_debug: "The OTP has been successfully verified, and the requested changes have been applied.",
+			data: { otp_id: target_otp_id },
+		};
+
+		return context.json(response as APIResponse<unknown>, response.code as 200);
+	},
+);

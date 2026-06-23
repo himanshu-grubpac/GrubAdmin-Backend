@@ -30,7 +30,7 @@ export const resetPasswordMagicLinkHandler = createHandlers(
 			throw new APIError("The reset link is invalid or has expired.", "medical.auth.login.OTP_EXPIRED");
 		}
 
-		const hashedPassword = await Bcrypt.createHash({ data: password });
+		const hashedPassword = await Bcrypt.generateHash({ data: password });
 
 		await updateMedicalEmployee({
 			id: employee.employee.id,

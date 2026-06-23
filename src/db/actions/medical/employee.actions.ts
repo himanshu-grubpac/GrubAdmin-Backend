@@ -191,7 +191,7 @@ export const updateMedicalEmployee = async (
 				email,
 				country_code,
 				mobile_number,
-				organization_name: type === "admin" ? args.organization : undefined,
+				organization_name: type === "admin" && "organization" in args ? args.organization : undefined,
 				password,
 				name: first_name || last_name
 					? `${first_name ? first_name : ""}${last_name ? ` ${last_name}` : ""}`

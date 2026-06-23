@@ -189,3 +189,35 @@ export const setNewPasswordRequestBodyValidator = zValidator(
 		}
 	},
 );
+
+export const sendPasswordResetOtpRequestBodyValidator = zValidator(
+	"json",
+	z.object({
+		email: z.string().trim().email("Please provide an email"),
+	}),
+	(response) => {
+		if (!response.success) validatorErrorHandler(response.error);
+	},
+);
+
+export const resendPasswordResetOtpRequestBodyValidator = zValidator(
+	"json",
+	z.object({
+		email: z.string().trim().email("Please provide an email"),
+	}),
+	(response) => {
+		if (!response.success) validatorErrorHandler(response.error);
+	},
+);
+
+export const confirmResetPasswordRequestBodyValidator = zValidator(
+	"json",
+	z.object({
+		email: z.string().trim().email("Please provide an email"),
+		otp: z.string().trim().min(4).max(4),
+		password: z.string().trim().min(8).max(20),
+	}),
+	(response) => {
+		if (!response.success) validatorErrorHandler(response.error);
+	},
+);

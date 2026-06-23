@@ -7,7 +7,7 @@ export type MedicalEmployeeOtpModel = Document & {
 	role: MedicalEmployeeRoleType;
 	otp: string;
 	otp_id: string;
-	for_what: "login" | "forget_password" | "set_new_password";
+	for_what: "login" | "forget_password" | "set_new_password" | "unlock_box";
 	metadata?: any;
 	failed_attempts?: number;
 	createdAt: Date;
@@ -36,7 +36,7 @@ const medicalEmployeeOtpSchema = new Schema<MedicalEmployeeOtpModel>(
 		},
 		for_what: {
 			type: String,
-			enum: ["login", "forget_password", "set_new_password"],
+			enum: ["login", "forget_password", "set_new_password", "unlock_box"],
 			required: true,
 			default: "login",
 		},
@@ -58,8 +58,9 @@ const medicalEmployeeOtpSchema = new Schema<MedicalEmployeeOtpModel>(
 		timestamps: true,
 		toJSON: {
 			transform: (_, returningDoc) => {
-				returningDoc["id"] = returningDoc["_id"];
-				delete returningDoc["_id"];
+				const doc = returningDoc as Record<string, unknown>;
+				doc["id"] = doc["_id"];
+				delete doc["_id"];
 			},
 		},
 	},

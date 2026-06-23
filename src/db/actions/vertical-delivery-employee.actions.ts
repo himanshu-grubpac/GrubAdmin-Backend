@@ -610,7 +610,11 @@ export const getVerticalDeliveryEmployees = async (
 					// Physical connections
 					const directConnections = (connected_boxes || []).map(flattenBox).filter(Boolean);
 					const connectedBoxesMap = new Map(directConnections.map((b: any) => [b.id, b]));
-					const connectedBoxes = Array.from(connectedBoxesMap.values());
+					const connectedBoxes = Array.from(connectedBoxesMap.values()) as {
+						id: string;
+						power_status?: string | null;
+						connection_status?: string | null;
+					}[];
 
 					// Employee-level shared permissions
 					const sharedPermissions = (vertical_delivery_employee_boxes || []).map((p: any) => ({

@@ -49,7 +49,7 @@ interface ActorInfo {
 interface SubjectInfo {
 	id: string;
 	name: string;
-	type?: "box" | "restaurant" | "employee" | "group" | "profile" | "account";
+	type?: "box" | "restaurant" | "employee" | "group" | "profile" | "account" | "department";
 }
 
 interface LogArgs {

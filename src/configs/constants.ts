@@ -10,6 +10,7 @@ export const BOX_VERTICALS = [
 export type VerticalName = (typeof BOX_VERTICALS)[number];
 
 export const DELIVERY_VERTICAL_NAME = "Delivery";
+export const MEDICAL_VERTICAL_NAME = "Medical";
 
 export const PAGE_SIZE = 40 as const;
 export const LONG_PAGE_SIZE = 100 as const;
