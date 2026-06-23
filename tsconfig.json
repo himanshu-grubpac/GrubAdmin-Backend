@@ -29,7 +29,8 @@
 			"delivery/*": ["./src/modules/delivery/*"],
 			"delivery-mobile/*": ["./src/modules/delivery-mobile/*"],
 			"admin/*": ["./src/modules/admin/*"],
-			"common/*": ["./src/modules/common/*"]
+			"common/*": ["./src/modules/common/*"],
+			"hospitality/*": ["./src/modules/hospitality/*"]
 		}
 	}
 }

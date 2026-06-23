@@ -100,6 +100,7 @@ model client {
   vertical_delivery_employees vertical_delivery_employee[]
   restaurants             restaurant[]
   notifications           notification[]
+  hospitality_floors      vertical_hospitality_floor[] @relation("ClientToHospitalityFloor")
 
   @@unique([vertical_id, email])
   @@index([name])
@@ -216,6 +217,7 @@ model box {
   boxes                            vertical_delivery_consumer_box[] @relation("vertical_delivery_consumer_boxes")
   vertical_delivery_employee_boxes vertical_delivery_employee_box[] @relation("vertical_delivery_employee_boxes")
   restaurant_boxes             restaurant_box[]
+  hospitality_floor_boxes      vertical_hospitality_floor_box[] @relation("BoxToHospitalityFloor")
 
   @@index([client_id], map: "box_client_id_fkey")
   @@index([vertical_id], map: "box_vertical_id_fkey")
@@ -557,4 +559,50 @@ enum notification_type {
 enum vertical_status {
   active
   deleted
+}
+
+// Hospitality Models & Enums
+enum hospitality_floor_status {
+  active
+  suspended
+}
+
+enum hospitality_floor_box_status {
+  shared
+  not_shared
+  blocked
+}
+
+// Hospitality Floor
+model vertical_hospitality_floor {
+  id            String                           @id @default(ulid())
+  name          String
+  client_id     String?
+  status        hospitality_floor_status         @default(active)
+  created_at    DateTime                         @default(now())
+  updated_at    DateTime                         @updatedAt
+  client        client?                          @relation("ClientToHospitalityFloor", fields: [client_id], references: [id])
+  boxes         vertical_hospitality_floor_box[]
+
+  @@unique([client_id, name])
+  @@index([client_id], map: "vertical_hospitality_floor_client_id_fkey")
+  @@map("vertical_hospitality_floor")
+}
+
+// Hospitality Floor-Box Assignment
+model vertical_hospitality_floor_box {
+  id            String                         @id @default(ulid())
+  floor_id      String
+  box_id        String
+  room          String?                        // Room number/identifier
+  created_at    DateTime                       @default(now())
+  updated_at    DateTime                       @updatedAt
+  status        hospitality_floor_box_status   @default(shared)
+  floor         vertical_hospitality_floor     @relation(fields: [floor_id], references: [id], onDelete: Cascade)
+  box           box                            @relation("BoxToHospitalityFloor", fields: [box_id], references: [id], onDelete: Cascade)
+
+  @@unique([floor_id, box_id])
+  @@index([box_id], map: "vertical_hospitality_floor_box_box_id_fkey")
+  @@index([floor_id], map: "vertical_hospitality_floor_box_floor_id_fkey")
+  @@map("vertical_hospitality_floor_box")
 }
