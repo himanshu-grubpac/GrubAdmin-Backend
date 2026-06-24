@@ -30,6 +30,17 @@ import {
 	updateGrubpacHandler,
 	reassignGrubpacHandler,
 } from "hospitality/handlers/box";
+import {
+	getSupportCategoriesHandler,
+	getSupportQuestionsHandler,
+	searchSupportQuestionsHandler,
+	getSupportAnswerHandler,
+	downloadSupportAttachmentHandler,
+} from "hospitality/handlers/support";
+import {
+	postGrubpacLogsHandler,
+	getGrubpacLogsDropdownsHandler,
+} from "hospitality/handlers/log";
 
 export const hospitalityRouter = new Hono();
 
@@ -64,3 +75,13 @@ hospitalityRouter.delete("/grubpac", ...deleteGrubpacHandler);
 hospitalityRouter.patch("/grubpac/suspend", ...suspendGrubpacHandler);
 hospitalityRouter.patch("/grubpac/reactivate", ...reactivateGrubpacHandler);
 hospitalityRouter.patch("/grubpac/action", ...actionGrubpacHandler);
+hospitalityRouter.post("/grubpac/logs", ...postGrubpacLogsHandler);
+hospitalityRouter.get("/grubpac/logs/dropdowns", ...getGrubpacLogsDropdownsHandler);
+
+/* Support Router */
+hospitalityRouter.get("/support/category", ...getSupportCategoriesHandler);
+hospitalityRouter.get("/support/faq", ...getSupportQuestionsHandler);
+hospitalityRouter.get("/support/search", ...searchSupportQuestionsHandler);
+hospitalityRouter.get("/support/answer", ...getSupportAnswerHandler);
+hospitalityRouter.get("/support/faq/attachment/download", ...downloadSupportAttachmentHandler);
+
