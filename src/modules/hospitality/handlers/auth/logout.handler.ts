@@ -9,20 +9,24 @@ export const logoutHandler = createHandlers(
 	async (context) => {
 		deleteCookie(context, "otp_id");
 		const { client_id, user_id, user, type } = context.var;
+		const userObj = user as any;
+		const actorName = type === "admin" 
+			? userObj.name 
+			: `${userObj.first_name} ${userObj.last_name || ""}`.trim();
 
 		await loggerService.log({
 			category: "Profile",
 			type: "Access",
 			actor: {
 				id: user_id,
-				name: user.name || "",
+				name: actorName,
 				role: type,
-				table: "client",
+				table: type === "admin" ? "client" : "vertical_delivery_employee",
 			},
 			client_id,
 			subject: {
 				id: user_id,
-				name: user.name || "",
+				name: actorName,
 				type: "employee",
 			},
 			metadata: {

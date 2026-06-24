@@ -21,6 +21,7 @@ export const updateAccountHandler = createHandlers(
 	updateAccountRequestBodyValidator,
 	async (context) => {
 		const { user, type } = context.var;
+		const userObj = user as any;
 
 		const {
 			full_name,
@@ -40,7 +41,7 @@ export const updateAccountHandler = createHandlers(
 		let isPasswordActuallyChanged = false;
 
 		if (new_password || old_password) {
-			const hasExistingPassword = !!user.password;
+			const hasExistingPassword = !!userObj.password;
 
 			if (hasExistingPassword) {
 				if (!old_password) {
@@ -49,7 +50,7 @@ export const updateAccountHandler = createHandlers(
 
 				const isOldPasswordCorrect = await Bcrypt.compareHash({
 					data: old_password,
-					hashedValue: user.password as string,
+					hashedValue: userObj.password as string,
 				});
 
 				if (!isOldPasswordCorrect) {
@@ -71,20 +72,20 @@ export const updateAccountHandler = createHandlers(
 			}
 		}
 
-		const isEmailChanged = !!(newEmail && newEmail !== user.email);
+		const isEmailChanged = !!(newEmail && newEmail !== userObj.email);
 		const isPhoneChanged = !!(
 			newPhone &&
-			(newPhone !== user.mobile_number ||
-				(newCountryCode && newCountryCode !== user.country_code))
+			(newPhone !== userObj.mobile_number ||
+				(newCountryCode && newCountryCode !== userObj.country_code))
 		);
 
 		const isNameChanged = !!(
-			full_name !== undefined && full_name.trim() !== user.name
+			full_name !== undefined && full_name.trim() !== userObj.name
 		);
 
 		const isOrgChanged = !!(
 			organization_name !== undefined &&
-			organization_name !== user.organization_name
+			organization_name !== userObj.organization_name
 		);
 
 		const has_changed =
@@ -98,7 +99,7 @@ export const updateAccountHandler = createHandlers(
 
 		if (isEmailChanged && newEmail) {
 			const existingEmail = await prisma.client.findFirst({
-				where: { email: newEmail, id: { not: user.id } },
+				where: { email: newEmail, id: { not: userObj.id } },
 			});
 			if (existingEmail) {
 				throw new APIError("This email is already in use by another account.", "hospitality.account.EMAIL_EXISTS", undefined, 409);
@@ -107,14 +108,14 @@ export const updateAccountHandler = createHandlers(
 
 		if (isPhoneChanged && newPhone) {
 			const existingPhone = await prisma.client.findFirst({
-				where: { mobile_number: newPhone, id: { not: user.id } },
+				where: { mobile_number: newPhone, id: { not: userObj.id } },
 			});
 			if (existingPhone) {
 				throw new APIError("This phone number is already in use by another account.", "hospitality.account.PHONE_EXISTS", undefined, 409);
 			}
 		}
 
-		const lastChangeDiscarded = !!(await getDeliveryEmployeeUpdateOtp(user.id, target_otp_id));
+		const lastChangeDiscarded = !!(await getDeliveryEmployeeUpdateOtp(userObj.id, target_otp_id));
 
 		if (!has_changed) {
 			const response = {
@@ -137,7 +138,7 @@ export const updateAccountHandler = createHandlers(
 				if (hashedPassword) updatePayload.password = hashedPassword;
 
 				await prisma.client.update({
-					where: { id: user.id },
+					where: { id: userObj.id },
 					data: updatePayload,
 				});
 			}
@@ -145,14 +146,14 @@ export const updateAccountHandler = createHandlers(
 			const otp = Otp.generateOtp(4);
 			const hashedOtp = await Bcrypt.generateHash({ data: otp });
 
-			const savedOtpRecord = await getDeliveryEmployeeUpdateOtp(user.id, target_otp_id);
+			const savedOtpRecord = await getDeliveryEmployeeUpdateOtp(userObj.id, target_otp_id);
 
 			const updatedOtpRecord = await upsertVerticalDeliveryUpdateOtp({
 				otp_id: savedOtpRecord?.otp_id,
-				user_id: user.id,
+				user_id: userObj.id,
 				role: "admin",
 				otp: hashedOtp,
-				email: newEmail || (user.email ?? undefined),
+				email: newEmail || (userObj.email ?? undefined),
 				mobile_number: newPhone,
 				country_code: newCountryCode,
 			});
@@ -175,7 +176,7 @@ export const updateAccountHandler = createHandlers(
 				await services.mailer.sendEmail({
 					from: process.env.MAIL || "ankan@sqaby.com",
 					subject: "OTP for Account Update",
-					to: newEmail || user.email || "",
+					to: newEmail || userObj.email || "",
 					text: `Your OTP to update your hospitality account is ${otp} (OTP Session ID: ${otp_id})`,
 				});
 			} catch (error) {
@@ -200,7 +201,7 @@ export const updateAccountHandler = createHandlers(
 					otp_id,
 					otp_details: {
 						type: "email",
-						values: [user.email || ""],
+						values: [userObj.email || ""],
 					},
 				},
 			};
@@ -208,7 +209,7 @@ export const updateAccountHandler = createHandlers(
 		}
 
 		if (lastChangeDiscarded) {
-			await deleteDeliveryEmployeeUpdateOtp(user.id);
+			await deleteDeliveryEmployeeUpdateOtp(userObj.id);
 		}
 
 		const updatePayload: any = {};
@@ -217,16 +218,16 @@ export const updateAccountHandler = createHandlers(
 		if (hashedPassword) updatePayload.password = hashedPassword;
 
 		await prisma.client.update({
-			where: { id: user.id },
+			where: { id: userObj.id },
 			data: updatePayload,
 		});
 
 		const changes: any[] = [];
 		if (isNameChanged) {
-			changes.push({ field: "name", old_value: user.name, new_value: full_name });
+			changes.push({ field: "name", old_value: userObj.name, new_value: full_name });
 		}
 		if (isOrgChanged) {
-			changes.push({ field: "organization_name", old_value: user.organization_name, new_value: organization_name });
+			changes.push({ field: "organization_name", old_value: userObj.organization_name, new_value: organization_name });
 		}
 		if (isPasswordActuallyChanged) {
 			changes.push({ field: "password", old_value: "********", new_value: "********" });
@@ -237,15 +238,15 @@ export const updateAccountHandler = createHandlers(
 				category: "Profile",
 				type: "Updation",
 				actor: {
-					id: user.id,
-					name: user.name || "",
+					id: userObj.id,
+					name: userObj.name || "",
 					role: "admin",
 					table: "client",
 				},
-				client_id: user.id,
+				client_id: userObj.id,
 				subject: {
-					id: user.id,
-					name: user.name || "",
+					id: userObj.id,
+					name: userObj.name || "",
 					type: "profile",
 				},
 				metadata: {

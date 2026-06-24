@@ -14,29 +14,30 @@ export const getMyAccountHandler = createHandlers(
 	hospitalityAuthGuard(),
 	async (context) => {
 		const { type, user, client_id } = context.var;
+		const userObj = user as any;
 
-		const fullName = (user.name || "").trim();
+		const fullName = (userObj.name || "").trim();
 		const spaceIdx = fullName.indexOf(" ");
 		const firstName = spaceIdx === -1 ? fullName : fullName.slice(0, spaceIdx).trim();
 		const lastName = spaceIdx === -1 ? "" : fullName.slice(spaceIdx + 1).trim();
 
 		const employee: Record<string, any> = {
-			id: user.id,
-			email: user.email,
-			mobile_number: user.mobile_number,
-			country_code: user.country_code,
-			status: user.status,
-			profile_pic: user.profile_pic,
-			created_at: user.created_at,
-			updated_at: user.updated_at,
-			is_password_set: !!user.password,
+			id: userObj.id,
+			email: userObj.email,
+			mobile_number: userObj.mobile_number,
+			country_code: userObj.country_code,
+			status: userObj.status,
+			profile_pic: userObj.profile_pic,
+			created_at: userObj.created_at,
+			updated_at: userObj.updated_at,
+			is_password_set: !!userObj.password,
 			full_name: fullName,
 			first_name: firstName,
 			last_name: lastName,
-			client_id: (user as any).client_display_id,
-			organization_name: user.organization_name || null,
-			country: user.country || null,
-			state: user.state || null,
+			client_id: userObj.client_display_id,
+			organization_name: userObj.organization_name || null,
+			country: userObj.country || null,
+			state: userObj.state || null,
 			restaurant_id: null,
 			restaurant_name: null,
 		};
@@ -48,7 +49,7 @@ export const getMyAccountHandler = createHandlers(
 				data: {
 					employee,
 					role: "admin",
-					id: user.id,
+					id: userObj.id,
 					client_id,
 				},
 			},

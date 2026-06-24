@@ -39,7 +39,7 @@ export const reactivateFloorsHandler = createHandlers(
 		for (const floor of floorsToReactivate) {
 			await loggerService.log({
 				category: "Floor",
-				type: "Reactivation",
+				type: "Activation",
 				actor: {
 					id: user_id,
 					name: actorName,

@@ -32,7 +32,7 @@ export const editFloorHandler = createHandlers(
 
 		await loggerService.log({
 			category: "Floor",
-			type: "Update",
+			type: "Updation",
 			actor: {
 				id: user_id,
 				name: actorName,
