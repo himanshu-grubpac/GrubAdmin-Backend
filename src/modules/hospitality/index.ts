@@ -2,6 +2,24 @@ import { Hono } from "hono";
 import { globalErrorHandler } from "@/middlewares/error";
 import { reqInputsMiddleware } from "@/middlewares/req-inputs";
 import {
+	loginHandler,
+	resendOtpHandler,
+	sendOtpHandler,
+	verifyOtpHandler,
+	sendForgetPasswordMagicLinkHandler,
+	resetPasswordMagicLinkHandler,
+	verifyForgetPasswordMagicLinkHandler,
+	setNewPasswordHandler,
+	logoutHandler,
+} from "hospitality/handlers/auth";
+import {
+	confirmUpdateAccountHandler,
+	getMyAccountHandler,
+	updateAccountHandler,
+	updateAccountResendOtpHandler,
+	deleteAccountHandler,
+} from "hospitality/handlers/account";
+import {
 	createFloorHandler,
 	getFloorsHandler,
 	getFloorByIdHandler,
@@ -10,10 +28,18 @@ import {
 	suspendFloorsHandler,
 	reactivateFloorsHandler,
 	searchFloorsHandler,
+} from "hospitality/handlers/floor";
+import {
+	getGrubpacHandler,
+	deleteGrubpacHandler,
+	actionGrubpacHandler,
+	suspendGrubpacHandler,
+	reactivateGrubpacHandler,
+	searchGrubpacHandler,
 	getGrubpacDetailsHandler,
 	updateGrubpacHandler,
 	reassignGrubpacHandler,
-} from "hospitality/handlers/floor";
+} from "hospitality/handlers/box";
 
 export const hospitalityRouter = new Hono();
 
@@ -37,6 +63,16 @@ hospitalityRouter.put("/account", ...updateAccountHandler);
 hospitalityRouter.patch("/account/update/resend-otp", ...updateAccountResendOtpHandler);
 hospitalityRouter.patch("/account/confirm", ...confirmUpdateAccountHandler);
 hospitalityRouter.delete("/account", ...deleteAccountHandler);
+
+/* Floor Router */
+hospitalityRouter.post("/floor", ...createFloorHandler);
+hospitalityRouter.get("/floor", ...getFloorsHandler);
+hospitalityRouter.get("/floor/details", ...getFloorByIdHandler);
+hospitalityRouter.put("/floor", ...editFloorHandler);
+hospitalityRouter.delete("/floor", ...deleteFloorsHandler);
+hospitalityRouter.patch("/floor/suspend", ...suspendFloorsHandler);
+hospitalityRouter.patch("/floor/reactivate", ...reactivateFloorsHandler);
+hospitalityRouter.get("/floor/search", ...searchFloorsHandler);
 
 /* Box (Grubpac) Router */
 hospitalityRouter.get("/grubpac", ...getGrubpacHandler);
