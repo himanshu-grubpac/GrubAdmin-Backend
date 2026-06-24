@@ -432,6 +432,11 @@ export const actionMedicalBoxes = async (args: ActionMedicalBoxesArgs) => {
 				{ box_id: { $in: foundIds } },
 				{ $set: telemetryUpdate },
 			);
+
+			await tx.box_telemetry_latest.updateMany({
+				where: { box_id: { in: foundIds } },
+				data: telemetryUpdate,
+			});
 		}
 	});
 

@@ -47,6 +47,17 @@ import {
 	getUnreadNotificationsCountHandler,
 	markNotificationsHandler,
 } from "hospitality/handlers/notification";
+import {
+	getSupportCategoriesHandler,
+	getSupportQuestionsHandler,
+	searchSupportQuestionsHandler,
+	getSupportAnswerHandler,
+	downloadSupportAttachmentHandler,
+} from "hospitality/handlers/support";
+import {
+	postGrubpacLogsHandler,
+	getGrubpacLogsDropdownsHandler,
+} from "hospitality/handlers/log";
 
 export const hospitalityRouter = new Hono();
 
@@ -98,3 +109,13 @@ hospitalityRouter.get("/notification", ...getNotificationsHandler);
 hospitalityRouter.get("/notification/dropdowns", ...getNotificationDropdownsHandler);
 hospitalityRouter.get("/notification/count", ...getUnreadNotificationsCountHandler);
 hospitalityRouter.patch("/notification", ...markNotificationsHandler);
+hospitalityRouter.post("/grubpac/logs", ...postGrubpacLogsHandler);
+hospitalityRouter.get("/grubpac/logs/dropdowns", ...getGrubpacLogsDropdownsHandler);
+
+/* Support Router */
+hospitalityRouter.get("/support/category", ...getSupportCategoriesHandler);
+hospitalityRouter.get("/support/faq", ...getSupportQuestionsHandler);
+hospitalityRouter.get("/support/search", ...searchSupportQuestionsHandler);
+hospitalityRouter.get("/support/answer", ...getSupportAnswerHandler);
+hospitalityRouter.get("/support/faq/attachment/download", ...downloadSupportAttachmentHandler);
+

@@ -2,6 +2,19 @@ import { prisma } from "@/db";
 import { APIError } from "@/types/error";
 import { BoxConfig } from "@/db/mongo-schema";
 
+const sanitizeHospitalityBox = (box: any) => {
+	if (!box) return box;
+	const {
+		vehicle_number,
+		connection_employee_id,
+		medical_connection_employee_id,
+		connection_employee,
+		medical_connection_employee,
+		...sanitizedBox
+	} = box;
+	return sanitizedBox;
+};
+
 interface GetHospitalityBoxesArgs {
 	page?: number;
 	limit?: number;
@@ -133,7 +146,7 @@ export const getHospitalityBoxes = async (args: GetHospitalityBoxesArgs) => {
 	}
 
 	return {
-		boxes: boxesResponse.value,
+		boxes: boxesResponse.value.map(sanitizeHospitalityBox),
 		count: boxesCountResponse.value,
 	};
 };
@@ -164,7 +177,7 @@ export const getHospitalityBoxDetails = async (args: GetHospitalityBoxDetailsArg
 		throw new APIError(undefined, "hospitality.box.NOT_FOUND", undefined, 404);
 	}
 
-	return box;
+	return sanitizeHospitalityBox(box);
 };
 
 interface SearchHospitalityBoxesArgs {
@@ -407,6 +420,11 @@ export const actionHospitalityBoxes = async (args: ActionHospitalityBoxesArgs) =
 				{ box_id: { $in: foundIds } },
 				{ $set: telemetryUpdate },
 			);
+
+			await tx.box_telemetry_latest.updateMany({
+				where: { box_id: { in: foundIds } },
+				data: telemetryUpdate,
+			});
 		}
 	});
 
