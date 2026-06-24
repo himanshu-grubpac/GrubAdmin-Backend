@@ -11,6 +11,7 @@ import {
 	verifyForgetPasswordMagicLinkHandler,
 	setNewPasswordHandler,
 	logoutHandler,
+	hospitalityImpersonateHandler,
 } from "hospitality/handlers/auth";
 import {
 	confirmUpdateAccountHandler,
@@ -40,6 +41,12 @@ import {
 	updateGrubpacHandler,
 	reassignGrubpacHandler,
 } from "hospitality/handlers/box";
+import {
+	getNotificationsHandler,
+	getNotificationDropdownsHandler,
+	getUnreadNotificationsCountHandler,
+	markNotificationsHandler,
+} from "hospitality/handlers/notification";
 
 export const hospitalityRouter = new Hono();
 
@@ -56,6 +63,7 @@ hospitalityRouter.post("/auth/forget-password/verify", ...verifyForgetPasswordMa
 hospitalityRouter.post("/auth/reset-password", ...resetPasswordMagicLinkHandler);
 hospitalityRouter.post("/auth/set-password", ...setNewPasswordHandler);
 hospitalityRouter.post("/auth/logout", ...logoutHandler);
+hospitalityRouter.post("/auth/impersonate", ...hospitalityImpersonateHandler);
 
 /* Account Router */
 hospitalityRouter.get("/account/me", ...getMyAccountHandler);
@@ -84,3 +92,9 @@ hospitalityRouter.delete("/grubpac", ...deleteGrubpacHandler);
 hospitalityRouter.patch("/grubpac/suspend", ...suspendGrubpacHandler);
 hospitalityRouter.patch("/grubpac/reactivate", ...reactivateGrubpacHandler);
 hospitalityRouter.patch("/grubpac/action", ...actionGrubpacHandler);
+
+/* Notification Router */
+hospitalityRouter.get("/notification", ...getNotificationsHandler);
+hospitalityRouter.get("/notification/dropdowns", ...getNotificationDropdownsHandler);
+hospitalityRouter.get("/notification/count", ...getUnreadNotificationsCountHandler);
+hospitalityRouter.patch("/notification", ...markNotificationsHandler);

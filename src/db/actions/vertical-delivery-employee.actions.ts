@@ -607,7 +607,7 @@ export const getVerticalDeliveryEmployees = async (
 						return { ...boxData, ...telemetryData };
 					};
 
-					// Physical connections
+					// Physical connections (handler status / connected_boxes fields)
 					const directConnections = (connected_boxes || []).map(flattenBox).filter(Boolean);
 					const connectedBoxesMap = new Map(directConnections.map((b: any) => [b.id, b]));
 					const connectedBoxes = Array.from(connectedBoxesMap.values()) as {
