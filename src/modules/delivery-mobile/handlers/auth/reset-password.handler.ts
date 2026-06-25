@@ -3,6 +3,7 @@ import { resetPasswordRequestBodyValidator } from "delivery-mobile/validators/au
 import {
 	deleteSavedDeliveryEmployeeOtp,
 	getSavedDeliveryEmployeeOtp,
+	compareOtp,
 } from "@/db/actions/delivery-employee-otp.actions.ts";
 import { APIError } from "@/types/error";
 import { getUniqueVerticalDeliveryEmployee } from "@/db/actions/vertical-delivery-employee.actions";
@@ -38,7 +39,8 @@ export const resetPasswordHandler = createHandlers(
 			);
 		}
 
-		if (savedOtp.otp !== otp) {
+		const isOtpValid = await compareOtp(otp, savedOtp.otp);
+		if (!isOtpValid) {
 			throw new APIError("Invalid otp", undefined, undefined, 400);
 		}
 

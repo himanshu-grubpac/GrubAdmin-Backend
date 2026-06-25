@@ -3,6 +3,7 @@ import { verifyOtpRequestBodyValidator } from "delivery-mobile/validators/auth.v
 import {
 	deleteSavedDeliveryEmployeeOtp,
 	getSavedDeliveryEmployeeOtp,
+	compareOtp,
 } from "@/db/actions/delivery-employee-otp.actions.ts";
 import { APIError } from "@/types/error";
 import {
@@ -47,7 +48,8 @@ export const verifyOtpHandler = createHandlers(
 
 		const for_what = savedOtp.for_what;
 
-		if (savedOtp.otp !== otp) {
+		const isOtpValid = await compareOtp(otp, savedOtp.otp);
+		if (!isOtpValid) {
 			throw new APIError(undefined, "delivery.auth.login.OTP_INVALID", undefined, 400);
 		}
 
@@ -71,6 +73,7 @@ export const verifyOtpHandler = createHandlers(
 
 		if (employee.employee.status === "unassigned") {
 			await activateVerticalDeliveryEmployee({
+				id: employee.employee.id,
 				email: employeeEmail,
 				type: employee.type,
 			});
