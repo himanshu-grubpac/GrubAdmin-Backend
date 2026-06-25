@@ -544,6 +544,7 @@ model box_telemetry_latest {
   turn_signal_status    hardware_state?        @default(unknown)
   wifi_status           hardware_state?        @default(unknown)
   advert_screen_status  hardware_state?        @default(unknown)
+  light_status          hardware_state?        @default(unknown)
   dual_zone_status      hardware_state?        @default(unknown)
   connection_status     box_connection_status? @default(unknown)
 
