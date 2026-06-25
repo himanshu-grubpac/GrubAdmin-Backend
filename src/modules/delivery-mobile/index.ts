@@ -43,6 +43,17 @@ import {
 	suspendEmployeesHandler,
 	getEmployeeDropdownsHandler,
 } from "@/modules/delivery-mobile/handlers/employee";
+import {
+	connectBoxHandler,
+	disconnectBoxHandler,
+	getBoxDetailsHandler,
+	listBoxesHandler,
+	registerBoxHandler,
+	removeBoxHandler,
+	requestLockOtpHandler,
+	updateBoxSettingsHandler,
+	verifyLockOtpHandler,
+} from "@/modules/delivery-mobile/handlers/box";
 
 export const deliveryMobileRouter = new Hono();
 
@@ -138,3 +149,16 @@ deliveryMobileRouter.put("/restaurant/:id", ...editRestaurantHandler);
  * Base route: /api/v1/delivery-mobile/config
  */
 deliveryMobileRouter.get("/config", ...getConfigHandler);
+
+/**
+ * Base route: /api/v1/delivery-mobile/boxes
+ */
+deliveryMobileRouter.get("/boxes", ...listBoxesHandler);
+deliveryMobileRouter.post("/boxes", ...registerBoxHandler);
+deliveryMobileRouter.get("/boxes/:box_id", ...getBoxDetailsHandler);
+deliveryMobileRouter.delete("/boxes/:box_id", ...removeBoxHandler);
+deliveryMobileRouter.patch("/boxes/:box_id/settings", ...updateBoxSettingsHandler);
+deliveryMobileRouter.post("/boxes/:box_id/connection", ...connectBoxHandler);
+deliveryMobileRouter.delete("/boxes/:box_id/connection", ...disconnectBoxHandler);
+deliveryMobileRouter.post("/boxes/:box_id/lock/otp", ...requestLockOtpHandler);
+deliveryMobileRouter.post("/boxes/:box_id/lock/verify", ...verifyLockOtpHandler);
