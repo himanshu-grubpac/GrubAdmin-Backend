@@ -6,6 +6,7 @@ import type {
 import type { box_lock, box_telemetry_latest } from "@/db/types";
 
 type BoxWithRelations = {
+	id: string;
 	box_display_id: string;
 	name: string;
 	connection_employee_id: string | null;
@@ -42,7 +43,8 @@ export const toMobileBoxSummary = (
 		box.connection_employee_id === driverEmployeeId;
 
 	return {
-		box_id: box.box_display_id,
+		id: box.id,
+		box_display_id: box.box_display_id,
 		name: box.name,
 		is_connected: isConnected,
 		battery_level: telemetry?.battery_percentage ?? 0,

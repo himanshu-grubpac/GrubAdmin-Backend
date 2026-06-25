@@ -13,7 +13,7 @@ export const disconnectBoxHandler = createHandlers(
 		const { box_id } = context.req.valid("param");
 
 		const data = await disconnectDriverBox({
-			box_display_id: box_id,
+			box_id,
 			client_id,
 			employee_id: user_id,
 		});

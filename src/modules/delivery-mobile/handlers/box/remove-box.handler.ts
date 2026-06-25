@@ -13,7 +13,7 @@ export const removeBoxHandler = createHandlers(
 		const { box_id } = context.req.valid("param");
 
 		await unlinkDriverBox({
-			box_display_id: box_id,
+			box_id,
 			client_id,
 			employee_id: user_id,
 		});

@@ -6,7 +6,7 @@ import {
 	updateBoxSettingsBodyValidator,
 } from "@/modules/delivery-mobile/validators/box.validators.ts";
 import type { APIResponse } from "@/types/api";
-import type { MobileBoxSettings } from "@/types/delivery-mobile-box";
+import type { MobileBoxSettingsUpdateResult } from "@/types/delivery-mobile-box";
 
 export const updateBoxSettingsHandler = createHandlers(
 	deliveryAuthGuard(["delivery"]),
@@ -19,13 +19,13 @@ export const updateBoxSettingsHandler = createHandlers(
 		const patch = context.req.valid("json");
 
 		const data = await updateDriverBoxSettings({
-			box_display_id: box_id,
+			box_id,
 			client_id,
 			employee_id: user_id,
 			patch,
 		});
 
-		return context.json<APIResponse<{ box_id: string; settings: MobileBoxSettings }>>(
+		return context.json<APIResponse<MobileBoxSettingsUpdateResult>>(
 			{
 				success: true,
 				code: 200,

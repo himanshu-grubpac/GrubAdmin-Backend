@@ -5,9 +5,11 @@ import type { hardware_state } from "@/db/types";
 import { APIError } from "@/types/error";
 import type {
 	LockAction,
+	MobileBoxConnectionResult,
 	MobileBoxDetails,
 	MobileBoxSettings,
 	MobileBoxSettingsPatch,
+	MobileBoxSettingsUpdateResult,
 	MobileBoxSummary,
 } from "@/types/delivery-mobile-box";
 import {
@@ -27,21 +29,21 @@ const boxInclude = {
 	connection_employee: true,
 } as const;
 
-const boxWhereForDriver = (box_display_id: string, client_id: string) => ({
-	box_display_id,
+const boxWhereForDriver = (box_id: string, client_id: string) => ({
+	id: box_id,
 	client_id,
 	status: { not: "suspended" as const },
 });
 
-export const resolveDriverBoxByDisplayId = async (args: {
-	box_display_id: string;
+export const resolveDriverBoxById = async (args: {
+	box_id: string;
 	client_id: string;
 	employee_id: string;
 }) => {
 	const assignment = await prisma.vertical_delivery_employee_box.findFirst({
 		where: {
 			employee_id: args.employee_id,
-			box: boxWhereForDriver(args.box_display_id, args.client_id),
+			box: boxWhereForDriver(args.box_id, args.client_id),
 		},
 		include: {
 			box: {
@@ -158,20 +160,20 @@ export const registerDriverBox = async (args: {
 };
 
 export const getDriverBoxDetails = async (args: {
-	box_display_id: string;
+	box_id: string;
 	client_id: string;
 	employee_id: string;
 }): Promise<MobileBoxDetails> => {
-	const { box } = await resolveDriverBoxByDisplayId(args);
+	const { box } = await resolveDriverBoxById(args);
 	return toMobileBoxDetails(box as BoxWithRelations, args.employee_id);
 };
 
 export const unlinkDriverBox = async (args: {
-	box_display_id: string;
+	box_id: string;
 	client_id: string;
 	employee_id: string;
 }): Promise<void> => {
-	const { box } = await resolveDriverBoxByDisplayId(args);
+	const { box } = await resolveDriverBoxById(args);
 
 	await prisma.$transaction(async (tx) => {
 		const deleted = await tx.vertical_delivery_employee_box.deleteMany({
@@ -238,17 +240,17 @@ const mapSettingsPatchToGrubpac = (patch: MobileBoxSettingsPatch) => {
 };
 
 export const updateDriverBoxSettings = async (args: {
-	box_display_id: string;
+	box_id: string;
 	client_id: string;
 	employee_id: string;
 	patch: MobileBoxSettingsPatch;
-}): Promise<{ box_id: string; settings: MobileBoxSettings }> => {
+}): Promise<MobileBoxSettingsUpdateResult> => {
 	const hasPatchField = Object.values(args.patch).some((v) => v !== undefined);
 	if (!hasPatchField) {
 		throw new APIError("At least one setting field is required", undefined, undefined, 400);
 	}
 
-	const { box } = await resolveDriverBoxByDisplayId(args);
+	const { box } = await resolveDriverBoxById(args);
 	const grubpacPayload = mapSettingsPatchToGrubpac(args.patch);
 
 	if (Object.keys(grubpacPayload).length > 0) {
@@ -283,7 +285,8 @@ export const updateDriverBoxSettings = async (args: {
 	});
 
 	return {
-		box_id: updated.box_display_id,
+		id: updated.id,
+		box_display_id: updated.box_display_id,
 		settings,
 	};
 };
@@ -324,11 +327,11 @@ const setBoxConnectionState = async (args: {
 };
 
 export const connectDriverBox = async (args: {
-	box_display_id: string;
+	box_id: string;
 	client_id: string;
 	employee_id: string;
-}): Promise<{ box_id: string; is_connected: boolean }> => {
-	const { box } = await resolveDriverBoxByDisplayId(args);
+}): Promise<MobileBoxConnectionResult> => {
+	const { box } = await resolveDriverBoxById(args);
 
 	if (
 		box.connection_employee_id &&
@@ -343,7 +346,8 @@ export const connectDriverBox = async (args: {
 
 	if (alreadyConnected) {
 		return {
-			box_id: box.box_display_id,
+			id: box.id,
+			box_display_id: box.box_display_id,
 			is_connected: true,
 		};
 	}
@@ -356,17 +360,18 @@ export const connectDriverBox = async (args: {
 	});
 
 	return {
-		box_id: box.box_display_id,
+		id: box.id,
+		box_display_id: box.box_display_id,
 		is_connected: true,
 	};
 };
 
 export const disconnectDriverBox = async (args: {
-	box_display_id: string;
+	box_id: string;
 	client_id: string;
 	employee_id: string;
-}): Promise<{ box_id: string; is_connected: boolean }> => {
-	const { box } = await resolveDriverBoxByDisplayId(args);
+}): Promise<MobileBoxConnectionResult> => {
+	const { box } = await resolveDriverBoxById(args);
 
 	if (box.connection_employee_id !== args.employee_id) {
 		throw new APIError("Box is not connected by this driver", undefined, undefined, 403);
@@ -380,13 +385,14 @@ export const disconnectDriverBox = async (args: {
 	});
 
 	return {
-		box_id: box.box_display_id,
+		id: box.id,
+		box_display_id: box.box_display_id,
 		is_connected: false,
 	};
 };
 
 export const verifyDriverLockOtp = async (args: {
-	box_display_id: string;
+	box_id: string;
 	client_id: string;
 	employee_id: string;
 	employee_email: string;
@@ -394,7 +400,7 @@ export const verifyDriverLockOtp = async (args: {
 	code: string;
 	action: LockAction;
 }): Promise<void> => {
-	const { box } = await resolveDriverBoxByDisplayId(args);
+	const { box } = await resolveDriverBoxById(args);
 
 	const { getSavedDeliveryEmployeeOtp, deleteSavedDeliveryEmployeeOtp, compareOtp } =
 		await import("@/db/actions/delivery-employee-otp.actions.ts");
@@ -415,13 +421,9 @@ export const verifyDriverLockOtp = async (args: {
 		action?: LockAction;
 	} | null;
 
-	const metadataBoxId = metadata?.box_display_id;
 	const metadataIds = metadata?.ids;
 
-	if (
-		(metadataBoxId && metadataBoxId !== args.box_display_id) ||
-		(metadataIds && !metadataIds.includes(box.id))
-	) {
+	if (metadataIds && !metadataIds.includes(box.id)) {
 		throw new APIError("Invalid OTP session for this box", undefined, undefined, 403);
 	}
 

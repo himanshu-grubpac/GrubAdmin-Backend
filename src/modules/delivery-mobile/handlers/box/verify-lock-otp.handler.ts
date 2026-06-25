@@ -27,7 +27,7 @@ export const verifyLockOtpHandler = createHandlers(
 			`${user.first_name ?? ""} ${user.last_name ?? ""}`.trim() || "Driver";
 
 		await verifyDriverLockOtp({
-			box_display_id: box_id,
+			box_id,
 			client_id,
 			employee_id: user_id,
 			employee_email: user.email ?? "",

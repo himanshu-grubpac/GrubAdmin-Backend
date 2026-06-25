@@ -1,5 +1,6 @@
 export interface MobileBoxSummary {
-	box_id: string;
+	id: string;
+	box_display_id: string;
 	name: string;
 	is_connected: boolean;
 	battery_level: number;
@@ -32,6 +33,18 @@ export interface MobileBoxSettingsPatch {
 	advert_display_enabled?: boolean;
 	ioniser_enabled?: boolean;
 	light_enabled?: boolean;
+}
+
+export interface MobileBoxSettingsUpdateResult {
+	id: string;
+	box_display_id: string;
+	settings: MobileBoxSettings;
+}
+
+export interface MobileBoxConnectionResult {
+	id: string;
+	box_display_id: string;
+	is_connected: boolean;
 }
 
 export type LockAction = "unlock" | "lock";

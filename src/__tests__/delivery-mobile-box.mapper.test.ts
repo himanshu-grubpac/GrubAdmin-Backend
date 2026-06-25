@@ -12,6 +12,7 @@ describe("delivery-mobile box mappers", () => {
 	const driverId = "driver-ulid-1";
 
 	const sampleBox = {
+		id: "01JBOXULID556102",
 		box_display_id: "GP-BOX-556102",
 		name: "Box #556102",
 		connection_employee_id: driverId,
@@ -33,9 +34,10 @@ describe("delivery-mobile box mappers", () => {
 		},
 	};
 
-	test("toMobileBoxSummary uses box_display_id as box_id", () => {
+	test("toMobileBoxSummary exposes id and box_display_id", () => {
 		const summary = toMobileBoxSummary(sampleBox as any, driverId);
-		expect(summary.box_id).toBe("GP-BOX-556102");
+		expect(summary.id).toBe("01JBOXULID556102");
+		expect(summary.box_display_id).toBe("GP-BOX-556102");
 		expect(summary.name).toBe("Box #556102");
 		expect(summary.is_connected).toBe(true);
 		expect(summary.battery_level).toBe(88);
@@ -44,7 +46,8 @@ describe("delivery-mobile box mappers", () => {
 
 	test("toMobileBoxDetails includes telemetry and settings", () => {
 		const details = toMobileBoxDetails(sampleBox as any, driverId);
-		expect(details.box_id).toBe("GP-BOX-556102");
+		expect(details.id).toBe("01JBOXULID556102");
+		expect(details.box_display_id).toBe("GP-BOX-556102");
 		expect(details.zone_1_temp).toBe(-5);
 		expect(details.settings.is_dual_zone).toBe(true);
 		expect(details.settings.ioniser_enabled).toBe(false);

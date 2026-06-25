@@ -5,7 +5,7 @@ import z from "zod";
 export const boxIdParamValidator = zValidator(
 	"param",
 	z.object({
-		box_id: z.string().trim().min(1, "Box id is required"),
+		box_id: z.string().trim().min(1, "Box id (ULID) is required"),
 	}),
 	(r) => {
 		if (!r.success) validatorErrorHandler(r.error);

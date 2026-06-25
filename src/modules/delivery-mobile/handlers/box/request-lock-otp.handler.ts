@@ -1,7 +1,7 @@
 import { loggerService } from "@/services/system-log.ts";
 import { createHandlers } from "@/utils/hono-factory.ts";
 import { deliveryAuthGuard } from "@/middlewares/auth";
-import { resolveDriverBoxByDisplayId } from "@/db/actions/delivery-mobile/box.actions.ts";
+import { resolveDriverBoxById } from "@/db/actions/delivery-mobile/box.actions.ts";
 import { saveDeliveryEmployeeOtp } from "@/db/actions/delivery-employee-otp.actions.ts";
 import {
 	boxIdParamValidator,
@@ -21,8 +21,8 @@ export const requestLockOtpHandler = createHandlers(
 		const { box_id } = context.req.valid("param");
 		const { action } = context.req.valid("json");
 
-		const { box } = await resolveDriverBoxByDisplayId({
-			box_display_id: box_id,
+		const { box } = await resolveDriverBoxById({
+			box_id,
 			client_id,
 			employee_id: user_id,
 		});

@@ -14,7 +14,7 @@ export const getBoxDetailsHandler = createHandlers(
 		const { box_id } = context.req.valid("param");
 
 		const data = await getDriverBoxDetails({
-			box_display_id: box_id,
+			box_id,
 			client_id,
 			employee_id: user_id,
 		});

@@ -21,11 +21,11 @@ mock.module("@/db", () => ({
 	prisma: mockPrisma,
 }));
 
-const { resolveDriverBoxByDisplayId } = await import(
+const { resolveDriverBoxById } = await import(
 	"@/db/actions/delivery-mobile/box.actions.ts"
 );
 
-describe("delivery-mobile box actions — resolveDriverBoxByDisplayId", () => {
+describe("delivery-mobile box actions — resolveDriverBoxById", () => {
 	beforeEach(() => {
 		mockPrisma.vertical_delivery_employee_box.findFirst.mockReset();
 	});
@@ -47,12 +47,13 @@ describe("delivery-mobile box actions — resolveDriverBoxByDisplayId", () => {
 			box,
 		} as any);
 
-		const result = await resolveDriverBoxByDisplayId({
-			box_display_id: "GP-BOX-556102",
+		const result = await resolveDriverBoxById({
+			box_id: "box-ulid",
 			client_id: "client-1",
 			employee_id: "driver-1",
 		});
 
+		expect(result.box.id).toBe("box-ulid");
 		expect(result.box.box_display_id).toBe("GP-BOX-556102");
 		expect(mockPrisma.vertical_delivery_employee_box.findFirst).toHaveBeenCalledTimes(1);
 	});
@@ -61,8 +62,8 @@ describe("delivery-mobile box actions — resolveDriverBoxByDisplayId", () => {
 		mockPrisma.vertical_delivery_employee_box.findFirst.mockResolvedValue(null);
 
 		await expect(
-			resolveDriverBoxByDisplayId({
-				box_display_id: "GP-BOX-MISSING",
+			resolveDriverBoxById({
+				box_id: "missing-ulid",
 				client_id: "client-1",
 				employee_id: "driver-1",
 			}),
@@ -85,8 +86,8 @@ describe("delivery-mobile box actions — resolveDriverBoxByDisplayId", () => {
 		} as any);
 
 		try {
-			await resolveDriverBoxByDisplayId({
-				box_display_id: "GP-BOX-556102",
+			await resolveDriverBoxById({
+				box_id: "box-ulid",
 				client_id: "client-1",
 				employee_id: "driver-1",
 			});
