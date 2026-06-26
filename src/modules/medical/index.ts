@@ -49,6 +49,7 @@ import {
 } from "medical/handlers/employee";
 import {
 	getGrubpacHandler,
+	updateGrubpacHandler,
 	reassignGrubpacHandler,
 	actionGrubpacHandler,
 	getGrubpacDetailsHandler,
@@ -172,6 +173,7 @@ medicalRouter.delete("/employee", ...deleteEmployeesHandler);
  * Base route: /api/v1/medical/grubpac
  */
 medicalRouter.get("/grubpac", ...getGrubpacHandler);
+medicalRouter.put("/grubpac", ...updateGrubpacHandler);
 medicalRouter.get("/grubpac/search", ...searchGrubpacHandler);
 medicalRouter.get("/grubpac/details", ...getGrubpacDetailsHandler);
 medicalRouter.get("/grubpac/dropdowns", ...getGrubpacDropdownsHandler);
