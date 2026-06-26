@@ -58,11 +58,17 @@ import {
 	postGrubpacLogsHandler,
 	getGrubpacLogsDropdownsHandler,
 } from "hospitality/handlers/log";
+import {
+	getDashboardHandler,
+} from "hospitality/handlers/dashboard";
 
 export const hospitalityRouter = new Hono();
 
 hospitalityRouter.onError(globalErrorHandler);
 hospitalityRouter.use(reqInputsMiddleware);
+
+/* Dashboard Router */
+hospitalityRouter.get("/dashboard", ...getDashboardHandler);
 
 /* Auth Router */
 hospitalityRouter.post("/auth/login", ...loginHandler);

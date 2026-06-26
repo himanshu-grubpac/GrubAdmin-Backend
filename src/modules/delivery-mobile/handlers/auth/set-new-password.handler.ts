@@ -9,6 +9,7 @@ import { JWT } from "@/utils/jwt.ts";
 import {
 	deleteSavedDeliveryEmployeeOtp,
 	getSavedDeliveryEmployeeOtp,
+	compareOtp,
 } from "@/db/actions/delivery-employee-otp.actions.ts";
 import { resolveMessageTemplate } from "@/utils/message.ts";
 
@@ -76,7 +77,8 @@ export const setNewPasswordHandler = createHandlers(
 
 				const savedOtp = await getSavedDeliveryEmployeeOtp(employeeForOtp.employee.email);
 
-				if (!savedOtp || savedOtp.otp !== bodyToken) {
+				const isOtpValid = savedOtp ? await compareOtp(bodyToken, savedOtp.otp) : false;
+				if (!savedOtp || !isOtpValid) {
 					throw new APIError(undefined, "delivery.auth.login.INVALID_OTP_TOKEN", undefined, 401);
 				}
 

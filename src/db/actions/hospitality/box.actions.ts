@@ -430,3 +430,45 @@ export const actionHospitalityBoxes = async (args: ActionHospitalityBoxesArgs) =
 
 	return { updated_count: foundIds.length };
 };
+
+export const getHospitalityDashboardMetrics = async (client_id: string) => {
+	const [
+		floor_count,
+		employee_count,
+		active_box_count,
+		active_cold_chain_count,
+		temperature_alarm_count,
+	] = await Promise.all([
+		prisma.vertical_hospitality_floor.count({
+			where: { client_id, status: "active" },
+		}),
+		prisma.vertical_delivery_employee.count({
+			where: { client_id, status: { not: "suspended" } },
+		}),
+		prisma.box.count({
+			where: { client_id, status: "active" },
+		}),
+		prisma.box.count({
+			where: {
+				client_id,
+				status: "active",
+				telemetry: { power_status: "on" },
+			},
+		}),
+		prisma.box.count({
+			where: {
+				client_id,
+				status: "active",
+				telemetry: { health_status: { in: ["critical", "attention"] } },
+			},
+		}),
+	]);
+
+	return {
+		floor_count,
+		employee_count,
+		active_box_count,
+		active_cold_chain_count,
+		temperature_alarm_count,
+	};
+};

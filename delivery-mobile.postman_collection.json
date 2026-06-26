@@ -1,0 +1,1162 @@
+{
+	"info": {
+		"_postman_id": "b3e0c7a1-8d24-4f9e-a0e2-632fcda12345",
+		"name": "GrubDelivery Mobile API",
+		"description": "Postman Collection for testing and integrating the GrubDelivery Mobile vertical APIs. Contains all authentication, account management, dashboard, support, employee management, and restaurant management endpoints.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"description": "Authentication endpoints for the delivery mobile application. These endpoints do not require authentication.",
+			"item": [
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@grubpac.com\",\n  \"password\": \"Password@123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Log in to the delivery mobile application using either email, phone, or a combination of type and body with a password."
+					},
+					"response": []
+				},
+				{
+					"name": "Send OTP",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@grubpac.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/send-otp",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"send-otp"
+							]
+						},
+						"description": "Send a one-time password (OTP) to the specified email or phone number for verification."
+					},
+					"response": []
+				},
+				{
+					"name": "Verify OTP",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@grubpac.com\",\n  \"otp\": \"1234\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/verify-otp",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"verify-otp"
+							]
+						},
+						"description": "Verify the sent OTP to complete authentication."
+					},
+					"response": []
+				},
+				{
+					"name": "Resend OTP",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@grubpac.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/resend-otp",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"resend-otp"
+							]
+						},
+						"description": "Resend the verification OTP to the user."
+					},
+					"response": []
+				},
+				{
+					"name": "Forget Password - Send OTP",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@grubpac.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/forget-password/otp/send",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"forget-password",
+								"otp",
+								"send"
+							]
+						},
+						"description": "Send an OTP for resetting the password."
+					},
+					"response": []
+				},
+				{
+					"name": "Forget Password - Verify OTP",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@grubpac.com\",\n  \"otp\": \"1234\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/forget-password/otp/verify",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"forget-password",
+								"otp",
+								"verify"
+							]
+						},
+						"description": "Verify the password reset OTP."
+					},
+					"response": []
+				},
+				{
+					"name": "Forget Password - Set Password",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@grubpac.com\",\n  \"auth_token\": \"temp_token_from_otp_verification\",\n  \"password\": \"NewPassword@123\",\n  \"confirm_password\": \"NewPassword@123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/forget-password/set-password",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"forget-password",
+								"set-password"
+							]
+						},
+						"description": "Set a new password after verifying the forget-password OTP."
+					},
+					"response": []
+				},
+				{
+					"name": "Set Password",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@grubpac.com\",\n  \"password\": \"NewPassword@123\",\n  \"confirm_password\": \"NewPassword@123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/set-password",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"set-password"
+							]
+						},
+						"description": "Set the user password directly."
+					},
+					"response": []
+				},
+				{
+					"name": "Forget Password - Resend OTP",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@grubpac.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/forget-password/otp/resend",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"forget-password",
+								"otp",
+								"resend"
+							]
+						},
+						"description": "Resend the OTP for resetting password."
+					},
+					"response": []
+				},
+				{
+					"name": "Reset Password",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@grubpac.com\",\n  \"otp\": \"1234\",\n  \"password\": \"NewPassword@123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/reset-password",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"reset-password"
+							]
+						},
+						"description": "Reset the password using email, OTP, and new password directly."
+					},
+					"response": []
+				},
+				{
+					"name": "Check Account",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@grubpac.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/check-account",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"check-account"
+							]
+						},
+						"description": "Verify if an account exists under the given identifier."
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/auth/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"logout"
+							]
+						},
+						"description": "Log out from the application."
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "noauth"
+			}
+		},
+		{
+			"name": "Account",
+			"description": "Endpoints relating to user profile, account updates, ownership transfers, and deletion.",
+			"item": [
+				{
+					"name": "Get Profile (Me)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/account/me",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"account",
+								"me"
+							]
+						},
+						"description": "Retrieve the profile details of the currently authenticated user."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Profile (Alternative)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/profile",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"profile"
+							]
+						},
+						"description": "Alternative endpoint to retrieve the profile details of the authenticated user."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Account",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"updated@grubpac.com\",\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"country_code\": \"+1\",\n  \"mobile_number\": \"1234567890\",\n  \"old_password\": \"Password@123\",\n  \"new_password\": \"NewPassword@123\",\n  \"organization\": \"GrubAdmin\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/account",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"account"
+							]
+						},
+						"description": "Update the profile and credentials of the authenticated user."
+					},
+					"response": []
+				},
+				{
+					"name": "Resend Account Update OTP",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/account/update/resend-otp",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"account",
+								"update",
+								"resend-otp"
+							]
+						},
+						"description": "Resend the OTP for confirming account details updates."
+					},
+					"response": []
+				},
+				{
+					"name": "Confirm Account Update",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"otp\": \"1234\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/account/confirm",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"account",
+								"confirm"
+							]
+						},
+						"description": "Confirm account details update by verifying the sent OTP."
+					},
+					"response": []
+				},
+				{
+					"name": "Transfer Ownership",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"transfer_mode\": \"selected\",\n  \"ids\": [\n    \"01J6G7W7B1V...\"\n  ],\n  \"name\": \"Jane Doe\",\n  \"organization_name\": \"New Org LLC\",\n  \"country_code\": \"+1\",\n  \"phone\": \"9876543210\",\n  \"email\": \"jane@neworg.com\",\n  \"country\": \"US\",\n  \"state\": \"NY\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/account/transfer-ownership",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"account",
+								"transfer-ownership"
+							]
+						},
+						"description": "Transfer ownership of selected or all resources to a new owner."
+					},
+					"response": []
+				},
+				{
+					"name": "Verify Transfer Ownership",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"otp_id\": \"otp_id_from_transfer_response\",\n  \"otp\": \"1234\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/account/transfer-ownership/verify",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"account",
+								"transfer-ownership",
+								"verify"
+							]
+						},
+						"description": "Verify and complete ownership transfer via OTP."
+					},
+					"response": []
+				},
+				{
+					"name": "Get My GrubPacs",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/account/mygrubpacs?power_status=on&query=",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"account",
+								"mygrubpacs"
+							],
+							"query": [
+								{
+									"key": "power_status",
+									"value": "on",
+									"description": "Filter by power status: on, off, unknown (optional)"
+								},
+								{
+									"key": "query",
+									"value": "",
+									"description": "Search query for box details (optional)"
+								}
+							]
+						},
+						"description": "Retrieve all GrubPac boxes associated with the authenticated user."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Account",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"password\": \"Password@123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/account",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"account"
+							]
+						},
+						"description": "Initiate account deletion by verifying password."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Dashboard",
+			"description": "Dashboard telemetry and analytical summary metrics.",
+			"item": [
+				{
+					"name": "Get Dashboard Metrics",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/dashboard",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"dashboard"
+							]
+						},
+						"description": "Retrieve high-level metrics and statistics for the dashboard view."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Support",
+			"description": "Customer support categories and FAQ articles.",
+			"item": [
+				{
+					"name": "Get Support Categories",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/support/category?query=&limit=10&page=1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"support",
+								"category"
+							],
+							"query": [
+								{
+									"key": "query",
+									"value": "",
+									"description": "Search for a specific category (optional)"
+								},
+								{
+									"key": "id",
+									"value": "",
+									"description": "Filter by category ULID (optional)",
+									"disabled": true
+								},
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Limit of categories to fetch (optional)"
+								},
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number (optional)"
+								}
+							]
+						},
+						"description": "Get categories of support tickets or FAQs."
+					},
+					"response": []
+				},
+				{
+					"name": "Get FAQs",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/support/faq?query=&category_id=&limit=10&page=1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"support",
+								"faq"
+							],
+							"query": [
+								{
+									"key": "query",
+									"value": "",
+									"description": "Search FAQ questions/answers (optional)"
+								},
+								{
+									"key": "category_id",
+									"value": "",
+									"description": "Filter by specific category ID (optional)"
+								},
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Limit of FAQs to fetch (optional)"
+								},
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number (optional)"
+								}
+							]
+						},
+						"description": "Retrieve FAQ questions and answers."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Employee",
+			"description": "Management of drivers and managers associated with the delivery vertical.",
+			"item": [
+				{
+					"name": "Create Employee",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"first_name\": \"Robert\",\n  \"last_name\": \"Smith\",\n  \"email\": \"robert.smith@grubpac.com\",\n  \"country_code\": \"+1\",\n  \"mobile_number\": \"5550192834\",\n  \"joining_date\": \"2026-06-25T10:30:00.000Z\",\n  \"employee_id\": \"EMP005\",\n  \"role\": \"delivery\",\n  \"restaurant_id\": null\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/employee",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"employee"
+							]
+						},
+						"description": "Register a new employee with the role 'manager' or 'delivery'."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Employees",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/employee?query=&page_number=1&page_size=20&status=active",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"employee"
+							],
+							"query": [
+								{
+									"key": "query",
+									"value": "",
+									"description": "Search by name or email (optional)"
+								},
+								{
+									"key": "page_number",
+									"value": "1",
+									"description": "Page number (optional)"
+								},
+								{
+									"key": "page_size",
+									"value": "20",
+									"description": "Number of items per page (optional)"
+								},
+								{
+									"key": "role",
+									"value": "delivery",
+									"description": "Filter by role: manager, delivery (optional)",
+									"disabled": true
+								},
+								{
+									"key": "restaurant_ids",
+									"value": "",
+									"description": "Filter by restaurant ULID (optional)",
+									"disabled": true
+								},
+								{
+									"key": "status",
+									"value": "active",
+									"description": "Filter by status: active, unassigned, suspended (optional)"
+								}
+							]
+						},
+						"description": "Retrieve list of employees under the client's account."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Employee Dropdowns",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/employee/dropdowns",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"employee",
+								"dropdowns"
+							]
+						},
+						"description": "Retrieve dropdown items such as roles or status filters."
+					},
+					"response": []
+				},
+				{
+					"name": "Suspend Employees",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"ids\": [\n    \"01J6G7W7B1V...\"\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/employee/suspend",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"employee",
+								"suspend"
+							]
+						},
+						"description": "Suspend one or multiple employee accounts by their ULIDs."
+					},
+					"response": []
+				},
+				{
+					"name": "Reactivate Employees",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"ids\": [\n    \"01J6G7W7B1V...\"\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/employee/reactivate",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"employee",
+								"reactivate"
+							]
+						},
+						"description": "Reactivate one or multiple suspended employee accounts."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Employees",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"ids\": [\n    \"01J6G7W7B1V...\"\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/employee",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"employee"
+							]
+						},
+						"description": "Hard delete one or multiple employee records."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Restaurant",
+			"description": "Restaurant locations management and resource assignments.",
+			"item": [
+				{
+					"name": "Create Restaurant",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Pizza Palace\",\n  \"state\": \"California\",\n  \"city\": \"Los Angeles\",\n  \"pincode\": \"90001\",\n  \"line_one\": \"123 Main St\",\n  \"line_two\": \"Suite 100\",\n  \"google_place_id\": \"ChIJ2eUgeAK6woARxP0G0K2L5F0\",\n  \"status\": \"active\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/restaurant",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"restaurant"
+							]
+						},
+						"description": "Create a new restaurant location."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Restaurants",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/restaurant?query=&page_number=1&page_size=20&status=active",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"restaurant"
+							],
+							"query": [
+								{
+									"key": "query",
+									"value": "",
+									"description": "Search restaurant by name/city (optional)"
+								},
+								{
+									"key": "page_number",
+									"value": "1",
+									"description": "Page number (optional)"
+								},
+								{
+									"key": "page_size",
+									"value": "20",
+									"description": "Number of items per page (optional)"
+								},
+								{
+									"key": "status",
+									"value": "active",
+									"description": "Filter by status: active, suspended"
+								},
+								{
+									"key": "manager",
+									"value": "true",
+									"description": "Include manager relations (optional)",
+									"disabled": true
+								},
+								{
+									"key": "driver",
+									"value": "true",
+									"description": "Include driver relations (optional)",
+									"disabled": true
+								},
+								{
+									"key": "box",
+									"value": "true",
+									"description": "Include box relations (optional)",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Retrieve list of all restaurants."
+					},
+					"response": []
+				},
+				{
+					"name": "Unassign Restaurant Resources",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"ids\": [\n    \"01J6G7W7B1V...\"\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/restaurant/resource/unassign",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"restaurant",
+								"resource",
+								"unassign"
+							]
+						},
+						"description": "Unassign resources (drivers/boxes) from a restaurant."
+					},
+					"response": []
+				},
+				{
+					"name": "Suspend Restaurant Resources",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"ids\": [\n    \"01J6G7W7B1V...\"\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/restaurant/resource/suspend",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"restaurant",
+								"resource",
+								"suspend"
+							]
+						},
+						"description": "Suspend resources assigned to a restaurant."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Restaurant By ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/restaurant/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"restaurant",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "01J6G7W7B1V...",
+									"description": "The ULID of the restaurant"
+								}
+							]
+						},
+						"description": "Get detailed information about a single restaurant location."
+					},
+					"response": []
+				},
+				{
+					"name": "Edit Restaurant",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Updated Pizza Palace\",\n  \"state\": \"California\",\n  \"city\": \"Los Angeles\",\n  \"pincode\": \"90002\",\n  \"line_one\": \"456 Oak Rd\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/restaurant/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"restaurant",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "01J6G7W7B1V...",
+									"description": "The ULID of the restaurant"
+								}
+							]
+						},
+						"description": "Modify details of an existing restaurant location."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Config",
+			"description": "Vertical-specific configuration parameters.",
+			"item": [
+				{
+					"name": "Get Config",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/config",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"config"
+							]
+						},
+						"description": "Get global app configuration parameters for the delivery mobile vertical."
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{authToken}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8000/api/v1/delivery-mobile",
+			"type": "string"
+		},
+		{
+			"key": "authToken",
+			"value": "your_jwt_auth_token_here",
+			"type": "string"
+		}
+	]
+}
