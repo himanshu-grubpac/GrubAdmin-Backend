@@ -1,6 +1,7 @@
 export * from "./get-grubpac.handler";
 export * from "./search-grubpac.handler";
 export * from "./get-grubpac-details.handler";
+export * from "./get-grubpac-edit-details.handler";
 export * from "./action-grubpac.handler";
 export * from "./create-grubpac.handler";
 export * from "./update-grubpac.handler";

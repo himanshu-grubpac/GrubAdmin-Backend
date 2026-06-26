@@ -503,6 +503,126 @@ export const getMedicalEmployeeBoxes = async (employeeId: string) => {
 		.map((a) => a.box);
 };
 
+interface UpdateMedicalGrubpacArgs {
+	id: string;
+	client_id: string;
+	name?: string;
+	department_id?: string | null;
+}
+
+export const updateMedicalGrubpac = async (args: UpdateMedicalGrubpacArgs) => {
+	const { id, client_id, name, department_id } = args;
+
+	return prisma.$transaction(async (tx) => {
+		const box = await tx.box.findUnique({
+			where: { id, client_id },
+			include: {
+				medical_department_boxes: {
+					include: { department: { select: { id: true, name: true, status: true } } },
+				},
+			},
+		});
+
+		if (!box) {
+			throw new APIError(undefined, "medical.box.NOT_FOUND", undefined, 404);
+		}
+
+		if (name !== undefined) {
+			await tx.box.update({
+				where: { id },
+				data: { name },
+			});
+		}
+
+		if (department_id !== undefined) {
+			await tx.vertical_medical_department_box.deleteMany({
+				where: { box_id: id },
+			});
+
+			if (department_id) {
+				const department = await tx.vertical_medical_department.findUnique({
+					where: { id: department_id, client_id },
+				});
+
+				if (!department) {
+					throw new APIError(undefined, "medical.department.NOT_FOUND", undefined, 404);
+				}
+
+				if (department.status !== "active") {
+					throw new APIError("Department is not active", undefined, undefined, 400);
+				}
+
+				await tx.vertical_medical_department_box.create({
+					data: { box_id: id, department_id },
+				});
+			}
+		}
+
+		return tx.box.findUnique({
+			where: { id },
+			include: {
+				medical_department_boxes: {
+					include: {
+						department: { select: { id: true, name: true } },
+					},
+				},
+			},
+		});
+	});
+};
+
+interface GetMedicalGrubpacEditDetailsArgs {
+	id: string;
+	client_id: string;
+}
+
+export const getMedicalGrubpacEditDetails = async (args: GetMedicalGrubpacEditDetailsArgs) => {
+	const { id, client_id } = args;
+
+	const box = await prisma.box.findFirst({
+		where: { id, client_id },
+		select: {
+			id: true,
+			name: true,
+			box_display_id: true,
+			medical_department_boxes: {
+				select: {
+					department: {
+						select: { id: true, name: true },
+					},
+				},
+			},
+			medical_employee_boxes: {
+				select: {
+					status: true,
+				},
+			},
+		},
+	});
+
+	if (!box) {
+		throw new APIError(undefined, "medical.box.NOT_FOUND", undefined, 404);
+	}
+
+	const assignedDepartment = box.medical_department_boxes[0]?.department ?? null;
+
+	const blockedCount = box.medical_employee_boxes.filter((eb) => eb.status === "blocked").length;
+	const sharedCount = box.medical_employee_boxes.filter((eb) => eb.status === "shared").length;
+	const totalCount = box.medical_employee_boxes.length;
+
+	return {
+		id: box.id,
+		name: box.name,
+		tag: box.box_display_id,
+		assignedDepartment,
+		permissionSummary: {
+			total: totalCount,
+			blocked: blockedCount,
+			shared: sharedCount,
+		},
+	};
+};
+
 export const getMedicalDashboardMetrics = async (client_id: string) => {
 	const [
 		department_count,

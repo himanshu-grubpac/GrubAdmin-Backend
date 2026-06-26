@@ -53,6 +53,7 @@ import {
 	reassignGrubpacHandler,
 	actionGrubpacHandler,
 	getGrubpacDetailsHandler,
+	getGrubpacEditDetailsHandler,
 	suspendGrubpacHandler,
 	reactivateGrubpacHandler,
 	searchGrubpacHandler,
@@ -176,6 +177,7 @@ medicalRouter.get("/grubpac", ...getGrubpacHandler);
 medicalRouter.put("/grubpac", ...updateGrubpacHandler);
 medicalRouter.get("/grubpac/search", ...searchGrubpacHandler);
 medicalRouter.get("/grubpac/details", ...getGrubpacDetailsHandler);
+medicalRouter.get("/grubpac/edit-details", ...getGrubpacEditDetailsHandler);
 medicalRouter.get("/grubpac/dropdowns", ...getGrubpacDropdownsHandler);
 medicalRouter.patch("/grubpac/action", ...actionGrubpacHandler);
 medicalRouter.patch("/grubpac/reassign", ...reassignGrubpacHandler);
