@@ -11,7 +11,7 @@ export const updateGrubpacHandler = createHandlers(
 	updateGrubpacRequestBodyValidator,
 	async (context) => {
 		const { client_id, user_id, user, type } = context.var;
-		const { id, name, department_id } = context.req.valid("json");
+		const { id, name, department_ids } = context.req.valid("json");
 
 		const previousBox = await prisma.box.findUnique({
 			where: { id, client_id },
@@ -30,24 +30,30 @@ export const updateGrubpacHandler = createHandlers(
 			}, 404);
 		}
 
-		const box = await updateMedicalGrubpac({ id, client_id, name, department_id });
+		const box = await updateMedicalGrubpac({ id, client_id, name, department_ids });
 
 		const changes: any[] = [];
-		const prevDept = previousBox.medical_department_boxes[0]?.department ?? null;
-		const newDept = (box as any)?.medical_department_boxes?.[0]?.department ?? null;
 
 		if (name !== undefined && name !== previousBox.name) {
 			changes.push({ field: "name", old_value: previousBox.name, new_value: name });
 		}
 
-		const prevDeptId = prevDept?.id ?? null;
-		const newDeptId = newDept?.id ?? null;
-		if (department_id !== undefined && prevDeptId !== newDeptId) {
-			changes.push({
-				field: "department",
-				old_value: prevDept?.name ?? null,
-				new_value: newDept?.name ?? null,
-			});
+		if (department_ids !== undefined) {
+			const prevDeptIds = previousBox.medical_department_boxes
+				.map((db) => db.department.id)
+				.sort()
+				.join(",");
+			const newDeptIds = [...(department_ids || [])].sort().join(",");
+
+			if (prevDeptIds !== newDeptIds) {
+				changes.push({
+					field: "department",
+					old_value: previousBox.medical_department_boxes.map((db) => db.department.name).join(", ") || null,
+					new_value: department_ids.length > 0
+						? (box as any)?.medical_department_boxes?.map((db: any) => db.department.name).join(", ")
+						: null,
+				});
+			}
 		}
 
 		if (changes.length > 0) {
