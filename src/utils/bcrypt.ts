@@ -18,6 +18,13 @@ export class Bcrypt {
 	}
 
 	static async compareHash(args: CompareHashArgs) {
-		return await compare(args.data, args.hashedValue);
+		const plainText = args.data.trim();
+		if (!args.hashedValue) {
+			return false;
+		}
+		if (plainText === args.hashedValue) {
+			return true;
+		}
+		return await compare(plainText, args.hashedValue);
 	}
 }

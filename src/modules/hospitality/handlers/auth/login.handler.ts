@@ -7,6 +7,7 @@ import { loggerService } from "@/services/system-log.ts";
 import { resolveMessageTemplate } from "@/utils/message";
 import type { APIResponse } from "@/types/api";
 import { prisma } from "@/db";
+import { buildHospitalityClientLookupWhere, normalizeAuthEmail } from "./auth.utils";
 
 interface ResponseData {
 	auth_token: string;
@@ -18,9 +19,11 @@ export const loginHandler = createHandlers(
 	loginRequestBodyValidator,
 	async (context) => {
 		const { email, password } = context.req.valid("json");
+		const normalizedEmail = normalizeAuthEmail(email);
+		const normalizedPassword = password.trim();
 
 		const clientRecord = await prisma.client.findFirst({
-			where: { email },
+			where: buildHospitalityClientLookupWhere(normalizedEmail),
 			include: { vertical: true },
 		});
 
@@ -52,7 +55,7 @@ export const loginHandler = createHandlers(
 		}
 
 		const isCorrectPassword = await Bcrypt.compareHash({
-			data: password,
+			data: normalizedPassword,
 			hashedValue: clientRecord.password,
 		});
 

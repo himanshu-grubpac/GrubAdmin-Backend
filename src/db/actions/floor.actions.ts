@@ -159,10 +159,11 @@ export const updateFloor = async (args: UpdateFloorArgs) => {
 interface DeleteFloorsArgs {
 	ids: string[];
 	client_id: string;
+	destination_floor_id?: string | null;
 }
 
 export const deleteFloors = async (args: DeleteFloorsArgs) => {
-	const { ids, client_id } = args;
+	const { ids, client_id, destination_floor_id } = args;
 
 	const floors = await prisma.vertical_hospitality_floor.findMany({
 		where: { id: { in: ids }, client_id },
@@ -174,6 +175,44 @@ export const deleteFloors = async (args: DeleteFloorsArgs) => {
 
 	if (floors.length !== ids.length) {
 		throw new APIError("Some floors were not found or access denied", "hospitality.floor.delete.PARTIAL_FOUND", undefined, 409);
+	}
+
+	if (destination_floor_id) {
+		if (ids.includes(destination_floor_id)) {
+			throw new APIError("Self-reassignment target is not allowed", undefined, undefined, 400);
+		}
+
+		const destFloor = await prisma.vertical_hospitality_floor.findUnique({
+			where: { id: destination_floor_id, client_id },
+		});
+
+		if (!destFloor) {
+			throw new APIError("Destination floor not found", undefined, undefined, 404);
+		}
+	}
+
+	// Get all boxes currently assigned to the target floors
+	const floorBoxes = await prisma.vertical_hospitality_floor_box.findMany({
+		where: { floor_id: { in: ids } },
+		select: { box_id: true },
+	});
+	const boxIds = floorBoxes.map((fb) => fb.box_id);
+
+	// Check if there are active boxes
+	const activeBoxIdsResult = boxIds.length > 0
+		? await prisma.box.findMany({
+				where: { id: { in: boxIds }, status: { not: "suspended" } },
+				select: { id: true },
+			})
+		: [];
+
+	if (activeBoxIdsResult.length > 0 && !destination_floor_id) {
+		throw new APIError(
+			"Cannot delete floor(s) with active boxes assigned unless a destination floor is provided for reassignment.",
+			"hospitality.floor.delete.ACTIVE_DEPENDENCIES",
+			{ box_count: activeBoxIdsResult.length },
+			409,
+		);
 	}
 
 	const clientRecord = await prisma.client.findUnique({
@@ -192,12 +231,26 @@ export const deleteFloors = async (args: DeleteFloorsArgs) => {
 			})),
 		});
 
-		// Unassign boxes if any (optional clean up)
-		await tx.vertical_hospitality_floor_box.deleteMany({
-			where: {
-				floor_id: { in: ids },
-			},
-		});
+		if (destination_floor_id) {
+			// Reassign boxes to destination floor
+			// First, delete any floor_box mappings on destination floor for these box IDs to avoid duplicates
+			await tx.vertical_hospitality_floor_box.deleteMany({
+				where: {
+					box_id: { in: boxIds },
+					floor_id: destination_floor_id,
+				},
+			});
+			// Reassign mappings
+			await tx.vertical_hospitality_floor_box.updateMany({
+				where: { floor_id: { in: ids } },
+				data: { floor_id: destination_floor_id },
+			});
+		} else {
+			// Unassign/delete mappings
+			await tx.vertical_hospitality_floor_box.deleteMany({
+				where: { floor_id: { in: ids } },
+			});
+		}
 
 		// Delete from active floors
 		const deleteResult = await tx.vertical_hospitality_floor.deleteMany({
@@ -214,10 +267,12 @@ export const deleteFloors = async (args: DeleteFloorsArgs) => {
 interface SuspendFloorsArgs {
 	ids: string[];
 	client_id: string;
+	resource_status?: "suspend" | "assign";
+	destination_floor_id?: string | null;
 }
 
 export const suspendFloors = async (args: SuspendFloorsArgs) => {
-	const { ids, client_id } = args;
+	const { ids, client_id, resource_status = "suspend", destination_floor_id } = args;
 
 	const floors = await prisma.vertical_hospitality_floor.findMany({
 		where: { id: { in: ids }, client_id },
@@ -229,7 +284,7 @@ export const suspendFloors = async (args: SuspendFloorsArgs) => {
 
 	const toSuspend = floors.filter((f) => f.status !== "suspended");
 
-	if (toSuspend.length === 0) {
+	if (toSuspend.length === 0 && resource_status === "suspend") {
 		throw new APIError(
 			"All selected floors are already suspended",
 			"hospitality.floor.suspend.ALREADY_SUSPENDED",
@@ -238,26 +293,81 @@ export const suspendFloors = async (args: SuspendFloorsArgs) => {
 		);
 	}
 
-	const result = await prisma.vertical_hospitality_floor.updateMany({
-		where: {
-			id: { in: toSuspend.map((f) => f.id) },
-			client_id,
-		},
-		data: {
-			status: "suspended",
-		},
+	if (destination_floor_id) {
+		if (ids.includes(destination_floor_id)) {
+			throw new APIError("Self-reassignment target is not allowed", undefined, undefined, 400);
+		}
+
+		const destFloor = await prisma.vertical_hospitality_floor.findUnique({
+			where: { id: destination_floor_id, client_id },
+		});
+
+		if (!destFloor) {
+			throw new APIError("Destination floor not found", undefined, undefined, 404);
+		}
+	}
+
+	// Get boxes on the target floors
+	const floorBoxes = await prisma.vertical_hospitality_floor_box.findMany({
+		where: { floor_id: { in: ids } },
+		select: { box_id: true },
+	});
+	const boxIds = floorBoxes.map((fb) => fb.box_id);
+
+	await prisma.$transaction(async (tx) => {
+		// Suspend the floors
+		await tx.vertical_hospitality_floor.updateMany({
+			where: {
+				id: { in: ids },
+				client_id,
+			},
+			data: {
+				status: "suspended",
+			},
+		});
+
+		if (resource_status === "suspend") {
+			// Suspend the boxes
+			if (boxIds.length > 0) {
+				await tx.box.updateMany({
+					where: { id: { in: boxIds }, client_id },
+					data: { status: "suspended" },
+				});
+			}
+		} else if (resource_status === "assign") {
+			if (destination_floor_id) {
+				// Delete destination mappings if duplicates
+				await tx.vertical_hospitality_floor_box.deleteMany({
+					where: {
+						box_id: { in: boxIds },
+						floor_id: destination_floor_id,
+					},
+				});
+				// Reassign mappings
+				await tx.vertical_hospitality_floor_box.updateMany({
+					where: { floor_id: { in: ids } },
+					data: { floor_id: destination_floor_id },
+				});
+			} else {
+				// Unassign mappings
+				await tx.vertical_hospitality_floor_box.deleteMany({
+					where: { floor_id: { in: ids } },
+				});
+			}
+		}
 	});
 
-	return { suspended_count: result.count };
+	return { suspended_count: toSuspend.length || ids.length };
 };
 
 interface ReactivateFloorsArgs {
 	ids: string[];
 	client_id: string;
+	reactivate_boxes?: boolean;
 }
 
 export const reactivateFloors = async (args: ReactivateFloorsArgs) => {
-	const { ids, client_id } = args;
+	const { ids, client_id, reactivate_boxes } = args;
 
 	const floors = await prisma.vertical_hospitality_floor.findMany({
 		where: { id: { in: ids }, client_id, status: "suspended" },
@@ -267,17 +377,37 @@ export const reactivateFloors = async (args: ReactivateFloorsArgs) => {
 		throw new APIError("No suspended floors found to reactivate", "hospitality.floor.reactivate.NOT_FOUND", undefined, 404);
 	}
 
-	const result = await prisma.vertical_hospitality_floor.updateMany({
-		where: {
-			id: { in: floors.map((f) => f.id) },
-			client_id,
-		},
-		data: {
-			status: "active",
-		},
+	const floorIds = floors.map((f) => f.id);
+
+	// Get boxes on the target floors
+	const floorBoxes = await prisma.vertical_hospitality_floor_box.findMany({
+		where: { floor_id: { in: floorIds } },
+		select: { box_id: true },
+	});
+	const boxIds = floorBoxes.map((fb) => fb.box_id);
+
+	await prisma.$transaction(async (tx) => {
+		// Reactivate the floors
+		await tx.vertical_hospitality_floor.updateMany({
+			where: {
+				id: { in: floorIds },
+				client_id,
+			},
+			data: {
+				status: "active",
+			},
+		});
+
+		if (reactivate_boxes && boxIds.length > 0) {
+			// Reactivate the suspended boxes
+			await tx.box.updateMany({
+				where: { id: { in: boxIds }, client_id, status: "suspended" },
+				data: { status: "active" },
+			});
+		}
 	});
 
-	return { reactivated_count: result.count };
+	return { reactivated_count: floors.length };
 };
 
 interface SearchHospitalityFloorsArgs {
