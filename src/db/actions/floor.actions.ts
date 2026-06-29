@@ -89,6 +89,13 @@ export const getFloors = async (args: GetFloorsArgs) => {
 					}
 				: undefined,
 		},
+		include: {
+			_count: {
+				select: {
+					boxes: true,
+				},
+			},
+		},
 		skip:
 			!fetch_all && page_number && page_size
 				? (page_number - 1) * page_size
