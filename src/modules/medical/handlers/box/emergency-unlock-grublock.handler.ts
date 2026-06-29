@@ -34,7 +34,10 @@ export const emergencyUnlockGrublockHandler = createHandlers(
 			success: true as const,
 			...resolveMessageTemplate("medical.common.UPDATE_SUCCESS", { id: ids[0] }),
 			message: "Boxes emergency unlocked successfully",
-			data: result,
+			data: {
+				...result,
+				grublock_status: "unlocked" as const,
+			},
 		};
 
 		try {

@@ -11,12 +11,15 @@ import {
 	getSavedOtp,
 } from "@/db/actions/otp.actions.ts";
 import { getCookie } from "hono/cookie";
+import { normalizeAuthEmail } from "./auth.utils";
 
 export const setNewPasswordHandler = createHandlers(
 	setNewPasswordRequestBodyValidator,
 	async (context) => {
 		const body = context.req.valid("json");
 		const { password, email } = body;
+		const normalizedEmail = email ? normalizeAuthEmail(email) : undefined;
+		const normalizedPassword = password.trim();
 		const bodyToken = body.auth_token;
 
 		const authHeader = context.req.header("Authorization");
@@ -44,12 +47,12 @@ export const setNewPasswordHandler = createHandlers(
 
 				userId = decoded.id;
 
-				if (email) {
+				if (normalizedEmail) {
 					const clientByToken = await prisma.client.findUnique({
 						where: { id: decoded.id },
 					});
 
-					if (email && clientByToken?.email !== email) {
+					if (normalizedEmail && clientByToken?.email !== normalizedEmail) {
 						throw new APIError(undefined, "hospitality.auth.login.CREDENTIAL_MISMATCH");
 					}
 				}
@@ -59,7 +62,7 @@ export const setNewPasswordHandler = createHandlers(
 				}
 
 				const clientRecord = await prisma.client.findFirst({
-					where: { email },
+					where: { email: normalizedEmail },
 				});
 
 				if (!clientRecord || !clientRecord.email) {
@@ -100,7 +103,7 @@ export const setNewPasswordHandler = createHandlers(
 		}
 
 		const hashedPassword = await Bcrypt.generateHash({
-			data: password,
+			data: normalizedPassword,
 			saltLength: 10,
 		});
 

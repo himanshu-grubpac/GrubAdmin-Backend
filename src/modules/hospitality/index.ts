@@ -19,6 +19,10 @@ import {
 	updateAccountHandler,
 	updateAccountResendOtpHandler,
 	deleteAccountHandler,
+	transferOwnershipHandler,
+	verifyTransferOwnershipHandler,
+	transferEntireAccountHandler,
+	verifyTransferEntireAccountHandler,
 } from "hospitality/handlers/account";
 import {
 	createFloorHandler,
@@ -88,6 +92,10 @@ hospitalityRouter.put("/account", ...updateAccountHandler);
 hospitalityRouter.patch("/account/update/resend-otp", ...updateAccountResendOtpHandler);
 hospitalityRouter.patch("/account/confirm", ...confirmUpdateAccountHandler);
 hospitalityRouter.delete("/account", ...deleteAccountHandler);
+hospitalityRouter.post("/account/transfer-ownership", ...transferOwnershipHandler);
+hospitalityRouter.post("/account/transfer-ownership/verify", ...verifyTransferOwnershipHandler);
+hospitalityRouter.post("/account/transfer-entire-account", ...transferEntireAccountHandler);
+hospitalityRouter.post("/account/transfer-entire-account/verify", ...verifyTransferEntireAccountHandler);
 
 /* Floor Router */
 hospitalityRouter.post("/floor", ...createFloorHandler);

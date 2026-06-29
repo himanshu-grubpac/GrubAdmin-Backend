@@ -1752,6 +1752,14 @@ export const updateBoxLockStatus = async (args: {
 			},
 		});
 
+		// Sync MongoDB BoxConfig.grublock to mirror the authoritative Prisma lock_status
+		if (lock_status === "locked" || lock_status === "unlocked") {
+			await BoxConfig.updateMany(
+				{ box_id: { $in: validIds } },
+				{ $set: { grublock: lock_status } },
+			);
+		}
+
 		// Handle consumer details if provided (only for locking)
 		if (lock_status === "locked") {
 			if (consumer && consumer.full_name) {

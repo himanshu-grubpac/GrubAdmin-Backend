@@ -3,53 +3,85 @@ import { createHandlers } from "@/utils/hono-factory";
 import { updateGrubpacRequestBodyValidator } from "medical/validators/box.validators";
 import type { APIResponse } from "@/types/api";
 import { prisma } from "@/db";
+import { updateMedicalGrubpac } from "@/db/actions/medical/box.actions";
+import { loggerService } from "@/services/system-log";
 
 export const updateGrubpacHandler = createHandlers(
 	medicalAuthGuard(["admin"]),
 	updateGrubpacRequestBodyValidator,
 	async (context) => {
-		const { client_id } = context.var;
-		const { id, name, box_id, department_ids, blocked_employee_ids, access_mode, ext_temp } = context.req.valid("json");
+		const { client_id, user_id, user, type } = context.var;
+		const { id, name, department_ids } = context.req.valid("json");
 
-		const updateData: any = {};
-		if (name !== undefined) updateData.name = name;
-		if (box_id !== undefined) updateData.box_display_id = box_id;
-
-		const box = await prisma.box.update({
+		const previousBox = await prisma.box.findUnique({
 			where: { id, client_id },
-			data: updateData,
+			include: {
+				medical_department_boxes: {
+					include: { department: { select: { id: true, name: true } } },
+				},
+			},
 		});
 
+		if (!previousBox) {
+			return context.json<APIResponse>({
+				success: false,
+				code: 404,
+				error: "Box not found",
+			}, 404);
+		}
+
+		const box = await updateMedicalGrubpac({ id, client_id, name, department_ids });
+
+		const changes: any[] = [];
+
+		if (name !== undefined && name !== previousBox.name) {
+			changes.push({ field: "name", old_value: previousBox.name, new_value: name });
+		}
+
 		if (department_ids !== undefined) {
-			await prisma.vertical_medical_department_box.deleteMany({
-				where: { box_id: id },
-			});
-			if (department_ids.length > 0) {
-				await prisma.vertical_medical_department_box.createMany({
-					data: department_ids.map((dept_id: string) => ({
-						box_id: id,
-						department_id: dept_id,
-					})),
+			const prevDeptIds = previousBox.medical_department_boxes
+				.map((db) => db.department.id)
+				.sort()
+				.join(",");
+			const newDeptIds = [...(department_ids || [])].sort().join(",");
+
+			if (prevDeptIds !== newDeptIds) {
+				changes.push({
+					field: "department",
+					old_value: previousBox.medical_department_boxes.map((db) => db.department.name).join(", ") || null,
+					new_value: department_ids.length > 0
+						? (box as any)?.medical_department_boxes?.map((db: any) => db.department.name).join(", ")
+						: null,
 				});
 			}
 		}
 
-		if (blocked_employee_ids !== undefined) {
-			await prisma.vertical_medical_employee_box.deleteMany({
-				where: { box_id: id },
+		if (changes.length > 0) {
+			const userObj = user as any;
+			const actorName = type === "admin"
+				? userObj.name
+				: `${userObj.first_name} ${userObj.last_name || ""}`.trim();
+
+			await loggerService.log({
+				category: "GrubPac",
+				type: "Updation",
+				actor: {
+					id: user_id,
+					name: actorName,
+					role: type,
+					table: type === "admin" ? "client" : "vertical_medical_employee",
+				},
+				client_id,
+				subject: {
+					id: box!.id,
+					name: box!.name || "Box",
+					type: "box",
+				},
+				metadata: { changes },
 			});
-			if (blocked_employee_ids.length > 0) {
-				await prisma.vertical_medical_employee_box.createMany({
-					data: blocked_employee_ids.map((emp_id: string) => ({
-						box_id: id,
-						employee_id: emp_id,
-						status: "blocked",
-					})),
-				});
-			}
 		}
 
-		return context.json<APIResponse<typeof box>>({
+		return context.json<APIResponse<any>>({
 			success: true,
 			code: 200,
 			message: "GrubPac updated successfully!",

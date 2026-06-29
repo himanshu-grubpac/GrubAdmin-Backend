@@ -1,6 +1,6 @@
 import { hospitalityAuthGuard } from "@/middlewares/auth";
 import { createHandlers } from "@/utils/hono-factory";
-import { deleteFloorsRequestBodyValidator } from "hospitality/validators/floor.validators";
+import { suspendFloorsRequestBodyValidator } from "hospitality/validators/floor.validators";
 import { suspendFloors } from "@/db/actions/floor.actions";
 import type { APIResponse } from "@/types/api";
 import { loggerService } from "@/services/system-log.ts";
@@ -12,10 +12,10 @@ interface ResponseData {
 
 export const suspendFloorsHandler = createHandlers(
 	hospitalityAuthGuard(["admin"]),
-	deleteFloorsRequestBodyValidator,
+	suspendFloorsRequestBodyValidator,
 	async (context) => {
 		const { client_id } = context.var;
-		const { ids } = context.req.valid("json");
+		const { ids, resource_status, destination_floor_id } = context.req.valid("json");
 
 		const { user_id, user, type } = context.var;
 
@@ -28,6 +28,11 @@ export const suspendFloorsHandler = createHandlers(
 		const result = await suspendFloors({
 			ids,
 			client_id,
+			resource_status,
+			destination_floor_id:
+				destination_floor_id === "" || destination_floor_id === null || destination_floor_id === undefined
+					? null
+					: destination_floor_id,
 		});
 
 		// Log each suspension

@@ -122,11 +122,7 @@ export const updateGrubpacRequestBodyValidator = zValidator(
 	z.object({
 		id: z.string().ulid("Please provide a valid box id"),
 		name: z.string().max(100, "Name cannot exceed 100 characters").optional(),
-		box_id: z.string().max(50, "Box ID cannot exceed 50 characters").optional(),
-		department_ids: z.array(z.string().ulid()).optional(),
-		blocked_employee_ids: z.array(z.string().ulid()).optional(),
-		access_mode: z.enum(["public", "all_employees", "restaurant_employees"]).optional(),
-		ext_temp: z.coerce.number().optional(),
+		department_ids: z.array(z.string().ulid("Please provide a valid department id")).optional(),
 	}).strict(),
 	(r) => {
 		if (!r.success) validatorErrorHandler(r.error);
