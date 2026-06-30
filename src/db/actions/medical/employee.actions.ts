@@ -248,6 +248,8 @@ interface CreateMedicalEmployeeArgs {
 export const createMedicalEmployee = async (
 	args: CreateMedicalEmployeeArgs,
 ) => {
+	args = nullifyEmptyFKs(args);
+
 	const {
 		client_id,
 		email,

@@ -24,7 +24,7 @@ const createEmployeeCommonFields = {
 		[z.literal("manager"), z.literal("handler")],
 		"Please provide a valid role",
 	),
-	department_id: z.ulid("Please provide a valid department id").nullable().optional(),
+	department_id: z.ulid("Please provide a valid department id").nullable().optional().or(z.literal("")),
 };
 
 export const createEmployeeRequestBodyValidator = zValidator(

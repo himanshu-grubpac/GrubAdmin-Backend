@@ -21,7 +21,7 @@ const bodyValidator = zValidator(
 		employee_id: z.string().trim().min(1).optional(),
 		joining_date: z.coerce.date().optional(),
 		role: z.union([z.literal("manager"), z.literal("handler")]).optional(),
-		department_id: z.ulid().nullable().optional(),
+		department_id: z.ulid().nullable().optional().or(z.literal("")),
 	}),
 	(response) => {
 		if (!response.success) {
