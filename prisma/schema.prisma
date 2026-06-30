@@ -272,6 +272,7 @@ model vertical_delivery_employee {
   created_at                      DateTime                         @default(now())
   updated_at                      DateTime                         @updatedAt
   profile_pic                     String?
+  last_connected_box_id           String?
   connected_boxes                 box[]                            @relation("box_connection")
   client                          client?                          @relation(fields: [client_id], references: [id])
   restaurant                      restaurant?                      @relation(fields: [restaurant_id], references: [id])

@@ -17,6 +17,7 @@ import { resolveMessageTemplate } from "@/utils/message.ts";
 
 interface ResponseData {
 	auth_token: string;
+	refresh_token?: string;
 	otp_for_what: string;
 	is_password_set: boolean;
 }
@@ -84,11 +85,13 @@ export const verifyOtpHandler = createHandlers(
 				? (employee.employee as client).id
 				: ((employee.employee as vertical_delivery_employee).client_id ?? "");
 
-		const token = JWT.signDeliveryAuthToken({
+		const payload = {
 			id: employee.employee.id,
 			role: employee.type,
 			type: "password_reset",
-		});
+		};
+		const token = JWT.signDeliveryAuthToken(payload as any);
+		const refreshToken = JWT.signDeliveryRefreshToken(payload as any);
 
 		const response = {
 			success: true as const,
@@ -96,6 +99,7 @@ export const verifyOtpHandler = createHandlers(
 			...resolveMessageTemplate("delivery.auth.login.SUCCESS"),
 			data: {
 				auth_token: token,
+				refresh_token: refreshToken,
 				otp_for_what: for_what,
 				is_password_set: !!employee.employee.password,
 			},

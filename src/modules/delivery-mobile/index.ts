@@ -11,6 +11,7 @@ import {
 	resetPasswordHandler,
 	checkAccountHandler,
 	logoutHandler,
+	refreshTokenHandler,
 } from "@/modules/delivery-mobile/handlers/auth";
 import {
 	getProfileHandler,
@@ -77,6 +78,7 @@ deliveryMobileRouter.post("/auth/forget-password/otp/resend", ...sendForgetPassw
 deliveryMobileRouter.post("/auth/reset-password", ...resetPasswordHandler);
 deliveryMobileRouter.post("/auth/check-account", ...checkAccountHandler);
 deliveryMobileRouter.post("/auth/logout", ...logoutHandler);
+deliveryMobileRouter.post("/auth/refresh", ...refreshTokenHandler);
 
 
 /**

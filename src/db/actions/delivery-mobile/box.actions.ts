@@ -313,6 +313,13 @@ const setBoxConnectionState = async (args: {
 			throw new APIError(undefined, "delivery.box.NOT_FOUND", undefined, 404);
 		}
 
+		if (args.employee_id && args.connection_status === "connected") {
+			await tx.vertical_delivery_employee.update({
+				where: { id: args.employee_id },
+				data: { last_connected_box_id: args.box_id },
+			});
+		}
+
 		await tx.box_telemetry_latest.upsert({
 			where: { box_id: args.box_id },
 			create: {

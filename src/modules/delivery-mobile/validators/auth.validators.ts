@@ -39,6 +39,18 @@ const identityTransform = (data: any) => {
 	return data;
 };
 
+export const refreshTokenRequestBodyValidator = zValidator(
+	"json",
+	z.object({
+		refresh_token: z.string().min(1, "Refresh token is required"),
+	}),
+	(response) => {
+		if (!response.success) {
+			validatorErrorHandler(response.error);
+		}
+	},
+);
+
 export const loginRequestBodyValidator = zValidator(
 	"json",
 	z
