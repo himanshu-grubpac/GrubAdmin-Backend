@@ -21,7 +21,7 @@ const createEmployeeCommonFields = {
 		.min(1, "Employee id is required")
 		.max(50, "Employee ID cannot exceed 50 characters"),
 	role: z.union(
-		[z.literal("manager"), z.literal("handler")],
+		[z.literal("manager"), z.literal("handler"), z.literal("delivery")],
 		"Please provide a valid role",
 	),
 	department_id: z.ulid("Please provide a valid department id").nullable().optional().or(z.literal("")),
@@ -64,7 +64,7 @@ export const getEmployeesRequestQueryValidator = zValidator(
 		page_size: z.coerce.number().int().min(1).optional(),
 		limit: z.coerce.number().int().min(1).optional(),
 		role: z
-			.union([z.literal("manager"), z.literal("handler")], "Please provide a valid role")
+			.union([z.literal("manager"), z.literal("handler"), z.literal("delivery")], "Please provide a valid role")
 			.nullable()
 			.optional()
 			.or(z.literal("")),
@@ -72,9 +72,9 @@ export const getEmployeesRequestQueryValidator = zValidator(
 			.union(
 				[
 					z
-						.union([z.literal("manager"), z.literal("handler")])
+						.union([z.literal("manager"), z.literal("handler"), z.literal("delivery")])
 						.array(),
-					z.union([z.literal("manager"), z.literal("handler")]),
+					z.union([z.literal("manager"), z.literal("handler"), z.literal("delivery")]),
 				],
 				"Please provide a valid role",
 			)

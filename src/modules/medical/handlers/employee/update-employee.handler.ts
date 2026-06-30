@@ -20,7 +20,7 @@ const bodyValidator = zValidator(
 		email: z.string().trim().email().optional(),
 		employee_id: z.string().trim().min(1).optional(),
 		joining_date: z.coerce.date().optional(),
-		role: z.union([z.literal("manager"), z.literal("handler")]).optional(),
+		role: z.union([z.literal("manager"), z.literal("handler"), z.literal("delivery")]).optional(),
 		department_id: z.ulid().nullable().optional().or(z.literal("")),
 	}),
 	(response) => {
@@ -52,6 +52,7 @@ export const updateEmployeeHandler = createHandlers(
 			client_id,
 			...nameUpdate,
 			...rest,
+			role: (rest as any).role === "delivery" ? "handler" : (rest as any).role,
 			employee_display_id: (rest as any).employee_id,
 		});
 

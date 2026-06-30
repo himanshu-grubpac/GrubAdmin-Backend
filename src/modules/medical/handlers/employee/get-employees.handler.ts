@@ -43,7 +43,7 @@ export const getEmployeesHandler = createHandlers(
 
 		let allRoles: string[] | undefined = undefined;
 		if (rawRoles.length > 0) {
-			allRoles = Array.from(new Set(rawRoles));
+			allRoles = Array.from(new Set(rawRoles.map((r) => (r === "delivery" ? "handler" : r))));
 		}
 
 		let allDepartmentIds: string[] | undefined = undefined;
