@@ -64,7 +64,7 @@ export const getUniqueMedicalEmployee = async (
 
 	if (medicalEmployee) {
 		return {
-			type: medicalEmployee.role,
+			type: medicalEmployee.role as MedicalEmployeeRoleType,
 			employee: medicalEmployee,
 		};
 	}
