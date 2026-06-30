@@ -240,7 +240,7 @@ interface CreateMedicalEmployeeArgs {
 	email: string;
 	employee_display_id: string;
 	joining_date: Date;
-	role: "manager" | "delivery";
+	role: "manager" | "handler";
 	department_id?: string | null;
 	client_id: string;
 }
@@ -376,7 +376,7 @@ interface GetMedicalEmployeesArgs {
 	pageNumber?: number;
 	status?: "active" | "unassigned" | "suspended";
 	fetchAll?: boolean;
-	roles?: ("manager" | "delivery")[];
+	roles?: ("manager" | "handler")[];
 	ids?: string[];
 	client_id: string;
 	include_boxes?: boolean;
@@ -803,11 +803,24 @@ export const getMedicalEmployeeById = async (
 		},
 		omit: { password: true },
 		include: {
-			department: true,
+			department: {
+				include: {
+					department_boxes: {
+						where: { status: "shared" },
+						include: {
+							box: {
+								include: {
+									telemetry: true,
+								},
+							},
+						},
+					},
+				},
+			},
 			employee_boxes: {
 				take: 20,
 				orderBy: { created_at: "desc" },
-				include: { box: true },
+				include: { box: { include: { telemetry: true } } },
 			},
 		},
 	});
@@ -829,7 +842,7 @@ interface UpdateMedicalEmployeeByIdArgs {
 	employee_display_id?: string;
 	joining_date?: Date;
 	email?: string;
-	role?: "manager" | "delivery";
+	role?: "manager" | "handler";
 	department_id?: string | null;
 }
 
@@ -1022,6 +1035,17 @@ export const reassignMedicalEmployee = async (
 
 	const alreadyAssigned = employeesToUpdate.filter((e) => e.department_id === department_id);
 	const newlyAssigned = employeesToUpdate.filter((e) => e.department_id !== department_id);
+
+	if (newlyAssigned.length === 0 && idsToProcess.length > 0) {
+		throw new APIError(
+			department_id
+				? "All selected employees are already assigned to this department."
+				: "All selected employees are already unassigned.",
+			undefined,
+			undefined,
+			400,
+		);
+	}
 
 	if (newlyAssigned.length > 0) {
 		await prisma.vertical_medical_employee.updateMany({

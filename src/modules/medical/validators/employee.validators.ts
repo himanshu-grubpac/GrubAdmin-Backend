@@ -104,6 +104,9 @@ export const getEmployeesRequestQueryValidator = zValidator(
 			.optional()
 			.or(z.literal("")),
 		group_by: z.enum(["departments", "boxes"]).optional(),
+		group_by_departments_has_handler: z.coerce.number().optional(),
+		with_permission_for_box_id: z.string().ulid("Please provide a valid box id").optional().or(z.literal("")),
+		with_employees_for_access_mode: z.enum(["public", "all_employees", "department_employees"]).optional(),
 		with_connected_boxes: z.union([z.string(), z.boolean(), z.number()]).optional().transform(v => v === "true" || v === true || v === "1" || v === 1),
 		group_by_selected_table: z.string().optional(),
 	}).refine((data) => {

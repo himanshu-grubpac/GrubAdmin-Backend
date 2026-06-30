@@ -711,7 +711,6 @@ enum medical_department_box_status {
 
 enum medical_employee_role {
   manager
-  delivery
   handler
 }
 

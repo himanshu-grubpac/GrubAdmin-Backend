@@ -93,7 +93,7 @@ export const confirmResetPasswordHandler = createHandlers(
 			id: employee.employee.id,
 			email: normalizedEmail,
 			password: hashedPassword,
-			type: employee.type as "admin" | "manager" | "delivery",
+			type: employee.type as "admin" | "manager" | "handler",
 		});
 
 		await deleteSavedMedicalEmployeeOtp(normalizedEmail);

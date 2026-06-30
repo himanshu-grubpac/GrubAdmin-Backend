@@ -8,7 +8,7 @@ import { APIError } from "@/types/error";
 import type { APIResponse } from "@/types/api";
 
 export const verifyUnlockGrublockHandler = createHandlers(
-	medicalAuthGuard(["admin", "manager", "delivery"]),
+	medicalAuthGuard(["admin", "manager", "handler"]),
 	verifyUnlockGrublockRequestBodyValidator,
 	async (context) => {
 		const { client_id, user_id, user, type } = context.var;

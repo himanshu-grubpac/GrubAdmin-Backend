@@ -1,37 +1,331 @@
+import { createHandlers } from "@/utils/hono-factory.ts";
 import { medicalAuthGuard } from "@/middlewares/auth";
-import { createHandlers } from "@/utils/hono-factory";
-import { getEmployeesRequestQueryValidator } from "medical/validators/employee.validators";
+import { getEmployeesRequestQueryValidator } from "medical/validators/employee.validators.ts";
+import {
+	getDeletedMedicalEmployees,
+	getMedicalEmployees,
+} from "@/db/actions/medical/employee.actions";
 import type { APIResponse } from "@/types/api";
-import { getMedicalEmployees } from "@/db/actions/medical/employee.actions";
 import { calculatePagination } from "@/utils/pagination.ts";
+import { withFullNames } from "@/utils/employee.ts";
+import { prisma } from "@/db";
 
 export const getEmployeesHandler = createHandlers(
 	medicalAuthGuard(),
 	getEmployeesRequestQueryValidator,
 	async (context) => {
 		const { client_id } = context.var;
-		const query = context.req.valid("query") as any;
 
-		const employeesData = await getMedicalEmployees({
-			query: query.query,
-			status: query.status,
-			roles: query.role ? [query.role] : (query["roles[]"] ? (Array.isArray(query["roles[]"]) ? query["roles[]"] : [query["roles[]"]]) : undefined),
-			department_ids: query.department_ids ? (Array.isArray(query.department_ids) ? query.department_ids : [query.department_ids]) : (query.department_id ? [query.department_id] : undefined),
-			pageNumber: query.page,
-			pageSize: query.limit,
-			client_id,
-			fetchAll: !!query.group_by || (!query.limit && !query.page),
-			with_connected_boxes: query.with_connected_boxes,
+		const {
+			query,
+			status,
+			limit,
+			page,
+			department_ids,
+			department_id,
+			group_by,
+			group_by_departments_has_handler,
+			with_permission_for_box_id,
+			with_employees_for_access_mode,
+			with_connected_boxes,
+			group_by_selected_table,
+		} = context.req.valid("query") as any;
+
+		const finalPageSize = limit;
+		const finalPageNumber = page;
+
+		const singleRole = context.req.query("role");
+		const rolesArrayQuery = context.req.queries("roles[]") || [];
+		const rawRoles = [
+			...(singleRole ? [singleRole] : []),
+			...rolesArrayQuery,
+		];
+
+		let allRoles: string[] | undefined = undefined;
+		if (rawRoles.length > 0) {
+			allRoles = Array.from(new Set(rawRoles));
+		}
+
+		let allDepartmentIds: string[] | undefined = undefined;
+		if (department_ids || department_id) {
+			const arr = Array.isArray(department_ids)
+				? department_ids
+				: department_ids
+					? [department_ids]
+					: [];
+			if (department_id) arr.push(department_id);
+			allDepartmentIds = arr.length > 0 ? arr : undefined;
+		}
+
+		let dbStatus: any = undefined;
+		if (status === "unassigned") {
+			dbStatus = "unassigned";
+		} else if (status === "active") {
+			dbStatus = { in: ["active", "unassigned"] };
+		} else if (status === "suspended") {
+			dbStatus = "suspended";
+		}
+
+		let finalFilteredDepartmentIds = allDepartmentIds;
+		if (with_employees_for_access_mode === "all_employees" || with_employees_for_access_mode === "public") {
+			finalFilteredDepartmentIds = undefined;
+		} else if (with_employees_for_access_mode === "department_employees") {
+			if (with_permission_for_box_id) {
+				const dbs = await prisma.vertical_medical_department_box.findMany({
+					where: { box_id: with_permission_for_box_id },
+					select: { department_id: true },
+				});
+				finalFilteredDepartmentIds = dbs.map((db) => db.department_id);
+			} else {
+				finalFilteredDepartmentIds = allDepartmentIds || [];
+			}
+		}
+
+		let forceIncludeIds: string[] = [];
+		if (with_permission_for_box_id) {
+			const blockedPerms = await prisma.vertical_medical_employee_box.findMany({
+				where: {
+					box_id: with_permission_for_box_id,
+					status: "blocked",
+					NOT: { employee_id: null },
+				},
+				select: { employee_id: true },
+			});
+			forceIncludeIds = blockedPerms.map((p) => p.employee_id).filter((id): id is string => !!id);
+		}
+
+		const fetchAll = !!group_by;
+
+		const employeesData =
+			status === "deleted"
+				? await getDeletedMedicalEmployees({
+					client_id,
+					query: query as string | undefined,
+					pageSize: finalPageSize,
+					pageNumber: finalPageNumber,
+					fetchAll,
+				})
+				: await getMedicalEmployees({
+					roles: allRoles as any,
+					query: query as string | undefined,
+					status: dbStatus,
+					department_ids: finalFilteredDepartmentIds,
+					pageSize: fetchAll ? undefined : finalPageSize,
+					pageNumber: fetchAll ? undefined : finalPageNumber,
+					fetchAll,
+					client_id,
+					include_boxes: true,
+					include_department: true,
+					force_include_ids: forceIncludeIds,
+					include_all_managers: group_by === "boxes",
+					with_connected_boxes,
+				});
+
+		const finalLimit = (finalPageSize ?? employeesData.count);
+		const finalPage = (finalPageNumber ?? 1);
+		const startIndex = (finalPage - 1) * (finalLimit || 1);
+		const endIndex = startIndex + finalLimit;
+
+		let permissionStatuses: Record<string, string> = {};
+		if (with_permission_for_box_id) {
+			const perms = await prisma.vertical_medical_employee_box.findMany({
+				where: {
+					box_id: with_permission_for_box_id,
+					employee_id: { in: (employeesData.employees as any[]).map((e) => e.id) },
+				},
+				select: {
+					employee_id: true,
+					status: true,
+				},
+			});
+			for (const p of perms) {
+				if (p.employee_id) {
+					permissionStatuses[p.employee_id] = p.status;
+				}
+			}
+		}
+
+		const employees = withFullNames(employeesData.employees as any[]).map((e) => {
+			if (status === "deleted") {
+				const deletedEmp = e as any;
+				return {
+					...deletedEmp,
+					role: deletedEmp.role_name,
+					employee_id: deletedEmp.employee_display_id,
+					department: null,
+					connected_boxes: [],
+					connected_boxes_status: false,
+					connected_boxes_count: 0,
+				};
+			}
+			return {
+				...e,
+				employee_id: (e as any).employee_display_id,
+				permission_status: with_permission_for_box_id
+					? permissionStatuses[(e as any).id] === "blocked"
+						? "blocked"
+						: null
+					: undefined,
+			};
+		}).sort((a, b) => {
+			if (a.permission_status === "blocked" && b.permission_status !== "blocked") return -1;
+			if (a.permission_status !== "blocked" && b.permission_status === "blocked") return 1;
+			return 0;
 		});
 
-		const finalPage = query.page ?? 1;
-		const finalLimit = query.limit;
+		if (!group_by) {
+			return context.json<APIResponse<{ employees: typeof employees; count: number }>>(
+				{
+					success: true,
+					code: 200,
+					data: { employees, count: employees.length },
+					pagination: calculatePagination(finalPage, finalLimit, employeesData.count),
+				},
+				{ status: 200 },
+			);
+		}
 
-		return context.json<APIResponse<typeof employeesData>>(
+		if (group_by === "departments") {
+			const groups: Record<string, typeof employees> = {};
+
+			for (const emp of employees) {
+				const key = (emp as any).department?.name || "unassigned";
+				if (!groups[key]) groups[key] = [];
+				groups[key].push(emp);
+			}
+
+			const orderedGroups: Record<string, any> = {};
+			let totalCount = 0;
+
+			Object.keys(groups)
+				.filter((k) => k !== "unassigned")
+				.sort()
+				.forEach((k) => {
+					if (group_by_selected_table && group_by_selected_table !== k) return;
+
+					const items = groups[k] || [];
+					if (group_by_departments_has_handler === 1) {
+						if (!items.some((emp) => emp.role === "handler")) return;
+					}
+					const sliced = items.slice(startIndex, endIndex);
+					orderedGroups[k] = {
+						array: sliced,
+						address: (items[0] as any).department?.full_address,
+						count: items.length,
+						pagination: calculatePagination(finalPage, finalLimit ?? items.length, items.length),
+					};
+					totalCount += items.length;
+				});
+
+			if (groups["unassigned"] && (!group_by_selected_table || group_by_selected_table === "unassigned")) {
+				const items = groups["unassigned"] || [];
+				if (group_by_departments_has_handler === 1) {
+					if (items.some((emp) => emp.role === "handler")) {
+						const sliced = items.slice(startIndex, endIndex);
+						orderedGroups["unassigned"] = {
+							array: sliced,
+							count: items.length,
+							pagination: calculatePagination(finalPage, finalLimit ?? items.length, items.length),
+						};
+						totalCount += items.length;
+					}
+				} else {
+					const sliced = items.slice(startIndex, endIndex);
+					orderedGroups["unassigned"] = {
+						array: sliced,
+						count: items.length,
+						pagination: calculatePagination(finalPage, finalLimit ?? items.length, items.length),
+					};
+					totalCount += items.length;
+				}
+			}
+
+			return context.json<APIResponse<{ groups: typeof orderedGroups; count: number; total_count: number }>>(
+				{
+					success: true,
+					code: 200,
+					data: {
+						groups: orderedGroups,
+						count: Object.values(orderedGroups).reduce((max, g) => Math.max(max, (g as any).array?.length || 0), 0),
+						total_count: totalCount
+					},
+					pagination: calculatePagination(finalPage, finalLimit ?? employeesData.count, employeesData.count),
+				},
+				{ status: 200 },
+			);
+		}
+
+		if (group_by === "boxes") {
+			const connected: typeof employees = [];
+			const disconnected: typeof employees = [];
+			const managers: typeof employees = [];
+
+			for (const emp of employees) {
+				if (emp.role === "manager") {
+					managers.push(emp);
+				} else if (emp.role === "handler") {
+					const hasBox = (emp as any).connected_boxes_status;
+					if (hasBox) {
+						connected.push(emp);
+					} else {
+						disconnected.push(emp);
+					}
+				} else {
+					disconnected.push(emp);
+				}
+			}
+
+			const groups: Record<string, any> = {};
+			let totalCount = 0;
+
+			if (!group_by_selected_table || group_by_selected_table === "connected") {
+				const sliced = connected.slice(startIndex, endIndex);
+				groups.connected = {
+					array: sliced,
+					count: connected.length,
+					pagination: calculatePagination(finalPage, finalLimit ?? connected.length, connected.length),
+				};
+				totalCount += connected.length;
+			}
+			if (!group_by_selected_table || group_by_selected_table === "disconnected") {
+				const sliced = disconnected.slice(startIndex, endIndex);
+				groups.disconnected = {
+					array: sliced,
+					count: disconnected.length,
+					pagination: calculatePagination(finalPage, finalLimit ?? disconnected.length, disconnected.length),
+				};
+				totalCount += disconnected.length;
+			}
+			if (!group_by_selected_table || group_by_selected_table === "managers") {
+				const sliced = managers.slice(startIndex, endIndex);
+				groups.managers = {
+					array: sliced,
+					count: managers.length,
+					pagination: calculatePagination(finalPage, finalLimit ?? managers.length, managers.length),
+				};
+				totalCount += managers.length;
+			}
+
+			return context.json<APIResponse<{ groups: typeof groups; count: number; total_count: number }>>(
+				{
+					success: true,
+					code: 200,
+					data: {
+						groups,
+						count: Object.values(groups).reduce((max, g) => Math.max(max, (g as any).array?.length || 0), 0),
+						total_count: totalCount,
+					},
+					pagination: calculatePagination(finalPage, finalLimit ?? employeesData.count, employeesData.count),
+				},
+				{ status: 200 },
+			);
+		}
+
+		return context.json<APIResponse<{ employees: typeof employees; count: number }>>(
 			{
 				success: true,
 				code: 200,
-				data: employeesData,
+				data: { employees, count: employees.length },
 				pagination: calculatePagination(finalPage, finalLimit ?? employeesData.count, employeesData.count),
 			},
 			{ status: 200 },
