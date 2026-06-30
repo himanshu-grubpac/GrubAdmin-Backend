@@ -1023,17 +1023,6 @@ export const reassignMedicalEmployee = async (
 	const alreadyAssigned = employeesToUpdate.filter((e) => e.department_id === department_id);
 	const newlyAssigned = employeesToUpdate.filter((e) => e.department_id !== department_id);
 
-	if (newlyAssigned.length === 0 && idsToProcess.length > 0) {
-		throw new APIError(
-			department_id
-				? "All selected employees are already assigned to this department."
-				: "All selected employees are already unassigned.",
-			undefined,
-			undefined,
-			400
-		);
-	}
-
 	if (newlyAssigned.length > 0) {
 		await prisma.vertical_medical_employee.updateMany({
 			where: { id: { in: newlyAssigned.map((e) => e.id) }, client_id },
