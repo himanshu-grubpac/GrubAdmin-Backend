@@ -14,6 +14,7 @@
 		"db:seed-mongo": "bun src/cmd/seed-mongo.ts",
 		"reset": "bun src/cmd/reset-db.ts",
 		"db:fix-duplicate-employee-emails": "bun src/cmd/fix-duplicate-employee-emails.ts",
+		"db:migrate-medical-role": "bun src/cmd/migrate-medical-role.ts",
 		"db:fix-orphaned-box-employees": "bun src/cmd/fix-orphaned-box-employees.ts",
 		"db:inject-box-config": "bun src/cmd/inject-box-config.ts",
 		"db:backfill-super-admin-permissions": "bun src/cmd/backfill-super-admin-permissions.ts",

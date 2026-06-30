@@ -24,7 +24,7 @@ export const sendOtpHandler = createHandlers(
 			throw new APIError(undefined, "medical.auth.login.ACCOUNT_NOT_FOUND");
 		}
 
-		if (employee.type === ("delivery" as any) || employee.type === ("driver" as any)) {
+		if (employee.type === "handler") {
 			throw new APIError(undefined, "medical.auth.login.UNAUTHORIZED");
 		}
 

@@ -197,6 +197,12 @@ export const EMPLOYEE_CLIENT_ROLE = [
 	"delivery",
 ] as const;
 
+export const MEDICAL_EMPLOYEE_ROLES = [
+	"admin",
+	"manager",
+	"handler",
+] as const;
+
 export const GrublockStatus = ["unlocked", "locked"] as const;
 
 export const SensorStatus = ["detected", "not_detected"] as const;
