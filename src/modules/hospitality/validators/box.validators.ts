@@ -12,7 +12,7 @@ export const getBoxesRequestQueryValidator = zValidator(
 		limit: z.coerce.number().int().min(1).optional(),
 		query: z.string().trim().optional(),
 		search: z.string().trim().optional(),
-		group_by: z.enum(["lock_status", "power_status"]).optional(),
+		group_by: z.enum(["lock_status", "power_status", "floors"]).optional(),
 		connection_status: z.string().optional(),
 		power_status: z.string().optional(),
 		health_status: z.string().optional(),

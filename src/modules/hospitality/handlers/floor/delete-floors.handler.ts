@@ -15,7 +15,7 @@ export const deleteFloorsHandler = createHandlers(
 	deleteFloorsRequestBodyValidator,
 	async (context) => {
 		const { client_id } = context.var;
-		const { ids } = context.req.valid("json");
+		const { ids, destination_floor_id } = context.req.valid("json");
 
 		const { user_id, user, type } = context.var;
 
@@ -28,6 +28,10 @@ export const deleteFloorsHandler = createHandlers(
 		const result = await deleteFloors({
 			ids,
 			client_id,
+			destination_floor_id:
+				destination_floor_id === "" || destination_floor_id === null || destination_floor_id === undefined
+					? null
+					: destination_floor_id,
 		});
 
 		// Log each deletion

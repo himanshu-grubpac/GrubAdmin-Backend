@@ -67,6 +67,42 @@ export const deleteFloorsRequestBodyValidator = zValidator(
 			.ulid("Please provide a valid floor id")
 			.array()
 			.min(1, "Please provide at least one floor id"),
+		destination_floor_id: z.string().ulid().nullable().optional().or(z.literal("")),
+	}),
+	(response) => {
+		if (!response.success) {
+			validatorErrorHandler(response.error);
+		}
+	},
+);
+
+export const suspendFloorsRequestBodyValidator = zValidator(
+	"json",
+	z.object({
+		ids: z
+			.string()
+			.ulid("Please provide a valid floor id")
+			.array()
+			.min(1, "Please provide at least one floor id"),
+		resource_status: z.enum(["suspend", "assign"]).default("suspend"),
+		destination_floor_id: z.string().ulid().nullable().optional().or(z.literal("")),
+	}),
+	(response) => {
+		if (!response.success) {
+			validatorErrorHandler(response.error);
+		}
+	},
+);
+
+export const reactivateFloorsRequestBodyValidator = zValidator(
+	"json",
+	z.object({
+		ids: z
+			.string()
+			.ulid("Please provide a valid floor id")
+			.array()
+			.min(1, "Please provide at least one floor id"),
+		reactivate_boxes: z.boolean().default(false),
 	}),
 	(response) => {
 		if (!response.success) {
@@ -78,8 +114,8 @@ export const deleteFloorsRequestBodyValidator = zValidator(
 export const getFloorsRequestQueryValidator = zValidator(
 	"query",
 	z.object({
-		query: z.string().trim().min(2, "Query must be at least 2 characters").optional(),
-		search: z.string().trim().min(2, "Search must be at least 2 characters").optional(),
+		query: z.string().trim().min(1, "Query is required").optional(),
+		search: z.string().trim().min(1, "Search is required").optional(),
 		page_number: z.coerce.number().int().min(1).optional(),
 		page: z.coerce.number().int().min(1).optional(),
 		page_size: z.coerce.number().int().min(1).max(100, "Page size cannot exceed 100").optional(),
@@ -107,8 +143,8 @@ export const getFloorsRequestQueryValidator = zValidator(
 export const searchFloorsRequestQueryValidator = zValidator(
 	"query",
 	z.object({
-		query: z.string().trim().min(2, "Query must be at least 2 characters").optional(),
-		search: z.string().trim().min(2, "Search must be at least 2 characters").optional(),
+		query: z.string().trim().min(1, "Query is required").optional(),
+		search: z.string().trim().min(1, "Search is required").optional(),
 		limit: z.coerce.number().int().min(1).max(100, "Limit cannot exceed 100").optional(),
 		status: z.string().optional().default("all"),
 	}).transform((data) => ({

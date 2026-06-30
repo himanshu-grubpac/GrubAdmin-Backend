@@ -215,6 +215,7 @@ interface ToggleSuspendHospitalityBoxesArgs {
 	ids: string[];
 	client_id: string;
 	state: "active" | "suspended";
+	reassign?: boolean;
 }
 
 export const toggleSuspendHospitalityBoxes = async (
@@ -233,9 +234,16 @@ export const toggleSuspendHospitalityBoxes = async (
 	const toUpdate = boxes.filter((b) => b.status !== args.state);
 
 	if (toUpdate.length > 0) {
-		await prisma.box.updateMany({
-			where: { id: { in: toUpdate.map((b) => b.id) } },
-			data: { status: args.state },
+		await prisma.$transaction(async (tx) => {
+			if (args.state === "active" && args.reassign === false) {
+				await tx.vertical_hospitality_floor_box.deleteMany({
+					where: { box_id: { in: toUpdate.map((b) => b.id) } },
+				});
+			}
+			await tx.box.updateMany({
+				where: { id: { in: toUpdate.map((b) => b.id) } },
+				data: { status: args.state },
+			});
 		});
 	}
 

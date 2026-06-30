@@ -12,8 +12,10 @@ const SENSITIVE_KEYS = new Set([
 	"secret",
 	"auth_token",
 	"new_password",
+	"confirm_new_password",
 	"confirm_password",
 	"current_password",
+	"old_password",
 ]);
 
 function sanitizeInputs(inputs: Record<string, any>): Record<string, any> {

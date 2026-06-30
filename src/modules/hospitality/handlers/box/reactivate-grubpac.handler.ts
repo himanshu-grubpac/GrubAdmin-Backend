@@ -10,12 +10,13 @@ export const reactivateGrubpacHandler = createHandlers(
 	reactivateBoxesRequestBodyValidator,
 	async (context) => {
 		const { client_id } = context.var;
-		const { ids } = context.req.valid("json");
+		const { ids, reassign } = context.req.valid("json");
 
 		const result = await toggleSuspendHospitalityBoxes({
 			ids,
 			client_id,
 			state: "active",
+			reassign,
 		});
 
 		const updatedCount = result.updated_count;

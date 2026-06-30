@@ -1,6 +1,6 @@
 import { hospitalityAuthGuard } from "@/middlewares/auth";
 import { createHandlers } from "@/utils/hono-factory";
-import { deleteFloorsRequestBodyValidator } from "hospitality/validators/floor.validators";
+import { reactivateFloorsRequestBodyValidator } from "hospitality/validators/floor.validators";
 import { reactivateFloors } from "@/db/actions/floor.actions";
 import type { APIResponse } from "@/types/api";
 import { loggerService } from "@/services/system-log.ts";
@@ -12,10 +12,10 @@ interface ResponseData {
 
 export const reactivateFloorsHandler = createHandlers(
 	hospitalityAuthGuard(["admin"]),
-	deleteFloorsRequestBodyValidator,
+	reactivateFloorsRequestBodyValidator,
 	async (context) => {
 		const { client_id } = context.var;
-		const { ids } = context.req.valid("json");
+		const { ids, reactivate_boxes } = context.req.valid("json");
 
 		const { user_id, user, type } = context.var;
 
@@ -28,6 +28,7 @@ export const reactivateFloorsHandler = createHandlers(
 		const result = await reactivateFloors({
 			ids,
 			client_id,
+			reactivate_boxes: !!reactivate_boxes,
 		});
 
 		// Log each reactivation
