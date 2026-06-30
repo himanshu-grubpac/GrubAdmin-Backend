@@ -5,6 +5,8 @@ import { type JwtPayload, sign, verify } from "jsonwebtoken";
 import { logger } from "@/utils/logger";
 import { randomUUID } from "crypto";
 
+const MEDICAL_SECRET = MEDICAL_AUTH_SECRET || DELIVERY_AUTH_SECRET;
+
 interface JwtAuthPayload extends JwtPayload {
 	user?: AuthPayload;
 }
@@ -62,7 +64,7 @@ export class JWT {
 	}
 
 	static verifyMedicalAuthToken(token: string): MedicalAuthPayload {
-		const { user } = verify(token, MEDICAL_AUTH_SECRET) as MedicalJwtAuthPayload;
+		const { user } = verify(token, MEDICAL_SECRET) as MedicalJwtAuthPayload;
 
 		if (!user) {
 			throw new APIError(
@@ -81,7 +83,7 @@ export class JWT {
 			{
 				user: payload,
 			},
-			MEDICAL_AUTH_SECRET,
+			MEDICAL_SECRET,
 			{
 				expiresIn: "24h",
 			},

@@ -55,7 +55,6 @@ export const loadEnv = (): void => {
 		"MAIL_PASS",
 		"AUTH_SECRET",
 		"DELIVERY_AUTH_SECRET",
-		"MEDICAL_AUTH_SECRET",
 		"AWS_KEY",
 		"AWS_REGION",
 		"AWS_BUCKET_NAME",
