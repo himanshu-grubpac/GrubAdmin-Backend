@@ -1,6 +1,9 @@
 import { prisma } from "@/db";
 import { APIError } from "@/types/error";
 import { BoxConfig } from "@/db/mongo-schema";
+import { loggerService } from "@/services/system-log.ts";
+import { ulid } from "ulid";
+import type { box_lock_status } from "@/db/types";
 
 interface GetMedicalBoxesArgs {
 	page?: number;
@@ -667,4 +670,132 @@ export const getMedicalDashboardMetrics = async (client_id: string) => {
 		active_cold_chain_count,
 		temperature_alarm_count,
 	};
+};
+
+export const updateMedicalBoxLockStatus = async (args: {
+	ids: string[];
+	lock_status: string;
+	user: { id: string; email: string; name: string } & Record<string, any>;
+	reason?: string;
+	client_id: string;
+	consumer?: {
+		full_name: string;
+		country_code: string;
+		phone: string;
+	};
+}) => {
+	const { ids, lock_status, user, reason, client_id, consumer } = args;
+
+	return await prisma.$transaction(async (tx) => {
+		const boxes = await tx.box.findMany({
+			where: {
+				id: { in: ids },
+				client_id: client_id,
+				NOT: { status: "suspended" },
+			},
+			select: { id: true },
+		});
+
+		const validIds = boxes.map((b) => b.id);
+
+		if (validIds.length === 0) {
+			throw new APIError("No valid boxes found to update", undefined, undefined, 404);
+		}
+
+		await tx.box_lock.updateMany({
+			where: {
+				box_id: { in: validIds },
+			},
+			data: {
+				lock_status: lock_status as box_lock_status,
+			},
+		});
+
+		if (lock_status === "locked" || lock_status === "unlocked") {
+			await BoxConfig.updateMany(
+				{ box_id: { $in: validIds } },
+				{ $set: { grublock: lock_status } },
+			);
+		}
+
+		if (lock_status === "locked") {
+			if (consumer && consumer.full_name) {
+				const country_code = consumer.country_code || "";
+				const phone = consumer.phone || "";
+
+				const consumerRecord = await tx.vertical_medical_consumer.upsert({
+					where: {
+						phone_country_code: {
+							phone,
+							country_code,
+						},
+					},
+					update: {
+						full_name: consumer.full_name,
+						status: "pending",
+						client_id,
+					},
+					create: {
+						full_name: consumer.full_name,
+						country_code,
+						phone,
+						status: "pending",
+						client_id,
+					},
+				});
+
+				await tx.vertical_medical_consumer_box.createMany({
+					data: validIds.map((box_id) => ({
+						id: ulid(),
+						box_id,
+						consumer_id: consumerRecord.id,
+					})),
+				});
+			}
+		} else if (lock_status === "unlocked") {
+			const consumerLinks = await tx.vertical_medical_consumer_box.findMany({
+				where: { box_id: { in: validIds } },
+			});
+
+			const consumerIds = Array.from(new Set(consumerLinks.map((l) => l.consumer_id)));
+			if (consumerIds.length > 0) {
+				await tx.vertical_medical_consumer.updateMany({
+					where: {
+						id: { in: consumerIds },
+						status: "pending",
+					},
+					data: { status: "delivered" },
+				});
+			}
+		}
+
+		for (const boxId of validIds) {
+			const box = await tx.box.findUnique({ where: { id: boxId } });
+			await loggerService.log({
+				category: "GrubLock",
+				type: lock_status === "unlocked" && reason ? "Emergency unlock" : "Status",
+				actor: {
+					id: user.id,
+					name: user.name,
+					role: (user as any).role,
+					table: (user as any).type === "admin" ? "client" : "vertical_medical_employee",
+					ip: (user as any).ip,
+				},
+				client_id: (user as any).client_id || client_id,
+				subject: {
+					id: boxId,
+					name: box?.name || "Unknown Box",
+					type: "box",
+				},
+				metadata: {
+					action: lock_status === "unlocked" ? (reason ? "emergency_unlock" : "unlock") : "lock",
+					reason: reason ?? null,
+					lock_status,
+					recipient: consumer ? `${consumer.full_name}, ${consumer.phone}` : "No Recepient Info",
+				},
+			});
+		}
+
+		return { count: validIds.length };
+	});
 };
