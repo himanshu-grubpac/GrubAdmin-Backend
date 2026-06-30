@@ -18,6 +18,7 @@
 		"db:fix-orphaned-box-employees": "bun src/cmd/fix-orphaned-box-employees.ts",
 		"db:inject-box-config": "bun src/cmd/inject-box-config.ts",
 		"db:backfill-super-admin-permissions": "bun src/cmd/backfill-super-admin-permissions.ts",
+		"db:fix-faqs": "bun src/cmd/fix-delivery-faqs.ts",
 		"postinstall": "bun scripts/fix-mariadb-tls.js"
 	},
 	"devDependencies": {
