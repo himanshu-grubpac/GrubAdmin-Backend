@@ -29,4 +29,7 @@ RUN bun install
 # Copy source code
 COPY . .
 
+# Generate Prisma Client (output directory is src/db/prisma)
+RUN bun prisma generate
+
 EXPOSE ${PORT}

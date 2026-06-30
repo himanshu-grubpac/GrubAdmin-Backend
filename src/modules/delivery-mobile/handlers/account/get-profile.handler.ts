@@ -19,6 +19,8 @@ interface ProfileResponse {
     profile_pic: string | null;
     boxes?: box[];
     organization_name?: string | null;
+    last_connected_box_id?: string | null;
+    last_connected_box?: box | null;
 }
 
 export const getProfileHandler = createHandlers(
@@ -36,9 +38,17 @@ export const getProfileHandler = createHandlers(
         }
 
         let boxes: box[] | undefined = undefined;
+        let last_connected_box: box | null = null;
+        let last_connected_box_id: string | null = null;
 
         if (employee.type === "delivery") {
             boxes = await getDeliveryEmployeeBoxes(employee.employee.id);
+            last_connected_box_id = (employee.employee as any).last_connected_box_id ?? null;
+            if (last_connected_box_id) {
+                last_connected_box = await prisma.box.findUnique({
+                    where: { id: last_connected_box_id },
+                });
+            }
         }
 
         const data: ProfileResponse = {
@@ -65,6 +75,8 @@ export const getProfileHandler = createHandlers(
             profile_pic: (employee.employee as any).profile_pic ?? null,
             boxes,
             organization_name: null,
+            last_connected_box_id,
+            last_connected_box,
         };
 
         if (employee.type !== "admin") {

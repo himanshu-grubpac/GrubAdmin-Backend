@@ -23,7 +23,24 @@ function getPrismaInstance(): PrismaClient {
 		return globalForPrisma.prisma;
 	}
 
-	const newAdapter = new PrismaMariaDb(DATABASE_URL);
+	let dbConfig: any = DATABASE_URL;
+	try {
+		const dbUrl = new URL(DATABASE_URL);
+		dbConfig = {
+			host: dbUrl.hostname,
+			port: parseInt(dbUrl.port || "3306", 10),
+			user: decodeURIComponent(dbUrl.username),
+			password: decodeURIComponent(dbUrl.password),
+			database: dbUrl.pathname.replace(/^\//, ""),
+			ssl: {
+				rejectUnauthorized: false,
+			},
+		};
+	} catch (err) {
+		logger.error(`Error parsing DATABASE_URL for MariaDB config object: ${err}`);
+	}
+
+	const newAdapter = new PrismaMariaDb(dbConfig);
 	const newPrisma = new PrismaClient({
 		log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
 		adapter: newAdapter,
@@ -163,11 +180,18 @@ export const ensureMongoDB = async (timeoutMs = 15000): Promise<void> => {
 		throw new Error("MongoDB connection was never initiated");
 	}
 
-	const timeout = new Promise<never>((_, reject) =>
-		setTimeout(() => reject(new Error(`MongoDB connection not ready within ${timeoutMs}ms`)), timeoutMs)
-	);
+	let timeoutId: any;
+	const timeout = new Promise<never>((_, reject) => {
+		timeoutId = setTimeout(() => reject(new Error(`MongoDB connection not ready within ${timeoutMs}ms`)), timeoutMs);
+	});
 
-	await Promise.race([mongoConnectionPromise, timeout]);
+	try {
+		await Promise.race([mongoConnectionPromise, timeout]);
+	} finally {
+		if (timeoutId) {
+			clearTimeout(timeoutId);
+		}
+	}
 };
 
 /**

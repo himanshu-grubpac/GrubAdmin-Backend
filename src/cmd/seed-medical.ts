@@ -3,7 +3,7 @@ import { logger } from "@/utils/logger";
 import { SEED_IDS } from "./seed-ids";
 
 type DepartmentStatus = "active" | "suspended";
-type EmployeeRole = "manager" | "delivery";
+type EmployeeRole = "manager" | "handler";
 type EmployeeStatus = "active" | "suspended" | "unassigned";
 type EmployeeBoxStatus = "shared" | "blocked";
 type EmployeeBoxAccess = "direct" | "public" | "all_employees";
@@ -37,19 +37,19 @@ const EMPLOYEES: {
 	{
 		id: SEED_IDS.MEDICAL_EMPLOYEE_DELIVERY_1, first_name: "Jake", last_name: "Sullivan",
 		country_code: "+1", mobile_number: "5553330003", email: "jake.sullivan@mediquick.com",
-		employee_display_id: "MED-EMP-003", role: "delivery", status: "active",
+		employee_display_id: "MED-EMP-003", role: "handler", status: "active",
 		client_id: SEED_IDS.CLIENT_ACTIVE_3, department_id: SEED_IDS.MEDICAL_DEPARTMENT_1,
 	},
 	{
 		id: SEED_IDS.MEDICAL_EMPLOYEE_DELIVERY_2, first_name: "Lucy", last_name: "Chen",
 		country_code: "+1", mobile_number: "5553330004", email: "lucy.chen@greenleaf.com",
-		employee_display_id: "MED-EMP-004", role: "delivery", status: "active",
+		employee_display_id: "MED-EMP-004", role: "handler", status: "active",
 		client_id: SEED_IDS.CLIENT_ACTIVE_2, department_id: SEED_IDS.MEDICAL_DEPARTMENT_3,
 	},
 	{
 		id: SEED_IDS.MEDICAL_EMPLOYEE_SUSPENDED, first_name: "Tom", last_name: "Sawyer",
 		country_code: "+1", mobile_number: "5553330005", email: "tom.sawyer@mediquick.com",
-		employee_display_id: "MED-EMP-005", role: "delivery", status: "suspended",
+		employee_display_id: "MED-EMP-005", role: "handler", status: "suspended",
 		client_id: SEED_IDS.CLIENT_ACTIVE_3, department_id: SEED_IDS.MEDICAL_DEPARTMENT_2,
 	},
 ];
@@ -75,7 +75,7 @@ export const seedMedical = async (): Promise<void> => {
 			update: emp,
 			create: {
 				...empData,
-				department: { connect: { id: department_id } },
+				department_id,
 			},
 		});
 		logger.info(`  Employee "${emp.first_name} ${emp.last_name}" (${emp.role}) ready.`);

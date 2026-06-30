@@ -1366,6 +1366,7 @@ interface ActionGrubpacArgs {
 	wifi_status?: hardware_state;
 	turn_signal_status?: hardware_state;
 	advert_screen_status?: hardware_state;
+	light_status?: hardware_state;
 	port_small_status?: hardware_state;
 	port_big_status?: hardware_state;
 	ext_temp?: number;
@@ -1397,6 +1398,7 @@ export const actionGrubpac = async (args: ActionGrubpacArgs) => {
 		wifi_status,
 		turn_signal_status,
 		advert_screen_status,
+		light_status,
 		port_small_status,
 		port_big_status,
 		ext_temp,
@@ -1435,6 +1437,7 @@ export const actionGrubpac = async (args: ActionGrubpacArgs) => {
 			wifi_status: wifi_status ?? undefined,
 			turn_signal_status: turn_signal_status ?? undefined,
 			advert_screen_status: advert_screen_status ?? undefined,
+			light_status: light_status ?? undefined,
 			port_small_status: port_small_status ?? undefined,
 			port_big_status: port_big_status ?? undefined,
 			ext_temp: ext_temp ?? undefined,
@@ -1748,6 +1751,14 @@ export const updateBoxLockStatus = async (args: {
 				lock_status: lock_status as box_lock_status,
 			},
 		});
+
+		// Sync MongoDB BoxConfig.grublock to mirror the authoritative Prisma lock_status
+		if (lock_status === "locked" || lock_status === "unlocked") {
+			await BoxConfig.updateMany(
+				{ box_id: { $in: validIds } },
+				{ $set: { grublock: lock_status } },
+			);
+		}
 
 		// Handle consumer details if provided (only for locking)
 		if (lock_status === "locked") {

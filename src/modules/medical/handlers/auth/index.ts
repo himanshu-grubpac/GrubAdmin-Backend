@@ -8,3 +8,7 @@ export * from "./reset-password-magic-link.handler";
 export * from "./verify-forget-password-magic-link.handler";
 export * from "./set-new-password.handler";
 export * from "./logout.handler";
+export * from "./verify-authenticated.handler";
+export * from "./send-reset-password-otp.handler";
+export * from "./resend-reset-password-otp.handler";
+export * from "./confirm-reset-password.handler";

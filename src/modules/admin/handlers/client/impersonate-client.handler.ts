@@ -5,7 +5,7 @@ import { getUniqueClient } from "@/db/actions/client.actions";
 import { APIError } from "@/types/error";
 import { JWT } from "@/utils/jwt";
 import { services } from "@/services";
-import { DEFAULT_IP_ADDRESS } from "@/configs/constants";
+import { DEFAULT_IP_ADDRESS, DELIVERY_VERTICAL_NAME, MEDICAL_VERTICAL_NAME, HOSPITALITY_VERTICAL_NAME } from "@/configs/constants";
 import { resolveMessageTemplate } from "@/utils/message";
 import { logger } from "@/utils/logger";
 import { CLIENT_DASHBOARD_URL } from "@/configs/env";
@@ -49,10 +49,10 @@ export const impersonateClientHandler = createHandlers(
 
 		const verticalName = client.vertical?.name || null;
 
-		if (!verticalName || verticalName.toLowerCase() !== "delivery") {
-			logger.warn(`[Impersonation] Client ${clientId} is not a delivery client (vertical: ${verticalName})`);
+		if (!verticalName) {
+			logger.warn(`[Impersonation] Client ${clientId} has no assigned vertical`);
 			throw new APIError(
-				"Delivery account not configured for this client. Only delivery clients can be accessed.",
+				"No vertical configured for this client. Cannot initiate impersonation.",
 				undefined,
 				undefined,
 				400,
@@ -96,8 +96,16 @@ export const impersonateClientHandler = createHandlers(
 
 		logger.info(`[Impersonation] Successfully completed for admin ${admin!.id} → client ${client.id}`);
 
-		const deliveryBaseUrl = CLIENT_DASHBOARD_URL || "http://13.127.79.155";
-		const redirectUrl = `${deliveryBaseUrl}/impersonate?token=${impersonationToken}`;
+		const baseUrl = CLIENT_DASHBOARD_URL || "http://13.127.79.155";
+
+		const impersonationPathMap: Record<string, string> = {
+			[DELIVERY_VERTICAL_NAME]: "/impersonate",
+			[MEDICAL_VERTICAL_NAME]: "/medical/impersonate",
+			[HOSPITALITY_VERTICAL_NAME]: "/hospitality/impersonate",
+		};
+
+		const impersonationPath = impersonationPathMap[verticalName] || "/impersonate";
+		const redirectUrl = `${baseUrl}${impersonationPath}?token=${impersonationToken}`;
 
 		const response = {
 			success: true,
@@ -111,7 +119,8 @@ export const impersonateClientHandler = createHandlers(
 					vertical: verticalName,
 				},
 				redirect_url: redirectUrl,
-				delivery_base_url: deliveryBaseUrl,
+				redirect_base_url: baseUrl,
+				delivery_base_url: baseUrl,
 			},
 			...resolveMessageTemplate("admin.client.IMPERSONATION_SUCCESS"),
 		};

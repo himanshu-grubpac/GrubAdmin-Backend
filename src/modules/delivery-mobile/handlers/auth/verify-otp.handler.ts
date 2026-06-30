@@ -3,6 +3,7 @@ import { verifyOtpRequestBodyValidator } from "delivery-mobile/validators/auth.v
 import {
 	deleteSavedDeliveryEmployeeOtp,
 	getSavedDeliveryEmployeeOtp,
+	compareOtp,
 } from "@/db/actions/delivery-employee-otp.actions.ts";
 import { APIError } from "@/types/error";
 import {
@@ -16,6 +17,7 @@ import { resolveMessageTemplate } from "@/utils/message.ts";
 
 interface ResponseData {
 	auth_token: string;
+	refresh_token?: string;
 	otp_for_what: string;
 	is_password_set: boolean;
 }
@@ -47,7 +49,8 @@ export const verifyOtpHandler = createHandlers(
 
 		const for_what = savedOtp.for_what;
 
-		if (savedOtp.otp !== otp) {
+		const isOtpValid = await compareOtp(otp, savedOtp.otp);
+		if (!isOtpValid) {
 			throw new APIError(undefined, "delivery.auth.login.OTP_INVALID", undefined, 400);
 		}
 
@@ -71,6 +74,7 @@ export const verifyOtpHandler = createHandlers(
 
 		if (employee.employee.status === "unassigned") {
 			await activateVerticalDeliveryEmployee({
+				id: employee.employee.id,
 				email: employeeEmail,
 				type: employee.type,
 			});
@@ -81,11 +85,13 @@ export const verifyOtpHandler = createHandlers(
 				? (employee.employee as client).id
 				: ((employee.employee as vertical_delivery_employee).client_id ?? "");
 
-		const token = JWT.signDeliveryAuthToken({
+		const payload = {
 			id: employee.employee.id,
 			role: employee.type,
 			type: "password_reset",
-		});
+		};
+		const token = JWT.signDeliveryAuthToken(payload as any);
+		const refreshToken = JWT.signDeliveryRefreshToken(payload as any);
 
 		const response = {
 			success: true as const,
@@ -93,6 +99,7 @@ export const verifyOtpHandler = createHandlers(
 			...resolveMessageTemplate("delivery.auth.login.SUCCESS"),
 			data: {
 				auth_token: token,
+				refresh_token: refreshToken,
 				otp_for_what: for_what,
 				is_password_set: !!employee.employee.password,
 			},

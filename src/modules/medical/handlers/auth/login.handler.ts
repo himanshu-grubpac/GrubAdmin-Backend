@@ -28,7 +28,7 @@ export const loginHandler = createHandlers(
 			throw new APIError("No employee can be found!", "medical.auth.login.ACCOUNT_NOT_FOUND", { is_account_found });
 		}
 
-		if (employee.type === "delivery" || employee.type === ("driver" as any)) {
+		if (employee.type === "handler") {
 			throw new APIError("You are not authorized to login.", "medical.auth.login.UNAUTHORIZED", { is_account_found });
 		}
 

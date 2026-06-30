@@ -9,7 +9,8 @@ export type LogCategory =
 	| "GrubPac" 
 	| "GrubLock" 
 	| "Profile"
-	| "Department";
+	| "Department"
+	| "Floor";
 
 export type LogType = 
 	| "Creation"
@@ -49,7 +50,7 @@ interface ActorInfo {
 interface SubjectInfo {
 	id: string;
 	name: string;
-	type?: "box" | "restaurant" | "employee" | "group" | "profile" | "account";
+	type?: "box" | "restaurant" | "employee" | "group" | "profile" | "account" | "department" | "floor";
 }
 
 interface LogArgs {
@@ -93,19 +94,20 @@ export class SystemLogService {
 					Model = DeliveryEmployeeLog;
 					break;
 				case "Restaurant":
+				case "Floor":
 					Model = RestaurantLog;
 					break;
-			case "Department":
-				Model = DepartmentLog;
-				break;
-			case "GrubPac":
-			case "GrubLock":
-				Model = GrubpacLog;
-				break;
-			case "Profile":
-			default:
-				Model = ClientAdminLog;
-				break;
+				case "Department":
+					Model = DepartmentLog;
+					break;
+				case "GrubPac":
+				case "GrubLock":
+					Model = GrubpacLog;
+					break;
+				case "Profile":
+				default:
+					Model = ClientAdminLog;
+					break;
 			}
 
 			await Model.create({
@@ -159,6 +161,21 @@ export class SystemLogService {
 				if (type === "Deletion") return `${actorLabel} deleted ${subjectLabel}`;
 				if (type === "Suspension") return `${actorLabel} suspended ${subjectLabel}`;
 				if (type === "Activation") return `${actorLabel} reactivated ${subjectLabel}`;
+				if (type === "Updation") {
+					const changes = metadata.changes || [];
+					if (Array.isArray(changes) && changes.length > 0) {
+						const fieldList = changes.map((c: any) => c.field || "field").join(", ");
+						return `${actorLabel} updated ${fieldList} of ${subjectLabel}`;
+					}
+					return `${actorLabel} updated ${metadata.field || "field"} of ${subjectLabel} from ${metadata.old_value || "X"} to ${metadata.new_value || "Y"}`;
+				}
+				break;
+
+			case "Floor":
+				if (type === "Creation") return `${actorLabel} added new floor - ${subjectLabel}`;
+				if (type === "Deletion") return `${actorLabel} deleted floor ${subjectLabel}`;
+				if (type === "Suspension") return `${actorLabel} suspended floor ${subjectLabel}`;
+				if (type === "Activation") return `${actorLabel} reactivated floor ${subjectLabel}`;
 				if (type === "Updation") {
 					const changes = metadata.changes || [];
 					if (Array.isArray(changes) && changes.length > 0) {

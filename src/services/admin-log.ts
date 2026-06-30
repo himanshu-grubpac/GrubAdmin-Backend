@@ -77,6 +77,7 @@ export class AdminLogService {
 				grublock: "GrubLock",
 				authentication: "Profile",
 				verticals: "Profile",
+				department: "Department",
 			};
 
 			const typeMap: Record<LogAction, LogType> = {

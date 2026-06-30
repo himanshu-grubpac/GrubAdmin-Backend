@@ -142,4 +142,31 @@ export class JWT {
 			return false;
 		}
 	}
+
+	static signDeliveryRefreshToken(payload: DeliveryAuthPayload): string {
+		return sign(
+			{
+				user: payload,
+			},
+			DELIVERY_AUTH_SECRET,
+			{
+				expiresIn: JWT_REFRESH_TOKEN_EXPIRY,
+			},
+		);
+	}
+
+	static verifyDeliveryRefreshToken(token: string): DeliveryAuthPayload {
+		const { user } = verify(token, DELIVERY_AUTH_SECRET) as DeliveryJwtAuthPayload;
+
+		if (!user) {
+			throw new APIError(
+				"The refresh token is either invalid or has expired!",
+				undefined,
+				undefined,
+				401,
+			);
+		}
+
+		return user;
+	}
 }

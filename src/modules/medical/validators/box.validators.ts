@@ -1,6 +1,7 @@
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { validatorErrorHandler } from "@/utils/zod.ts";
+import { PAGE_SIZE } from "@/configs/constants.ts";
 
 export const getBoxesRequestQueryValidator = zValidator(
 	"query",
@@ -121,11 +122,7 @@ export const updateGrubpacRequestBodyValidator = zValidator(
 	z.object({
 		id: z.string().ulid("Please provide a valid box id"),
 		name: z.string().max(100, "Name cannot exceed 100 characters").optional(),
-		box_id: z.string().max(50, "Box ID cannot exceed 50 characters").optional(),
-		department_ids: z.array(z.string().ulid()).optional(),
-		blocked_employee_ids: z.array(z.string().ulid()).optional(),
-		access_mode: z.enum(["public", "all_employees", "restaurant_employees"]).optional(),
-		ext_temp: z.coerce.number().optional(),
+		department_ids: z.array(z.string().ulid("Please provide a valid department id")).optional(),
 	}).strict(),
 	(r) => {
 		if (!r.success) validatorErrorHandler(r.error);
@@ -196,6 +193,99 @@ export const reassignBoxEmployeeRequestBodyValidator = zValidator(
 	z.object({
 		box_ids: z.array(z.string().ulid("Please provide valid box ids")).min(1, "Please provide at least one box id"),
 		employee_ids: z.array(z.string().ulid("Please provide valid employee ids")).min(1, "Please provide at least one employee id"),
+	}),
+	(r) => {
+		if (!r.success) validatorErrorHandler(r.error);
+	},
+);
+
+export const getGrublockRequestQueryValidator = zValidator(
+	"query",
+	z.object({
+		status: z.enum(["active", "suspended"]).nullable().optional().or(z.literal("")),
+		department_id: z.string().ulid("Please provide a valid department id").nullable().optional().or(z.literal("")),
+		employee_id: z.string().ulid("Please provide a valid employee id").nullable().optional().or(z.literal("")),
+		group_by: z.enum(["lock_status", "departments", "power_status"]).optional(),
+		connection_status: z.string().optional(),
+		power_status: z.string().optional(),
+		health_status: z.string().optional(),
+		grublock_status: z.string().optional(),
+		page_number: z.coerce.number().int().min(1).optional(),
+		page: z.coerce.number().int().min(1).optional(),
+		page_size: z.coerce.number().int().min(1).optional(),
+		limit: z.coerce.number().int().min(1).optional(),
+		query: z.string().trim().optional(),
+		search: z.string().trim().optional(),
+	}).transform((data) => ({
+		...data,
+		page: data.page ?? data.page_number ?? 1,
+		limit: data.limit ?? data.page_size ?? PAGE_SIZE,
+		query: data.query ?? data.search,
+	})),
+	(r) => {
+		if (!r.success) validatorErrorHandler(r.error);
+	},
+);
+
+export const searchGrublockRequestQueryValidator = zValidator(
+	"query",
+	z.object({
+		query: z.string().trim().optional(),
+		search: z.string().trim().optional(),
+		limit: z.coerce.number().int().min(1).optional(),
+		status: z.enum(["active", "suspended"]).optional(),
+	}).transform((data) => ({
+		...data,
+		limit: data.limit ?? 50,
+		query: data.query ?? data.search,
+	})),
+	(r) => {
+		if (!r.success) validatorErrorHandler(r.error);
+	},
+);
+
+export const emergencyUnlockGrublockRequestBodyValidator = zValidator(
+	"json",
+	z.object({
+		ids: z.array(z.string().ulid()).min(1, "Please provide at least one box id"),
+		reason: z.string().min(1, "Please provide a reason for emergency unlock"),
+	}),
+	(r) => {
+		if (!r.success) validatorErrorHandler(r.error);
+	},
+);
+
+export const lockUnlockGrublockRequestBodyValidator = zValidator(
+	"json",
+	z.object({
+		ids: z.array(z.string().ulid()).min(1, "Please provide at least one box id"),
+		consumer_full_name: z.string().optional(),
+		consumer_country_code: z.string().optional(),
+		consumer_phone: z.string().optional(),
+	}),
+	(r) => {
+		if (!r.success) validatorErrorHandler(r.error);
+	},
+);
+
+export const unlockGrublockRequestBodyValidator = zValidator(
+	"json",
+	z.object({
+		ids: z.array(z.string().ulid()).min(1, "Please provide at least one box id"),
+		consumer_full_name: z.string().optional(),
+		consumer_country_code: z.string().optional(),
+		consumer_phone: z.string().optional(),
+	}),
+	(r) => {
+		if (!r.success) validatorErrorHandler(r.error);
+	},
+);
+
+export const verifyUnlockGrublockRequestBodyValidator = zValidator(
+	"json",
+	z.object({
+		otp_id: z.string().min(1, "OTP ID is required"),
+		otp: z.string().min(4, "OTP must be at least 4 digits"),
 	}),
 	(r) => {
 		if (!r.success) validatorErrorHandler(r.error);

@@ -103,6 +103,7 @@ model client {
   medical_employees       vertical_medical_employee[]
   medical_departments     vertical_medical_department[]
   medical_consumers       vertical_medical_consumer[]
+  hospitality_floors      vertical_hospitality_floor[] @relation("ClientToHospitalityFloor")
 
   @@unique([vertical_id, email])
   @@index([name])
@@ -224,6 +225,7 @@ model box {
   medical_employee_boxes       vertical_medical_employee_box[] @relation("vertical_medical_employee_boxes")
   medical_consumer_boxes       vertical_medical_consumer_box[] @relation("vertical_medical_consumer_boxes")
   medical_department_boxes     vertical_medical_department_box[]
+  hospitality_floor_boxes      vertical_hospitality_floor_box[] @relation("BoxToHospitalityFloor")
 
   @@index([client_id], map: "box_client_id_fkey")
   @@index([vertical_id], map: "box_vertical_id_fkey")
@@ -270,6 +272,7 @@ model vertical_delivery_employee {
   created_at                      DateTime                         @default(now())
   updated_at                      DateTime                         @updatedAt
   profile_pic                     String?
+  last_connected_box_id           String?
   connected_boxes                 box[]                            @relation("box_connection")
   client                          client?                          @relation(fields: [client_id], references: [id])
   restaurant                      restaurant?                      @relation(fields: [restaurant_id], references: [id])
@@ -542,6 +545,7 @@ model box_telemetry_latest {
   turn_signal_status    hardware_state?        @default(unknown)
   wifi_status           hardware_state?        @default(unknown)
   advert_screen_status  hardware_state?        @default(unknown)
+  light_status          hardware_state?        @default(unknown)
   dual_zone_status      hardware_state?        @default(unknown)
   connection_status     box_connection_status? @default(unknown)
 
@@ -708,6 +712,7 @@ enum medical_department_box_status {
 enum medical_employee_role {
   manager
   delivery
+  handler
 }
 
 enum medical_employee_box_status {
@@ -745,4 +750,62 @@ enum notification_type {
 enum vertical_status {
   active
   deleted
+}
+
+// Hospitality Models & Enums
+enum hospitality_floor_status {
+  active
+  suspended
+}
+
+enum hospitality_floor_box_status {
+  shared
+  not_shared
+  blocked
+}
+
+// Hospitality Floor
+model vertical_hospitality_floor {
+  id            String                           @id @default(ulid())
+  name          String
+  client_id     String?
+  status        hospitality_floor_status         @default(active)
+  created_at    DateTime                         @default(now())
+  updated_at    DateTime                         @updatedAt
+  client        client?                          @relation("ClientToHospitalityFloor", fields: [client_id], references: [id])
+  boxes         vertical_hospitality_floor_box[]
+
+  @@unique([client_id, name])
+  @@index([client_id], map: "vertical_hospitality_floor_client_id_fkey")
+  @@map("vertical_hospitality_floor")
+}
+
+// Hospitality Floor-Box Assignment
+model vertical_hospitality_floor_box {
+  id            String                         @id @default(ulid())
+  floor_id      String
+  box_id        String
+  room          String?                        // Room number/identifier
+  created_at    DateTime                       @default(now())
+  updated_at    DateTime                       @updatedAt
+  status        hospitality_floor_box_status   @default(shared)
+  floor         vertical_hospitality_floor     @relation(fields: [floor_id], references: [id], onDelete: Cascade)
+  box           box                            @relation("BoxToHospitalityFloor", fields: [box_id], references: [id], onDelete: Cascade)
+
+  @@unique([floor_id, box_id])
+  @@index([box_id], map: "vertical_hospitality_floor_box_box_id_fkey")
+  @@index([floor_id], map: "vertical_hospitality_floor_box_floor_id_fkey")
+  @@map("vertical_hospitality_floor_box")
+}
+
+model vertical_hospitality_floor_deleted {
+  id            String   @id @default(ulid())
+  name          String
+  client_id     String?
+  client_name   String?
+  x_primary_key String?
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  @@map("vertical_hospitality_floor_deleted")
 }

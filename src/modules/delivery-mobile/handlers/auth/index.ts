@@ -7,6 +7,4 @@ export * from "./set-new-password.handler";
 export * from "./reset-password.handler";
 export * from "./check-account.handler";
 export * from "./logout.handler";
-
-
-
+export * from "./refresh-token.handler";

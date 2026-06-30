@@ -10,6 +10,8 @@ export const BOX_VERTICALS = [
 export type VerticalName = (typeof BOX_VERTICALS)[number];
 
 export const DELIVERY_VERTICAL_NAME = "Delivery";
+export const MEDICAL_VERTICAL_NAME = "Medical";
+export const HOSPITALITY_VERTICAL_NAME = "Hospitality";
 
 export const PAGE_SIZE = 40 as const;
 export const LONG_PAGE_SIZE = 100 as const;
@@ -193,6 +195,12 @@ export const EMPLOYEE_CLIENT_ROLE = [
 	"admin",
 	"manager",
 	"delivery",
+] as const;
+
+export const MEDICAL_EMPLOYEE_ROLES = [
+	"admin",
+	"manager",
+	"handler",
 ] as const;
 
 export const GrublockStatus = ["unlocked", "locked"] as const;

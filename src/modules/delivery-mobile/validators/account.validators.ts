@@ -10,8 +10,16 @@ export const updateAccountRequestBodyValidator = zValidator(
         last_name: z.string().optional(),
         country_code: z.string().optional(),
         mobile_number: z.string().optional(),
-        old_password: z.string().optional(),
-        new_password: z.string().optional(),
+        old_password: z
+            .string()
+            .min(8, "Old password must be at least 8 characters long")
+            .max(20, "Old password can be at max 20 characters long")
+            .optional(),
+        new_password: z
+            .string()
+            .min(8, "New password must be at least 8 characters long")
+            .max(20, "New password can be at max 20 characters long")
+            .optional(),
         organization: z.string().optional(),
     }),
     (response) => {
@@ -71,7 +79,11 @@ export const verifyTransferOwnershipRequestBodyValidator = zValidator(
 export const deleteAccountRequestBodyValidator = zValidator(
     "json",
     z.object({
-        password: z.string().optional(),
+        password: z
+            .string()
+            .min(8, "Password must be at least 8 characters long")
+            .max(20, "Password can be at max 20 characters long")
+            .optional(),
     }),
     (response) => {
         if (!response.success) {

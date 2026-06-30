@@ -73,6 +73,7 @@ export const verifyOtpHandler = createHandlers(
 
 		if (employee.employee.status === "unassigned") {
 			await activateVerticalDeliveryEmployee({
+				id: employee.employee.id,
 				email: email,
 				type: employee.type,
 			});

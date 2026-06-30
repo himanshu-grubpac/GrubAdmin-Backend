@@ -30,7 +30,8 @@
 			"delivery-mobile/*": ["./src/modules/delivery-mobile/*"],
 			"admin/*": ["./src/modules/admin/*"],
 			"common/*": ["./src/modules/common/*"],
-			"medical/*": ["./src/modules/medical/*"]
+			"medical/*": ["./src/modules/medical/*"],
+			"hospitality/*": ["./src/modules/hospitality/*"]
 		}
 	}
 }

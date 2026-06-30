@@ -9,7 +9,7 @@ interface SaveMedicalEmployeeOtpArgs {
 	email: string;
 	otp: string;
 	role: MedicalEmployeeRoleType;
-	for_what: "login" | "forget_password" | "set_new_password";
+	for_what: "login" | "forget_password" | "set_new_password" | "unlock_box";
 	metadata?: any;
 }
 

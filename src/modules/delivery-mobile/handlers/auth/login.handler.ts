@@ -9,6 +9,7 @@ import type { client, vertical_delivery_employee } from "@/db/types";
 
 interface ResponseData {
 	auth_token: string;
+	refresh_token?: string;
 	is_password_set: boolean;
 }
 
@@ -61,11 +62,12 @@ export const loginHandler = createHandlers(
 				? (employee.employee as client).id
 				: ((employee.employee as vertical_delivery_employee).client_id ?? "");
 
-		const token = JWT.signDeliveryAuthToken({
-			role:
-				employee.type === "admin" ? "admin" : employee.type,
+		const payload = {
+			role: employee.type === "admin" ? "admin" : employee.type,
 			id: employee.employee.id,
-		});
+		};
+		const token = JWT.signDeliveryAuthToken(payload as any);
+		const refreshToken = JWT.signDeliveryRefreshToken(payload as any);
 
 		return context.json<APIResponse<ResponseData>>({
 			success: true,
@@ -73,6 +75,7 @@ export const loginHandler = createHandlers(
 			client_id,
 			data: {
 				auth_token: token,
+				refresh_token: refreshToken,
 				is_password_set: true,
 			},
 		});
