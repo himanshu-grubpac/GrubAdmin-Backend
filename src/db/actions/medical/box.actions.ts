@@ -782,6 +782,7 @@ export const updateMedicalBoxLockStatus = async (args: {
 					ip: (user as any).ip,
 				},
 				client_id: (user as any).client_id || client_id,
+				vertical_id: (user as any).vertical_id,
 				subject: {
 					id: boxId,
 					name: box?.name || "Unknown Box",

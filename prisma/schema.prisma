@@ -416,6 +416,7 @@ model box_lock {
 model notification {
   id              String            @id @default(ulid())
   client_id       String
+  vertical_id     String?
   box_id          String?
   box_display_id  String?
   box_name        String?
@@ -430,6 +431,7 @@ model notification {
   client          client            @relation(fields: [client_id], references: [id], onDelete: Cascade)
 
   @@index([client_id])
+  @@index([vertical_id])
   @@index([box_id])
   @@index([is_read])
   @@index([is_dismissed])

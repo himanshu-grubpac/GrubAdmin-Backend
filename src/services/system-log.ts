@@ -58,13 +58,14 @@ interface LogArgs {
 	type: LogType;
 	actor: ActorInfo;
 	client_id?: string;
+	vertical_id?: string;
 	subject?: SubjectInfo;
 	metadata?: Record<string, any>; // For extra details like field name, old/new value, reason, etc.
 }
 
 export class SystemLogService {
 	async log(args: LogArgs) {
-		const { category, type, actor, client_id, subject, metadata = {} } = args;
+		const { category, type, actor, client_id, vertical_id, subject, metadata = {} } = args;
 
 		// Logging Feature Toggle Check
 		if (!LOG_CONFIG.enabled) return;
@@ -122,6 +123,7 @@ export class SystemLogService {
 					ip: actor.ip || DEFAULT_IP_ADDRESS,
 				},
 				client_id,
+				vertical_id,
 				subject: subject ? {
 					id: subject.id,
 					name: subject.name,

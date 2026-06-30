@@ -9,7 +9,7 @@ export const lockGrublockHandler = createHandlers(
 	medicalAuthGuard(["admin", "manager"]),
 	lockUnlockGrublockRequestBodyValidator,
 	async (context) => {
-		const { client_id, user_id, user, type } = context.var;
+		const { client_id, user_id, user, type, vertical_id } = context.var;
 		const { ids, consumer_full_name, consumer_country_code, consumer_phone } = context.req.valid("json");
 
 		const userObj = user as any;
@@ -27,6 +27,7 @@ export const lockGrublockHandler = createHandlers(
 				type,
 				role: type,
 				client_id,
+				vertical_id,
 			},
 			client_id,
 			consumer: consumer_full_name

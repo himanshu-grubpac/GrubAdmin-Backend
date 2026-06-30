@@ -12,11 +12,12 @@ export const markNotificationsHandler = createHandlers(
     deliveryAuthGuard(),
     markNotificationsRequestBodyValidator,
     async (context) => {
-        const { client_id } = context.var;
+        const { client_id, vertical_id } = context.var;
         const { ids, is_read, is_dismissed } = context.req.valid("json");
 
         const { updated_count } = await markNotifications({
             client_id,
+            vertical_id,
             ids,
             is_read,
             is_dismissed,
