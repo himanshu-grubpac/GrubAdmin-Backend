@@ -23,6 +23,7 @@ export const getGrubpacHandler = createHandlers(
 			connection_status?: string;
 			power_status?: string;
 			health_status?: string;
+			permission_status?: string;
 		};
 
 		const fetchAll = !!query.group_by || (query.limit === undefined && query.page === undefined);
@@ -38,6 +39,7 @@ export const getGrubpacHandler = createHandlers(
 			connection_status: query.connection_status,
 			power_status: query.power_status,
 			health_status: query.health_status,
+			permission_status: query.permission_status,
 		});
 
 		if (query.group_by === "power_status") {

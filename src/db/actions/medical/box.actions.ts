@@ -40,6 +40,7 @@ export const getMedicalBoxes = async (args: GetMedicalBoxesArgs) => {
 		connection_status,
 		power_status,
 		health_status,
+		permission_status,
 	} = args;
 
 	const where: any = {
@@ -86,10 +87,43 @@ export const getMedicalBoxes = async (args: GetMedicalBoxesArgs) => {
 	}
 
 	if (employee_id) {
+		const employee = await prisma.vertical_medical_employee.findUnique({
+			where: { id: employee_id, client_id },
+			select: { role: true, department_id: true },
+		});
+
+		if (employee?.role === "manager") {
+			if (!employee.department_id) {
+				where.id = { in: [] };
+			} else if (permission_status === "blocked") {
+				where.medical_employee_boxes = {
+					some: { employee_id, status: "blocked" },
+				};
+			} else {
+				where.medical_department_boxes = {
+					some: { department_id: employee.department_id },
+				};
+				where.NOT = {
+					medical_employee_boxes: {
+						some: { employee_id, status: "blocked" },
+					},
+				};
+			}
+		} else {
+			if (employee?.department_id) {
+				where.OR = [
+					{ medical_department_boxes: { some: { department_id: employee.department_id } } },
+					{ medical_employee_boxes: { some: { employee_id } } },
+				];
+			} else {
+				where.medical_employee_boxes = {
+					some: { employee_id },
+				};
+			}
+		}
+	} else if (permission_status) {
 		where.medical_employee_boxes = {
-			some: {
-				employee_id,
-			},
+			some: { status: permission_status as any },
 		};
 	}
 

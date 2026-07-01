@@ -14,7 +14,11 @@ const bodyValidator = zValidator(
 	z.object({
 		ids: z.ulid("Please provide a valid employee id").array().min(1, "Please provide at least one employee id"),
 		department_id: z.string().nullable().optional(),
-	}).refine((data) => {
+		Department_id: z.string().nullable().optional(),
+	}).transform((data) => ({
+		ids: data.ids,
+		department_id: data.department_id ?? data.Department_id ?? null,
+	})).refine((data) => {
 		if (data.department_id === null || data.department_id === "") return true;
 		return z.string().ulid().safeParse(data.department_id).success;
 	}, {
@@ -42,7 +46,7 @@ export const reassignEmployeeHandler = createHandlers(
 		});
 
 		const newDepartment = finalDepartmentId
-			? await prisma.vertical_medical_department.findUnique({ where: { id: finalDepartmentId, client_id } })
+			? await prisma.vertical_medical_department.findFirst({ where: { id: finalDepartmentId, client_id } })
 			: null;
 
 		const result = await reassignMedicalEmployee({

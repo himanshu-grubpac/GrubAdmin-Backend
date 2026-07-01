@@ -156,27 +156,18 @@ export const getEmployeesHandler = createHandlers(
 					connected_boxes: [],
 					connected_boxes_status: false,
 					connected_boxes_count: 0,
+					shared_boxes: [],
+					shared_boxes_count: 0,
+					boxes: [],
+					boxes_count: 0,
+					all_boxes: [],
+					all_boxes_count: 0,
 				};
 			}
 			const raw = e as any;
 			return {
 				...raw,
 				employee_id: raw.employee_display_id,
-				shared_boxes: (raw.employee_boxes ?? []).map((eb: any) => {
-					const box = eb.box || {};
-					return {
-						id: box.id,
-						name: box.name,
-						box_display_id: box.box_display_id,
-						vehicle_number: box.vehicle_number,
-						power_status: box.telemetry?.power_status,
-						connection_status: box.telemetry?.connection_status,
-						health_status: box.telemetry?.health_status,
-						created_at: box.created_at,
-					};
-				}),
-				connected_boxes_count: raw._count?.connected_boxes ?? 0,
-				shared_boxes_count: raw._count?.employee_boxes ?? 0,
 				permission_status: with_permission_for_box_id
 					? permissionStatuses[raw.id] === "blocked"
 						? "blocked"
