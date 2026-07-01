@@ -368,6 +368,7 @@ export const actionHospitalityBoxes = async (args: ActionHospitalityBoxesArgs) =
 	}
 
 	const foundIds = boxes.map((b) => b.id);
+	const telemetryUpdate: any = {};
 
 	await prisma.$transaction(async (tx) => {
 		if (status) {
@@ -406,7 +407,6 @@ export const actionHospitalityBoxes = async (args: ActionHospitalityBoxesArgs) =
 			});
 		}
 
-		const telemetryUpdate: any = {};
 		const validFields = [
 			"power_status", "ioniser_status", "dual_zone_status",
 			"zone1_temp", "zone2_temp", "ext_temp",
@@ -424,17 +424,81 @@ export const actionHospitalityBoxes = async (args: ActionHospitalityBoxesArgs) =
 		}
 
 		if (Object.keys(telemetryUpdate).length > 0) {
-			await BoxConfig.updateMany(
-				{ box_id: { $in: foundIds } },
-				{ $set: telemetryUpdate },
-			);
-
 			await tx.box_telemetry_latest.updateMany({
 				where: { box_id: { in: foundIds } },
 				data: telemetryUpdate,
 			});
 		}
+
+		let floorName = "";
+		if (assign_floor_id) {
+			const floor = await tx.vertical_hospitality_floor.findUnique({
+				where: { id: assign_floor_id, client_id },
+			});
+			floorName = floor?.name || "";
+		}
+
+		const floorBoxes = await tx.vertical_hospitality_floor_box.findMany({
+			where: { box_id: { in: foundIds } },
+			include: { floor: true },
+		});
+		const floorMap = new Map<string, string>();
+		for (const fb of floorBoxes) {
+			floorMap.set(fb.box_id, fb.floor.name);
+		}
+
+		for (const box of boxes) {
+			const changes: string[] = [];
+			if (status) {
+				changes.push(`status set to ${status}`);
+			}
+			if (assign_floor_id !== undefined) {
+				if (assign_floor_id) {
+					changes.push(`assigned to floor "${floorName}"`);
+				} else {
+					changes.push(`unassigned from floor`);
+				}
+			}
+			if (room !== undefined) {
+				changes.push(room ? `room set to ${room}` : `room assignment removed`);
+			}
+
+			const telemetryKeys = Object.keys(telemetryUpdate);
+			for (const key of telemetryKeys) {
+				const val = telemetryUpdate[key];
+				const friendlyName = key.replace("_status", "").replace("_temp", " temperature").replace("_", " ");
+				changes.push(`${friendlyName} set to ${val}`);
+			}
+
+			if (changes.length > 0) {
+				const description = `Settings updated for GrubPac ${box.name || box.box_display_id}: ${changes.join(", ")}.`;
+				let boxFloorName = floorMap.get(box.id) || "";
+				if (assign_floor_id !== undefined) {
+					boxFloorName = assign_floor_id ? floorName : "";
+				}
+
+				await tx.notification.create({
+					data: {
+						client_id,
+						box_id: box.id,
+						box_display_id: box.box_display_id,
+						box_name: box.name || box.box_display_id,
+						restaurant_name: boxFloorName || null,
+						type: "success",
+						title: "GrubPac Settings Changed",
+						description,
+					},
+				});
+			}
+		}
 	});
+
+	if (Object.keys(telemetryUpdate).length > 0) {
+		await BoxConfig.updateMany(
+			{ box_id: { $in: foundIds } },
+			{ $set: telemetryUpdate },
+		);
+	}
 
 	return { updated_count: foundIds.length };
 };

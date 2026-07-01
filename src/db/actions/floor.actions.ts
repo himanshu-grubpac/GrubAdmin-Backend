@@ -62,7 +62,7 @@ export const getFloorById = async (args: GetFloorByIdArgs) => {
 
 interface GetFloorsArgs {
 	query?: string;
-	status?: "active" | "suspended";
+	status?: "active" | "suspended" | "all";
 	page_size?: number;
 	page_number?: number;
 	client_id: string;
@@ -82,7 +82,7 @@ export const getFloors = async (args: GetFloorsArgs) => {
 	const floorsQuery: Prisma.vertical_hospitality_floorFindManyArgs = {
 		where: {
 			client_id,
-			status: status || { not: "suspended" },
+			status: status === "all" ? undefined : (status || { not: "suspended" }),
 			name: query
 				? {
 						contains: query,
@@ -92,7 +92,13 @@ export const getFloors = async (args: GetFloorsArgs) => {
 		include: {
 			_count: {
 				select: {
-					boxes: true,
+					boxes: {
+						where: {
+							box: {
+								status: "active",
+							},
+						},
+					},
 				},
 			},
 		},
