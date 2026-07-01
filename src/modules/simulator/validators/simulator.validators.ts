@@ -35,7 +35,7 @@ export const updateTelemetryValidator = zValidator(
 		latitude: z.number().optional(),
 		longitude: z.number().optional(),
 		solar_panel: z.boolean().optional(),
-		"220V/110V_port": z.boolean().optional(),
+		"220V_110V_port": z.boolean().optional(),
 		Memorycard_used: z.number().optional(),
 		saveToCard: z.boolean().optional(),
 		Adas: z.boolean().optional(),
@@ -43,8 +43,8 @@ export const updateTelemetryValidator = zValidator(
 		advert_screen: z.boolean().optional(),
 		ioniser: z.boolean().optional(),
 		light_status: z.boolean().optional(),
-		gyrosensor: z.enum(["detected", "not_detected", "unknown"]).optional(),
-		turn_signals: z.enum(["detected", "not_detected", "unknown"]).optional(),
+		gyrosensor: z.enum(["ok", "not_detected", "error", "unknown", "detected"]).optional(),
+		turn_signals: z.enum(["ok", "not_detected", "error", "unknown", "detected"]).optional(),
 	}),
 	(r) => {
 		if (!r.success) validatorErrorHandler(r.error);
