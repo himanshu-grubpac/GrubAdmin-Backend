@@ -30,6 +30,8 @@ export const updateStateHandler = createHandlers(
 		if (body.wifi_connected !== undefined) mappedData.wifi_status = body.wifi_connected ? "on" : "off";
 		if (body.gps_available !== undefined) mappedData.gps_status = body.gps_available ? "on" : "off";
 		if (body.solar_panel !== undefined) mappedData.solar_status = body.solar_panel ? "on" : "off";
+		if (body["220V_110V_port"] !== undefined) mappedData.port_big_status = body["220V_110V_port"] ? "on" : "off";
+		if (body.Memorycard_used !== undefined) mappedData.memory_percentage = Math.round(body.Memorycard_used * 100);
 
 		if (body.BoxCam !== undefined) mappedData.camera_status = body.BoxCam ? "on" : "off";
 		if (body.advert_screen !== undefined) mappedData.advert_screen_status = body.advert_screen ? "on" : "off";
