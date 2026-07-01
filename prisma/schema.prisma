@@ -423,6 +423,7 @@ model notification {
   restaurant_name String?
   category        notification_category?
   type            notification_type @default(notification)
+  category        notification_category?
   title           String
   description     String            @db.Text
   is_read         Boolean           @default(false)
