@@ -83,11 +83,12 @@ export const getDeliveryNotifications = async (args: {
 		is_dismissed: false,
 	};
 
+	const isExplicitFilter = args.filters?.box_ids && args.filters.box_ids.length > 0;
+
 	if (boxConditions.length > 0) {
-		where.OR = [
-			...boxConditions,
-			{ box_id: null }
-		];
+		where.OR = isExplicitFilter
+			? boxConditions
+			: [...boxConditions, { box_id: null }];
 	} else {
 		// Force empty if no boxes assigned
 		where.id = "00000000-0000-0000-0000-000000000000";
@@ -172,7 +173,7 @@ export const markDeliveryNotifications = async (args: {
 	if (boxConditions.length > 0) {
 		where.OR = [
 			...boxConditions,
-			{ box_id: null },
+			{ box_id: null }
 		];
 	} else {
 		where.id = { in: [] };
