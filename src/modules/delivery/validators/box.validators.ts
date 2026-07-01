@@ -19,7 +19,10 @@ export const getBoxesRequestQueryValidator = zValidator(
 		group_by_restaurants_has_offline_box: z.coerce.number().optional(),
 		connection_status: z.string().optional(),
 		power_status: z.string().optional(),
-		health_status: z.string().optional(),
+		health_status: z.preprocess(
+			(val) => (typeof val === "string" && val.trim() !== "" ? val.trim().toLowerCase() : val),
+			z.enum(["critical", "healthy", "attention"]).nullable().optional().or(z.literal("")),
+		),
 		grublock_status: z.string().optional(),
 		restaurant_assigned: z.enum(["on", "off", "all"]).optional(),
 		vehicle_assigned: z.enum(["on", "off", "all"]).optional(),
@@ -209,7 +212,10 @@ export const getGrublockRequestQueryValidator = zValidator(
 		group_by_restaurants_has_offline_box: z.coerce.number().optional(),
 		connection_status: z.string().optional(),
 		power_status: z.string().optional(),
-		health_status: z.string().optional(),
+		health_status: z.preprocess(
+			(val) => (typeof val === "string" && val.trim() !== "" ? val.trim().toLowerCase() : val),
+			z.enum(["critical", "healthy", "attention"]).nullable().optional().or(z.literal("")),
+		),
 		grublock_status: z.string().optional(),
 		restaurant_assigned: z.enum(["on", "off", "all"]).optional(),
 		vehicle_assigned: z.enum(["on", "off", "all"]).optional(),

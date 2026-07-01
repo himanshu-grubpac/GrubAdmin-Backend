@@ -18,7 +18,10 @@ export const getBoxesRequestQueryValidator = zValidator(
 		group_by: z.enum(["lock_status", "departments", "power_status"]).optional(),
 		connection_status: z.enum(["connected", "disconnected", "unknown"]).nullable().optional().or(z.literal("")),
 		power_status: z.enum(["on", "off", "unknown"]).nullable().optional().or(z.literal("")),
-		health_status: z.enum(["critical", "healthy", "attention"]).nullable().optional().or(z.literal("")),
+		health_status: z.preprocess(
+			(val) => (typeof val === "string" && val.trim() !== "" ? val.trim().toLowerCase() : val),
+			z.enum(["critical", "healthy", "attention"]).nullable().optional().or(z.literal("")),
+		),
 		ioniser_status: z.string().optional(),
 		dual_zone_status: z.string().optional(),
 		zone1_min: z.coerce.number().optional(),
@@ -209,7 +212,10 @@ export const getGrublockRequestQueryValidator = zValidator(
 		group_by_selected_table: z.string().optional(),
 		connection_status: z.enum(["connected", "disconnected", "unknown"]).nullable().optional().or(z.literal("")),
 		power_status: z.enum(["on", "off", "unknown"]).nullable().optional().or(z.literal("")),
-		health_status: z.enum(["critical", "healthy", "attention"]).nullable().optional().or(z.literal("")),
+		health_status: z.preprocess(
+			(val) => (typeof val === "string" && val.trim() !== "" ? val.trim().toLowerCase() : val),
+			z.enum(["critical", "healthy", "attention"]).nullable().optional().or(z.literal("")),
+		),
 		grublock_status: z.string().optional(),
 		ioniser_status: z.string().optional(),
 		dual_zone_status: z.string().optional(),
