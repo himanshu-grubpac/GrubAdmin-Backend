@@ -70,7 +70,13 @@ server.use(
                 return origin;
             }
 
-            if (NODE_ENV === "development" && (origin === "http://localhost:3000" || origin === "http://localhost:5173")) {
+            // Always allow local frontend simulator for testing
+            if (origin === "http://localhost:5173" || origin === "http://localhost:3000") {
+                return origin;
+            }
+
+            // Allow any Vercel deployments (preview or production)
+            if (origin.endsWith(".vercel.app")) {
                 return origin;
             }
 
