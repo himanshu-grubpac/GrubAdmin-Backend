@@ -1,6 +1,7 @@
 import { createHandlers } from "@/utils/hono-factory.ts";
 import { updateTelemetryValidator, boxIdParamValidator } from "../validators/simulator.validators.ts";
 import { updateBoxTelemetry } from "@/db/actions/simulator.actions.ts";
+import { prisma } from "@/db";
 import type { APIResponse } from "@/types/api";
 
 export const updateStateHandler = createHandlers(
@@ -36,12 +37,42 @@ export const updateStateHandler = createHandlers(
 
 		await updateBoxTelemetry(box_id, mappedData);
 
-		return context.json<APIResponse<{ status: string }>>(
+		const box = await prisma.box.findUnique({
+			where: { id: box_id },
+			include: { telemetry: true, lock: true },
+		});
+
+		if (!box) {
+			return context.json<any>(
+				{ status: "error", message: "Box not found" },
+				{ status: 404 }
+			);
+		}
+
+		return context.json<any>(
 			{
-				success: true,
-				code: 200,
-				message: "State updated successfully",
-				data: { status: "success" },
+				status: "success",
+				data: {
+					box_id: box.id,
+					display_id: box.box_display_id,
+					is_locked: box.lock?.lock_status === "locked",
+					driver_id: box.connection_employee_id || null,
+					restaurant_id: null,
+					settings: {
+						is_power_on: box.telemetry?.power_status === "on",
+						is_dual_zone: false, // Default or fetch if available
+						zone_1_target_temp: box.telemetry?.zone1_temp || 4,
+						zone_2_target_temp: box.telemetry?.zone2_temp || 4,
+						zone_1_status: true,
+						zone_2_status: false,
+						saveToCard: true,
+						Adas: true,
+						BoxCam: box.telemetry?.camera_status === "on",
+						advert_screen: box.telemetry?.advert_screen_status === "on",
+						ioniser: box.telemetry?.ioniser_status === "on",
+						light_status: box.telemetry?.light_status === "on"
+					}
+				}
 			},
 			{ status: 200 }
 		);

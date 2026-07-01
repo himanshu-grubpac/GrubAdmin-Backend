@@ -34,10 +34,8 @@ export const lockBoxHandler = createHandlers(
 
 		return context.json<any>(
 			{
-				success: true,
-				code: 200,
-				message: "Box locked",
-				data: { status: "success" },
+				status: "success",
+				lock_status: "locked"
 			},
 			{ status: 200 }
 		);
