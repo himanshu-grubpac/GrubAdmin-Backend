@@ -99,6 +99,7 @@ export const getMedicalBoxes = async (args: GetMedicalBoxesArgs) => {
 		take: limit || undefined,
 		orderBy: { created_at: "desc" },
 		include: {
+			lock: true,
 			telemetry: true,
 			medical_department_boxes: {
 				include: {
@@ -118,6 +119,15 @@ export const getMedicalBoxes = async (args: GetMedicalBoxesArgs) => {
 						},
 					},
 				},
+			},
+			medical_consumer_boxes: {
+				include: {
+					consumer: true,
+				},
+				orderBy: {
+					created_at: "desc",
+				},
+				take: 1,
 			},
 			medical_connection_employee: {
 				select: {
@@ -142,8 +152,17 @@ export const getMedicalBoxes = async (args: GetMedicalBoxesArgs) => {
 		throw new APIError(String(boxesCountResponse.reason), undefined, undefined, 400);
 	}
 
+	const boxes = boxesResponse.value.map((box: any) => {
+		const { lock, medical_consumer_boxes, ...boxData } = box;
+		return {
+			...boxData,
+			grublock_status: lock?.lock_status || "unlocked",
+			consumer_info: medical_consumer_boxes?.[0]?.consumer || null,
+		};
+	});
+
 	return {
-		boxes: boxesResponse.value,
+		boxes,
 		count: boxesCountResponse.value,
 	};
 };
@@ -157,9 +176,10 @@ interface GetMedicalBoxDetailsArgs {
 export const getMedicalBoxDetails = async (args: GetMedicalBoxDetailsArgs) => {
 	const { id, client_id, with_permission_for_employee_id } = args;
 
-	const box = await prisma.box.findFirst({
+	const rawBox = await prisma.box.findFirst({
 		where: { id, client_id },
 		include: {
+			lock: true,
 			telemetry: true,
 			medical_department_boxes: {
 				include: {
@@ -180,6 +200,15 @@ export const getMedicalBoxDetails = async (args: GetMedicalBoxDetailsArgs) => {
 					},
 				},
 			},
+			medical_consumer_boxes: {
+				include: {
+					consumer: true,
+				},
+				orderBy: {
+					created_at: "desc",
+				},
+				take: 1,
+			},
 			medical_connection_employee: {
 				select: {
 					id: true,
@@ -190,11 +219,17 @@ export const getMedicalBoxDetails = async (args: GetMedicalBoxDetailsArgs) => {
 		},
 	});
 
-	if (!box) {
+	if (!rawBox) {
 		throw new APIError(undefined, "medical.box.NOT_FOUND", undefined, 404);
 	}
 
-	return box;
+	const { lock, medical_consumer_boxes, ...box } = rawBox;
+
+	return {
+		...box,
+		grublock_status: lock?.lock_status || "unlocked",
+		consumer_info: medical_consumer_boxes?.[0]?.consumer || null,
+	};
 };
 
 interface SearchMedicalBoxesArgs {

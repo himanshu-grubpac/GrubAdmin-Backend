@@ -421,6 +421,7 @@ model notification {
   box_display_id  String?
   box_name        String?
   restaurant_name String?
+  category        notification_category?
   type            notification_type @default(notification)
   title           String
   description     String            @db.Text
@@ -740,6 +741,14 @@ enum delivery_consumer_status {
   pending
   delivered
   cancelled
+}
+
+enum notification_category {
+  camera
+  battery
+  lock
+  display
+  other
 }
 
 enum notification_type {
