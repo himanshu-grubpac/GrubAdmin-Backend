@@ -70,7 +70,7 @@ server.use(
                 return origin;
             }
 
-            if (NODE_ENV === "development" && origin === "http://localhost:3000") {
+            if (NODE_ENV === "development" && (origin === "http://localhost:3000" || origin === "http://localhost:5173")) {
                 return origin;
             }
 
