@@ -10,11 +10,12 @@ export const assignEmployeesHandler = createHandlers(
 	async (context) => {
 		const { client_id } = context.var;
 		const { id, employee_ids, role } = context.req.valid("json");
+		const prismaRole = role === "delivery" ? "handler" : role;
 
 		const result = await assignEmployeesToDepartment({
 			department_id: id,
 			employee_ids,
-			role,
+			role: prismaRole,
 			client_id,
 		});
 

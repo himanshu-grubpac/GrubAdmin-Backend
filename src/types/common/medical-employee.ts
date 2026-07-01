@@ -1,4 +1,4 @@
-import type { EMPLOYEE_CLIENT_ROLE } from "@/configs/constants.ts";
+import type { MEDICAL_EMPLOYEE_ROLES } from "@/configs/constants.ts";
 
 export type MedicalEmployeeRoleType =
-	(typeof EMPLOYEE_CLIENT_ROLE)[number];
+	(typeof MEDICAL_EMPLOYEE_ROLES)[number];

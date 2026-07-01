@@ -1,9 +1,11 @@
-import { AUTH_SECRET, DELIVERY_AUTH_SECRET, JWT_ACCESS_TOKEN_EXPIRY, JWT_REFRESH_TOKEN_EXPIRY } from "@/configs/env";
+import { AUTH_SECRET, DELIVERY_AUTH_SECRET, MEDICAL_AUTH_SECRET, JWT_ACCESS_TOKEN_EXPIRY, JWT_REFRESH_TOKEN_EXPIRY } from "@/configs/env";
 import { APIError } from "@/types/error";
 import type { AuthPayload, DeliveryAuthPayload, MedicalAuthPayload, ImpersonationPayload } from "@/types/jwt";
 import { type JwtPayload, sign, verify } from "jsonwebtoken";
 import { logger } from "@/utils/logger";
 import { randomUUID } from "crypto";
+
+const MEDICAL_SECRET = MEDICAL_AUTH_SECRET || DELIVERY_AUTH_SECRET;
 
 interface JwtAuthPayload extends JwtPayload {
 	user?: AuthPayload;
@@ -62,7 +64,7 @@ export class JWT {
 	}
 
 	static verifyMedicalAuthToken(token: string): MedicalAuthPayload {
-		const { user } = verify(token, DELIVERY_AUTH_SECRET) as MedicalJwtAuthPayload;
+		const { user } = verify(token, MEDICAL_SECRET) as MedicalJwtAuthPayload;
 
 		if (!user) {
 			throw new APIError(
@@ -81,7 +83,7 @@ export class JWT {
 			{
 				user: payload,
 			},
-			DELIVERY_AUTH_SECRET,
+			MEDICAL_SECRET,
 			{
 				expiresIn: "24h",
 			},
@@ -141,5 +143,32 @@ export class JWT {
 		} catch {
 			return false;
 		}
+	}
+
+	static signDeliveryRefreshToken(payload: DeliveryAuthPayload): string {
+		return sign(
+			{
+				user: payload,
+			},
+			DELIVERY_AUTH_SECRET,
+			{
+				expiresIn: JWT_REFRESH_TOKEN_EXPIRY,
+			},
+		);
+	}
+
+	static verifyDeliveryRefreshToken(token: string): DeliveryAuthPayload {
+		const { user } = verify(token, DELIVERY_AUTH_SECRET) as DeliveryJwtAuthPayload;
+
+		if (!user) {
+			throw new APIError(
+				"The refresh token is either invalid or has expired!",
+				undefined,
+				undefined,
+				401,
+			);
+		}
+
+		return user;
 	}
 }

@@ -64,7 +64,7 @@ export const getUniqueMedicalEmployee = async (
 
 	if (medicalEmployee) {
 		return {
-			type: medicalEmployee.role,
+			type: medicalEmployee.role as MedicalEmployeeRoleType,
 			employee: medicalEmployee,
 		};
 	}
@@ -240,7 +240,7 @@ interface CreateMedicalEmployeeArgs {
 	email: string;
 	employee_display_id: string;
 	joining_date: Date;
-	role: "manager" | "delivery";
+	role: "manager" | "handler";
 	department_id?: string | null;
 	client_id: string;
 }
@@ -248,6 +248,8 @@ interface CreateMedicalEmployeeArgs {
 export const createMedicalEmployee = async (
 	args: CreateMedicalEmployeeArgs,
 ) => {
+	args = nullifyEmptyFKs(args);
+
 	const {
 		client_id,
 		email,
@@ -376,7 +378,7 @@ interface GetMedicalEmployeesArgs {
 	pageNumber?: number;
 	status?: "active" | "unassigned" | "suspended";
 	fetchAll?: boolean;
-	roles?: ("manager" | "delivery")[];
+	roles?: ("manager" | "handler")[];
 	ids?: string[];
 	client_id: string;
 	include_boxes?: boolean;
@@ -803,11 +805,24 @@ export const getMedicalEmployeeById = async (
 		},
 		omit: { password: true },
 		include: {
-			department: true,
+			department: {
+				include: {
+					department_boxes: {
+						where: { status: "shared" },
+						include: {
+							box: {
+								include: {
+									telemetry: true,
+								},
+							},
+						},
+					},
+				},
+			},
 			employee_boxes: {
 				take: 20,
 				orderBy: { created_at: "desc" },
-				include: { box: true },
+				include: { box: { include: { telemetry: true } } },
 			},
 		},
 	});
@@ -829,7 +844,7 @@ interface UpdateMedicalEmployeeByIdArgs {
 	employee_display_id?: string;
 	joining_date?: Date;
 	email?: string;
-	role?: "manager" | "delivery";
+	role?: "manager" | "handler";
 	department_id?: string | null;
 }
 
@@ -1030,7 +1045,7 @@ export const reassignMedicalEmployee = async (
 				: "All selected employees are already unassigned.",
 			undefined,
 			undefined,
-			400
+			400,
 		);
 	}
 

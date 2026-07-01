@@ -191,6 +191,7 @@ export const createBox = async (args: CreateBoxArgs) => {
 	requireMongoDB("BoxConfig.create");
 	const boxConfig = await BoxConfig.create({
 		box_id: box.id,
+		client_id: args.client_id || "",
 	});
 
 	await prisma.box_lock.create({
@@ -1154,6 +1155,7 @@ export const createVerticalDeliveryGrubpac = async (args: CreateVerticalDelivery
 		requireMongoDB("BoxConfig.create");
 		await BoxConfig.create({
 			box_id: box.id,
+			client_id,
 		});
 
 		return box;

@@ -31,7 +31,7 @@ export const verifyAuthenticatedHandler = createHandlers(
 				? ["admin"]
 				: type === "manager"
 					? ["manager"]
-					: ["delivery"];
+					: ["handler"];
 
 		return context.json<APIResponse<ResponseData>>({
 			success: true,

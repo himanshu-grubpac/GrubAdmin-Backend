@@ -2,6 +2,7 @@ import { createHandlers } from "@/utils/hono-factory.ts";
 import { medicalAuthGuard } from "@/middlewares/auth";
 import { getGrublockRequestQueryValidator } from "medical/validators/box.validators.ts";
 import { getMedicalBoxes } from "@/db/actions/medical/box.actions.ts";
+import { cleanQueryObject } from "@/utils/clean-query.ts";
 import type { APIResponse } from "@/types/api";
 import { calculatePagination } from "@/utils/pagination.ts";
 import { BoxConfig } from "@/db/mongo-schema";
@@ -21,30 +22,21 @@ export const getGrublockHandler = createHandlers(
 	getGrublockRequestQueryValidator,
 	async (context) => {
 		const { client_id } = context.var;
-		const query = context.req.valid("query") as {
-			page?: number;
-			limit?: number;
-			query?: string;
-			status?: "active" | "suspended";
-			department_id?: string | null;
-			employee_id?: string | null;
-			grublock_status?: string;
-			power_status?: string;
-			connection_status?: string;
-			health_status?: string;
-		};
+		const query = cleanQueryObject(context.req.valid("query") as Record<string, unknown>);
+
+		const fetchAll = !!query.group_by || (query.limit === undefined && query.page === undefined);
 
 		const { boxes, count } = await getMedicalBoxes({
 			client_id,
-			page: query.page,
-			limit: query.limit,
-			query: query.query,
-			status: query.status,
-			department_id: query.department_id,
-			employee_id: query.employee_id,
-			power_status: query.power_status,
-			connection_status: query.connection_status,
-			health_status: query.health_status,
+			page: fetchAll ? undefined : (query.page as number),
+			limit: fetchAll ? undefined : (query.limit as number),
+			query: query.query as string,
+			status: query.status as "active" | "suspended" | undefined,
+			department_id: query.department_id as string | null | undefined,
+			employee_id: query.employee_id as string | null | undefined,
+			power_status: query.power_status as string,
+			connection_status: query.connection_status as string,
+			health_status: query.health_status as string,
 		});
 
 		let formatted = await attachGrublockStatus(boxes as Array<Record<string, unknown>>);
@@ -53,8 +45,8 @@ export const getGrublockHandler = createHandlers(
 			formatted = formatted.filter((b) => b.grublock_status === query.grublock_status);
 		}
 
-		const finalPage = query.page ?? 1;
-		const finalLimit = query.limit ?? count;
+		const finalPage = (query.page as number) ?? 1;
+		const finalLimit = (query.limit as number) ?? count;
 
 		return context.json<APIResponse<{ boxes: typeof formatted; count: number }>>(
 			{

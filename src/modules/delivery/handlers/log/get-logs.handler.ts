@@ -11,7 +11,7 @@ export const getSystemLogsHandler = createHandlers(
 	deliveryAuthGuard(["admin", "manager"]),
 	getSystemLogsRequestQueryValidator,
 	async (context) => {
-		const { client_id } = context.var;
+		const { client_id, vertical_id } = context.var;
 		const { 
 			category, 
 			type, 
@@ -35,6 +35,7 @@ export const getSystemLogsHandler = createHandlers(
 			page,
 			page_size: limit,
 			client_id,
+			vertical_id,
 		});
 
 		const response = {
@@ -57,7 +58,7 @@ export const searchSystemLogsHandler = createHandlers(
 	deliveryAuthGuard(["admin", "manager"]),
 	searchSystemLogsRequestBodyValidator,
 	async (context) => {
-		const { client_id } = context.var;
+		const { client_id, vertical_id } = context.var;
 		const { 
 			filters, 
 			actor_id, 
@@ -79,6 +80,7 @@ export const searchSystemLogsHandler = createHandlers(
 			page,
 			page_size: limit,
 			client_id,
+			vertical_id,
 		});
 
 		const response = {

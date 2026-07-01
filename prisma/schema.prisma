@@ -272,6 +272,7 @@ model vertical_delivery_employee {
   created_at                      DateTime                         @default(now())
   updated_at                      DateTime                         @updatedAt
   profile_pic                     String?
+  last_connected_box_id           String?
   connected_boxes                 box[]                            @relation("box_connection")
   client                          client?                          @relation(fields: [client_id], references: [id])
   restaurant                      restaurant?                      @relation(fields: [restaurant_id], references: [id])
@@ -415,6 +416,7 @@ model box_lock {
 model notification {
   id              String            @id @default(ulid())
   client_id       String
+  vertical_id     String?
   box_id          String?
   box_display_id  String?
   box_name        String?
@@ -429,6 +431,7 @@ model notification {
   client          client            @relation(fields: [client_id], references: [id], onDelete: Cascade)
 
   @@index([client_id])
+  @@index([vertical_id])
   @@index([box_id])
   @@index([is_read])
   @@index([is_dismissed])
@@ -711,6 +714,7 @@ enum medical_department_box_status {
 enum medical_employee_role {
   manager
   delivery
+  handler
 }
 
 enum medical_employee_box_status {

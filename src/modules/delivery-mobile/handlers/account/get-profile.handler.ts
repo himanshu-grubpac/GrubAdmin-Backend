@@ -15,10 +15,12 @@ interface ProfileResponse {
     mobile_number: string;
     employee_id: string | null;
     role: string;
-    joining_date: Date | null;
+    joining_date: string | null;
     profile_pic: string | null;
     boxes?: box[];
     organization_name?: string | null;
+    last_connected_box_id?: string | null;
+    last_connected_box?: box | null;
 }
 
 export const getProfileHandler = createHandlers(
@@ -36,9 +38,17 @@ export const getProfileHandler = createHandlers(
         }
 
         let boxes: box[] | undefined = undefined;
+        let last_connected_box: box | null = null;
+        let last_connected_box_id: string | null = null;
 
         if (employee.type === "delivery") {
             boxes = await getDeliveryEmployeeBoxes(employee.employee.id);
+            last_connected_box_id = (employee.employee as any).last_connected_box_id ?? null;
+            if (last_connected_box_id) {
+                last_connected_box = await prisma.box.findUnique({
+                    where: { id: last_connected_box_id },
+                });
+            }
         }
 
         const data: ProfileResponse = {
@@ -58,13 +68,21 @@ export const getProfileHandler = createHandlers(
                     ? null
                     : (employee.employee as any).employee_display_id,
             role: employee.type,
-            joining_date:
-                employee.type === "admin"
-                    ? null
-                    : (employee.employee as any).joining_date,
+            joining_date: (() => {
+                if (employee.type === "admin") return null;
+                const date = (employee.employee as any).joining_date;
+                if (!date) return null;
+                return new Intl.DateTimeFormat('en-GB', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric'
+                }).format(new Date(date));
+            })(),
             profile_pic: (employee.employee as any).profile_pic ?? null,
             boxes,
             organization_name: null,
+            last_connected_box_id,
+            last_connected_box,
         };
 
         if (employee.type !== "admin") {

@@ -7,7 +7,7 @@ import type { APIResponse } from "@/types/api";
 import { Otp } from "@/utils/otp.ts";
 
 export const unlockGrublockHandler = createHandlers(
-	medicalAuthGuard(["admin", "manager", "delivery"]),
+	medicalAuthGuard(["admin", "manager", "handler"]),
 	unlockGrublockRequestBodyValidator,
 	async (context) => {
 		const { user, type } = context.var;

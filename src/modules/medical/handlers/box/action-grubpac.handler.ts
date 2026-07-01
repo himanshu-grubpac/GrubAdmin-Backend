@@ -5,7 +5,7 @@ import type { APIResponse } from "@/types/api";
 import { actionMedicalBoxes } from "@/db/actions/medical/box.actions";
 
 export const actionGrubpacHandler = createHandlers(
-	medicalAuthGuard(["admin", "manager", "delivery"]),
+	medicalAuthGuard(["admin", "manager", "handler"]),
 	actionGrubpacRequestBodyValidator,
 	async (context) => {
 		const { client_id } = context.var;

@@ -16,12 +16,13 @@ export const getNotificationsHandler = createHandlers(
 	medicalAuthGuard(),
 	getNotificationsRequestQueryValidator,
 	async (context) => {
-		const { client_id } = context.var;
+		const { client_id, vertical_id } = context.var;
 		const { page, limit, types, department_ids, box_ids, search, is_read, is_dismissed } =
 			context.req.valid("query");
 
 		const { notifications, count, unread_count } = await getMedicalNotifications({
 			client_id,
+			vertical_id,
 			page,
 			limit,
 			types,

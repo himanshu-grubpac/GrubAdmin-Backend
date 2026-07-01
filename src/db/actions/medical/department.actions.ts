@@ -191,7 +191,7 @@ export const getDepartments = async (args: GetDepartmentArgs) => {
 			},
 			employees: {
 				where: {
-					role: { in: ["manager", "delivery"] },
+					role: { in: ["manager", "handler"] },
 				},
 				select: {
 					role: true,
@@ -291,7 +291,7 @@ export const getDepartmentDropdowns = async (
 			},
 			employees: {
 				where: {
-					role: { in: ["manager", "delivery"] },
+					role: { in: ["manager", "handler"] },
 				},
 				select: {
 					role: true,
@@ -672,7 +672,7 @@ export const reassignDepartmentResources = async (
 interface AssignEmployeesToDepartmentArgs {
 	department_id: string;
 	employee_ids: string[];
-	role: "manager" | "delivery";
+	role: "manager" | "handler";
 	client_id: string;
 }
 
