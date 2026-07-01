@@ -17,32 +17,80 @@ export const getDeliveryNotifications = async (args: {
 }) => {
 	const skip = (args.page - 1) * args.limit;
 
-	// Fetch boxes assigned to this driver
-	const assignedBoxes = await prisma.vertical_delivery_employee_box.findMany({
+	const assignments = await prisma.vertical_delivery_employee_box.findMany({
 		where: {
 			employee_id: args.employee_id,
-			status: "shared",
+			status: { in: ["shared", "unlinked"] },
 		},
-		select: { box_id: true },
+		select: {
+			box_id: true,
+			status: true,
+			created_at: true,
+			unlinked_at: true,
+			box: { select: { id: true, box_display_id: true } }
+		},
 	});
-	const assignedBoxIds = assignedBoxes.map((b) => b.box_id);
+
+	let targetBoxIds: string[] = [];
+	let context_box: { id: string; box_display_id: string } | null = null;
+
+	if (args.filters.box_ids && args.filters.box_ids.length > 0) {
+		targetBoxIds = args.filters.box_ids.filter((id) =>
+			assignments.some(a => a.box_id === id),
+		);
+	} else {
+		const employee = await prisma.vertical_delivery_employee.findUnique({
+			where: { id: args.employee_id },
+			select: { last_connected_box_id: true }
+		});
+		if (employee?.last_connected_box_id && assignments.some(a => a.box_id === employee.last_connected_box_id && a.status === "shared")) {
+			targetBoxIds = [employee.last_connected_box_id];
+		} else {
+			const firstActive = assignments.find(a => a.status === "shared");
+			if (firstActive) {
+				targetBoxIds = [firstActive.box_id];
+			}
+		}
+	}
+
+	if (targetBoxIds.length === 1) {
+		const b = assignments.find(a => a.box_id === targetBoxIds[0])?.box;
+		if (b) {
+			context_box = { id: b.id, box_display_id: b.box_display_id };
+		}
+	}
+
+	const boxConditions = targetBoxIds.map(box_id => {
+		const assignment = assignments.find(a => a.box_id === box_id);
+		if (!assignment) return null;
+
+		const cond: Prisma.notificationWhereInput = { box_id: box_id };
+		if (assignment.status === "unlinked" && assignment.unlinked_at) {
+			cond.created_at = {
+				gte: assignment.created_at,
+				lte: assignment.unlinked_at
+			};
+		} else {
+			cond.created_at = {
+				gte: assignment.created_at
+			};
+		}
+		return cond;
+	}).filter(Boolean) as Prisma.notificationWhereInput[];
 
 	const where: Prisma.notificationWhereInput = {
 		client_id: args.client_id,
 		is_dismissed: false,
-		OR: [
-			{ box_id: { in: assignedBoxIds } },
-			{ box_id: null },
-		],
 	};
 
-	if (args.filters.box_ids && args.filters.box_ids.length > 0) {
-		// If they explicitly filter by box, ensure it's within their assigned boxes
-		const allowedBoxIds = args.filters.box_ids.filter((id) =>
-			assignedBoxIds.includes(id),
-		);
-		where.box_id = { in: allowedBoxIds };
-		delete where.OR; // Replace OR with explicit box filter
+	if (boxConditions.length > 0) {
+		where.OR = [
+			...boxConditions,
+			{ box_id: null }
+		];
+	} else {
+		// Force empty if no boxes assigned
+		where.id = "00000000-0000-0000-0000-000000000000";
 	}
 
 	if (args.filters.types && args.filters.types.length > 0) {
@@ -83,6 +131,7 @@ export const getDeliveryNotifications = async (args: {
 		data,
 		current_page: args.page,
 		total_pages: Math.ceil(total / args.limit),
+		context_box,
 	};
 };
 
@@ -93,28 +142,44 @@ export const markDeliveryNotifications = async (args: {
 	is_read?: boolean;
 	is_dismissed?: boolean;
 }) => {
-	const assignedBoxes = await prisma.vertical_delivery_employee_box.findMany({
+	const assignments = await prisma.vertical_delivery_employee_box.findMany({
 		where: {
 			employee_id: args.employee_id,
-			status: "shared",
+			status: { in: ["shared", "unlinked"] },
 		},
-		select: { box_id: true },
+		select: { box_id: true, status: true, created_at: true, unlinked_at: true },
 	});
-	const assignedBoxIds = assignedBoxes.map((b) => b.box_id);
+
+	const boxConditions = assignments.map(a => {
+		const cond: Prisma.notificationWhereInput = { box_id: a.box_id };
+		if (a.status === "unlinked" && a.unlinked_at) {
+			cond.created_at = { gte: a.created_at, lte: a.unlinked_at };
+		} else {
+			cond.created_at = { gte: a.created_at };
+		}
+		return cond;
+	});
 
 	const updateData: any = {};
 	if (args.is_read !== undefined) updateData.is_read = args.is_read;
 	if (args.is_dismissed !== undefined) updateData.is_dismissed = args.is_dismissed;
 
+	const where: Prisma.notificationWhereInput = {
+		id: { in: args.ids },
+		client_id: args.client_id,
+	};
+
+	if (boxConditions.length > 0) {
+		where.OR = [
+			...boxConditions,
+			{ box_id: null },
+		];
+	} else {
+		where.id = { in: [] };
+	}
+
 	await prisma.notification.updateMany({
-		where: {
-			id: { in: args.ids },
-			client_id: args.client_id,
-			OR: [
-				{ box_id: { in: assignedBoxIds } },
-				{ box_id: null },
-			],
-		},
+		where,
 		data: updateData,
 	});
 };
@@ -129,7 +194,7 @@ export const createDeliveryTestNotification = async (args: {
 }) => {
 	let box_display_id = null;
 	let box_name = null;
-	
+
 	if (args.box_id) {
 		const box = await prisma.box.findUnique({
 			where: { id: args.box_id },

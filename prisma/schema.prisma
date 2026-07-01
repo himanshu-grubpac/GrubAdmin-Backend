@@ -295,6 +295,7 @@ model vertical_delivery_employee_box {
   box_id      String
   created_at  DateTime                     @default(now())
   updated_at  DateTime                     @updatedAt
+  unlinked_at DateTime?
   status      employee_box_status          @default(shared)
   access      employee_box_access          @default(direct)
   box         box                          @relation("vertical_delivery_employee_boxes", fields: [box_id], references: [id], onDelete: Cascade)
@@ -510,6 +511,7 @@ enum restaurant_box_status {
 enum employee_box_status {
   shared
   blocked
+  unlinked
 }
 
 enum employee_box_access {
