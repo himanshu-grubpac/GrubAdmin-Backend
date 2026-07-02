@@ -170,8 +170,8 @@ export const assignEmployeesRequestBodyValidator = zValidator(
 	z.object({
 		id: z.ulid("Please provide a valid department id"),
 		employee_ids: z.ulid("Please provide a valid employee id").array().min(1, "Please provide at least one employee id"),
-		role: z.enum(["manager", "delivery"], {
-			error: "Please provide a valid role (manager or delivery)",
+		role: z.enum(["manager", "handler", "delivery"], {
+			error: "Please provide a valid role (manager or handler)",
 		}),
 	}),
 	(response) => {

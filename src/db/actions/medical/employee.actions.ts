@@ -64,7 +64,7 @@ export const getUniqueMedicalEmployee = async (
 
 	if (medicalEmployee) {
 		return {
-			type: medicalEmployee.role,
+			type: medicalEmployee.role as MedicalEmployeeRoleType,
 			employee: medicalEmployee,
 		};
 	}
@@ -240,7 +240,7 @@ interface CreateMedicalEmployeeArgs {
 	email: string;
 	employee_display_id: string;
 	joining_date: Date;
-	role: "manager" | "delivery";
+	role: "manager" | "handler";
 	department_id?: string | null;
 	client_id: string;
 }
@@ -248,6 +248,8 @@ interface CreateMedicalEmployeeArgs {
 export const createMedicalEmployee = async (
 	args: CreateMedicalEmployeeArgs,
 ) => {
+	args = nullifyEmptyFKs(args);
+
 	const {
 		client_id,
 		email,
@@ -376,7 +378,7 @@ interface GetMedicalEmployeesArgs {
 	pageNumber?: number;
 	status?: "active" | "unassigned" | "suspended";
 	fetchAll?: boolean;
-	roles?: ("manager" | "delivery")[];
+	roles?: ("manager" | "handler")[];
 	ids?: string[];
 	client_id: string;
 	include_boxes?: boolean;
@@ -506,7 +508,24 @@ export const getMedicalEmployees = async (
 		take: !fetchAll && pageSize ? pageSize : undefined,
 		orderBy: { created_at: "desc" },
 		include: {
-			department: !!include_department || !!include_boxes,
+			department: !!include_department || !!include_boxes
+				? {
+					include: {
+						department_boxes: !!include_boxes
+							? {
+								where: { status: "shared" },
+								include: {
+									box: {
+										include: {
+											telemetry: true,
+										},
+									},
+								},
+							}
+							: false,
+					},
+				}
+				: false,
 			connected_boxes: include_boxes ? { include: { telemetry: true } } : false,
 			employee_boxes: include_boxes
 				? {
@@ -544,8 +563,95 @@ export const getMedicalEmployees = async (
 		throw new APIError(employeesCountResponse.reason, undefined, undefined, 400);
 	}
 
+	const flattenBox = (box: any) => {
+		if (!box) return null;
+		const { telemetry, ...boxData } = box;
+		const { id: _tid, box_id: _tbid, updated_at: _tupd, ...telemetryData } = (telemetry || {}) as any;
+		return { ...boxData, ...telemetryData };
+	};
+
+	const processedEmployees = employeesResponse.value.map((employee: any) => {
+		const { employee_boxes, department, connected_boxes, _count, ...rest } = employee;
+
+		const directConnections = (connected_boxes || []).map(flattenBox).filter(Boolean);
+		const connectedBoxesMap = new Map(directConnections.map((b: any) => [b.id, b]));
+		const processedConnectedBoxes = Array.from(connectedBoxesMap.values());
+
+		const sharedPermissions = (employee_boxes || []).map((p: any) => ({
+			...p,
+			box: flattenBox(p.box),
+		}));
+
+		const departmentBoxes: any[] = [];
+		if (department?.department_boxes) {
+			for (const db of department.department_boxes) {
+				if (db.box) {
+					departmentBoxes.push({
+						box: flattenBox(db.box),
+						boxClientId: db.box.client_id,
+					});
+				}
+			}
+		}
+
+		let boxes: any[] = [];
+		let allBoxes: any[] = [];
+
+		if (rest.role === "manager" && department) {
+			const blockedBoxIds = new Set(
+				sharedPermissions.filter((p: any) => p.status === "blocked").map((p: any) => p.box_id),
+			);
+
+			const directBoxes = departmentBoxes
+				.filter((db: any) => !blockedBoxIds.has(db.box.id))
+				.map((db: any) => db.box);
+
+			boxes = directBoxes;
+			const allMap = new Map<string, any>();
+			for (const b of directBoxes) allMap.set(b.id, b);
+			allBoxes = Array.from(allMap.values());
+		} else {
+			const nonBlockedPermissions = sharedPermissions.filter((p: any) => p.status !== "blocked");
+			const permsMap = new Map<string, any>();
+			for (const p of nonBlockedPermissions) {
+				if (p.box) {
+					permsMap.set(p.box.id, p.box);
+				}
+			}
+			allBoxes = Array.from(permsMap.values());
+			boxes = [];
+		}
+
+		const firstConnectedBox = (processedConnectedBoxes[0] as any) || null;
+		let handler_status = "disconnected";
+		if (firstConnectedBox) {
+			handler_status = firstConnectedBox.power_status === "off" ? "offline"
+				: firstConnectedBox.connection_status === "connected" ? "connected" : "disconnected";
+		}
+
+		return {
+			...rest,
+			department: department ? { id: department.id, name: department.name, full_address: department.full_address, status: department.status } : null,
+			handler_status,
+			handler_employee: {
+				...rest,
+				employee_id: rest.employee_display_id,
+			},
+			handler_box: firstConnectedBox,
+			connected_boxes_status: processedConnectedBoxes.length > 0,
+			connected_boxes_count: processedConnectedBoxes.length,
+			connected_boxes: processedConnectedBoxes,
+			shared_boxes_count: allBoxes.length,
+			shared_boxes: allBoxes,
+			boxes,
+			boxes_count: boxes.length,
+			all_boxes: allBoxes,
+			all_boxes_count: allBoxes.length,
+		};
+	});
+
 	return {
-		employees: employeesResponse.value,
+		employees: processedEmployees,
 		count: employeesCountResponse.value,
 	};
 };
@@ -803,11 +909,24 @@ export const getMedicalEmployeeById = async (
 		},
 		omit: { password: true },
 		include: {
-			department: true,
+			department: {
+				include: {
+					department_boxes: {
+						where: { status: "shared" },
+						include: {
+							box: {
+								include: {
+									telemetry: true,
+								},
+							},
+						},
+					},
+				},
+			},
 			employee_boxes: {
 				take: 20,
 				orderBy: { created_at: "desc" },
-				include: { box: true },
+				include: { box: { include: { telemetry: true } } },
 			},
 		},
 	});
@@ -829,7 +948,7 @@ interface UpdateMedicalEmployeeByIdArgs {
 	employee_display_id?: string;
 	joining_date?: Date;
 	email?: string;
-	role?: "manager" | "delivery";
+	role?: "manager" | "handler";
 	department_id?: string | null;
 }
 
@@ -991,7 +1110,7 @@ export const reassignMedicalEmployee = async (
 	let skippedManagersCount = 0;
 
 	if (department_id) {
-		const targetDepartment = await prisma.vertical_medical_department.findUnique({
+		const targetDepartment = await prisma.vertical_medical_department.findFirst({
 			where: { id: department_id, client_id },
 		});
 		if (!targetDepartment) {
@@ -1030,7 +1149,7 @@ export const reassignMedicalEmployee = async (
 				: "All selected employees are already unassigned.",
 			undefined,
 			undefined,
-			400
+			400,
 		);
 	}
 

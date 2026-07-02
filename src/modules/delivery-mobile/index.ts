@@ -54,10 +54,15 @@ import {
 	requestLockOtpHandler,
 	updateBoxSettingsHandler,
 	verifyLockOtpHandler,
+	lockBoxHandler,
 } from "@/modules/delivery-mobile/handlers/box";
+import {
+	getNotificationsHandler,
+	markNotificationsHandler,
+	testTriggerNotificationHandler,
+} from "@/modules/delivery-mobile/handlers/notification";
 
 export const deliveryMobileRouter = new Hono();
-
 
 deliveryMobileRouter.onError(globalErrorHandler);
 
@@ -164,3 +169,11 @@ deliveryMobileRouter.post("/boxes/:box_id/connection", ...connectBoxHandler);
 deliveryMobileRouter.delete("/boxes/:box_id/connection", ...disconnectBoxHandler);
 deliveryMobileRouter.post("/boxes/:box_id/lock/otp", ...requestLockOtpHandler);
 deliveryMobileRouter.post("/boxes/:box_id/lock/verify", ...verifyLockOtpHandler);
+deliveryMobileRouter.patch("/boxes/:box_id/lock", ...lockBoxHandler);
+
+/**
+ * Base route: /api/v1/delivery-mobile/notification
+ */
+deliveryMobileRouter.get("/notification", ...getNotificationsHandler);
+deliveryMobileRouter.patch("/notification", ...markNotificationsHandler);
+deliveryMobileRouter.post("/notification/test-trigger", ...testTriggerNotificationHandler);

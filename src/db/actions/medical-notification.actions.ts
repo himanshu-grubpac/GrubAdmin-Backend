@@ -4,6 +4,7 @@ import { getNotifications as getSharedNotifications } from "@/db/actions/notific
 
 export interface GetMedicalNotificationsParams {
 	client_id: string;
+	vertical_id?: string;
 	page?: number;
 	limit?: number;
 	types?: notification_type[];
@@ -17,6 +18,7 @@ export interface GetMedicalNotificationsParams {
 export const getMedicalNotifications = async (params: GetMedicalNotificationsParams) => {
 	const {
 		client_id,
+		vertical_id,
 		page = 1,
 		limit,
 		types,
@@ -30,6 +32,7 @@ export const getMedicalNotifications = async (params: GetMedicalNotificationsPar
 	if (!department_ids?.length) {
 		return getSharedNotifications({
 			client_id,
+			vertical_id,
 			page,
 			limit,
 			types,
@@ -42,6 +45,7 @@ export const getMedicalNotifications = async (params: GetMedicalNotificationsPar
 
 	const where: Prisma.notificationWhereInput = {
 		client_id,
+		...(vertical_id && { vertical_id }),
 		...(types && types.length > 0 && { type: { in: types } }),
 		...(is_read !== undefined && { is_read }),
 		is_dismissed: is_dismissed ?? false,
@@ -86,7 +90,7 @@ export const getMedicalNotifications = async (params: GetMedicalNotificationsPar
 	]);
 
 	const unread_count = await prisma.notification.count({
-		where: { client_id, is_read: false, is_dismissed: false },
+		where: { client_id, ...(vertical_id && { vertical_id }), is_read: false, is_dismissed: false },
 	});
 
 	return { notifications, count, unread_count };

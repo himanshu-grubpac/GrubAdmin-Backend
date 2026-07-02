@@ -71,11 +71,12 @@ export const resolveDriverBoxById = async (args: {
 export const listDriverBoxes = async (
 	employee_id: string,
 	client_id: string,
+	include_historical: boolean = false,
 ): Promise<MobileBoxSummary[]> => {
 	const assignments = await prisma.vertical_delivery_employee_box.findMany({
 		where: {
 			employee_id,
-			status: "shared",
+			status: include_historical ? { in: ["shared", "unlinked"] } : "shared",
 			box: {
 				client_id,
 				status: { not: "suspended" },
@@ -176,14 +177,18 @@ export const unlinkDriverBox = async (args: {
 	const { box } = await resolveDriverBoxById(args);
 
 	await prisma.$transaction(async (tx) => {
-		const deleted = await tx.vertical_delivery_employee_box.deleteMany({
+		const updated = await tx.vertical_delivery_employee_box.updateMany({
 			where: {
 				box_id: box.id,
 				employee_id: args.employee_id,
 			},
+			data: {
+				status: "unlinked",
+				unlinked_at: new Date(),
+			},
 		});
 
-		if (deleted.count === 0) {
+		if (updated.count === 0) {
 			throw new APIError(undefined, "delivery.box.NOT_FOUND", undefined, 404);
 		}
 

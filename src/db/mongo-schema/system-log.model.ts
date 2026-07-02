@@ -12,6 +12,7 @@ export interface SystemLogModel extends Document {
 		ip?: string;
 	};
 	client_id?: string;
+	vertical_id?: string;
 	subject?: {
 		id?: string;
 		name?: string;
@@ -49,6 +50,7 @@ const systemLogSchema = new Schema<SystemLogModel>(
 			ip: { type: String },
 		},
 		client_id: { type: String, index: true },
+		vertical_id: { type: String, index: true },
 		subject: {
 			id: { type: String },
 			name: { type: String },

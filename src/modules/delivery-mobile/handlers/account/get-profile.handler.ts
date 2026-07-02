@@ -15,7 +15,7 @@ interface ProfileResponse {
     mobile_number: string;
     employee_id: string | null;
     role: string;
-    joining_date: Date | null;
+    joining_date: string | null;
     profile_pic: string | null;
     boxes?: box[];
     organization_name?: string | null;
@@ -68,10 +68,16 @@ export const getProfileHandler = createHandlers(
                     ? null
                     : (employee.employee as any).employee_display_id,
             role: employee.type,
-            joining_date:
-                employee.type === "admin"
-                    ? null
-                    : (employee.employee as any).joining_date,
+            joining_date: (() => {
+                if (employee.type === "admin") return null;
+                const date = (employee.employee as any).joining_date;
+                if (!date) return null;
+                return new Intl.DateTimeFormat('en-GB', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric'
+                }).format(new Date(date));
+            })(),
             profile_pic: (employee.employee as any).profile_pic ?? null,
             boxes,
             organization_name: null,

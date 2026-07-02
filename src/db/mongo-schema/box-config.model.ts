@@ -12,6 +12,7 @@ import {
 
 export type BoxConfigModel = Document & {
 	box_id: string;
+	client_id: string | null;
 	power_on: boolean;
 	is_connected: boolean;
 	grublock: GrublockStatusType;
@@ -43,6 +44,11 @@ const boxConfigSchema = new Schema<BoxConfigModel>(
 			type: String,
 			required: true,
 			unique: true,
+		},
+		client_id: {
+			type: String,
+			default: null,
+			index: true,
 		},
 		power_on: {
 			type: Boolean,

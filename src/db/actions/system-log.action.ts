@@ -13,6 +13,7 @@ interface GetLogsArgs {
 	page?: number;
 	page_size?: number;
 	client_id?: string; // Optional for global admin
+	vertical_id?: string;
 	log_id?: string;
 }
 
@@ -28,6 +29,7 @@ export const getSystemLogs = async (args: GetLogsArgs) => {
 		page,
 		page_size,
 		client_id,
+		vertical_id,
 		log_id,
 		filters,
 	} = args;
@@ -36,6 +38,7 @@ export const getSystemLogs = async (args: GetLogsArgs) => {
 	const andConditions: any[] = [];
 
 	if (client_id) filter.client_id = client_id;
+	if (vertical_id) filter.vertical_id = vertical_id;
 	if (log_id) filter._id = log_id;
 	
 	if (filters && filters.length > 0) {

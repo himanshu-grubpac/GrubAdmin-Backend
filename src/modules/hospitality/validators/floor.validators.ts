@@ -121,7 +121,7 @@ export const getFloorsRequestQueryValidator = zValidator(
 		page_size: z.coerce.number().int().min(1).max(100, "Page size cannot exceed 100").optional(),
 		limit: z.coerce.number().int().min(1).max(100, "Limit cannot exceed 100").optional(),
 		status: z
-			.union([z.literal("active"), z.literal("suspended")], {
+			.union([z.literal("active"), z.literal("suspended"), z.literal("all")], {
 				error: "Please provide a valid status",
 			})
 			.nullable()

@@ -132,10 +132,10 @@ export const getFaqQuestions = async (
 			publishing_status:
 				publishing_status === "all" ? undefined : publishing_status,
 			status: state,
-			categories: category_id
+			categories: category_id || vertical_id
 				? {
 					some: {
-						category_id,
+						category_id: category_id || undefined,
 						category: vertical_id
 							? {
 								vertical_id,

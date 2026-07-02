@@ -295,6 +295,7 @@ model vertical_delivery_employee_box {
   box_id      String
   created_at  DateTime                     @default(now())
   updated_at  DateTime                     @updatedAt
+  unlinked_at DateTime?
   status      employee_box_status          @default(shared)
   access      employee_box_access          @default(direct)
   box         box                          @relation("vertical_delivery_employee_boxes", fields: [box_id], references: [id], onDelete: Cascade)
@@ -416,10 +417,12 @@ model box_lock {
 model notification {
   id              String            @id @default(ulid())
   client_id       String
+  vertical_id     String?
   box_id          String?
   box_display_id  String?
   box_name        String?
   restaurant_name String?
+  category        notification_category?
   type            notification_type @default(notification)
   title           String
   description     String            @db.Text
@@ -430,6 +433,7 @@ model notification {
   client          client            @relation(fields: [client_id], references: [id], onDelete: Cascade)
 
   @@index([client_id])
+  @@index([vertical_id])
   @@index([box_id])
   @@index([is_read])
   @@index([is_dismissed])
@@ -507,6 +511,7 @@ enum restaurant_box_status {
 enum employee_box_status {
   shared
   blocked
+  unlinked
 }
 
 enum employee_box_access {
@@ -738,6 +743,14 @@ enum delivery_consumer_status {
   pending
   delivered
   cancelled
+}
+
+enum notification_category {
+  camera
+  battery
+  lock
+  display
+  other
 }
 
 enum notification_type {

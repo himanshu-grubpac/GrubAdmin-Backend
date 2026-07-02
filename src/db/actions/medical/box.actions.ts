@@ -1,6 +1,9 @@
 import { prisma } from "@/db";
 import { APIError } from "@/types/error";
 import { BoxConfig } from "@/db/mongo-schema";
+import { loggerService } from "@/services/system-log.ts";
+import { ulid } from "ulid";
+import type { box_lock_status } from "@/db/types";
 
 interface GetMedicalBoxesArgs {
 	page?: number;
@@ -37,6 +40,7 @@ export const getMedicalBoxes = async (args: GetMedicalBoxesArgs) => {
 		connection_status,
 		power_status,
 		health_status,
+		permission_status,
 	} = args;
 
 	const where: any = {
@@ -83,10 +87,43 @@ export const getMedicalBoxes = async (args: GetMedicalBoxesArgs) => {
 	}
 
 	if (employee_id) {
+		const employee = await prisma.vertical_medical_employee.findUnique({
+			where: { id: employee_id, client_id },
+			select: { role: true, department_id: true },
+		});
+
+		if (employee?.role === "manager") {
+			if (!employee.department_id) {
+				where.id = { in: [] };
+			} else if (permission_status === "blocked") {
+				where.medical_employee_boxes = {
+					some: { employee_id, status: "blocked" },
+				};
+			} else {
+				where.medical_department_boxes = {
+					some: { department_id: employee.department_id },
+				};
+				where.NOT = {
+					medical_employee_boxes: {
+						some: { employee_id, status: "blocked" },
+					},
+				};
+			}
+		} else {
+			if (employee?.department_id) {
+				where.OR = [
+					{ medical_department_boxes: { some: { department_id: employee.department_id } } },
+					{ medical_employee_boxes: { some: { employee_id } } },
+				];
+			} else {
+				where.medical_employee_boxes = {
+					some: { employee_id },
+				};
+			}
+		}
+	} else if (permission_status) {
 		where.medical_employee_boxes = {
-			some: {
-				employee_id,
-			},
+			some: { status: permission_status as any },
 		};
 	}
 
@@ -96,6 +133,7 @@ export const getMedicalBoxes = async (args: GetMedicalBoxesArgs) => {
 		take: limit || undefined,
 		orderBy: { created_at: "desc" },
 		include: {
+			lock: true,
 			telemetry: true,
 			medical_department_boxes: {
 				include: {
@@ -115,6 +153,15 @@ export const getMedicalBoxes = async (args: GetMedicalBoxesArgs) => {
 						},
 					},
 				},
+			},
+			medical_consumer_boxes: {
+				include: {
+					consumer: true,
+				},
+				orderBy: {
+					created_at: "desc",
+				},
+				take: 1,
 			},
 			medical_connection_employee: {
 				select: {
@@ -139,8 +186,17 @@ export const getMedicalBoxes = async (args: GetMedicalBoxesArgs) => {
 		throw new APIError(String(boxesCountResponse.reason), undefined, undefined, 400);
 	}
 
+	const boxes = boxesResponse.value.map((box: any) => {
+		const { lock, medical_consumer_boxes, ...boxData } = box;
+		return {
+			...boxData,
+			grublock_status: lock?.lock_status || "unlocked",
+			consumer_info: medical_consumer_boxes?.[0]?.consumer || null,
+		};
+	});
+
 	return {
-		boxes: boxesResponse.value,
+		boxes,
 		count: boxesCountResponse.value,
 	};
 };
@@ -154,9 +210,10 @@ interface GetMedicalBoxDetailsArgs {
 export const getMedicalBoxDetails = async (args: GetMedicalBoxDetailsArgs) => {
 	const { id, client_id, with_permission_for_employee_id } = args;
 
-	const box = await prisma.box.findFirst({
+	const rawBox = await prisma.box.findFirst({
 		where: { id, client_id },
 		include: {
+			lock: true,
 			telemetry: true,
 			medical_department_boxes: {
 				include: {
@@ -177,6 +234,15 @@ export const getMedicalBoxDetails = async (args: GetMedicalBoxDetailsArgs) => {
 					},
 				},
 			},
+			medical_consumer_boxes: {
+				include: {
+					consumer: true,
+				},
+				orderBy: {
+					created_at: "desc",
+				},
+				take: 1,
+			},
 			medical_connection_employee: {
 				select: {
 					id: true,
@@ -187,11 +253,17 @@ export const getMedicalBoxDetails = async (args: GetMedicalBoxDetailsArgs) => {
 		},
 	});
 
-	if (!box) {
+	if (!rawBox) {
 		throw new APIError(undefined, "medical.box.NOT_FOUND", undefined, 404);
 	}
 
-	return box;
+	const { lock, medical_consumer_boxes, ...box } = rawBox;
+
+	return {
+		...box,
+		grublock_status: lock?.lock_status || "unlocked",
+		consumer_info: medical_consumer_boxes?.[0]?.consumer || null,
+	};
 };
 
 interface SearchMedicalBoxesArgs {
@@ -667,4 +739,133 @@ export const getMedicalDashboardMetrics = async (client_id: string) => {
 		active_cold_chain_count,
 		temperature_alarm_count,
 	};
+};
+
+export const updateMedicalBoxLockStatus = async (args: {
+	ids: string[];
+	lock_status: string;
+	user: { id: string; email: string; name: string } & Record<string, any>;
+	reason?: string;
+	client_id: string;
+	consumer?: {
+		full_name: string;
+		country_code: string;
+		phone: string;
+	};
+}) => {
+	const { ids, lock_status, user, reason, client_id, consumer } = args;
+
+	return await prisma.$transaction(async (tx) => {
+		const boxes = await tx.box.findMany({
+			where: {
+				id: { in: ids },
+				client_id: client_id,
+				NOT: { status: "suspended" },
+			},
+			select: { id: true },
+		});
+
+		const validIds = boxes.map((b) => b.id);
+
+		if (validIds.length === 0) {
+			throw new APIError("No valid boxes found to update", undefined, undefined, 404);
+		}
+
+		await tx.box_lock.updateMany({
+			where: {
+				box_id: { in: validIds },
+			},
+			data: {
+				lock_status: lock_status as box_lock_status,
+			},
+		});
+
+		if (lock_status === "locked" || lock_status === "unlocked") {
+			await BoxConfig.updateMany(
+				{ box_id: { $in: validIds } },
+				{ $set: { grublock: lock_status } },
+			);
+		}
+
+		if (lock_status === "locked") {
+			if (consumer && consumer.full_name) {
+				const country_code = consumer.country_code || "";
+				const phone = consumer.phone || "";
+
+				const consumerRecord = await tx.vertical_medical_consumer.upsert({
+					where: {
+						phone_country_code: {
+							phone,
+							country_code,
+						},
+					},
+					update: {
+						full_name: consumer.full_name,
+						status: "pending",
+						client_id,
+					},
+					create: {
+						full_name: consumer.full_name,
+						country_code,
+						phone,
+						status: "pending",
+						client_id,
+					},
+				});
+
+				await tx.vertical_medical_consumer_box.createMany({
+					data: validIds.map((box_id) => ({
+						id: ulid(),
+						box_id,
+						consumer_id: consumerRecord.id,
+					})),
+				});
+			}
+		} else if (lock_status === "unlocked") {
+			const consumerLinks = await tx.vertical_medical_consumer_box.findMany({
+				where: { box_id: { in: validIds } },
+			});
+
+			const consumerIds = Array.from(new Set(consumerLinks.map((l) => l.consumer_id)));
+			if (consumerIds.length > 0) {
+				await tx.vertical_medical_consumer.updateMany({
+					where: {
+						id: { in: consumerIds },
+						status: "pending",
+					},
+					data: { status: "delivered" },
+				});
+			}
+		}
+
+		for (const boxId of validIds) {
+			const box = await tx.box.findUnique({ where: { id: boxId } });
+			await loggerService.log({
+				category: "GrubLock",
+				type: lock_status === "unlocked" && reason ? "Emergency unlock" : "Status",
+				actor: {
+					id: user.id,
+					name: user.name,
+					role: (user as any).role,
+					table: (user as any).type === "admin" ? "client" : "vertical_medical_employee",
+					ip: (user as any).ip,
+				},
+				client_id: (user as any).client_id || client_id,
+				vertical_id: (user as any).vertical_id,
+				subject: {
+					id: boxId,
+					name: box?.name || "Unknown Box",
+					type: "box",
+				},
+				metadata: {
+					action: lock_status === "unlocked" ? (reason ? "emergency_unlock" : "unlock") : "lock",
+					reason: reason ?? null,
+					lock_status,
+					recipient: consumer ? `${consumer.full_name}, ${consumer.phone}` : "No Recepient Info",
+				},
+			});
+		}
+
+		return { count: validIds.length };
+	});
 };

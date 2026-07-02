@@ -7,3 +7,4 @@ export * from "./connect-box.handler";
 export * from "./disconnect-box.handler";
 export * from "./request-lock-otp.handler";
 export * from "./verify-lock-otp.handler";
+export * from "./lock-box.handler";

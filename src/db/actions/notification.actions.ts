@@ -3,6 +3,7 @@ import type { notification_type, Prisma } from "@/db/types";
 
 export interface GetNotificationsParams {
 	client_id: string;
+	vertical_id?: string;
 	page?: number;
 	limit?: number;
 	types?: notification_type[];
@@ -15,6 +16,7 @@ export interface GetNotificationsParams {
 
 export interface MarkNotificationsParams {
 	client_id: string;
+	vertical_id?: string;
 	/** Specific IDs to mark. If omitted, all notifications for the client are marked. */
 	ids?: string[];
 	is_read?: boolean;
@@ -23,6 +25,7 @@ export interface MarkNotificationsParams {
 
 export interface CreateNotificationParams {
 	client_id: string;
+	vertical_id?: string;
 	box_id?: string;
 	box_display_id?: string;
 	box_name?: string;
@@ -36,6 +39,7 @@ export interface CreateNotificationParams {
 
 export const getNotifications = async ({
 	client_id,
+	vertical_id,
 	page = 1,
 	limit,
 	types,
@@ -47,6 +51,7 @@ export const getNotifications = async ({
 }: GetNotificationsParams) => {
 	const where: Prisma.notificationWhereInput = {
 		client_id,
+		...(vertical_id && { vertical_id }),
 		...(types && types.length > 0 && { type: { in: types } }),
 		...(is_read !== undefined && { is_read }),
 		is_dismissed: is_dismissed ?? false,
@@ -100,9 +105,9 @@ export const getNotifications = async ({
 	return { notifications, count, unread_count };
 };
 
-export const getUnreadNotificationsCount = async (client_id: string) => {
+export const getUnreadNotificationsCount = async (client_id: string, vertical_id?: string) => {
 	return prisma.notification.count({
-		where: { client_id, is_read: false, is_dismissed: false },
+		where: { client_id, ...(vertical_id && { vertical_id }), is_read: false, is_dismissed: false },
 	});
 };
 
@@ -110,12 +115,14 @@ export const getUnreadNotificationsCount = async (client_id: string) => {
 
 export const markNotifications = async ({
 	client_id,
+	vertical_id,
 	ids,
 	is_read,
 	is_dismissed,
 }: MarkNotificationsParams) => {
 	const where: Prisma.notificationWhereInput = {
 		client_id,
+		...(vertical_id && { vertical_id }),
 		...(ids && ids.length > 0 ? { id: { in: ids } } : { is_dismissed: false }),
 	};
 

@@ -21,10 +21,10 @@ const createEmployeeCommonFields = {
 		.min(1, "Employee id is required")
 		.max(50, "Employee ID cannot exceed 50 characters"),
 	role: z.union(
-		[z.literal("manager"), z.literal("handler")],
+		[z.literal("manager"), z.literal("handler"), z.literal("delivery")],
 		"Please provide a valid role",
 	),
-	department_id: z.ulid("Please provide a valid department id").nullable().optional(),
+	department_id: z.ulid("Please provide a valid department id").nullable().optional().or(z.literal("")),
 };
 
 export const createEmployeeRequestBodyValidator = zValidator(
@@ -64,7 +64,7 @@ export const getEmployeesRequestQueryValidator = zValidator(
 		page_size: z.coerce.number().int().min(1).optional(),
 		limit: z.coerce.number().int().min(1).optional(),
 		role: z
-			.union([z.literal("manager"), z.literal("handler")], "Please provide a valid role")
+			.union([z.literal("manager"), z.literal("handler"), z.literal("delivery")], "Please provide a valid role")
 			.nullable()
 			.optional()
 			.or(z.literal("")),
@@ -72,9 +72,9 @@ export const getEmployeesRequestQueryValidator = zValidator(
 			.union(
 				[
 					z
-						.union([z.literal("manager"), z.literal("handler")])
+						.union([z.literal("manager"), z.literal("handler"), z.literal("delivery")])
 						.array(),
-					z.union([z.literal("manager"), z.literal("handler")]),
+					z.union([z.literal("manager"), z.literal("handler"), z.literal("delivery")]),
 				],
 				"Please provide a valid role",
 			)
@@ -104,6 +104,9 @@ export const getEmployeesRequestQueryValidator = zValidator(
 			.optional()
 			.or(z.literal("")),
 		group_by: z.enum(["departments", "boxes"]).optional(),
+		group_by_departments_has_handler: z.coerce.number().optional(),
+		with_permission_for_box_id: z.string().ulid("Please provide a valid box id").optional().or(z.literal("")),
+		with_employees_for_access_mode: z.enum(["public", "all_employees", "department_employees"]).optional(),
 		with_connected_boxes: z.union([z.string(), z.boolean(), z.number()]).optional().transform(v => v === "true" || v === true || v === "1" || v === 1),
 		group_by_selected_table: z.string().optional(),
 	}).refine((data) => {

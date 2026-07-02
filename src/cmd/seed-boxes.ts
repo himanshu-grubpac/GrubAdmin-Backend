@@ -208,7 +208,7 @@ export const seedBoxes = async (): Promise<void> => {
 
       const existingConfig = await BoxConfig.findOne({ box_id: box.id });
       if (!existingConfig) {
-        await BoxConfig.create({ box_id: box.id });
+        await BoxConfig.create({ box_id: box.id, client_id: boxData.client_id ?? null });
       }
 
       logger.info(`  Box "${boxDef.box_display_id}" created with telemetry, lock, config.`);

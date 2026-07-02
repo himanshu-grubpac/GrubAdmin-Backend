@@ -31,6 +31,8 @@ export const createEmployeeHandler = createHandlers(
 
 		const { client_id } = context.var;
 
+		const normalizedRole = role === "delivery" ? "handler" : role;
+
 		const employee = await createMedicalEmployee({
 			first_name,
 			last_name,
@@ -40,7 +42,7 @@ export const createEmployeeHandler = createHandlers(
 			department_id,
 			client_id,
 			employee_display_id: employee_id,
-			role,
+			role: normalizedRole,
 			joining_date,
 		});
 

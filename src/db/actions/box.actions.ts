@@ -189,8 +189,9 @@ export const createBox = async (args: CreateBoxArgs) => {
 	});
 
 	requireMongoDB("BoxConfig.create");
-	const boxConfig = await BoxConfig.create({
+	await BoxConfig.create({
 		box_id: box.id,
+		client_id: args.client_id ?? null,
 	});
 
 	await prisma.box_lock.create({
@@ -343,6 +344,25 @@ export const toggleAssignBoxes = async (args: ToggleAssignBoxesArgs) => {
 					throw new APIError(undefined, "delivery.box.VERTICAL_MISMATCH", undefined, 400);
 				}
 			}
+		}
+
+		// Sync BoxConfig.client_id to match assignment state
+		try {
+			if (client_id) {
+				requireMongoDB("BoxConfig.updateMany");
+				await BoxConfig.updateMany(
+					{ box_id: { $in: box_ids } },
+					{ $set: { client_id } },
+				);
+			} else {
+				requireMongoDB("BoxConfig.updateMany");
+				await BoxConfig.updateMany(
+					{ box_id: { $in: box_ids } },
+					{ $unset: { client_id: "" } },
+				);
+			}
+		} catch (err) {
+			logger.warn(`MongoDB BoxConfig update failed during box assignment: ${err}`);
 		}
 
 		// Single source of truth for this module’s "assignment" UI is box.client_id.
@@ -1154,6 +1174,7 @@ export const createVerticalDeliveryGrubpac = async (args: CreateVerticalDelivery
 		requireMongoDB("BoxConfig.create");
 		await BoxConfig.create({
 			box_id: box.id,
+			client_id,
 		});
 
 		return box;

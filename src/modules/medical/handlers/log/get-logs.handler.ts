@@ -18,7 +18,7 @@ export const getSystemLogsHandler = createHandlers(
 	medicalAuthGuard(["admin", "manager"]),
 	getSystemLogsRequestQueryValidator,
 	async (context) => {
-		const { client_id } = context.var;
+		const { client_id, vertical_id } = context.var;
 		const { category, type, actor_id, subject_id, search, start_date, end_date, page, limit } =
 			context.req.valid("query");
 
@@ -33,6 +33,7 @@ export const getSystemLogsHandler = createHandlers(
 			page,
 			page_size: limit,
 			client_id,
+			vertical_id,
 		});
 
 		const response = {
@@ -55,7 +56,7 @@ export const searchSystemLogsHandler = createHandlers(
 	medicalAuthGuard(["admin", "manager"]),
 	searchSystemLogsRequestBodyValidator,
 	async (context) => {
-		const { client_id } = context.var;
+		const { client_id, vertical_id } = context.var;
 		const { filters, actor_id, subject_id, search, start_date, end_date, page, limit } =
 			context.req.valid("json");
 
@@ -69,6 +70,7 @@ export const searchSystemLogsHandler = createHandlers(
 			page,
 			page_size: limit,
 			client_id,
+			vertical_id,
 		});
 
 		const response = {
