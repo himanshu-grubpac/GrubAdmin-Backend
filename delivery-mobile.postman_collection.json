@@ -1487,6 +1487,264 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "Simulator",
+      "item": [
+        {
+          "name": "Update State (Heartbeat)",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"connection_status\": \"strong\",\n  \"battery_1_level\": 80,\n  \"battery_2_level\": 80,\n  \"battery_level\": 80,\n  \"ambient_temp\": 32,\n  \"zone_1_temp\": 4.2,\n  \"zone_2_temp\": 4.5,\n  \"gps_available\": true,\n  \"latitude\": 28.6139,\n  \"longitude\": 77.209,\n  \"solar_panel\": false,\n  \"220V_110V_port\": true,\n  \"Memorycard_used\": 0.15,\n  \"gyrosensor\": \"ok\",\n  \"turn_signals\": \"ok\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/v1/simulator/boxes/{{box_id}}/state",
+              "host": [
+                "http://localhost:8000"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "simulator",
+                "boxes",
+                "{{box_id}}",
+                "state"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Lock Box",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/v1/simulator/boxes/{{box_id}}/lock",
+              "host": [
+                "http://localhost:8000"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "simulator",
+                "boxes",
+                "{{box_id}}",
+                "lock"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Unlock Box",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/v1/simulator/boxes/{{box_id}}/unlock",
+              "host": [
+                "http://localhost:8000"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "simulator",
+                "boxes",
+                "{{box_id}}",
+                "unlock"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Trigger Alert",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"box_id\": \"01KV...\",\n  \"category\": \"battery\",\n  \"type\": \"warning\",\n  \"title\": \"Low Battery Alert\",\n  \"description\": \"Battery level is under 15%\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/v1/simulator/boxes/{{box_id}}/events/trigger-alert",
+              "host": [
+                "http://localhost:8000"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "simulator",
+                "boxes",
+                "{{box_id}}",
+                "events",
+                "trigger-alert"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8000/api/v1/simulator/boxes/{{box_id}}/health",
+              "host": [
+                "http://localhost:8000"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "simulator",
+                "boxes",
+                "{{box_id}}",
+                "health"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Box by Display ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8000/api/v1/simulator/boxes/display/{{display_id}}",
+              "host": [
+                "http://localhost:8000"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "simulator",
+                "boxes",
+                "display",
+                "{{display_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Driver Settings Mock",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"is_power_on\": true,\n  \"is_dual_zone\": false,\n  \"zone_1_target_temp\": 13,\n  \"zone_2_target_temp\": 40,\n  \"zone_1_status\": true,\n  \"zone_2_status\": false,\n  \"saveToCard\": true,\n  \"Adas\": true,\n  \"BoxCam\": true,\n  \"advert_screen\": true,\n  \"ioniser\": false,\n  \"light_status\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/v1/simulator/boxes/{{box_id}}/settings",
+              "host": [
+                "http://localhost:8000"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "simulator",
+                "boxes",
+                "{{box_id}}",
+                "settings"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Connection Mock",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"driver_id\": \"USR_123ABCD\",\n  \"restaurant_id\": \"REST_987XYZ\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/v1/simulator/boxes/{{box_id}}/connection",
+              "host": [
+                "http://localhost:8000"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "simulator",
+                "boxes",
+                "{{box_id}}",
+                "connection"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Connection Mock",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8000/api/v1/simulator/boxes/{{box_id}}/connection",
+              "host": [
+                "http://localhost:8000"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "simulator",
+                "boxes",
+                "{{box_id}}",
+                "connection"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
     }
   ],
   "auth": {
@@ -1528,6 +1786,16 @@
     {
       "key": "authToken",
       "value": "your_jwt_auth_token_here",
+      "type": "string"
+    },
+    {
+      "key": "box_id",
+      "value": "INSERT_BOX_ID_HERE",
+      "type": "string"
+    },
+    {
+      "key": "display_id",
+      "value": "GP-1245",
       "type": "string"
     }
   ]

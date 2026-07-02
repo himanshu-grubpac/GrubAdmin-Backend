@@ -34,10 +34,8 @@ export const unlockBoxHandler = createHandlers(
 
 		return context.json<any>(
 			{
-				success: true,
-				code: 200,
-				message: "Box unlocked",
-				data: { status: "success" },
+				status: "success",
+				lock_status: "unlocked"
 			},
 			{ status: 200 }
 		);

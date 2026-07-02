@@ -16,14 +16,11 @@ export const triggerAlertHandler = createHandlers(
 			description: body.description,
 		});
 
-		return context.json<APIResponse<{ status: string }>>(
+		return context.json<any>(
 			{
-				success: true,
-				code: 201,
-				message: "Alert triggered successfully",
-				data: { status: "success" },
+				status: "success"
 			},
-			{ status: 201 }
+			{ status: 200 }
 		);
 	}
 );

@@ -1,18 +1,30 @@
 import { createHandlers } from "@/utils/hono-factory.ts";
-import { boxIdParamValidator } from "../validators/simulator.validators.ts";
+import { zValidator } from "@hono/zod-validator";
+import { z } from "zod";
+import { validatorErrorHandler } from "@/utils/zod";
 import { prisma } from "@/db";
 
-export const getHealthHandler = createHandlers(
-	boxIdParamValidator,
+export const getBoxByDisplayIdHandler = createHandlers(
+	zValidator(
+		"param",
+		z.object({ display_id: z.string().min(1, "Display ID is required") }),
+		(r) => {
+			if (!r.success) validatorErrorHandler(r.error);
+		}
+	),
 	async (context) => {
-		const { box_id } = context.req.valid("param");
+		const { display_id } = context.req.valid("param");
+
 		const box = await prisma.box.findUnique({
-			where: { id: box_id },
+			where: { box_display_id: display_id },
 			include: { telemetry: true, lock: true },
 		});
 
 		if (!box) {
-			return context.json<any>({ status: "error", message: "Box not found" }, { status: 404 });
+			return context.json<any>(
+				{ status: "error", message: "Box not found" },
+				{ status: 404 }
+			);
 		}
 
 		return context.json<any>(
