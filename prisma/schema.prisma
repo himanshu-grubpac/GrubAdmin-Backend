@@ -437,6 +437,8 @@ model notification {
   @@index([box_id])
   @@index([is_read])
   @@index([is_dismissed])
+  @@index([client_id, vertical_id, is_dismissed, created_at])
+  @@index([client_id, vertical_id, is_dismissed, is_read])
 }
 
 enum employee_status {

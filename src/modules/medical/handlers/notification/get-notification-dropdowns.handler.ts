@@ -6,9 +6,9 @@ import type { APIResponse } from "@/types/api";
 export const getNotificationDropdownsHandler = createHandlers(
 	medicalAuthGuard(),
 	async (context) => {
-		const { client_id } = context.var;
+		const { client_id, vertical_id } = context.var;
 
-		const dropdowns = await getMedicalNotificationDropdowns(client_id);
+		const dropdowns = await getMedicalNotificationDropdowns(client_id, vertical_id);
 
 		return context.json<APIResponse<typeof dropdowns>>(
 			{

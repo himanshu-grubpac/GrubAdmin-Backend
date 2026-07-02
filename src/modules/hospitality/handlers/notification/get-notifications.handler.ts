@@ -16,12 +16,13 @@ export const getNotificationsHandler = createHandlers(
 	hospitalityAuthGuard(),
 	getNotificationsRequestQueryValidator,
 	async (context) => {
-		const { client_id } = context.var;
+		const { client_id, vertical_id } = context.var;
 		const { page, limit, types, floor_ids, box_ids, search, is_read, is_dismissed } =
 			context.req.valid("query");
 
 		const { notifications, count, unread_count } = await getHospitalityNotifications({
 			client_id,
+			vertical_id,
 			page,
 			limit,
 			types,

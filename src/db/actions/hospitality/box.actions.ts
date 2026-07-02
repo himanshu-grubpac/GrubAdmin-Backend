@@ -477,10 +477,11 @@ export const actionHospitalityBoxes = async (args: ActionHospitalityBoxesArgs) =
 					boxFloorName = assign_floor_id ? floorName : "";
 				}
 
-				await tx.notification.create({
-					data: {
-						client_id,
-						box_id: box.id,
+			await tx.notification.create({
+				data: {
+					client_id,
+					vertical_id: box.vertical_id,
+					box_id: box.id,
 						box_display_id: box.box_display_id,
 						box_name: box.name || box.box_display_id,
 						restaurant_name: boxFloorName || null,

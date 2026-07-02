@@ -6,9 +6,9 @@ import type { APIResponse } from "@/types/api";
 export const getUnreadNotificationsCountHandler = createHandlers(
 	hospitalityAuthGuard(),
 	async (context) => {
-		const { client_id } = context.var;
+		const { client_id, vertical_id } = context.var;
 
-		const unread_count = await getUnreadNotificationsCount(client_id);
+		const unread_count = await getUnreadNotificationsCount(client_id, vertical_id);
 
 		return context.json<APIResponse<{ unread_count: number }>>(
 			{

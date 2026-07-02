@@ -4,6 +4,7 @@ import { getNotifications as getSharedNotifications } from "@/db/actions/notific
 
 export interface GetHospitalityNotificationsParams {
 	client_id: string;
+	vertical_id?: string;
 	page?: number;
 	limit?: number;
 	types?: notification_type[];
@@ -17,6 +18,7 @@ export interface GetHospitalityNotificationsParams {
 export const getHospitalityNotifications = async (params: GetHospitalityNotificationsParams) => {
 	const {
 		client_id,
+		vertical_id,
 		page = 1,
 		limit,
 		types,
@@ -30,6 +32,7 @@ export const getHospitalityNotifications = async (params: GetHospitalityNotifica
 	if (!floor_ids?.length) {
 		return getSharedNotifications({
 			client_id,
+			vertical_id,
 			page,
 			limit,
 			types,
@@ -42,6 +45,7 @@ export const getHospitalityNotifications = async (params: GetHospitalityNotifica
 
 	const where: Prisma.notificationWhereInput = {
 		client_id,
+		...(vertical_id && { vertical_id }),
 		...(types && types.length > 0 && { type: { in: types } }),
 		...(is_read !== undefined && { is_read }),
 		is_dismissed: is_dismissed ?? false,
@@ -67,7 +71,6 @@ export const getHospitalityNotifications = async (params: GetHospitalityNotifica
 			{ title: { contains: search } },
 			{ description: { contains: search } },
 			{ box_name: { contains: search } },
-			{ restaurant_name: { contains: search } },
 		];
 	}
 
@@ -86,20 +89,20 @@ export const getHospitalityNotifications = async (params: GetHospitalityNotifica
 	]);
 
 	const unread_count = await prisma.notification.count({
-		where: { client_id, is_read: false, is_dismissed: false },
+		where: { client_id, ...(vertical_id && { vertical_id }), is_read: false, is_dismissed: false },
 	});
 
 	return { notifications, count, unread_count };
 };
 
-export const getHospitalityNotificationDropdowns = async (client_id: string) => {
+export const getHospitalityNotificationDropdowns = async (client_id: string, vertical_id?: string) => {
 	const [floors, boxes] = await prisma.$transaction([
 		prisma.vertical_hospitality_floor.findMany({
 			where: { client_id },
 			select: { id: true, name: true },
 		}),
 		prisma.box.findMany({
-			where: { client_id },
+			where: { client_id, ...(vertical_id && { vertical_id }) },
 			select: { id: true, name: true, box_display_id: true },
 		}),
 	]);

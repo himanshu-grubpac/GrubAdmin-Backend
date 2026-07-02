@@ -6,7 +6,7 @@ import type { APIResponse } from "@/types/api";
 export const getNotificationDropdownsHandler = createHandlers(
     deliveryAuthGuard(),
     async (context) => {
-        const { client_id } = context.var;
+        const { client_id, vertical_id } = context.var;
 
         const [restaurants, boxes] = await prisma.$transaction([
             prisma.restaurant.findMany({
@@ -14,7 +14,7 @@ export const getNotificationDropdownsHandler = createHandlers(
                 select: { id: true, name: true }
             }),
             prisma.box.findMany({
-                where: { client_id },
+                where: { client_id, ...(vertical_id && { vertical_id }) },
                 select: { id: true, name: true, box_display_id: true }
             })
         ]);
