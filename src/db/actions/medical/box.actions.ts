@@ -44,7 +44,10 @@ export const getMedicalBoxes = async (args: GetMedicalBoxesArgs) => {
 	} = args;
 
 	const where: any = {
-		client_id,
+		OR: [
+			{ client_id },
+			{ medical_department_boxes: { some: { department: { client_id } } } },
+		],
 	};
 
 	if (status) {
