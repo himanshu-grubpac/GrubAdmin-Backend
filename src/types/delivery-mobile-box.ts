@@ -11,6 +11,10 @@ export interface MobileBoxSettings {
 	is_dual_zone: boolean;
 	zone_1_temp: number | null;
 	zone_2_temp: number | null;
+	zone_1_target_temp: number | null;
+	zone_2_target_temp: number | null;
+	zone_1_status: boolean;
+	zone_2_status: boolean;
 	advert_display_enabled: boolean;
 	ioniser_enabled: boolean;
 	light_enabled: boolean;
@@ -23,6 +27,13 @@ export interface MobileBoxDetails extends MobileBoxSummary {
 	connection_status: string | null;
 	power_status: string | null;
 	health_status: string | null;
+	battery_1_level: number | null;
+	battery_2_level: number | null;
+	is_charging: boolean;
+	wifi_connected: boolean;
+	bluetooth_available: boolean;
+	is_power_on: boolean;
+	is_driver_connected: boolean;
 	settings: MobileBoxSettings;
 }
 
