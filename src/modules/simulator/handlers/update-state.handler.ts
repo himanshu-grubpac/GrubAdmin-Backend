@@ -41,6 +41,7 @@ export const updateStateHandler = createHandlers(
 		if (body.is_charging !== undefined) mappedData.charging_status = body.is_charging ? "on" : "off";
 		if (body.zone_1_status !== undefined) mappedData.zone1_status = body.zone_1_status ? "on" : "off";
 		if (body.zone_2_status !== undefined) mappedData.zone2_status = body.zone_2_status ? "on" : "off";
+		if (body.is_dual_zone !== undefined) mappedData.dual_zone_status = body.is_dual_zone ? "on" : "off";
 		
 		if (body.bluetooth_available !== undefined) mappedData.bluetooth_status = body.bluetooth_available ? "on" : "off";
 		if (body.wifi_connected !== undefined) mappedData.wifi_status = body.wifi_connected ? "on" : "off";
