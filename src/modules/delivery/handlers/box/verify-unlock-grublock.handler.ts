@@ -3,10 +3,12 @@ import { createHandlers } from "@/utils/hono-factory.ts";
 import { deliveryAuthGuard } from "@/middlewares/auth";
 import { verifyUnlockGrublockRequestBodyValidator } from "delivery/validators/box.validators.ts";
 import { updateBoxLockStatus } from "@/db/actions/box.actions.ts";
-import { getSavedDeliveryEmployeeOtp, deleteSavedDeliveryEmployeeOtp } from "@/db/actions/otp.actions.ts";
+// import { getSavedDeliveryEmployeeOtp, deleteSavedDeliveryEmployeeOtp } from "@/db/actions/otp.actions.ts";
+import { APIError } from "@/types/error";
 import { createNotification } from "@/db/actions/notification.actions.ts";
 import type { APIResponse } from "@/types/api";
-import { APIError } from "@/utils/error-factory.ts";
+import { getSavedDeliveryEmployeeOtp } from "@/db/actions/delivery-employee-otp.actions";
+// import { APIError } from "@/utils/error-factory.ts";
 
 export const verifyUnlockGrublockHandler = createHandlers(
  deliveryAuthGuard(["admin", "manager", "delivery"]),

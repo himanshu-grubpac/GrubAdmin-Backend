@@ -2,7 +2,7 @@ import { loggerService } from "@/services/system-log.ts";
 import { createHandlers } from "@/utils/hono-factory.ts";
 import { deliveryAuthGuard } from "@/middlewares/auth";
 import { unlockGrublockRequestBodyValidator } from "delivery/validators/box.validators.ts";
-import { saveDeliveryEmployeeOtp } from "@/db/actions/otp.actions.ts";
+import { saveDeliveryEmployeeOtp } from "@/db/actions/delivery-employee-otp.actions.ts";
 import { createNotification } from "@/db/actions/notification.actions.ts";
 import type { APIResponse } from "@/types/api";
 

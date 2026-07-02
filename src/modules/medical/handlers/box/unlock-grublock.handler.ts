@@ -1,7 +1,7 @@
 import { createHandlers } from "@/utils/hono-factory.ts";
 import { medicalAuthGuard } from "@/middlewares/auth";
 import { unlockGrublockRequestBodyValidator } from "medical/validators/box.validators.ts";
-import { saveMedicalEmployeeOtp } from "@/db/actions/otp.actions.ts";
+import { saveMedicalEmployeeOtp } from "@/db/actions/medical-otp.actions.ts";
 import { createNotification } from "@/db/actions/notification.actions.ts";
 import { loggerService } from "@/services/system-log.ts";
 import type { APIResponse } from "@/types/api";
