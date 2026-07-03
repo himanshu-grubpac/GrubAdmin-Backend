@@ -5,12 +5,12 @@ import { getVertical } from "@/db/actions/vertical.actions.ts";
 import { MEDICAL_VERTICAL_NAME } from "@/configs/constants.ts";
 import { APIError } from "@/types/error";
 import { getFaqCategory } from "@/db/actions/faq-category.actions.ts";
-import type { faq_category } from "@/db/types";
 import type { APIResponse } from "@/types/api";
+import { enrichFaqCategoriesResponse } from "@/utils/asset-url.ts";
 import { calculatePagination } from "@/utils/pagination.ts";
 
 interface ResponseData {
-	faq_categories: faq_category[];
+	faq_categories: (Record<string, unknown> & { icon_url: string })[];
 	count: number;
 }
 
@@ -36,13 +36,15 @@ export const getSupportCategoriesHandler = createHandlers(
 			state: "active",
 		});
 
+		const enrichedCategories = await enrichFaqCategoriesResponse(categoriesResponse.faq_categories as any);
+
 		return context.json<APIResponse<ResponseData>>(
 			{
 				success: true,
 				code: 200,
 				data: {
-					faq_categories: categoriesResponse.faq_categories,
-					count: categoriesResponse.faq_categories.length,
+					faq_categories: enrichedCategories,
+					count: categoriesResponse.count,
 				},
 				pagination: calculatePagination(page ?? 1, limit ?? categoriesResponse.count, categoriesResponse.count),
 			},
