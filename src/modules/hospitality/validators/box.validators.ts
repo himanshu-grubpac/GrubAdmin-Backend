@@ -1,15 +1,13 @@
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { validatorErrorHandler } from "@/utils/zod.ts";
+import { listPaginationFields, searchLimitField } from "@/validators/pagination";
 
 export const getBoxesRequestQueryValidator = zValidator(
 	"query",
 	z.object({
 		status: z.enum(["active", "suspended"]).nullable().optional().or(z.literal("")),
-		page_number: z.coerce.number().int().min(1).optional(),
-		page: z.coerce.number().int().min(1).optional(),
-		page_size: z.coerce.number().int().min(1).optional(),
-		limit: z.coerce.number().int().min(1).optional(),
+		...listPaginationFields,
 		query: z.string().trim().optional(),
 		search: z.string().trim().optional(),
 		group_by: z.enum(["lock_status", "power_status", "floors"]).optional(),
@@ -149,7 +147,7 @@ export const searchBoxesRequestQueryValidator = zValidator(
 	z.object({
 		query: z.string().trim().optional(),
 		search: z.string().trim().optional(),
-		limit: z.coerce.number().int().min(1).optional(),
+		...searchLimitField,
 		status: z.enum(["active", "suspended"]).optional(),
 	}).transform((data) => ({
 		...data,

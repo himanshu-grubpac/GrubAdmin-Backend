@@ -1,6 +1,7 @@
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { validatorErrorHandler } from "@/utils/zod.ts";
+import { pageLimitFields } from "@/validators/pagination";
 
 export const categoriesEnum = ["GrubPac", "Profile"] as const;
 export const typesEnum = [
@@ -56,8 +57,7 @@ export const searchSystemLogsRequestBodyValidator = zValidator(
 			}
 			return date;
 		}),
-		page: z.coerce.number().int().min(1).optional(),
-		limit: z.coerce.number().int().min(1).optional(),
+		...pageLimitFields,
 	}).transform((data) => ({
 		...data,
 		search: data.search ?? data.query,

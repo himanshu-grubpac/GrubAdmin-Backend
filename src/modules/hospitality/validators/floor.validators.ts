@@ -1,6 +1,7 @@
 import { validatorErrorHandler } from "@/utils/zod";
 import { zValidator } from "@hono/zod-validator";
 import z from "zod";
+import { listPaginationFields, searchLimitField } from "@/validators/pagination";
 
 export const createFloorRequestBodyValidator = zValidator(
 	"json",
@@ -116,10 +117,7 @@ export const getFloorsRequestQueryValidator = zValidator(
 	z.object({
 		query: z.string().trim().min(1, "Query is required").optional(),
 		search: z.string().trim().min(1, "Search is required").optional(),
-		page_number: z.coerce.number().int().min(1).optional(),
-		page: z.coerce.number().int().min(1).optional(),
-		page_size: z.coerce.number().int().min(1).max(100, "Page size cannot exceed 100").optional(),
-		limit: z.coerce.number().int().min(1).max(100, "Limit cannot exceed 100").optional(),
+		...listPaginationFields,
 		status: z
 			.union([z.literal("active"), z.literal("suspended"), z.literal("all")], {
 				error: "Please provide a valid status",
@@ -145,7 +143,7 @@ export const searchFloorsRequestQueryValidator = zValidator(
 	z.object({
 		query: z.string().trim().min(1, "Query is required").optional(),
 		search: z.string().trim().min(1, "Search is required").optional(),
-		limit: z.coerce.number().int().min(1).max(100, "Limit cannot exceed 100").optional(),
+		...searchLimitField,
 		status: z.string().optional().default("all"),
 	}).transform((data) => ({
 		...data,
