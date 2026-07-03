@@ -112,14 +112,6 @@ export const verifyTransferOwnershipHandler = createHandlers(
 					where: { client_id },
 					data: { client_id: targetClient.id },
 				});
-				await tx.vertical_hospitality_floor.updateMany({
-					where: { client_id },
-					data: { client_id: targetClient.id },
-				});
-				await tx.restaurant.updateMany({
-					where: { client_id },
-					data: { client_id: targetClient.id },
-				});
 			} else if (transfer_mode === "selected" && ids && ids.length > 0) {
 				await tx.box.updateMany({
 					where: { id: { in: ids }, client_id },
