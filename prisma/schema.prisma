@@ -554,6 +554,15 @@ model box_telemetry_latest {
   dual_zone_status      hardware_state?        @default(unknown)
   connection_status     box_connection_status? @default(unknown)
 
+  battery_1_percentage  Int?
+  battery_2_percentage  Int?
+  zone1_target_temp     Int?
+  zone2_target_temp     Int?
+  charging_status       hardware_state?        @default(unknown)
+  zone1_status          hardware_state?        @default(unknown)
+  zone2_status          hardware_state?        @default(unknown)
+  cellular_signal       String?
+
   updated_at DateTime @updatedAt
 
   box box @relation(fields: [box_id], references: [id], onDelete: Cascade)
