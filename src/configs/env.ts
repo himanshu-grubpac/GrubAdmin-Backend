@@ -22,6 +22,7 @@ export const MAIL_MIRROR_PASS = process.env.MAIL_MIRROR_PASS as string;
 export const AUTH_SECRET = process.env.AUTH_SECRET as string;
 export const DELIVERY_AUTH_SECRET = process.env.DELIVERY_AUTH_SECRET as string;
 export const MEDICAL_AUTH_SECRET = process.env.MEDICAL_AUTH_SECRET as string;
+export const HOSPITALITY_AUTH_SECRET = process.env.HOSPITALITY_AUTH_SECRET as string;
 
 // JWT Token Expiration Settings (in seconds)
 export const JWT_ACCESS_TOKEN_EXPIRY = parseInt(process.env.JWT_ACCESS_TOKEN_EXPIRY || "86400"); // Default: 24 hours

@@ -61,7 +61,7 @@ export const resetPasswordMagicLinkHandler = createHandlers(
 
 		await deleteSavedOtp(email);
 
-		const auth_token = JWT.signDeliveryAuthToken({
+		const auth_token = JWT.signHospitalityAuthToken({
 			role: "admin",
 			id: clientRecord.id,
 		});

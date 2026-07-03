@@ -205,6 +205,10 @@ export const MEDICAL_EMPLOYEE_ROLES = [
 	"handler",
 ] as const;
 
+export const HOSPITALITY_EMPLOYEE_ROLES = [
+	"admin",
+] as const;
+
 export const GrublockStatus = ["unlocked", "locked"] as const;
 
 export const SensorStatus = ["detected", "not_detected"] as const;

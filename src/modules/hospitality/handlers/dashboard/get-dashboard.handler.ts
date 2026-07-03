@@ -1,6 +1,6 @@
 import { createHandlers } from "@/utils/hono-factory.ts";
 import { hospitalityAuthGuard } from "@/middlewares/auth";
-import { getDeliveryEmployeeBoxes } from "@/db/actions/box.actions.ts";
+import { prisma } from "@/db";
 import { getHospitalityDashboardMetrics } from "@/db/actions/hospitality/box.actions";
 import type { APIResponse } from "@/types/api";
 
@@ -20,8 +20,13 @@ export const getDashboardHandler = createHandlers(
 		const { user, client_id } = context.var;
 
 		const is_password_set = !!user.password;
-		const boxes = await getDeliveryEmployeeBoxes(user.id);
-		const has_boxes = boxes.length > 0;
+		const has_boxes = (await prisma.box.count({
+			where: {
+				client_id,
+				status: "active",
+				hospitality_floor_boxes: { some: {} },
+			},
+		})) > 0;
 		const metrics = await getHospitalityDashboardMetrics(client_id);
 
 		return context.json<APIResponse<ResponseData>>(

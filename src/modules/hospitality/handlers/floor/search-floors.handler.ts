@@ -9,7 +9,7 @@ interface ResponseData {
 }
 
 export const searchFloorsHandler = createHandlers(
-	hospitalityAuthGuard(["admin", "manager"]),
+	hospitalityAuthGuard(["admin"]),
 	searchFloorsRequestQueryValidator,
 	async (context) => {
 		const { client_id } = context.var;

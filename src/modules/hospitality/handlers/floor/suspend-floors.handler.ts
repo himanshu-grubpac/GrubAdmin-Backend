@@ -49,7 +49,7 @@ export const suspendFloorsHandler = createHandlers(
 					id: user_id,
 					name: actorName,
 					role: type,
-					table: type === "admin" ? "client" : "vertical_delivery_employee",
+					table: type === "admin" ? "client" : "vertical_hospitality_employee",
 				},
 				client_id,
 				subject: {
