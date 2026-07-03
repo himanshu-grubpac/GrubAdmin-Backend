@@ -583,10 +583,12 @@ interface UpdateMedicalGrubpacArgs {
 	client_id: string;
 	name?: string;
 	department_ids?: string[];
+	blocked_employee_ids?: string[];
+	access_mode?: "public" | "all_employees" | "restaurant_employees";
 }
 
 export const updateMedicalGrubpac = async (args: UpdateMedicalGrubpacArgs) => {
-	const { id, client_id, name, department_ids } = args;
+	const { id, client_id, name, department_ids, blocked_employee_ids, access_mode } = args;
 
 	return prisma.$transaction(async (tx) => {
 		const box = await tx.box.findUnique({
@@ -637,12 +639,109 @@ export const updateMedicalGrubpac = async (args: UpdateMedicalGrubpacArgs) => {
 			}
 		}
 
+		if (blocked_employee_ids !== undefined) {
+			await tx.vertical_medical_employee_box.deleteMany({
+				where: {
+					box_id: id,
+					status: "blocked",
+					employee_id: { not: null },
+					...(blocked_employee_ids.length > 0
+						? { employee_id: { notIn: blocked_employee_ids } }
+						: {}),
+				},
+			});
+
+			if (blocked_employee_ids.length > 0) {
+				await Promise.all(
+					blocked_employee_ids.map((emp_id) =>
+						tx.vertical_medical_employee_box.upsert({
+							where: {
+								employee_id_box_id: {
+									employee_id: emp_id,
+									box_id: id,
+								},
+							},
+							update: { status: "blocked" },
+							create: {
+								box_id: id,
+								employee_id: emp_id,
+								status: "blocked",
+							},
+						}),
+					),
+				);
+			}
+		}
+
+		if (access_mode !== undefined) {
+			await tx.vertical_medical_employee_box.deleteMany({
+				where: { box_id: id, employee_id: null },
+			});
+
+			if (access_mode === "public") {
+				await tx.vertical_medical_employee_box.create({
+					data: { box_id: id, employee_id: null, status: "shared", access: "public" },
+				});
+			} else if (access_mode === "all_employees") {
+				await tx.vertical_medical_employee_box.create({
+					data: { box_id: id, employee_id: null, status: "shared", access: "all_employees" },
+				});
+			} else if (access_mode === "restaurant_employees") {
+				let targetDeptIds = department_ids;
+				if (targetDeptIds === undefined) {
+					const deptBoxes = await tx.vertical_medical_department_box.findMany({
+						where: { box_id: id },
+						select: { department_id: true },
+					});
+					targetDeptIds = deptBoxes.map((db) => db.department_id);
+				}
+
+				if (targetDeptIds.length > 0) {
+					const employees = await tx.vertical_medical_employee.findMany({
+						where: {
+							client_id,
+							department_id: { in: targetDeptIds },
+						},
+						select: { id: true },
+					});
+
+					if (employees.length > 0) {
+						const empIds = employees.map((emp) => emp.id);
+						await tx.vertical_medical_employee_box.deleteMany({
+							where: {
+								box_id: id,
+								employee_id: { in: empIds },
+								access: "direct",
+							},
+						});
+
+						await tx.vertical_medical_employee_box.createMany({
+							data: employees.map((emp) => ({
+								box_id: id,
+								employee_id: emp.id,
+								status: "shared",
+								access: "direct",
+							})),
+							skipDuplicates: true,
+						});
+					}
+				}
+			}
+		}
+
 		return tx.box.findUnique({
 			where: { id },
 			include: {
 				medical_department_boxes: {
 					include: {
 						department: { select: { id: true, name: true } },
+					},
+				},
+				medical_employee_boxes: {
+					select: {
+						employee_id: true,
+						status: true,
+						access: true,
 					},
 				},
 			},

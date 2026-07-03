@@ -10,14 +10,18 @@ export const updateGrubpacHandler = createHandlers(
 	medicalAuthGuard(["admin"]),
 	updateGrubpacRequestBodyValidator,
 	async (context) => {
-		const { client_id, user_id, user, type } = context.var;
-		const { id, name, department_ids } = context.req.valid("json");
+		const { client_id, user_id, user, type, vertical_id } = context.var;
+		const { id, name, department_ids, blocked_employee_ids, access_mode } = context.req.valid("json");
 
 		const previousBox = await prisma.box.findUnique({
 			where: { id, client_id },
 			include: {
 				medical_department_boxes: {
 					include: { department: { select: { id: true, name: true } } },
+				},
+				medical_employee_boxes: {
+					where: { status: "blocked", employee_id: { not: null } },
+					select: { employee_id: true },
 				},
 			},
 		});
@@ -30,7 +34,14 @@ export const updateGrubpacHandler = createHandlers(
 			}, 404);
 		}
 
-		const box = await updateMedicalGrubpac({ id, client_id, name, department_ids });
+		const box = await updateMedicalGrubpac({
+			id,
+			client_id,
+			name,
+			department_ids,
+			blocked_employee_ids,
+			access_mode,
+		});
 
 		const changes: any[] = [];
 
@@ -56,6 +67,30 @@ export const updateGrubpacHandler = createHandlers(
 			}
 		}
 
+		if (blocked_employee_ids !== undefined) {
+			const prevBlocked = previousBox.medical_employee_boxes
+				.map((eb) => eb.employee_id)
+				.filter((eid): eid is string => !!eid)
+				.sort()
+				.join(",");
+			const newBlocked = [...blocked_employee_ids].sort().join(",");
+			if (prevBlocked !== newBlocked) {
+				changes.push({
+					field: "permissions",
+					old_value: prevBlocked || null,
+					new_value: newBlocked || null,
+				});
+			}
+		}
+
+		if (access_mode !== undefined) {
+			changes.push({
+				field: "access_mode",
+				old_value: null,
+				new_value: access_mode,
+			});
+		}
+
 		if (changes.length > 0) {
 			const userObj = user as any;
 			const actorName = type === "admin"
@@ -72,6 +107,7 @@ export const updateGrubpacHandler = createHandlers(
 					table: type === "admin" ? "client" : "vertical_medical_employee",
 				},
 				client_id,
+				vertical_id,
 				subject: {
 					id: box!.id,
 					name: box!.name || "Box",

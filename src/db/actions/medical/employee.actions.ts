@@ -610,6 +610,24 @@ export const getMedicalEmployees = async (
 			const allMap = new Map<string, any>();
 			for (const b of directBoxes) allMap.set(b.id, b);
 			allBoxes = Array.from(allMap.values());
+		} else if (rest.role === "handler" && department) {
+			const blockedBoxIds = new Set(
+				sharedPermissions.filter((p: any) => p.status === "blocked").map((p: any) => p.box_id),
+			);
+
+			const deptBoxes = departmentBoxes
+				.filter((db: any) => !blockedBoxIds.has(db.box.id))
+				.map((db: any) => db.box);
+
+			const allMap = new Map<string, any>();
+			for (const b of deptBoxes) allMap.set(b.id, b);
+			for (const p of sharedPermissions.filter((item: any) => item.status !== "blocked")) {
+				if (p.box) allMap.set(p.box.id, p.box);
+			}
+			for (const b of processedConnectedBoxes) allMap.set((b as any).id, b);
+
+			boxes = deptBoxes;
+			allBoxes = Array.from(allMap.values());
 		} else {
 			const nonBlockedPermissions = sharedPermissions.filter((p: any) => p.status !== "blocked");
 			const permsMap = new Map<string, any>();
