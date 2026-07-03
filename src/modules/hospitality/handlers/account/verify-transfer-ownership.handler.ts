@@ -39,25 +39,12 @@ const resolveTargetClient = async (
 		state: string;
 	},
 ) => {
-	let targetClient = await tx.client.findFirst({
+	const targetClient = await tx.client.findFirst({
 		where: { email: recipient.email },
 	});
 
 	if (!targetClient) {
-		targetClient = await tx.client.create({
-			data: {
-				name: recipient.name,
-				organization_name: recipient.organization_name,
-				country_code: recipient.country_code,
-				mobile_number: recipient.phone,
-				email: recipient.email,
-				country: recipient.country,
-				state: recipient.state,
-				client_display_id: `CLI-${ulid()}`,
-				vertical: { connect: { id: vertical_id } },
-				status: "active",
-			},
-		});
+		throw new APIError("Account with this email does not exist.", undefined, undefined, 404);
 	}
 
 	return targetClient;

@@ -7,8 +7,7 @@ import { updateBoxLockStatus } from "@/db/actions/box.actions.ts";
 import { APIError } from "@/types/error";
 import { createNotification } from "@/db/actions/notification.actions.ts";
 import type { APIResponse } from "@/types/api";
-import { getSavedDeliveryEmployeeOtp } from "@/db/actions/delivery-employee-otp.actions";
-// import { APIError } from "@/utils/error-factory.ts";
+import { getSavedDeliveryEmployeeOtp, deleteSavedDeliveryEmployeeOtp } from "@/db/actions/delivery-employee-otp.actions";
 
 export const verifyUnlockGrublockHandler = createHandlers(
  deliveryAuthGuard(["admin", "manager", "delivery"]),
@@ -21,18 +20,18 @@ export const verifyUnlockGrublockHandler = createHandlers(
 
   const savedOtp = await getSavedDeliveryEmployeeOtp(userObj.email, otp_id);
   if (!savedOtp) {
-   throw new APIError(400, "OTP expired or invalid");
+   throw new APIError("OTP expired or invalid", undefined, undefined, 400);
   }
   if (savedOtp.otp !== otp) {
-   throw new APIError(400, "Incorrect OTP");
+   throw new APIError("Incorrect OTP", undefined, undefined, 400);
   }
   if (savedOtp.for_what !== "unlock_box") {
-   throw new APIError(400, "Invalid OTP purpose");
+   throw new APIError("Invalid OTP purpose", undefined, undefined, 400);
   }
 
   const { ids } = savedOtp.metadata as any;
   if (!ids || !Array.isArray(ids) || ids.length === 0) {
-   throw new APIError(400, "Invalid session metadata");
+   throw new APIError("Invalid session metadata", undefined, undefined, 400);
   }
 
   const result = await updateBoxLockStatus({
@@ -46,7 +45,7 @@ export const verifyUnlockGrublockHandler = createHandlers(
    client_id,
   });
 
-  await deleteSavedDeliveryEmployeeOtp(userObj.email, otp_id);
+  await deleteSavedDeliveryEmployeeOtp(userObj.email);
 
   // Create notification for each verified unlock
   try {

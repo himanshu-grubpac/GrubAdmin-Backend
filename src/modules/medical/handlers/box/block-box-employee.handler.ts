@@ -15,8 +15,7 @@ export const blockBoxEmployeeHandler = createHandlers(
 				{
 					success: false,
 					code: 400,
-					message: "box_id and employee_id are required",
-					data: null,
+					error: "box_id and employee_id are required",
 				},
 				{ status: 400 },
 			);

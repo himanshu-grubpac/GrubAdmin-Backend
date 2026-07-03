@@ -5,7 +5,6 @@ import { APIError } from "@/types/error";
 import { prisma } from "@/db";
 import type { APIResponse } from "@/types/api";
 import { getDeliveryTransferOwnershipOtp, deleteDeliveryTransferOwnershipOtp } from "@/db/actions/delivery-transfer-ownership-otp.actions";
-import { getUniqueClient, createClient } from "@/db/actions/client.actions";
 import {
 	isOtpAttemptLocked,
 	incrementOtpAttempt,
@@ -13,7 +12,6 @@ import {
 	getOtpLockoutRemaining,
 } from "@/db/actions/otp-attempt.actions";
 import { Bcrypt } from "@/utils/bcrypt.ts";
-import { ulid } from "ulid";
 
 export const verifyTransferOwnershipHandler = createHandlers(
 	deliveryAuthGuard(["admin"]),
@@ -74,30 +72,14 @@ export const verifyTransferOwnershipHandler = createHandlers(
 			state,
 		} = otpRecord;
 
-		// 3. Atomically perform Client generation and Box updating in a Transaction
+		// 3. Validate target client exists and perform Box transfer in a Transaction
 		await prisma.$transaction(async (tx) => {
-			let targetClient = await tx.client.findFirst({
+			const targetClient = await tx.client.findFirst({
 				where: { email: email },
 			});
 
 			if (!targetClient) {
-				// Create new client atomically
-				targetClient = await tx.client.create({
-					data: {
-						name,
-						organization_name,
-						country_code,
-						mobile_number: phone,
-						email,
-						country,
-						state,
-						client_display_id: `CLI-${ulid()}`, // collision-safe
-						vertical: {
-							connect: { id: vertical_id }
-						},
-						status: "active",
-					},
-				});
+				throw new APIError("Account with this email does not exist.", undefined, undefined, 404);
 			}
 
 			// 4. Perform box update atomically

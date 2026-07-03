@@ -4,6 +4,7 @@ import { deliveryAuthGuard } from "@/middlewares/auth";
 import { unlockGrublockRequestBodyValidator } from "delivery/validators/box.validators.ts";
 import { saveDeliveryEmployeeOtp } from "@/db/actions/delivery-employee-otp.actions.ts";
 import { createNotification } from "@/db/actions/notification.actions.ts";
+import { APIError } from "@/types/error";
 import type { APIResponse } from "@/types/api";
 
 export const unlockGrublockHandler = createHandlers(
@@ -19,9 +20,10 @@ export const unlockGrublockHandler = createHandlers(
    ? String(Math.floor(1000 + Math.random() * 9000))
    : "2026";
 
-  const result = await saveDeliveryEmployeeOtp({
+  const otpResult = await saveDeliveryEmployeeOtp({
    email: userObj.email,
    otp,
+   role: type,
    for_what: "unlock_box",
    metadata: {
     ids,
@@ -32,6 +34,10 @@ export const unlockGrublockHandler = createHandlers(
      : undefined,
    },
   });
+
+  if (!otpResult) {
+   throw new APIError("Failed to generate OTP", undefined, undefined, 500);
+  }
 
   // Create notification for each unlock request
   try {
@@ -74,7 +80,7 @@ export const unlockGrublockHandler = createHandlers(
    {
     success: true,
     code: 200,
-    data: { otp_id: result.id },
+     data: { otp_id: otpResult.id },
     message: "OTP sent to mobile successfully",
    },
    { status: 200 },

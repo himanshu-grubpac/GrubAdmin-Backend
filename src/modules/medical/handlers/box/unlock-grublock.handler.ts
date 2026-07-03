@@ -4,6 +4,7 @@ import { unlockGrublockRequestBodyValidator } from "medical/validators/box.valid
 import { saveMedicalEmployeeOtp } from "@/db/actions/medical-otp.actions.ts";
 import { createNotification } from "@/db/actions/notification.actions.ts";
 import { loggerService } from "@/services/system-log.ts";
+import { APIError } from "@/types/error";
 import type { APIResponse } from "@/types/api";
 
 export const unlockGrublockHandler = createHandlers(
@@ -23,9 +24,10 @@ export const unlockGrublockHandler = createHandlers(
 			? String(Math.floor(1000 + Math.random() * 9000))
 			: "2026";
 
-		const result = await saveMedicalEmployeeOtp({
+		const otpResult = await saveMedicalEmployeeOtp({
 			email: userObj.email,
 			otp,
+			role: type,
 			for_what: "unlock_box",
 			metadata: {
 				ids,
@@ -33,6 +35,10 @@ export const unlockGrublockHandler = createHandlers(
 				client_id,
 			},
 		});
+
+		if (!otpResult) {
+			throw new APIError("Failed to generate OTP", undefined, undefined, 500);
+		}
 
 		// Create notification for each unlock request
 		try {
@@ -75,7 +81,7 @@ export const unlockGrublockHandler = createHandlers(
 			{
 				success: true,
 				code: 200,
-				data: { otp_id: result.id },
+				data: { otp_id: otpResult.id },
 				message: "OTP sent to mobile successfully",
 			},
 			{ status: 200 },
