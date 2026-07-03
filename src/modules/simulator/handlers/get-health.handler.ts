@@ -1,19 +1,42 @@
 import { createHandlers } from "@/utils/hono-factory.ts";
 import { boxIdParamValidator } from "../validators/simulator.validators.ts";
 import { prisma } from "@/db";
+import {
+	buildSimulatorConnectedUser,
+	enforceSimulatorHeartbeatTimeout,
+	recordSimulatorHeartbeat,
+} from "@/db/actions/simulator.connection.actions.ts";
 
 export const getHealthHandler = createHandlers(
 	boxIdParamValidator,
 	async (context) => {
 		const { box_id } = context.req.valid("param");
+
+		await enforceSimulatorHeartbeatTimeout(box_id);
+
 		const box = await prisma.box.findUnique({
 			where: { id: box_id },
-			include: { telemetry: true, lock: true },
+			include: {
+				telemetry: true,
+				lock: true,
+				connection_employee: {
+					select: {
+						id: true,
+						employee_display_id: true,
+						first_name: true,
+						last_name: true,
+					},
+				},
+			},
 		});
 
 		if (!box) {
 			return context.json<any>({ status: "error", message: "Box not found" }, { status: 404 });
 		}
+
+		recordSimulatorHeartbeat(box_id);
+
+		const connected_user = buildSimulatorConnectedUser(box);
 
 		return context.json<any>(
 			{
@@ -23,6 +46,7 @@ export const getHealthHandler = createHandlers(
 					display_id: box.box_display_id,
 					is_locked: box.lock?.lock_status === "locked",
 					driver_id: box.connection_employee_id || null,
+					connected_user,
 					restaurant_id: null,
 					is_driver_connected: !!box.connection_employee_id,
 					connection_status: box.telemetry?.cellular_signal || box.telemetry?.connection_status || "strong",
@@ -57,11 +81,11 @@ export const getHealthHandler = createHandlers(
 						BoxCam: box.telemetry?.camera_status === "on",
 						advert_screen: box.telemetry?.advert_screen_status === "on",
 						ioniser: box.telemetry?.ioniser_status === "on",
-						light_status: box.telemetry?.light_status === "on"
-					}
-				}
+						light_status: box.telemetry?.light_status === "on",
+					},
+				},
 			},
-			{ status: 200 }
+			{ status: 200 },
 		);
-	}
+	},
 );

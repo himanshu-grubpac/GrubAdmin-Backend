@@ -2,7 +2,12 @@ import { createHandlers } from "@/utils/hono-factory.ts";
 import { updateTelemetryValidator, boxIdParamValidator } from "../validators/simulator.validators.ts";
 import { updateBoxTelemetry } from "@/db/actions/simulator.actions.ts";
 import { prisma } from "@/db";
-import type { APIResponse } from "@/types/api";
+import {
+	buildSimulatorConnectedUser,
+	disconnectSimulatorBoxOnPowerOff,
+	enforceSimulatorHeartbeatTimeout,
+	recordSimulatorHeartbeat,
+} from "@/db/actions/simulator.connection.actions.ts";
 
 export const updateStateHandler = createHandlers(
 	boxIdParamValidator,
@@ -10,6 +15,9 @@ export const updateStateHandler = createHandlers(
 	async (context) => {
 		const { box_id } = context.req.valid("param");
 		const body = context.req.valid("json");
+
+		await enforceSimulatorHeartbeatTimeout(box_id);
+		recordSimulatorHeartbeat(box_id);
 
 		// Map simulator payload to DB schema
 		const mappedData: any = {};
@@ -62,9 +70,24 @@ export const updateStateHandler = createHandlers(
 
 		await updateBoxTelemetry(box_id, mappedData);
 
+		if (body.is_power_on === false) {
+			await disconnectSimulatorBoxOnPowerOff(box_id);
+		}
+
 		const box = await prisma.box.findUnique({
 			where: { id: box_id },
-			include: { telemetry: true, lock: true },
+			include: {
+				telemetry: true,
+				lock: true,
+				connection_employee: {
+					select: {
+						id: true,
+						employee_display_id: true,
+						first_name: true,
+						last_name: true,
+					},
+				},
+			},
 		});
 
 		if (!box) {
@@ -74,6 +97,8 @@ export const updateStateHandler = createHandlers(
 			);
 		}
 
+		const connected_user = buildSimulatorConnectedUser(box);
+
 		return context.json<any>(
 			{
 				status: "success",
@@ -82,6 +107,7 @@ export const updateStateHandler = createHandlers(
 					display_id: box.box_display_id,
 					is_locked: box.lock?.lock_status === "locked",
 					driver_id: box.connection_employee_id || null,
+					connected_user,
 					restaurant_id: null,
 					is_driver_connected: !!box.connection_employee_id,
 					connection_status: box.telemetry?.cellular_signal || box.telemetry?.connection_status || "strong",
