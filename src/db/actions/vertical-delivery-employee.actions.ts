@@ -218,9 +218,15 @@ export const updateVerticalDeliveryEmployee = async (
 	}
 
 	if (email) {
+		const employeeRecord = await prisma.vertical_delivery_employee.findUnique({
+			where: { id },
+			select: { client_id: true },
+		});
+
 		const existingEmployee = await prisma.vertical_delivery_employee.findFirst({
 			where: {
 				email,
+				client_id: employeeRecord?.client_id,
 				NOT: {
 					id,
 				},
@@ -267,7 +273,7 @@ export const createVerticalDeliveryEmployee = async (
 ) => {
 	const {
 		client_id,
-		email,
+		email: rawEmail,
 		employee_display_id,
 		restaurant_id,
 		first_name,
@@ -277,6 +283,10 @@ export const createVerticalDeliveryEmployee = async (
 		joining_date,
 		role,
 	} = args;
+
+	const email = rawEmail?.trim() ? rawEmail.trim() : null;
+	const emailForCreate =
+		email ?? `${employee_display_id}.${client_id}@noemail.grubpac.internal`;
 
 	if (restaurant_id) {
 		const restaurant = await prisma.restaurant.findUnique({
@@ -316,25 +326,29 @@ export const createVerticalDeliveryEmployee = async (
 		throw new APIError("No client found!", undefined, undefined, 404);
 	}
 
-	if (client.email === email) {
+	if (email && client.email === email) {
 		throw new APIError(undefined, "delivery.common.SUPER_ADMIN_EMAIL_CONFLICT");
+	}
+
+	const uniquenessOr: Array<Record<string, unknown>> = [
+		{ employee_display_id },
+		{
+			AND: [{ country_code }, { mobile_number }],
+		},
+	];
+	if (email) {
+		uniquenessOr.unshift({ email });
 	}
 
 	const existingEmployee = await prisma.vertical_delivery_employee.findFirst({
 		where: {
 			client_id, // Scope uniqueness checks strictly to the active tenant
-			OR: [
-				{ email },
-				{ employee_display_id },
-				{
-					AND: [{ country_code }, { mobile_number }],
-				},
-			],
+			OR: uniquenessOr,
 		},
 	});
 
 	if (existingEmployee) {
-		if (existingEmployee.email === email) {
+		if (email && existingEmployee.email === email) {
 			throw new APIError(undefined, "delivery.common.EMAIL_ALREADY_EXISTS");
 		}
 		if (existingEmployee.employee_display_id === employee_display_id) {
@@ -353,7 +367,7 @@ export const createVerticalDeliveryEmployee = async (
 			data: {
 				first_name,
 				last_name,
-				email,
+				email: emailForCreate,
 				country_code,
 				mobile_number,
 				client_id,
@@ -1116,6 +1130,7 @@ export const updateVerticalDeliveryEmployeeById = async (
 		const existingEmployee = await prisma.vertical_delivery_employee.findFirst({
 			where: {
 				email,
+				client_id,
 				NOT: {
 					id,
 				},

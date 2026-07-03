@@ -22,6 +22,8 @@ import {
 	verifyTransferOwnershipHandler,
 	getMyGrubpacsHandler,
 	deleteAccountHandler,
+	requestDeleteAccountOtpHandler,
+	resendDeleteAccountOtpHandler,
 } from "delivery/handlers/account";
 import {
 	getSupportCategoriesHandler,
@@ -143,6 +145,8 @@ deliveryRouter.get(
 	"/account/mygrubpacs",
 	...getMyGrubpacsHandler,
 );
+deliveryRouter.post("/account/delete/otp", ...requestDeleteAccountOtpHandler);
+deliveryRouter.patch("/account/delete/resend-otp", ...resendDeleteAccountOtpHandler);
 deliveryRouter.delete("/account", ...deleteAccountHandler);
 
 /* Base route: /api/v1/delivery/dashboard */

@@ -190,3 +190,32 @@ export const getMyGrubpacsRequestQueryValidator = zValidator(
 	},
 );
 
+export const deleteAccountRequestBodyValidator = zValidator(
+	"json",
+	z.object({
+		otp: z
+			.string({ error: "Please provide a valid otp" })
+			.trim()
+			.min(4, "Otp must be 4 characters long")
+			.max(4, "Otp must be 4 characters long"),
+		otp_id: z.string().optional(),
+	}),
+	(response) => {
+		if (!response.success) {
+			validatorErrorHandler(response.error);
+		}
+	},
+);
+
+export const resendDeleteAccountOtpRequestBodyValidator = zValidator(
+	"json",
+	z.object({
+		otp_id: z.string().optional(),
+	}),
+	(response) => {
+		if (!response.success) {
+			validatorErrorHandler(response.error);
+		}
+	},
+);
+

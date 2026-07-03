@@ -5,7 +5,9 @@ import { emergencyUnlockGrublockRequestBodyValidator } from "delivery/validators
 import { updateBoxLockStatus } from "@/db/actions/box.actions.ts";
 import { createNotification } from "@/db/actions/notification.actions.ts";
 import type { APIResponse } from "@/types/api";
+import { APIError } from "@/types/error";
 import { resolveMessageTemplate } from "@/utils/message";
+import { prisma } from "@/db";
 
 export const emergencyUnlockGrublockHandler = createHandlers(
  deliveryAuthGuard(["admin", "manager"]),
@@ -13,6 +15,23 @@ export const emergencyUnlockGrublockHandler = createHandlers(
  async (context) => {
   const { client_id, user_id, user, type, vertical_id } = context.var;
   const { ids, reason } = context.req.valid("json");
+
+  const alreadyUnlocked = await prisma.box_lock.findMany({
+    where: {
+      box_id: { in: ids },
+      lock_status: "unlocked",
+    },
+    select: { box_id: true },
+  });
+
+  if (alreadyUnlocked.length === ids.length) {
+    throw new APIError(
+      "Selected box(es) are already unlocked.",
+      "delivery.box.ALREADY_UNLOCKED",
+      undefined,
+      400,
+    );
+  }
 
   const userObj = user as any;
   const userName = type === "admin"
