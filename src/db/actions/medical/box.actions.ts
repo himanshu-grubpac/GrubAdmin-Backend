@@ -754,6 +754,49 @@ interface GetMedicalGrubpacEditDetailsArgs {
 	client_id: string;
 }
 
+export type MedicalGrubpacAccessMode = "public" | "all_employees" | "restaurant_employees";
+export type MedicalGrubpacUiAccessMode = "public" | "all_employees" | "department_employees";
+
+export const normalizeMedicalAccessMode = (mode: string): MedicalGrubpacAccessMode =>
+	mode === "department_employees" ? "restaurant_employees" : mode as MedicalGrubpacAccessMode;
+
+export const toMedicalUiAccessMode = (mode: MedicalGrubpacAccessMode): MedicalGrubpacUiAccessMode =>
+	mode === "restaurant_employees" ? "department_employees" : mode;
+
+export const deriveMedicalAccessMode = (
+	employeeBoxes: { employee_id: string | null; status: string; access: string }[],
+): MedicalGrubpacAccessMode => {
+	const shared = employeeBoxes.filter((eb) => eb.status === "shared");
+
+	if (shared.some((eb) => eb.employee_id === null && eb.access === "public")) {
+		return "public";
+	}
+
+	if (shared.some((eb) => eb.employee_id === null && eb.access === "all_employees")) {
+		return "all_employees";
+	}
+
+	if (shared.some((eb) => eb.employee_id !== null && eb.access === "direct")) {
+		return "restaurant_employees";
+	}
+
+	return "all_employees";
+};
+
+export const extractMedicalGrubpacPermissions = (
+	employeeBoxes: { employee_id: string | null; status: string; access: string }[],
+) => {
+	const access_mode = deriveMedicalAccessMode(employeeBoxes);
+	const blocked_employee_ids = employeeBoxes
+		.filter((eb) => eb.status === "blocked" && eb.employee_id)
+		.map((eb) => eb.employee_id as string);
+
+	return {
+		access_mode: toMedicalUiAccessMode(access_mode),
+		blocked_employee_ids,
+	};
+};
+
 export const getMedicalGrubpacEditDetails = async (args: GetMedicalGrubpacEditDetailsArgs) => {
 	const { id, client_id } = args;
 
@@ -772,7 +815,9 @@ export const getMedicalGrubpacEditDetails = async (args: GetMedicalGrubpacEditDe
 			},
 			medical_employee_boxes: {
 				select: {
+					employee_id: true,
 					status: true,
+					access: true,
 				},
 			},
 		},
@@ -783,8 +828,10 @@ export const getMedicalGrubpacEditDetails = async (args: GetMedicalGrubpacEditDe
 	}
 
 	const assignedDepartments = box.medical_department_boxes.map((db) => db.department);
+	const department_ids = assignedDepartments.map((dept) => dept.id);
+	const { access_mode, blocked_employee_ids } = extractMedicalGrubpacPermissions(box.medical_employee_boxes);
 
-	const blockedCount = box.medical_employee_boxes.filter((eb) => eb.status === "blocked").length;
+	const blockedCount = blocked_employee_ids.length;
 	const sharedCount = box.medical_employee_boxes.filter((eb) => eb.status === "shared").length;
 	const totalCount = box.medical_employee_boxes.length;
 
@@ -793,6 +840,9 @@ export const getMedicalGrubpacEditDetails = async (args: GetMedicalGrubpacEditDe
 		name: box.name,
 		tag: box.box_display_id,
 		assignedDepartments,
+		department_ids,
+		access_mode,
+		blocked_employee_ids,
 		permissionSummary: {
 			total: totalCount,
 			blocked: blockedCount,

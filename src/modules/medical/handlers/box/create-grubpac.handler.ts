@@ -1,6 +1,7 @@
 import { medicalAuthGuard } from "@/middlewares/auth";
 import { createHandlers } from "@/utils/hono-factory";
 import { createGrubpacRequestBodyValidator } from "medical/validators/box.validators";
+import { extractMedicalGrubpacPermissions, updateMedicalGrubpac } from "@/db/actions/medical/box.actions";
 import { APIError } from "@/types/error";
 import type { APIResponse } from "@/types/api";
 import { prisma } from "@/db";
@@ -50,11 +51,25 @@ export const createGrubpacHandler = createHandlers(
 			});
 		}
 
+		const updatedBox = await updateMedicalGrubpac({
+			id: box.id,
+			client_id,
+			access_mode,
+			department_ids,
+		});
+
+		const responseBox = updatedBox ?? box;
+
 		return context.json<APIResponse<any>>({
 			success: true,
 			code: 201,
 			message: "GrubPac created successfully!",
-			data: box,
+			data: {
+				...responseBox,
+				...extractMedicalGrubpacPermissions(
+					(updatedBox as any)?.medical_employee_boxes ?? [],
+				),
+			},
 		});
 	},
 );

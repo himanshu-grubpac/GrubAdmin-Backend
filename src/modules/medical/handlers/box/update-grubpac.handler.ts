@@ -3,7 +3,7 @@ import { createHandlers } from "@/utils/hono-factory";
 import { updateGrubpacRequestBodyValidator } from "medical/validators/box.validators";
 import type { APIResponse } from "@/types/api";
 import { prisma } from "@/db";
-import { updateMedicalGrubpac } from "@/db/actions/medical/box.actions";
+import { updateMedicalGrubpac, extractMedicalGrubpacPermissions } from "@/db/actions/medical/box.actions";
 import { loggerService } from "@/services/system-log";
 
 export const updateGrubpacHandler = createHandlers(
@@ -121,7 +121,10 @@ export const updateGrubpacHandler = createHandlers(
 			success: true,
 			code: 200,
 			message: "GrubPac updated successfully!",
-			data: box,
+			data: {
+				...box,
+				...extractMedicalGrubpacPermissions(box!.medical_employee_boxes),
+			},
 		});
 	},
 );
