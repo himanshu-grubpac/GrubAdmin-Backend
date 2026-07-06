@@ -27,8 +27,8 @@ export const categoryToTypes: Record<typeof categoriesEnum[number], typeof types
 
 export const filterStructure = {
 	GrubPac: {
-		system_logs: ["Creation", "Deletion", "Suspension", "Activation", "Updation", "Box status", "Connection status", "Door status"],
-		action_logs: ["Reassignment", "Assignment", "Ownership", "Temperature set", "Temp. self check", "Ioniser status", "Battery status", "Battery self check"]
+		system_logs: ["Box status", "Door status", "Temperature set", "Temp. self check", "Ioniser status"],
+		action_logs: ["Suspension", "Activation"]
 	},
 	Profile: {
 		system_logs: ["Updation", "Access", "Creation"],
