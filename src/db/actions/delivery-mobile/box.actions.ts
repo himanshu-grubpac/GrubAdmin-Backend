@@ -20,6 +20,10 @@ import {
 	toMobileBoxSummary,
 	type BoxWithRelations,
 } from "@/db/actions/delivery-mobile/box.mapper.ts";
+import {
+	BOX_POWERED_OFF_CONNECT_MESSAGE,
+	isBoxPoweredOff,
+} from "@/utils/box-power.ts";
 
 const MAX_LOCK_OTP_ATTEMPTS = 3;
 
@@ -344,6 +348,10 @@ export const connectDriverBox = async (args: {
 	employee_id: string;
 }): Promise<MobileBoxConnectionResult> => {
 	const { box } = await resolveDriverBoxById(args);
+
+	if (isBoxPoweredOff(box.telemetry?.power_status)) {
+		throw new APIError(BOX_POWERED_OFF_CONNECT_MESSAGE, undefined, undefined, 400);
+	}
 
 	if (
 		box.connection_employee_id &&

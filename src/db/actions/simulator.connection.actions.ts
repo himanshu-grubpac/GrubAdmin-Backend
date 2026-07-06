@@ -1,7 +1,10 @@
 import { prisma } from "@/db";
 import { ulid } from "ulid";
+import { BOX_POWERED_OFF_CONNECT_MESSAGE, isBoxPoweredOff } from "@/utils/box-power.ts";
 
 export const SIMULATOR_HEARTBEAT_TIMEOUT_MS = 20_000;
+
+export { BOX_POWERED_OFF_CONNECT_MESSAGE, isBoxPoweredOff };
 
 const lastPingMs = new Map<string, number>();
 
@@ -86,11 +89,20 @@ export const connectSimulatorBox = async (box_id: string, driver_id: string) => 
 			id: true,
 			connection_employee_id: true,
 			medical_connection_employee_id: true,
+			telemetry: { select: { power_status: true } },
 		},
 	});
 
 	if (!box) {
 		return { ok: false as const, status: 404, message: "Box not found" };
+	}
+
+	if (isBoxPoweredOff(box.telemetry?.power_status)) {
+		return {
+			ok: false as const,
+			status: 400,
+			message: BOX_POWERED_OFF_CONNECT_MESSAGE,
+		};
 	}
 
 	const occupiedBy =

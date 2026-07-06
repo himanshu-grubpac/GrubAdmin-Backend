@@ -81,7 +81,7 @@ export const createConnectionHandler = createHandlers(
 		if (!result.ok) {
 			return context.json<any>(
 				{ status: "error", message: result.message },
-				{ status: result.status as 404 | 409 },
+				{ status: result.status as 400 | 404 | 409 },
 			);
 		}
 
