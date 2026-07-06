@@ -54,7 +54,16 @@ export const getMyGrubpacsHandler = createHandlers(
 		const [rawBoxes, count] = await Promise.all([
 			prisma.box.findMany({
 				where: whereClause,
-				include: { telemetry: true },
+				include: {
+					telemetry: true,
+					medical_employee_boxes: {
+						select: {
+							employee_id: true,
+							status: true,
+							access: true,
+						},
+					},
+				},
 				orderBy: { created_at: "desc" },
 			}),
 			prisma.box.count({ where: whereClause }),
