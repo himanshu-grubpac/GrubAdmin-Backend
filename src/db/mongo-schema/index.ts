@@ -16,4 +16,6 @@ export * from "./camping-employee-otp.model.ts";
 export * from "./camping-employee-update-otp.model.ts";
 export * from "./camping-transfer-ownership-otp.model.ts";
 export * from "./camping-alert-preference.model.ts";
+export * from "./camping-client-location.model.ts";
+export * from "./camping-box-surveillance.model.ts";
 

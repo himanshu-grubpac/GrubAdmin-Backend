@@ -40,11 +40,12 @@ export const getCampingBoxes = async (args: GetCampingBoxesArgs) => {
 	return { boxes, total };
 };
 
-export const getCampingBoxById = async (box_id: string, client_id: string) => {
+export const getCampingBoxById = async (box_id: string, client_id: string, vertical_id?: string) => {
 	return prisma.box.findFirst({
 		where: {
 			id: box_id,
 			client_id,
+			...(vertical_id ? { vertical_id } : {}),
 		},
 		include: {
 			telemetry: true,

@@ -1,16 +1,13 @@
 import { createHandlers } from "@/utils/hono-factory";
 import { campingAuthGuard } from "@/middlewares/auth";
-import { getFeedDetailQueryValidator } from "camping/validators/camera.validators";
 import { APIError } from "@/types/error";
 import { prisma } from "@/db";
-import type { APIResponse } from "@/types/api";
+import { CampingBoxSurveillance } from "@/db/mongo-schema";
 
-export const getFeedDetailHandler = createHandlers(
+export const getSurveillanceStatusHandler = createHandlers(
 	campingAuthGuard(),
-	getFeedDetailQueryValidator,
 	async (context) => {
 		const box_id = context.req.param("box_id");
-		const feed_id = context.req.param("feed_id");
 		const client_id = context.get("client_id");
 		const vertical_id = context.get("vertical_id");
 
@@ -22,18 +19,15 @@ export const getFeedDetailHandler = createHandlers(
 			throw new APIError(undefined, "camping.box.NOT_FOUND");
 		}
 
-		const feed = await prisma.vertical_camping_camera_feed.findFirst({
-			where: { id: feed_id, box_id },
-		});
+		const surveillance = await CampingBoxSurveillance.findOne({ box_id }).lean();
 
-		if (!feed) {
-			throw new APIError(undefined, "camping.camera.FEED_NOT_FOUND");
-		}
-
-		return context.json<APIResponse<typeof feed>>({
+		return context.json({
 			success: true,
 			code: 200,
-			data: feed,
-		});
+			data: {
+				box_id,
+				surveillance_enabled: surveillance?.surveillance_enabled ?? false,
+			},
+		} as any);
 	},
 );
