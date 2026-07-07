@@ -23,6 +23,7 @@ export const AUTH_SECRET = process.env.AUTH_SECRET as string;
 export const DELIVERY_AUTH_SECRET = process.env.DELIVERY_AUTH_SECRET as string;
 export const MEDICAL_AUTH_SECRET = process.env.MEDICAL_AUTH_SECRET as string;
 export const HOSPITALITY_AUTH_SECRET = process.env.HOSPITALITY_AUTH_SECRET as string;
+export const CAMPING_AUTH_SECRET = process.env.CAMPING_AUTH_SECRET as string;
 
 // JWT Token Expiration Settings (in seconds)
 export const JWT_ACCESS_TOKEN_EXPIRY = parseInt(process.env.JWT_ACCESS_TOKEN_EXPIRY || "86400"); // Default: 24 hours
@@ -56,6 +57,7 @@ export const loadEnv = (): void => {
 		"MAIL_PASS",
 		"AUTH_SECRET",
 		"DELIVERY_AUTH_SECRET",
+		"CAMPING_AUTH_SECRET",
 		"AWS_KEY",
 		"AWS_REGION",
 		"AWS_BUCKET_NAME",

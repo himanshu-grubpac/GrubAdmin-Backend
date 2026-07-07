@@ -1,6 +1,6 @@
-import { AUTH_SECRET, DELIVERY_AUTH_SECRET, MEDICAL_AUTH_SECRET, HOSPITALITY_AUTH_SECRET, JWT_ACCESS_TOKEN_EXPIRY, JWT_REFRESH_TOKEN_EXPIRY } from "@/configs/env";
+import { AUTH_SECRET, DELIVERY_AUTH_SECRET, MEDICAL_AUTH_SECRET, HOSPITALITY_AUTH_SECRET, CAMPING_AUTH_SECRET, JWT_ACCESS_TOKEN_EXPIRY, JWT_REFRESH_TOKEN_EXPIRY } from "@/configs/env";
 import { APIError } from "@/types/error";
-import type { AuthPayload, DeliveryAuthPayload, MedicalAuthPayload, HospitalityAuthPayload, ImpersonationPayload } from "@/types/jwt";
+import type { AuthPayload, DeliveryAuthPayload, MedicalAuthPayload, HospitalityAuthPayload, CampingAuthPayload, ImpersonationPayload } from "@/types/jwt";
 import { type JwtPayload, sign, verify } from "jsonwebtoken";
 import { logger } from "@/utils/logger";
 import { randomUUID } from "crypto";
@@ -22,6 +22,10 @@ interface MedicalJwtAuthPayload extends JwtPayload {
 
 interface HospitalityJwtAuthPayload extends JwtPayload {
 	user?: HospitalityAuthPayload;
+}
+
+interface CampingJwtAuthPayload extends JwtPayload {
+	user?: CampingAuthPayload;
 }
 
 interface JwtImpersonationPayload extends JwtPayload {
@@ -175,6 +179,33 @@ export class JWT {
 		} catch {
 			return false;
 		}
+	}
+
+	static verifyCampingAuthToken(token: string): CampingAuthPayload {
+		const { user } = verify(token, CAMPING_AUTH_SECRET) as { user: CampingAuthPayload } & JwtPayload;
+
+		if (!user) {
+			throw new APIError(
+				"The auth token is either invalid or has expired!",
+				undefined,
+				undefined,
+				401,
+			);
+		}
+
+		return user;
+	}
+
+	static signCampingAuthToken(payload: CampingAuthPayload): string {
+		return sign(
+			{
+				user: payload,
+			},
+			CAMPING_AUTH_SECRET,
+			{
+				expiresIn: "24h",
+			},
+		);
 	}
 
 	static signDeliveryRefreshToken(payload: DeliveryAuthPayload): string {

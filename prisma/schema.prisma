@@ -104,9 +104,10 @@ model client {
   medical_departments         vertical_medical_department[]
   medical_consumers           vertical_medical_consumer[]
   hospitality_floors          vertical_hospitality_floor[]  @relation("ClientToHospitalityFloor")
-  hospitality_employees       vertical_hospitality_employee[]
+	hospitality_employees       vertical_hospitality_employee[]
+	camping_sites               vertical_camping_site[] @relation("ClientToCampingSite")
 
-  @@unique([vertical_id, email])
+	@@unique([vertical_id, email])
   @@index([name])
   @@index([organization_name])
   @@index([country])
@@ -229,9 +230,10 @@ model box {
   medical_consumer_boxes           vertical_medical_consumer_box[]   @relation("vertical_medical_consumer_boxes")
   medical_department_boxes         vertical_medical_department_box[]
   hospitality_floor_boxes          vertical_hospitality_floor_box[]  @relation("BoxToHospitalityFloor")
-  hospitality_employee_boxes       vertical_hospitality_employee_box[] @relation("vertical_hospitality_employee_boxes")
+	hospitality_employee_boxes       vertical_hospitality_employee_box[] @relation("vertical_hospitality_employee_boxes")
+	camping_site_boxes               vertical_camping_site_box[] @relation("CampingBoxToSite")
 
-  @@index([client_id], map: "box_client_id_fkey")
+	@@index([client_id], map: "box_client_id_fkey")
   @@index([vertical_id], map: "box_vertical_id_fkey")
   @@index([connection_employee_id], map: "box_connection_employee_id_fkey")
   @@index([medical_connection_employee_id], map: "box_medical_connection_employee_id_fkey")
@@ -910,13 +912,109 @@ model vertical_hospitality_floor_box {
 }
 
 model vertical_hospitality_floor_deleted {
-  id            String   @id @default(ulid())
-  name          String
-  client_id     String?
-  client_name   String?
-  x_primary_key String?
-  created_at    DateTime @default(now())
-  updated_at    DateTime @updatedAt
+	id            String   @id @default(ulid())
+	name          String
+	client_id     String?
+	client_name   String?
+	x_primary_key String?
+	created_at    DateTime @default(now())
+	updated_at    DateTime @updatedAt
 
-  @@map("vertical_hospitality_floor_deleted")
+	@@map("vertical_hospitality_floor_deleted")
 }
+
+// ── Camping Vertical ─────────────────────────────────────────────────────────
+
+enum camping_site_status {
+	active
+	suspended
+}
+
+enum camping_site_box_status {
+	shared
+	not_shared
+	blocked
+}
+
+model vertical_camping_site {
+	id         String                  @id @default(ulid())
+	name       String
+	client_id  String?
+	status     camping_site_status     @default(active)
+	created_at DateTime                @default(now())
+	updated_at DateTime                @updatedAt
+	client     client?                 @relation("ClientToCampingSite", fields: [client_id], references: [id])
+	boxes      vertical_camping_site_box[] @relation("CampingSiteToBox")
+
+	@@unique([client_id, name])
+	@@index([client_id], map: "vertical_camping_site_client_id_fkey")
+	@@map("vertical_camping_site")
+}
+
+model vertical_camping_site_box {
+	id         String                    @id @default(ulid())
+	site_id    String
+	box_id     String
+	created_at DateTime                  @default(now())
+	updated_at DateTime                  @updatedAt
+	status     camping_site_box_status   @default(shared)
+	site       vertical_camping_site     @relation("CampingSiteToBox", fields: [site_id], references: [id], onDelete: Cascade)
+	box        box                       @relation("CampingBoxToSite", fields: [box_id], references: [id], onDelete: Cascade)
+
+	@@unique([site_id, box_id])
+	@@index([box_id], map: "vertical_camping_site_box_box_id_fkey")
+	@@index([site_id], map: "vertical_camping_site_box_site_id_fkey")
+	@@map("vertical_camping_site_box")
+}
+
+enum camera_feed_status {
+	available
+	archived
+	deleted
+}
+
+model vertical_camping_camera_feed {
+	id            String             @id @default(ulid())
+	box_id        String
+	camera_number Int
+	file_url      String
+	thumbnail_url String?
+	duration      Int?
+	file_size     Int?
+	status        camera_feed_status @default(available)
+	recorded_at   DateTime
+	created_at    DateTime           @default(now())
+	updated_at    DateTime           @updatedAt
+
+	@@index([box_id])
+	@@index([box_id, camera_number])
+	@@index([box_id, recorded_at])
+	@@map("vertical_camping_camera_feed")
+}
+
+enum surveillance_event_type {
+	motion_detected
+	camera_offline
+	camera_online
+	surveillance_on
+	surveillance_off
+}
+
+model vertical_camping_surveillance_log {
+	id              String                  @id @default(ulid())
+	box_id          String
+	camera_number   Int
+	event_type      surveillance_event_type
+	thumbnail_url   String?
+	acknowledged    Boolean                 @default(false)
+	recorded_at     DateTime
+	created_at      DateTime                @default(now())
+	updated_at      DateTime                @updatedAt
+
+	@@index([box_id])
+	@@index([box_id, camera_number])
+	@@index([box_id, recorded_at])
+	@@map("vertical_camping_surveillance_log")
+}
+
+

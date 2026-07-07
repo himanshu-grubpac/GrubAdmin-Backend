@@ -31,7 +31,8 @@
 			"admin/*": ["./src/modules/admin/*"],
 			"common/*": ["./src/modules/common/*"],
 			"medical/*": ["./src/modules/medical/*"],
-			"hospitality/*": ["./src/modules/hospitality/*"]
+			"hospitality/*": ["./src/modules/hospitality/*"],
+			"camping/*": ["./src/modules/camping/*"]
 		}
 	}
 }

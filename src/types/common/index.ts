@@ -4,4 +4,5 @@ export * from "./vertical-delivery-employee";
 export * from "./medical-employee";
 export * from "./grubpac-configs";
 export * from "./hospitality-employee";
+export * from "./camping-employee";
 

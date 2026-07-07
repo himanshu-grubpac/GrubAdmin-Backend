@@ -7,6 +7,7 @@ import {
 	PutObjectCommand,
 	S3Client,
 } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import {
 	AWS_BUCKET_NAME,
 	AWS_KEY,
@@ -183,6 +184,24 @@ export class s3Service {
 					console.error("S3 getObject retry failed:", retryError);
 					throw retryError;
 				}
+			}
+			throw error;
+		}
+	}
+
+	async generatePresignedUrl(key: string, expiresInSeconds: number = 3600): Promise<string> {
+		const command = new GetObjectCommand({
+			Bucket: this.bucket,
+			Key: key,
+		});
+
+		try {
+			return await getSignedUrl(this.client, command, { expiresIn: expiresInSeconds });
+		} catch (error: any) {
+			const isRedirect = String(error?.message || error || "").includes("must be addressed using the specified endpoint");
+			if (isRedirect) {
+				await this.resolveBucketRegion();
+				return await getSignedUrl(this.client, command, { expiresIn: expiresInSeconds });
 			}
 			throw error;
 		}
