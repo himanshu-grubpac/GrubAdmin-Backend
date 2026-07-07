@@ -22,6 +22,7 @@ import {
 } from "camping/handlers/account";
 import {
 	getDashboardHandler,
+	updateLocationHandler,
 } from "camping/handlers/dashboard";
 import {
 	getLiveStreamHandler,
@@ -29,6 +30,8 @@ import {
 	getFeedDetailHandler,
 	downloadFeedHandler,
 	playbackFeedHandler,
+	toggleSurveillanceHandler,
+	getSurveillanceStatusHandler,
 } from "camping/handlers/camera";
 import {
 	getNotificationsHandler,
@@ -75,6 +78,7 @@ campingRouter.delete("/account", ...deleteAccountHandler);
 
 /* Dashboard Router */
 campingRouter.get("/dashboard", ...getDashboardHandler);
+campingRouter.put("/dashboard/location", ...updateLocationHandler);
 
 /* Camera Router */
 campingRouter.get("/boxes/:box_id/camera/live", ...getLiveStreamHandler);
@@ -82,6 +86,10 @@ campingRouter.get("/boxes/:box_id/camera/feed", ...getRecordedFeedsHandler);
 campingRouter.get("/boxes/:box_id/camera/feed/:feed_id", ...getFeedDetailHandler);
 campingRouter.post("/boxes/:box_id/camera/download/:feed_id", ...downloadFeedHandler);
 campingRouter.post("/boxes/:box_id/camera/playback/:feed_id", ...playbackFeedHandler);
+
+/* Surveillance Router */
+campingRouter.get("/boxes/:box_id/surveillance/status", ...getSurveillanceStatusHandler);
+campingRouter.patch("/boxes/:box_id/surveillance/toggle", ...toggleSurveillanceHandler);
 
 /* Notification Router */
 campingRouter.get("/notification", ...getNotificationsHandler);

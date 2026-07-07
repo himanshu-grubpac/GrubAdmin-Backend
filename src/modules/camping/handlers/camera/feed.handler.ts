@@ -3,8 +3,6 @@ import { campingAuthGuard } from "@/middlewares/auth";
 import { getCameraFeedQueryValidator } from "camping/validators/camera.validators";
 import { APIError } from "@/types/error";
 import { prisma } from "@/db";
-import type { APIResponse } from "@/types/api";
-
 export const getRecordedFeedsHandler = createHandlers(
 	campingAuthGuard(),
 	getCameraFeedQueryValidator,
@@ -42,10 +40,10 @@ export const getRecordedFeedsHandler = createHandlers(
 			prisma.vertical_camping_camera_feed.count({ where }),
 		]);
 
-		return context.json<APIResponse<{ feeds: typeof feeds; total: number; page: number; page_size: number }>>({
+		return context.json({
 			success: true,
 			code: 200,
 			data: { feeds, total, page, page_size },
-		});
+		} as any);
 	},
 );
