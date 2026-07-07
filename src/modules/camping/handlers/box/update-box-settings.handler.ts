@@ -4,6 +4,7 @@ import { updateBoxSettingsRequestBodyValidator } from "camping/validators/box.va
 import { prisma } from "@/db";
 import { BoxConfig } from "@/db/mongo-schema";
 import { APIError } from "@/types/error";
+import { loggerService } from "@/services/system-log";
 import type { APIResponse } from "@/types/api";
 
 export const updateBoxSettingsHandler = createHandlers(
@@ -12,6 +13,11 @@ export const updateBoxSettingsHandler = createHandlers(
 	async (context) => {
 		const box_id = context.req.param("box_id");
 		const client_id = context.get("client_id");
+		const user_id = context.get("user_id");
+		const vertical_id = context.get("vertical_id");
+		const user = context.get("user") as { email?: string; name?: string };
+		const clientEmail = user?.email?.trim() ?? "";
+		const clientName = user?.name || clientEmail || "Camping Client";
 		const {
 			name,
 			zone1_target_temp,
@@ -119,6 +125,34 @@ export const updateBoxSettingsHandler = createHandlers(
 				surveillance_mode: surveillanceMode,
 			},
 		};
+
+		try {
+			await loggerService.log({
+				category: "GrubPac",
+				type: "Status",
+				description: "Box settings updated by client admin",
+				actor: {
+					id: user_id,
+					name: clientName,
+					role: "admin",
+					table: "client",
+				},
+				client_id,
+				vertical_id,
+				subject: { id: updatedBox.id, name: updatedBox.box_display_id, type: "box" },
+				metadata: {
+					name,
+					zone1_target_temp,
+					zone2_target_temp,
+					zone1_status,
+					zone2_status,
+					ioniser_status,
+					surveillance_mode,
+				},
+			});
+		} catch {
+			// Logging failure shouldn't block response
+		}
 
 		return context.json<APIResponse<typeof responseData>>({
 			success: true,

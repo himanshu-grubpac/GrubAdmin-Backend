@@ -9,19 +9,17 @@ import { loggerService } from "@/services/system-log";
 import { APIError } from "@/types/error";
 import type { APIResponse } from "@/types/api";
 
-const DEV_LOCK_OTP = "1234";
-
 export const requestLockOtpHandler = createHandlers(
 	campingAuthGuard(),
 	lockOtpRequestBodyValidator,
 	async (context) => {
 		const client_id = context.get("client_id");
 		const user_id = context.get("user_id");
+		const vertical_id = context.get("vertical_id");
 		const user = context.get("user") as { email?: string; name?: string };
 		const clientEmail = user.email?.trim() ?? "";
 		const box_id = context.req.param("box_id");
 		const { action } = context.req.valid("json");
-		const isProduction = process.env.NODE_ENV === "production";
 
 		const box = await prisma.box.findFirst({
 			where: {
@@ -35,11 +33,11 @@ export const requestLockOtpHandler = createHandlers(
 			throw new APIError(undefined, "camping.box.NOT_FOUND");
 		}
 
-		if (isProduction && !clientEmail) {
+		if (!clientEmail) {
 			throw new APIError(undefined, "camping.auth.login.EMAIL_NOT_FOUND");
 		}
 
-		const otp = isProduction ? Otp.generateOtp(4) : DEV_LOCK_OTP;
+		const otp = Otp.generateOtp(4);
 
 		const updatedOtpRecord = await saveCampingOtp({
 			email: clientEmail,
@@ -64,15 +62,13 @@ export const requestLockOtpHandler = createHandlers(
 			);
 		}
 
-		if (isProduction) {
-			const actionLabel = action === "unlock" ? "unlock" : "lock";
-			await services.mailer.sendEmail({
-				from: "ankan@sqaby.com",
-				subject: `Camping Portal - GrubLock ${actionLabel} OTP`,
-				to: clientEmail,
-				text: `Your OTP to ${actionLabel} GrubLock on ${box.box_display_id} is ${otp} (OTP Session ID: ${updatedOtpRecord.otp_id})`,
-			});
-		}
+		const actionLabel = action === "unlock" ? "unlock" : "lock";
+		await services.mailer.sendEmail({
+			from: "ankan@sqaby.com",
+			subject: `Camping Portal - GrubLock ${actionLabel} OTP`,
+			to: clientEmail,
+			text: `Your OTP to ${actionLabel} GrubLock on ${box.box_display_id} is ${otp} (OTP Session ID: ${updatedOtpRecord.otp_id})`,
+		});
 
 		try {
 			await loggerService.log({
@@ -85,6 +81,7 @@ export const requestLockOtpHandler = createHandlers(
 					table: "client",
 				},
 				client_id,
+				vertical_id,
 				subject: { id: box.id, name: box.box_display_id, type: "box" },
 				metadata: { action },
 			});
@@ -94,22 +91,13 @@ export const requestLockOtpHandler = createHandlers(
 
 		const message = action === "unlock" ? "Unlock OTP sent successfully" : "Lock OTP sent successfully";
 
-		const responseData = isProduction
-			? {
-					otp_id: updatedOtpRecord.otp_id,
-					otp_details: {
-						type: "email",
-						values: [clientEmail],
-					},
-				}
-			: {
-					otp: DEV_LOCK_OTP,
-					otp_id: updatedOtpRecord.otp_id,
-					otp_details: {
-						type: "test",
-						values: [DEV_LOCK_OTP],
-					},
-				};
+		const responseData = {
+			otp_id: updatedOtpRecord.otp_id,
+			otp_details: {
+				type: "email",
+				values: [clientEmail],
+			},
+		};
 
 		return context.json<APIResponse<typeof responseData>>({
 			success: true,

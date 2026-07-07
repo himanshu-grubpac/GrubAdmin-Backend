@@ -13,6 +13,7 @@ export const lockBoxHandler = createHandlers(
 	async (context) => {
 		const client_id = context.get("client_id");
 		const user_id = context.get("user_id");
+		const vertical_id = context.get("vertical_id");
 		const user = context.get("user") as { email?: string; name?: string };
 		const clientEmail = user.email?.trim() ?? "";
 		const clientName = user.name || clientEmail || "Camping Client";
@@ -55,6 +56,7 @@ export const lockBoxHandler = createHandlers(
 					table: "client",
 				},
 				client_id,
+				vertical_id,
 				subject: { id: box.id, name: box.box_display_id, type: "box" },
 				metadata: { action },
 			});

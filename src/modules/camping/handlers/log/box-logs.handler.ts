@@ -41,10 +41,43 @@ export const getBoxLogsHandler = createHandlers(
 
 		const result = await getSystemLogs({
 			client_id,
+			vertical_id,
 			subject_id: box.id,
-			category: "GrubPac",
+			category: ["GrubPac", "GrubLock"],
 			page,
 			page_size,
+		});
+
+		const formattedLogs = result.logs.map((log: any) => {
+			const logObj = typeof log.toObject === "function" ? log.toObject() : log;
+			let description = logObj.description || "";
+
+			if (logObj.category === "GrubLock") {
+				const actorName = logObj.actor?.name || "Unknown";
+				const subjectName = logObj.subject?.name || "Box";
+				const action = logObj.metadata?.action || "";
+
+				if (logObj.type === "OTP") {
+					if (action === "unlock") {
+						description = `${actorName} unlocked ${subjectName} via OTP`;
+					} else if (action === "lock") {
+						description = `${actorName} locked ${subjectName} via OTP`;
+					}
+				} else if (logObj.type === "Status") {
+					if (action === "unlock") {
+						description = `${actorName} unlocked ${subjectName}`;
+					} else if (action === "lock") {
+						const recipient = logObj.metadata?.recipient ? ` - [${logObj.metadata.recipient}]` : "";
+						description = `${actorName} locked ${subjectName}${recipient}`;
+					}
+				}
+			}
+
+			const cleanDescription = description.replace(/\[([^,\]]+),\s*([0-9a-zA-Z]{24,32})\]/g, "$1");
+			return {
+				...logObj,
+				description: cleanDescription,
+			};
 		});
 
 		return context.json<APIResponse<any>>({
@@ -52,7 +85,7 @@ export const getBoxLogsHandler = createHandlers(
 			code: 200,
 			message: "Box logs fetched successfully",
 			data: {
-				logs: result.logs,
+				logs: formattedLogs,
 				count: result.page_count,
 				total: result.total_count,
 			},
