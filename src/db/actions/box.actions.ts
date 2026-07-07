@@ -1700,6 +1700,80 @@ export const getVerticalDeliveryGrubpacDetails = async (args: GetVerticalDeliver
 	};
 };
 
+interface GetVerticalDeliveryGrubpacEditDetailsArgs {
+	id: string;
+	client_id: string;
+}
+
+export const getVerticalDeliveryGrubpacEditDetails = async (
+	args: GetVerticalDeliveryGrubpacEditDetailsArgs,
+) => {
+	const { id, client_id } = args;
+
+	const box = await prisma.box.findFirst({
+		where: { id, client_id, status: { not: "suspended" } },
+		select: {
+			id: true,
+			name: true,
+			box_display_id: true,
+			vehicle_number: true,
+			restaurant_boxes: {
+				where: { status: "shared" },
+				select: { restaurant_id: true },
+			},
+			vertical_delivery_employee_boxes: {
+				select: {
+					employee_id: true,
+					status: true,
+					access: true,
+				},
+			},
+		},
+	});
+
+	if (!box) {
+		throw new APIError(undefined, "delivery.box.NOT_FOUND", undefined, 404);
+	}
+
+	const clientEmployees = await prisma.vertical_delivery_employee.findMany({
+		where: { client_id },
+		select: { id: true, restaurant_id: true },
+	});
+
+	const restaurant_ids = box.restaurant_boxes.map((rb) => rb.restaurant_id);
+	const sharedPermissions = box.vertical_delivery_employee_boxes.filter(
+		(p) => p.status === "shared",
+	);
+	const access_mode = calculateAccessMode(
+		sharedPermissions,
+		clientEmployees,
+		restaurant_ids,
+	);
+	const blocked_employee_ids = box.vertical_delivery_employee_boxes
+		.filter((p) => p.status === "blocked" && p.employee_id)
+		.map((p) => p.employee_id as string);
+
+	const blockedCount = blocked_employee_ids.length;
+	const sharedCount = sharedPermissions.length;
+	const totalCount = box.vertical_delivery_employee_boxes.length;
+
+	return {
+		id: box.id,
+		name: box.name,
+		box_id: box.box_display_id,
+		vehicle_number: box.vehicle_number,
+		restaurant_ids,
+		access_mode,
+		blocked_employee_ids,
+		permissions_blocked_count: blockedCount,
+		permissionSummary: {
+			total: totalCount,
+			blocked: blockedCount,
+			shared: sharedCount,
+		},
+	};
+};
+
 
 export const suspendVerticalDeliveryBoxes = async (ids: string[], client_id: string) => {
 	const currentBoxes = await prisma.box.findMany({

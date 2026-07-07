@@ -71,6 +71,7 @@ import {
 	updateGrubpacHandler,
 	actionGrubpacHandler,
 	getGrubpacDetailsHandler,
+	getGrubpacEditDetailsHandler,
 	getGrublockHandler,
 	getGrubpacDropdownsHandler,
 	suspendGrubpacHandler,
@@ -218,6 +219,7 @@ deliveryRouter.patch("/grubpac/remove/employee", ...removeBoxEmployeeHandler);
 deliveryRouter.put("/grubpac", ...updateGrubpacHandler);
 deliveryRouter.patch("/grubpac/action", ...actionGrubpacHandler);
 deliveryRouter.get("/grubpac/details", ...getGrubpacDetailsHandler);
+deliveryRouter.get("/grubpac/edit-details", ...getGrubpacEditDetailsHandler);
 deliveryRouter.get("/grubpac/dropdowns", ...getGrubpacDropdownsHandler);
 deliveryRouter.patch("/grubpac/suspend", ...suspendGrubpacHandler);
 deliveryRouter.patch("/grubpac/reactivate", ...reactivateGrubpacHandler);

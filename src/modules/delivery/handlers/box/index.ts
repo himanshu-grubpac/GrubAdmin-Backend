@@ -5,6 +5,7 @@ export * from "./create-grubpac.handler";
 export * from "./update-grubpac.handler";
 export * from "./action-grubpac.handler";
 export * from "./get-grubpac-details.handler";
+export * from "./get-grubpac-edit-details.handler";
 export * from "./get-grublock.handler";
 export * from "./get-grubpac-dropdowns.handler";
 export * from "./suspend-grubpac.handler";

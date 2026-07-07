@@ -1,7 +1,7 @@
 import { AUTH_SECRET, DELIVERY_AUTH_SECRET, MEDICAL_AUTH_SECRET, HOSPITALITY_AUTH_SECRET, JWT_ACCESS_TOKEN_EXPIRY, JWT_REFRESH_TOKEN_EXPIRY } from "@/configs/env";
 import { APIError } from "@/types/error";
 import type { AuthPayload, DeliveryAuthPayload, MedicalAuthPayload, HospitalityAuthPayload, ImpersonationPayload } from "@/types/jwt";
-import { type JwtPayload, sign, verify } from "jsonwebtoken";
+import { type JwtPayload, sign, verify, type SignOptions } from "jsonwebtoken";
 import { logger } from "@/utils/logger";
 import { randomUUID } from "crypto";
 
@@ -122,14 +122,17 @@ export class JWT {
 		);
 	}
 
-	static signDeliveryAuthToken(payload: DeliveryAuthPayload): string {
+	static signDeliveryAuthToken(
+		payload: DeliveryAuthPayload,
+		expiresIn: SignOptions["expiresIn"] = "24h",
+	): string {
 		return sign(
 			{
 				user: payload,
 			},
 			DELIVERY_AUTH_SECRET,
 			{
-				expiresIn: "24h",
+				expiresIn,
 			},
 		);
 	}
