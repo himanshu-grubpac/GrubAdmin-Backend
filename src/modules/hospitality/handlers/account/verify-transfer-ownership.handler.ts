@@ -39,25 +39,12 @@ const resolveTargetClient = async (
 		state: string;
 	},
 ) => {
-	let targetClient = await tx.client.findFirst({
+	const targetClient = await tx.client.findFirst({
 		where: { email: recipient.email },
 	});
 
 	if (!targetClient) {
-		targetClient = await tx.client.create({
-			data: {
-				name: recipient.name,
-				organization_name: recipient.organization_name,
-				country_code: recipient.country_code,
-				mobile_number: recipient.phone,
-				email: recipient.email,
-				country: recipient.country,
-				state: recipient.state,
-				client_display_id: `CLI-${ulid()}`,
-				vertical: { connect: { id: vertical_id } },
-				status: "active",
-			},
-		});
+		throw new APIError("Account with this email does not exist.", undefined, undefined, 404);
 	}
 
 	return targetClient;
@@ -122,14 +109,6 @@ export const verifyTransferOwnershipHandler = createHandlers(
 
 			if (transfer_mode === "all") {
 				await tx.box.updateMany({
-					where: { client_id },
-					data: { client_id: targetClient.id },
-				});
-				await tx.vertical_hospitality_floor.updateMany({
-					where: { client_id },
-					data: { client_id: targetClient.id },
-				});
-				await tx.restaurant.updateMany({
 					where: { client_id },
 					data: { client_id: targetClient.id },
 				});

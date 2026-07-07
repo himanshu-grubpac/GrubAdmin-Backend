@@ -11,7 +11,7 @@ interface ResponseData {
 }
 
 export const createFloorHandler = createHandlers(
-	hospitalityAuthGuard(["admin", "manager"]),
+	hospitalityAuthGuard(["admin"]),
 	createFloorRequestBodyValidator,
 	async (context) => {
 		const { client_id } = context.var;
@@ -36,7 +36,7 @@ export const createFloorHandler = createHandlers(
 				id: user_id,
 				name: actorName,
 				role: userType,
-				table: userType === "admin" ? "client" : "vertical_delivery_employee",
+				table: userType === "admin" ? "client" : "vertical_hospitality_employee",
 			},
 			client_id,
 			subject: {

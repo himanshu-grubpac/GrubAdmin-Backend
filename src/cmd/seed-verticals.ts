@@ -9,18 +9,21 @@ const VERTICALS = [
   { id: SEED_IDS.VERTICAL_CAMPING, name: "Camping", display_order: 4 },
 ] as const;
 
+// All icons use a consistent "icons/" prefix.
+// Legacy bucket keys under "Support/Card/" are handled by the URL resolver
+// for backward compatibility with existing stored data.
 const ICONS = [
-  { id: SEED_IDS.ICON_DEFAULT, name: "Default Icon", bucket_key: "icons/default-faq-icon.png" },
-  { id: SEED_IDS.ICON_MEDICAL, name: "Medical Icon", bucket_key: "icons/medical-faq-icon.png" },
-  { id: SEED_IDS.ICON_CAMPING, name: "Camping Icon", bucket_key: "icons/camping-faq-icon.png" },
-  { id: SEED_IDS.ICON_HOSPITALITY, name: "Hospitality Icon", bucket_key: "icons/hospitality-faq-icon.png" },
-  { id: SEED_IDS.ICON_DELIVERY, name: "Delivery Icon", bucket_key: "icons/delivery-faq-icon.png" },
-  { id: SEED_IDS.ICON_SETUP, name: "Setup & Installation", bucket_key: "Support/Card/gear.svg" },
-  { id: SEED_IDS.ICON_TROUBLESHOOT, name: "Troubleshooting", bucket_key: "Support/Card/suitcase-medical.svg" },
-  { id: SEED_IDS.ICON_DEVICE_CONNECT, name: "Device Connection", bucket_key: "Support/Card/bluetooth-on.svg" },
-  { id: SEED_IDS.ICON_ALERT, name: "Alert & Notification", bucket_key: "Support/Card/exclamation-triangle.svg" },
-  { id: SEED_IDS.ICON_ACCOUNT, name: "Account & App Support", bucket_key: "Support/Card/user-shield.svg" },
-  { id: SEED_IDS.ICON_OTHERS, name: "Others", bucket_key: "Support/Card/question-circle.svg" },
+  { id: SEED_IDS.ICON_DEFAULT, name: "Default Icon", bucket_key: "icons/default-faq-icon.svg" },
+  { id: SEED_IDS.ICON_MEDICAL, name: "Medical Icon", bucket_key: "icons/medical-faq-icon.svg" },
+  { id: SEED_IDS.ICON_CAMPING, name: "Camping Icon", bucket_key: "icons/camping-faq-icon.svg" },
+  { id: SEED_IDS.ICON_HOSPITALITY, name: "Hospitality Icon", bucket_key: "icons/hospitality-faq-icon.svg" },
+  { id: SEED_IDS.ICON_DELIVERY, name: "Delivery Icon", bucket_key: "icons/delivery-faq-icon.svg" },
+  { id: SEED_IDS.ICON_SETUP, name: "Setup & Installation", bucket_key: "icons/gear.svg" },
+  { id: SEED_IDS.ICON_TROUBLESHOOT, name: "Troubleshooting", bucket_key: "icons/suitcase-medical.svg" },
+  { id: SEED_IDS.ICON_DEVICE_CONNECT, name: "Device Connection", bucket_key: "icons/bluetooth-on.svg" },
+  { id: SEED_IDS.ICON_ALERT, name: "Alert & Notification", bucket_key: "icons/exclamation-triangle.svg" },
+  { id: SEED_IDS.ICON_ACCOUNT, name: "Account & App Support", bucket_key: "icons/user-shield.svg" },
+  { id: SEED_IDS.ICON_OTHERS, name: "Others", bucket_key: "icons/question-circle.svg" },
 ] as const;
 
 export const seedVerticals = async (): Promise<void> => {

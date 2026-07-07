@@ -1,6 +1,7 @@
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { validatorErrorHandler } from "@/utils/zod.ts";
+import { listPaginationFields, searchLimitField } from "@/validators/pagination";
 
 export const getSupportCategoriesRequestQueryValidator = zValidator(
 	"query",
@@ -8,10 +9,7 @@ export const getSupportCategoriesRequestQueryValidator = zValidator(
 		query: z.string().trim().optional(),
 		search: z.string().trim().optional(),
 		id: z.ulid("Please provide a valid id").optional(),
-		page: z.coerce.number().int().min(1).optional(),
-		limit: z.coerce.number().int().min(1).optional(),
-		page_number: z.coerce.number().int().min(1).optional(),
-		page_size: z.coerce.number().int().min(1).optional(),
+		...listPaginationFields,
 	}).transform((data) => ({
 		...data,
 		page: data.page ?? data.page_number ?? 1,
@@ -34,10 +32,7 @@ export const getSupportQuestionsRequestQueryValidator = zValidator(
 		category_id: z.string({
 			error: "Please provide a valid category_id",
 		}).optional(),
-		page: z.coerce.number().int().min(1).optional(),
-		limit: z.coerce.number().int().min(1).optional(),
-		page_number: z.coerce.number().int().min(1).optional(),
-		page_size: z.coerce.number().int().min(1).optional(),
+		...listPaginationFields,
 	}).transform((data) => ({
 		...data,
 		page: data.page ?? data.page_number ?? 1,
@@ -56,7 +51,7 @@ export const searchSupportQuestionsRequestQueryValidator = zValidator(
 	z.object({
 		query: z.string().trim().optional(),
 		search: z.string().trim().optional(),
-		limit: z.coerce.number().int().min(1).optional(),
+		...searchLimitField,
 		category_id: z.string({
 			error: "Please provide a valid category_id",
 		}).optional(),

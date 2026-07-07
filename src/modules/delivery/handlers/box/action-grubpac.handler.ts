@@ -3,6 +3,7 @@ import { createHandlers } from "@/utils/hono-factory.ts";
 import { deliveryAuthGuard } from "@/middlewares/auth";
 import { actionGrubpacRequestBodyValidator } from "delivery/validators/box.validators.ts";
 import { actionGrubpac } from "@/db/actions/box.actions.ts";
+import { createNotification } from "@/db/actions/notification.actions.ts";
 import type { APIResponse } from "@/types/api";
 import { 
 	type box_status,
@@ -14,7 +15,7 @@ export const actionGrubpacHandler = createHandlers(
 	deliveryAuthGuard(["admin"]),
 	actionGrubpacRequestBodyValidator,
 	async (context) => {
-		const { client_id } = context.var;
+		const { client_id, vertical_id } = context.var;
 		const {
 			ids,
 			status,
@@ -65,6 +66,43 @@ export const actionGrubpacHandler = createHandlers(
 			port_big_status: port_big_status as hardware_state,
 			client_id,
 		});
+
+		const hasSettingsChange =
+			power_status !== undefined ||
+			ioniser_status !== undefined ||
+			dual_zone_status !== undefined ||
+			zone1_temp !== undefined ||
+			zone2_temp !== undefined ||
+			adas_status !== undefined ||
+			bluetooth_status !== undefined ||
+			camera_status !== undefined ||
+			gps_status !== undefined ||
+			gyrosensor_status !== undefined ||
+			save_to_memory_status !== undefined ||
+			sim_status !== undefined ||
+			solar_status !== undefined ||
+			wifi_status !== undefined ||
+			turn_signal_status !== undefined ||
+			advert_screen_status !== undefined ||
+			port_small_status !== undefined ||
+			port_big_status !== undefined;
+
+		if (hasSettingsChange) {
+			try {
+				for (const boxId of ids) {
+					await createNotification({
+						client_id,
+						vertical_id,
+						box_id: boxId,
+						type: "success",
+						title: "GrubPac settings updated",
+						description: `Settings were updated for box ${boxId}`,
+					});
+				}
+			} catch (err) {
+				console.error("Failed to create settings update notification:", err);
+			}
+		}
 
 
 

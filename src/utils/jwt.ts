@@ -1,11 +1,12 @@
-import { AUTH_SECRET, DELIVERY_AUTH_SECRET, MEDICAL_AUTH_SECRET, JWT_ACCESS_TOKEN_EXPIRY, JWT_REFRESH_TOKEN_EXPIRY } from "@/configs/env";
+import { AUTH_SECRET, DELIVERY_AUTH_SECRET, MEDICAL_AUTH_SECRET, HOSPITALITY_AUTH_SECRET, JWT_ACCESS_TOKEN_EXPIRY, JWT_REFRESH_TOKEN_EXPIRY } from "@/configs/env";
 import { APIError } from "@/types/error";
-import type { AuthPayload, DeliveryAuthPayload, MedicalAuthPayload, ImpersonationPayload } from "@/types/jwt";
+import type { AuthPayload, DeliveryAuthPayload, MedicalAuthPayload, HospitalityAuthPayload, ImpersonationPayload } from "@/types/jwt";
 import { type JwtPayload, sign, verify } from "jsonwebtoken";
 import { logger } from "@/utils/logger";
 import { randomUUID } from "crypto";
 
 const MEDICAL_SECRET = MEDICAL_AUTH_SECRET || DELIVERY_AUTH_SECRET;
+const HOSPITALITY_SECRET = HOSPITALITY_AUTH_SECRET || DELIVERY_AUTH_SECRET;
 
 interface JwtAuthPayload extends JwtPayload {
 	user?: AuthPayload;
@@ -17,6 +18,10 @@ interface DeliveryJwtAuthPayload extends JwtPayload {
 
 interface MedicalJwtAuthPayload extends JwtPayload {
 	user?: MedicalAuthPayload;
+}
+
+interface HospitalityJwtAuthPayload extends JwtPayload {
+	user?: HospitalityAuthPayload;
 }
 
 interface JwtImpersonationPayload extends JwtPayload {
@@ -84,6 +89,33 @@ export class JWT {
 				user: payload,
 			},
 			MEDICAL_SECRET,
+			{
+				expiresIn: "24h",
+			},
+		);
+	}
+
+	static verifyHospitalityAuthToken(token: string): HospitalityAuthPayload {
+		const { user } = verify(token, HOSPITALITY_SECRET) as { user: HospitalityAuthPayload } & JwtPayload;
+
+		if (!user) {
+			throw new APIError(
+				"The auth token is either invalid or has expired!",
+				undefined,
+				undefined,
+				401,
+			);
+		}
+
+		return user;
+	}
+
+	static signHospitalityAuthToken(payload: HospitalityAuthPayload): string {
+		return sign(
+			{
+				user: payload,
+			},
+			HOSPITALITY_SECRET,
 			{
 				expiresIn: "24h",
 			},

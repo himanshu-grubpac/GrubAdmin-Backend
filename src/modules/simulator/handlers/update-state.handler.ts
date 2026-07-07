@@ -2,7 +2,12 @@ import { createHandlers } from "@/utils/hono-factory.ts";
 import { updateTelemetryValidator, boxIdParamValidator } from "../validators/simulator.validators.ts";
 import { updateBoxTelemetry } from "@/db/actions/simulator.actions.ts";
 import { prisma } from "@/db";
-import type { APIResponse } from "@/types/api";
+import {
+	buildSimulatorConnectedUser,
+	disconnectSimulatorBoxOnPowerOff,
+	enforceSimulatorHeartbeatTimeout,
+	recordSimulatorHeartbeat,
+} from "@/db/actions/simulator.connection.actions.ts";
 
 export const updateStateHandler = createHandlers(
 	boxIdParamValidator,
@@ -11,27 +16,49 @@ export const updateStateHandler = createHandlers(
 		const { box_id } = context.req.valid("param");
 		const body = context.req.valid("json");
 
+		await enforceSimulatorHeartbeatTimeout(box_id);
+		recordSimulatorHeartbeat(box_id);
+
 		// Map simulator payload to DB schema
 		const mappedData: any = {};
 
 		if (body.connection_status !== undefined) {
-			if (body.connection_status === "strong" || body.connection_status === "weak") mappedData.connection_status = "connected";
-			else if (body.connection_status === "offline") mappedData.connection_status = "disconnected";
-			else mappedData.connection_status = "unknown";
+			if (body.connection_status === "strong" || body.connection_status === "weak") {
+				mappedData.connection_status = "connected";
+				mappedData.cellular_signal = body.connection_status;
+			}
+			else if (body.connection_status === "offline") {
+				mappedData.connection_status = "disconnected";
+				mappedData.cellular_signal = body.connection_status;
+			}
+			else {
+				mappedData.connection_status = "unknown";
+				mappedData.cellular_signal = body.connection_status;
+			}
 		}
 		if (body.battery_level !== undefined) mappedData.battery_percentage = body.battery_level;
-		if (body.battery_1_level !== undefined) mappedData.battery_percentage = body.battery_1_level; // Fallback if 1 is provided
+		if (body.battery_1_level !== undefined) mappedData.battery_1_percentage = body.battery_1_level;
+		if (body.battery_2_level !== undefined) mappedData.battery_2_percentage = body.battery_2_level;
 		if (body.zone_1_temp !== undefined) mappedData.zone1_temp = body.zone_1_temp;
 		if (body.zone_2_temp !== undefined) mappedData.zone2_temp = body.zone_2_temp;
+		if (body.zone_1_target_temp !== undefined) mappedData.zone1_target_temp = body.zone_1_target_temp;
+		if (body.zone_2_target_temp !== undefined) mappedData.zone2_target_temp = body.zone_2_target_temp;
 		if (body.ambient_temp !== undefined) mappedData.ext_temp = body.ambient_temp;
 
 		if (body.is_power_on !== undefined) mappedData.power_status = body.is_power_on ? "on" : "off";
+		if (body.is_charging !== undefined) mappedData.charging_status = body.is_charging ? "on" : "off";
+		if (body.zone_1_status !== undefined) mappedData.zone1_status = body.zone_1_status ? "on" : "off";
+		if (body.zone_2_status !== undefined) mappedData.zone2_status = body.zone_2_status ? "on" : "off";
+		if (body.is_dual_zone !== undefined) mappedData.dual_zone_status = body.is_dual_zone ? "on" : "off";
+
 		if (body.bluetooth_available !== undefined) mappedData.bluetooth_status = body.bluetooth_available ? "on" : "off";
 		if (body.wifi_connected !== undefined) mappedData.wifi_status = body.wifi_connected ? "on" : "off";
 		if (body.gps_available !== undefined) mappedData.gps_status = body.gps_available ? "on" : "off";
 		if (body.solar_panel !== undefined) mappedData.solar_status = body.solar_panel ? "on" : "off";
 		if (body["220V_110V_port"] !== undefined) mappedData.port_big_status = body["220V_110V_port"] ? "on" : "off";
 		if (body.Memorycard_used !== undefined) mappedData.memory_percentage = Math.round(body.Memorycard_used * 100);
+		if (body.saveToCard !== undefined) mappedData.save_to_memory_status = body.saveToCard ? "on" : "off";
+		if (body.Adas !== undefined) mappedData.adas_status = body.Adas ? "on" : "off";
 
 		if (body.BoxCam !== undefined) mappedData.camera_status = body.BoxCam ? "on" : "off";
 		if (body.advert_screen !== undefined) mappedData.advert_screen_status = body.advert_screen ? "on" : "off";
@@ -43,9 +70,24 @@ export const updateStateHandler = createHandlers(
 
 		await updateBoxTelemetry(box_id, mappedData);
 
+		if (body.is_power_on === false) {
+			await disconnectSimulatorBoxOnPowerOff(box_id);
+		}
+
 		const box = await prisma.box.findUnique({
 			where: { id: box_id },
-			include: { telemetry: true, lock: true },
+			include: {
+				telemetry: true,
+				lock: true,
+				connection_employee: {
+					select: {
+						id: true,
+						employee_display_id: true,
+						first_name: true,
+						last_name: true,
+					},
+				},
+			},
 		});
 
 		if (!box) {
@@ -55,6 +97,8 @@ export const updateStateHandler = createHandlers(
 			);
 		}
 
+		const connected_user = buildSimulatorConnectedUser(box);
+
 		return context.json<any>(
 			{
 				status: "success",
@@ -63,16 +107,38 @@ export const updateStateHandler = createHandlers(
 					display_id: box.box_display_id,
 					is_locked: box.lock?.lock_status === "locked",
 					driver_id: box.connection_employee_id || null,
+					connected_user,
 					restaurant_id: null,
+					is_driver_connected: !!box.connection_employee_id,
+					connection_status: box.telemetry?.cellular_signal || box.telemetry?.connection_status || "strong",
+					battery_1_level: box.telemetry?.battery_1_percentage ?? 23,
+					battery_2_level: box.telemetry?.battery_2_percentage ?? 80,
+					battery_level: box.telemetry?.battery_percentage ?? 80,
+					ambient_temp: box.telemetry?.ext_temp ?? 32,
+					zone_1_temp: box.telemetry?.zone1_temp ?? 4.2,
+					zone_2_temp: box.telemetry?.zone2_temp ?? 4.5,
+					gps_available: box.telemetry?.gps_status === "on",
+					bluetooth_available: box.telemetry?.bluetooth_status === "on",
+					wifi_connected: box.telemetry?.wifi_status === "on",
+					is_power_on: box.telemetry?.power_status === "on",
+					latitude: 28.6139,
+					longitude: 77.209,
+					solar_panel: box.telemetry?.solar_status === "on",
+					"220V_110V_port": box.telemetry?.port_big_status === "on",
+					Memorycard_used: box.telemetry?.memory_percentage ? box.telemetry.memory_percentage / 100 : 0.15,
+					gyrosensor: box.telemetry?.gyrosensor_status === "on" ? "detected" : "not_detected",
+					turn_signals: box.telemetry?.turn_signal_status === "on" ? "detected" : "not_detected",
+					is_dual_zone: box.telemetry?.dual_zone_status === "on",
 					settings: {
 						is_power_on: box.telemetry?.power_status === "on",
-						is_dual_zone: false, // Default or fetch if available
-						zone_1_target_temp: box.telemetry?.zone1_temp || 4,
-						zone_2_target_temp: box.telemetry?.zone2_temp || 4,
-						zone_1_status: true,
-						zone_2_status: false,
-						saveToCard: true,
-						Adas: true,
+						is_charging: box.telemetry?.charging_status === "on",
+						is_dual_zone: box.telemetry?.dual_zone_status === "on",
+						zone_1_target_temp: box.telemetry?.zone1_target_temp ?? 4,
+						zone_2_target_temp: box.telemetry?.zone2_target_temp ?? 4,
+						zone_1_status: box.telemetry?.zone1_status === "on",
+						zone_2_status: box.telemetry?.zone2_status === "on",
+						saveToCard: box.telemetry?.save_to_memory_status === "on",
+						Adas: box.telemetry?.adas_status === "on",
 						BoxCam: box.telemetry?.camera_status === "on",
 						advert_screen: box.telemetry?.advert_screen_status === "on",
 						ioniser: box.telemetry?.ioniser_status === "on",

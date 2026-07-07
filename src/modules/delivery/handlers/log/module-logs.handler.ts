@@ -26,11 +26,11 @@ export const postRestaurantLogsHandler = createHandlers(
 		});
 
 		return context.json<APIResponse<any>>({
-			success: true, 
-			code: 200, 
-			message: "Restaurant logs fetched successfully", 
-			data: { 
-				logs: result.logs, 
+			success: true,
+			code: 200,
+			message: "Restaurant logs fetched successfully",
+			data: {
+				logs: result.logs,
 				count: result.page_count,
 				total: result.total_count,
 			},
@@ -45,7 +45,7 @@ export const getRestaurantLogsDropdownsHandler = createHandlers(
 	async (context) => {
 		return context.json<APIResponse<any>>({
 			success: true, code: 200, message: "Restaurant log dropdowns fetched",
-			data: { 
+			data: {
 				filter_structure: filterStructure.Restaurant,
 				config: LOG_CONFIG.categories.Restaurant
 			}
@@ -69,7 +69,7 @@ export const postEmployeeLogsHandler = createHandlers(
 		});
 
 		return context.json<APIResponse<any>>({
-			success: true, code: 200, message: "Employee logs fetched successfully", 
+			success: true, code: 200, message: "Employee logs fetched successfully",
 			data: { logs: result.logs, count: result.page_count, total: result.total_count },
 			pagination: calculatePagination(result.page || 1, result.page_size || result.total_count, result.total_count)
 		});
@@ -82,7 +82,7 @@ export const getEmployeeLogsDropdownsHandler = createHandlers(
 	async (context) => {
 		return context.json<APIResponse<any>>({
 			success: true, code: 200, message: "Employee log dropdowns fetched",
-			data: { 
+			data: {
 				filter_structure: filterStructure.Employee,
 				config: LOG_CONFIG.categories.Employee
 			}
@@ -106,7 +106,7 @@ export const postGrubpacLogsHandler = createHandlers(
 		});
 
 		return context.json<APIResponse<any>>({
-			success: true, code: 200, message: "GrubPac logs fetched successfully", 
+			success: true, code: 200, message: "GrubPac logs fetched successfully",
 			data: { logs: result.logs, count: result.page_count, total: result.total_count },
 			pagination: calculatePagination(result.page || 1, result.page_size || result.total_count, result.total_count)
 		});
@@ -119,12 +119,18 @@ export const getGrubpacLogsDropdownsHandler = createHandlers(
 	async (context) => {
 		return context.json<APIResponse<any>>({
 			success: true, code: 200, message: "Grubpac log dropdowns fetched",
-			data: { 
+			data: {
 				filter_structure: {
 					system_logs: Array.from(new Set([...filterStructure.GrubPac.system_logs, ...filterStructure.GrubLock.system_logs])),
 					action_logs: Array.from(new Set([...filterStructure.GrubPac.action_logs, ...filterStructure.GrubLock.action_logs])),
 				},
-				config: LOG_CONFIG.categories.GrubPac
+				config: {
+					enabled: LOG_CONFIG.categories.GrubPac.enabled || LOG_CONFIG.categories.GrubLock.enabled,
+					types: {
+						...LOG_CONFIG.categories.GrubPac.types,
+						...LOG_CONFIG.categories.GrubLock.types,
+					},
+				}
 			}
 		}, 200 as any);
 	}
@@ -146,7 +152,7 @@ export const postGrublockLogsHandler = createHandlers(
 		});
 
 		return context.json<APIResponse<any>>({
-			success: true, code: 200, message: "GrubLock logs fetched successfully", 
+			success: true, code: 200, message: "GrubLock logs fetched successfully",
 			data: { logs: result.logs, count: result.page_count, total: result.total_count },
 			pagination: calculatePagination(result.page || 1, result.page_size || result.total_count, result.total_count)
 		});
@@ -159,7 +165,7 @@ export const getGrublockLogsDropdownsHandler = createHandlers(
 	async (context) => {
 		return context.json<APIResponse<any>>({
 			success: true, code: 200, message: "GrubLock log dropdowns fetched",
-			data: { 
+			data: {
 				filter_structure: filterStructure.GrubLock,
 				config: LOG_CONFIG.categories.GrubLock
 			}

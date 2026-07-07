@@ -9,7 +9,7 @@ interface SaveDeliveryEmployeeOtpArgs {
 	email: string;
 	otp: string;
 	role: VerticalDeliveryEmployeeRoleType;
-	for_what: "login" | "forget_password" | "set_new_password" | "unlock_box";
+	for_what: "login" | "forget_password" | "set_new_password" | "unlock_box" | "delete_account";
 	metadata?: any;
 }
 

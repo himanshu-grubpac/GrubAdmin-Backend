@@ -15,6 +15,7 @@ import {
 } from "hospitality/handlers/auth";
 import {
 	confirmUpdateAccountHandler,
+	deleteAccountEligibilityHandler,
 	getMyAccountHandler,
 	updateAccountHandler,
 	updateAccountResendOtpHandler,
@@ -91,6 +92,7 @@ hospitalityRouter.get("/account/me", ...getMyAccountHandler);
 hospitalityRouter.put("/account", ...updateAccountHandler);
 hospitalityRouter.patch("/account/update/resend-otp", ...updateAccountResendOtpHandler);
 hospitalityRouter.patch("/account/confirm", ...confirmUpdateAccountHandler);
+hospitalityRouter.get("/account/delete-eligibility", ...deleteAccountEligibilityHandler);
 hospitalityRouter.delete("/account", ...deleteAccountHandler);
 hospitalityRouter.post("/account/transfer-ownership", ...transferOwnershipHandler);
 hospitalityRouter.post("/account/transfer-ownership/verify", ...verifyTransferOwnershipHandler);

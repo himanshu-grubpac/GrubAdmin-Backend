@@ -19,6 +19,8 @@ const mockPrisma = {
 
 mock.module("@/db", () => ({
 	prisma: mockPrisma,
+	isMongoConnected: () => true,
+	getMongoConnectionState: () => "connected",
 }));
 
 const { resolveDriverBoxById } = await import(

@@ -66,7 +66,7 @@ export const verifyOtpHandler = createHandlers(
 			throw new APIError(undefined, "hospitality.auth.login.SUSPENDED");
 		}
 
-		const token = JWT.signDeliveryAuthToken({
+		const token = JWT.signHospitalityAuthToken({
 			id: clientRecord.id,
 			role: "admin",
 		});

@@ -477,10 +477,11 @@ export const actionHospitalityBoxes = async (args: ActionHospitalityBoxesArgs) =
 					boxFloorName = assign_floor_id ? floorName : "";
 				}
 
-				await tx.notification.create({
-					data: {
-						client_id,
-						box_id: box.id,
+			await tx.notification.create({
+				data: {
+					client_id,
+					vertical_id: box.vertical_id,
+					box_id: box.id,
 						box_display_id: box.box_display_id,
 						box_name: box.name || box.box_display_id,
 						restaurant_name: boxFloorName || null,
@@ -514,7 +515,7 @@ export const getHospitalityDashboardMetrics = async (client_id: string) => {
 		prisma.vertical_hospitality_floor.count({
 			where: { client_id, status: "active" },
 		}),
-		prisma.vertical_delivery_employee.count({
+		prisma.vertical_hospitality_employee.count({
 			where: { client_id, status: { not: "suspended" } },
 		}),
 		prisma.box.count({

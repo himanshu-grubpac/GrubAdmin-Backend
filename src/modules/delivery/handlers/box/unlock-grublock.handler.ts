@@ -3,90 +3,87 @@ import { createHandlers } from "@/utils/hono-factory.ts";
 import { deliveryAuthGuard } from "@/middlewares/auth";
 import { unlockGrublockRequestBodyValidator } from "delivery/validators/box.validators.ts";
 import { saveDeliveryEmployeeOtp } from "@/db/actions/delivery-employee-otp.actions.ts";
+import { createNotification } from "@/db/actions/notification.actions.ts";
+import { APIError } from "@/types/error";
 import type { APIResponse } from "@/types/api";
-import { Otp } from "@/utils/otp.ts";
 
 export const unlockGrublockHandler = createHandlers(
-	deliveryAuthGuard(["admin", "manager", "delivery"]),
-	unlockGrublockRequestBodyValidator,
-	async (context) => {
-		const { user, type } = context.var;
-		const { ids, consumer_full_name, consumer_country_code, consumer_phone } =
-			context.req.valid("json");
+ deliveryAuthGuard(["admin", "manager", "delivery"]),
+ unlockGrublockRequestBodyValidator,
+ async (context) => {
+  const { client_id, user_id, user, type, vertical_id } = context.var;
+  const { ids, consumer_full_name, consumer_country_code, consumer_phone } =
+   context.req.valid("json");
 
-		const userObj = user as any;
-		
-		// Dynamically generate random secure OTP in production, preserve "2026" for backward compatibility in dev/test env
-		const otp = process.env.NODE_ENV === "production" ? Otp.generateOtp(4) : "2026";
+  const userObj = user as any;
+  const otp = process.env.NODE_ENV === "production"
+   ? String(Math.floor(1000 + Math.random() * 9000))
+   : "2026";
 
-		const updatedOtpRecord = await saveDeliveryEmployeeOtp({
-			email: userObj.email,
-			otp,
-			role: type,
-			for_what: "unlock_box",
-			metadata: {
-				ids,
-				consumer: consumer_full_name
-					? {
-							full_name: consumer_full_name,
-							country_code: consumer_country_code || "",
-							phone: consumer_phone || "",
-					  }
-					: undefined,
-			},
-		});
+  const otpResult = await saveDeliveryEmployeeOtp({
+   email: userObj.email,
+   otp,
+   role: type,
+   for_what: "unlock_box",
+   metadata: {
+    ids,
+    requested_by: user_id,
+    client_id,
+    consumer: consumer_full_name
+     ? { full_name: consumer_full_name, country_code: consumer_country_code, phone: consumer_phone }
+     : undefined,
+   },
+  });
 
-		if (!updatedOtpRecord) {
-			return context.json<APIResponse<any>>(
-				{
-					success: false,
-					code: 500,
-					error: "Failed to generate OTP",
-				},
-				{ status: 500 }
-			);
-		}
+  if (!otpResult) {
+   throw new APIError("Failed to generate OTP", undefined, undefined, 500);
+  }
 
-		
-		// Start auto-injected log
-		try {
-			// Find subjects from result if array or use req body
-			const subjects = (context.req.valid("json") as any)?.ids || ((context.req.valid("json") as any)?.id ? [(context.req.valid("json") as any)?.id] : ["Unknown"]);
-			for (const id of subjects) {
-				await loggerService.log({
-					category: "GrubLock",
-					type: "Status",
-					actor: { 
-						id: (context.var as any).client_id || (context.var as any).admin_id || "Unknown", 
-						name: (context.var as any).admin_name || (context.var as any).employee_id || "Admin", 
-						role: "admin", 
-						table: "client" 
-					},
-					client_id: context.var.client_id,
-					subject: { id: id, name: id, type: "box" },
-					metadata: { action: "unlock" }
-				});
-			}
-		} catch (err) { }
-		// End auto-injected log
+  // Create notification for each unlock request
+  try {
+   for (const boxId of ids) {
+    await createNotification({
+     client_id,
+     vertical_id,
+     box_id: boxId,
+     type: "notification",
+     title: "Unlock Requested",
+     description: `Unlock OTP requested for box ${boxId}${consumer_full_name ? ` by ${consumer_full_name}` : ""}. OTP sent to registered email.`,
+    });
+   }
+  } catch (err) {
+   console.error("Failed to create unlock request notification:", err);
+  }
 
-		return context.json<APIResponse<{ otp_id: string; is_otp: boolean; otp_details: { type: string; values: string[] } }>>(
-			{
-				success: true,
-				code: 200,
-				message: "OTP sent to mobile successfully",
-				data: {
-					otp_id: updatedOtpRecord.otp_id,
-					is_otp: true,
-					otp_details: {
-						type: "email",
-						values: [userObj.email],
-					},
-				},
-			},
-			{
-				status: 200,
-			},
-		);
-	},
+  // Start auto-injected log
+  try {
+   const subjects = (context.req.valid("json") as any)?.ids || ((context.req.valid("json") as any)?.id ? [(context.req.valid("json") as any)?.id] : ["Unknown"]);
+   for (const id of subjects) {
+    await loggerService.log({
+     category: "GrubLock",
+     type: "Status",
+     actor: { 
+      id: (context.var as any).client_id || (context.var as any).admin_id || "Unknown", 
+      name: (context.var as any).admin_name || (context.var as any).employee_id || "Admin", 
+      role: "admin", 
+      table: "client" 
+     },
+     client_id: context.var.client_id,
+     subject: { id: id, name: id, type: "box" },
+     metadata: { action: "unlock_request" }
+    });
+   }
+  } catch (err) { }
+  // End auto-injected log
+
+  return context.json<APIResponse<{ otp_id: string }>>(
+   {
+    success: true,
+    code: 200,
+     data: { otp_id: otpResult.id },
+    message: "OTP sent to mobile successfully",
+   },
+   { status: 200 },
+  );
+ },
 );

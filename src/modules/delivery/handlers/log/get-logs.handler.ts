@@ -35,7 +35,6 @@ export const getSystemLogsHandler = createHandlers(
 			page,
 			page_size: limit,
 			client_id,
-			vertical_id,
 		});
 
 		const response = {
@@ -80,7 +79,6 @@ export const searchSystemLogsHandler = createHandlers(
 			page,
 			page_size: limit,
 			client_id,
-			vertical_id,
 		});
 
 		const response = {

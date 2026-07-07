@@ -2,14 +2,14 @@ import { createHandlers } from "@/utils/hono-factory.ts";
 import { authGuard } from "@/middlewares/auth";
 import { getFaqCategoryRequestQueryValidator } from "@/modules/admin/validators/faq-category.validators.ts";
 import { getFaqCategory } from "@/db/actions/faq-category.actions.ts";
-import type { faq_category } from "@/db/types";
 import type { APIResponse } from "@/types/api";
 import { Permission } from "@/utils/permission.ts";
 import { SUPPORT_PERMISSIONS } from "@/configs/constants.ts";
 import type { PermissionLabelFor } from "@/types/common/permissions-set.ts";
+import { enrichFaqCategoriesResponse } from "@/utils/asset-url.ts";
 
 interface ResponseData {
-	faq_categories: faq_category[];
+	faq_categories: (Record<string, unknown> & { icon_url: string })[];
 	count: number;
 }
 
@@ -44,11 +44,16 @@ export const getFaqCategoryHandler = createHandlers(
 			includeQuestions: include_questions,
 		});
 
+		const enrichedCategories = await enrichFaqCategoriesResponse(faqCategoriesData.faq_categories as any);
+
 		return context.json<APIResponse<ResponseData>>(
 			{
 				success: true,
 				code: 200,
-				data: faqCategoriesData,
+				data: {
+					faq_categories: enrichedCategories,
+					count: faqCategoriesData.count,
+				},
 			},
 			{
 				status: 200,

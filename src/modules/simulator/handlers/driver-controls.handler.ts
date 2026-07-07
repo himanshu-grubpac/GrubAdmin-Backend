@@ -4,6 +4,13 @@ import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { validatorErrorHandler } from "@/utils/zod";
 import { prisma } from "@/db";
+import { ulid } from "ulid";
+import {
+	connectSimulatorBox,
+	disconnectSimulatorBoxOnPowerOff,
+	enforceSimulatorHeartbeatTimeout,
+	resetSimulatorBoxConnection,
+} from "@/db/actions/simulator.connection.actions.ts";
 
 export const updateSettingsHandler = createHandlers(
 	boxIdParamValidator,
@@ -13,6 +20,8 @@ export const updateSettingsHandler = createHandlers(
 	async (context) => {
 		const { box_id } = context.req.valid("param");
 		const body = context.req.valid("json") as Record<string, any>;
+
+		await enforceSimulatorHeartbeatTimeout(box_id);
 
 		const mappedData: any = {};
 		if (body.is_power_on !== undefined) mappedData.power_status = body.is_power_on ? "on" : "off";
@@ -28,60 +37,78 @@ export const updateSettingsHandler = createHandlers(
 				where: { box_id },
 				update: mappedData,
 				create: {
-					id: require("ulid").ulid(),
+					id: ulid(),
 					box_id,
 					...mappedData,
 				},
 			});
 		}
 
+		if (body.is_power_on === false) {
+			await disconnectSimulatorBoxOnPowerOff(box_id);
+		}
+
 		return context.json<any>(
 			{
-				status: "success"
+				status: "success",
 			},
-			{ status: 200 }
+			{ status: 200 },
 		);
-	}
+	},
+);
+
+const connectionBodyValidator = zValidator(
+	"json",
+	z.object({
+		driver_id: z.string().min(1, "driver_id is required"),
+	}).passthrough(),
+	(r) => {
+		if (!r.success) validatorErrorHandler(r.error);
+	},
 );
 
 export const createConnectionHandler = createHandlers(
 	boxIdParamValidator,
-	zValidator("json", z.object({}).passthrough(), (r) => {
-		if (!r.success) validatorErrorHandler(r.error);
-	}),
+	connectionBodyValidator,
 	async (context) => {
 		const { box_id } = context.req.valid("param");
-		const body = context.req.valid("json") as Record<string, any>;
-		
-		await prisma.box.update({
-			where: { id: box_id },
-			data: { connection_employee_id: body.driver_id }
-		}).catch(() => null);
+		const { driver_id } = context.req.valid("json");
+
+		await enforceSimulatorHeartbeatTimeout(box_id);
+
+		const result = await connectSimulatorBox(box_id, driver_id);
+
+		if (!result.ok) {
+			return context.json<any>(
+				{ status: "error", message: result.message },
+				{ status: result.status as 400 | 404 | 409 },
+			);
+		}
 
 		return context.json<any>(
 			{
-				status: "success"
+				status: "success",
 			},
-			{ status: 200 }
+			{ status: 200 },
 		);
-	}
+	},
 );
 
 export const deleteConnectionHandler = createHandlers(
 	boxIdParamValidator,
 	async (context) => {
 		const { box_id } = context.req.valid("param");
+		const box = await resetSimulatorBoxConnection(box_id);
 
-		await prisma.box.update({
-			where: { id: box_id },
-			data: { connection_employee_id: null }
-		}).catch(() => null);
+		if (!box) {
+			return context.json<any>({ status: "error", message: "Box not found" }, { status: 404 });
+		}
 
 		return context.json<any>(
 			{
-				status: "success"
+				status: "success",
 			},
-			{ status: 200 }
+			{ status: 200 },
 		);
-	}
+	},
 );

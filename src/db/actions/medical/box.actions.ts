@@ -44,7 +44,10 @@ export const getMedicalBoxes = async (args: GetMedicalBoxesArgs) => {
 	} = args;
 
 	const where: any = {
-		client_id,
+		OR: [
+			{ client_id },
+			{ medical_department_boxes: { some: { department: { client_id } } } },
+		],
 	};
 
 	if (status) {
@@ -580,10 +583,12 @@ interface UpdateMedicalGrubpacArgs {
 	client_id: string;
 	name?: string;
 	department_ids?: string[];
+	blocked_employee_ids?: string[];
+	access_mode?: "public" | "all_employees" | "restaurant_employees";
 }
 
 export const updateMedicalGrubpac = async (args: UpdateMedicalGrubpacArgs) => {
-	const { id, client_id, name, department_ids } = args;
+	const { id, client_id, name, department_ids, blocked_employee_ids, access_mode } = args;
 
 	return prisma.$transaction(async (tx) => {
 		const box = await tx.box.findUnique({
@@ -634,12 +639,109 @@ export const updateMedicalGrubpac = async (args: UpdateMedicalGrubpacArgs) => {
 			}
 		}
 
+		if (blocked_employee_ids !== undefined) {
+			await tx.vertical_medical_employee_box.deleteMany({
+				where: {
+					box_id: id,
+					status: "blocked",
+					employee_id: { not: null },
+					...(blocked_employee_ids.length > 0
+						? { employee_id: { notIn: blocked_employee_ids } }
+						: {}),
+				},
+			});
+
+			if (blocked_employee_ids.length > 0) {
+				await Promise.all(
+					blocked_employee_ids.map((emp_id) =>
+						tx.vertical_medical_employee_box.upsert({
+							where: {
+								employee_id_box_id: {
+									employee_id: emp_id,
+									box_id: id,
+								},
+							},
+							update: { status: "blocked" },
+							create: {
+								box_id: id,
+								employee_id: emp_id,
+								status: "blocked",
+							},
+						}),
+					),
+				);
+			}
+		}
+
+		if (access_mode !== undefined) {
+			await tx.vertical_medical_employee_box.deleteMany({
+				where: { box_id: id, employee_id: null },
+			});
+
+			if (access_mode === "public") {
+				await tx.vertical_medical_employee_box.create({
+					data: { box_id: id, employee_id: null, status: "shared", access: "public" },
+				});
+			} else if (access_mode === "all_employees") {
+				await tx.vertical_medical_employee_box.create({
+					data: { box_id: id, employee_id: null, status: "shared", access: "all_employees" },
+				});
+			} else if (access_mode === "restaurant_employees") {
+				let targetDeptIds = department_ids;
+				if (targetDeptIds === undefined) {
+					const deptBoxes = await tx.vertical_medical_department_box.findMany({
+						where: { box_id: id },
+						select: { department_id: true },
+					});
+					targetDeptIds = deptBoxes.map((db) => db.department_id);
+				}
+
+				if (targetDeptIds.length > 0) {
+					const employees = await tx.vertical_medical_employee.findMany({
+						where: {
+							client_id,
+							department_id: { in: targetDeptIds },
+						},
+						select: { id: true },
+					});
+
+					if (employees.length > 0) {
+						const empIds = employees.map((emp) => emp.id);
+						await tx.vertical_medical_employee_box.deleteMany({
+							where: {
+								box_id: id,
+								employee_id: { in: empIds },
+								access: "direct",
+							},
+						});
+
+						await tx.vertical_medical_employee_box.createMany({
+							data: employees.map((emp) => ({
+								box_id: id,
+								employee_id: emp.id,
+								status: "shared",
+								access: "direct",
+							})),
+							skipDuplicates: true,
+						});
+					}
+				}
+			}
+		}
+
 		return tx.box.findUnique({
 			where: { id },
 			include: {
 				medical_department_boxes: {
 					include: {
 						department: { select: { id: true, name: true } },
+					},
+				},
+				medical_employee_boxes: {
+					select: {
+						employee_id: true,
+						status: true,
+						access: true,
 					},
 				},
 			},
@@ -651,6 +753,49 @@ interface GetMedicalGrubpacEditDetailsArgs {
 	id: string;
 	client_id: string;
 }
+
+export type MedicalGrubpacAccessMode = "public" | "all_employees" | "restaurant_employees";
+export type MedicalGrubpacUiAccessMode = "public" | "all_employees" | "department_employees";
+
+export const normalizeMedicalAccessMode = (mode: string): MedicalGrubpacAccessMode =>
+	mode === "department_employees" ? "restaurant_employees" : mode as MedicalGrubpacAccessMode;
+
+export const toMedicalUiAccessMode = (mode: MedicalGrubpacAccessMode): MedicalGrubpacUiAccessMode =>
+	mode === "restaurant_employees" ? "department_employees" : mode;
+
+export const deriveMedicalAccessMode = (
+	employeeBoxes: { employee_id: string | null; status: string; access: string }[],
+): MedicalGrubpacAccessMode => {
+	const shared = employeeBoxes.filter((eb) => eb.status === "shared");
+
+	if (shared.some((eb) => eb.employee_id === null && eb.access === "public")) {
+		return "public";
+	}
+
+	if (shared.some((eb) => eb.employee_id === null && eb.access === "all_employees")) {
+		return "all_employees";
+	}
+
+	if (shared.some((eb) => eb.employee_id !== null && eb.access === "direct")) {
+		return "restaurant_employees";
+	}
+
+	return "all_employees";
+};
+
+export const extractMedicalGrubpacPermissions = (
+	employeeBoxes: { employee_id: string | null; status: string; access: string }[],
+) => {
+	const access_mode = deriveMedicalAccessMode(employeeBoxes);
+	const blocked_employee_ids = employeeBoxes
+		.filter((eb) => eb.status === "blocked" && eb.employee_id)
+		.map((eb) => eb.employee_id as string);
+
+	return {
+		access_mode: toMedicalUiAccessMode(access_mode),
+		blocked_employee_ids,
+	};
+};
 
 export const getMedicalGrubpacEditDetails = async (args: GetMedicalGrubpacEditDetailsArgs) => {
 	const { id, client_id } = args;
@@ -670,7 +815,9 @@ export const getMedicalGrubpacEditDetails = async (args: GetMedicalGrubpacEditDe
 			},
 			medical_employee_boxes: {
 				select: {
+					employee_id: true,
 					status: true,
+					access: true,
 				},
 			},
 		},
@@ -681,8 +828,10 @@ export const getMedicalGrubpacEditDetails = async (args: GetMedicalGrubpacEditDe
 	}
 
 	const assignedDepartments = box.medical_department_boxes.map((db) => db.department);
+	const department_ids = assignedDepartments.map((dept) => dept.id);
+	const { access_mode, blocked_employee_ids } = extractMedicalGrubpacPermissions(box.medical_employee_boxes);
 
-	const blockedCount = box.medical_employee_boxes.filter((eb) => eb.status === "blocked").length;
+	const blockedCount = blocked_employee_ids.length;
 	const sharedCount = box.medical_employee_boxes.filter((eb) => eb.status === "shared").length;
 	const totalCount = box.medical_employee_boxes.length;
 
@@ -691,6 +840,9 @@ export const getMedicalGrubpacEditDetails = async (args: GetMedicalGrubpacEditDe
 		name: box.name,
 		tag: box.box_display_id,
 		assignedDepartments,
+		department_ids,
+		access_mode,
+		blocked_employee_ids,
 		permissionSummary: {
 			total: totalCount,
 			blocked: blockedCount,

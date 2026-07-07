@@ -70,7 +70,7 @@ export const hospitalityImpersonateHandler = createHandlers(
 			);
 		}
 
-		const authToken = JWT.signDeliveryAuthToken({
+		const authToken = JWT.signHospitalityAuthToken({
 			role: "admin",
 			id: clientRecord.id,
 		});

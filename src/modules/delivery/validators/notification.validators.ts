@@ -22,13 +22,27 @@ export const getNotificationsRequestQueryValidator = zValidator(
 		search: z.string().optional(),
 		is_read: z.enum(["true", "false"]).transform((v) => v === "true").optional(),
 		is_dismissed: z.enum(["true", "false"]).transform((v) => v === "true").optional(),
-	}).transform((data) => ({
-		...data,
-		page: data.page ?? 1,
-		types: data.types ? (Array.isArray(data.types) ? data.types : [data.types]) : undefined,
-		restaurant_ids: data.restaurant_ids ? (Array.isArray(data.restaurant_ids) ? data.restaurant_ids : [data.restaurant_ids]) : undefined,
-		box_ids: data.box_ids ? (Array.isArray(data.box_ids) ? data.box_ids : [data.box_ids]) : undefined,
-	})),
+		status: z.union([
+			z.enum(["read", "unread"]),
+			z.array(z.enum(["read", "unread"])),
+		]).optional(),
+	}).transform((data) => {
+		let is_read = data.is_read;
+		if (data.status) {
+			const statuses = Array.isArray(data.status) ? data.status : [data.status];
+			if (statuses.length === 1) {
+				is_read = statuses[0] === "read";
+			}
+		}
+		return {
+			...data,
+			is_read,
+			page: data.page ?? 1,
+			types: data.types ? (Array.isArray(data.types) ? data.types : [data.types]) : undefined,
+			restaurant_ids: data.restaurant_ids ? (Array.isArray(data.restaurant_ids) ? data.restaurant_ids : [data.restaurant_ids]) : undefined,
+			box_ids: data.box_ids ? (Array.isArray(data.box_ids) ? data.box_ids : [data.box_ids]) : undefined,
+		};
+	}),
 	(r) => {
 		if (!r.success) validatorErrorHandler(r.error);
 	},

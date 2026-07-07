@@ -26,7 +26,7 @@ export const getAdminNotificationsRequestQueryValidators = zValidator(
 				z.union(NOTIFICATIONS_STATUS.map((n) => z.literal(n))),
 			])
 			.optional(),
-		minified: z.coerce.boolean(),
+		minified: z.coerce.boolean().optional().default(false),
 	}),
 );
 

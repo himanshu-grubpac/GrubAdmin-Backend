@@ -432,27 +432,29 @@ export const deleteBoxes = async (args: DeleteBoxesArgs) => {
 		throw new APIError(undefined, "delivery.box.BULK_CLIENT_ASSIGNED", { count: assignedClients }, 400);
 	}
 
-	// Archive boxes to box_deleted
-	await prisma.box_deleted.createMany({
-		data: boxes.map((box) => ({
-			id: box.id,
-			name: box.name,
-			box_display_id: box.box_display_id,
-			vertical_id: box.vertical_id,
-			vertical_name: box.vertical?.name ?? "",
-			client_id: box.client_id,
-			client_name: box.client?.name ?? "",
-			vehicle_number: box.vehicle_number,
-			x_primary_key: box.id,
-		})),
-	});
+	// Archive boxes to box_deleted, then delete — atomic to avoid ghost archive rows on failure
+	return prisma.$transaction(async (tx) => {
+		await tx.box_deleted.createMany({
+			data: boxes.map((box) => ({
+				id: box.id,
+				name: box.name,
+				box_display_id: box.box_display_id,
+				vertical_id: box.vertical_id,
+				vertical_name: box.vertical?.name ?? "",
+				client_id: box.client_id,
+				client_name: box.client?.name ?? "",
+				vehicle_number: box.vehicle_number,
+				x_primary_key: box.id,
+			})),
+		});
 
-	return prisma.box.deleteMany({
-		where: {
-			id: {
-				in: args.box_ids,
+		return tx.box.deleteMany({
+			where: {
+				id: {
+					in: args.box_ids,
+				},
 			},
-		},
+		});
 	});
 };
 
@@ -939,29 +941,28 @@ export const deleteVerticalDeliveryBoxes = async (ids: string[], client_id: stri
 		throw new APIError(undefined, "delivery.box.NOT_FOUND", undefined, 404);
 	}
 
-	// Archive boxes to box_deleted
-	await prisma.box_deleted.createMany({
-		data: boxes.map((box) => ({
-			id: box.id,
-			name: box.name,
-			box_display_id: box.box_display_id,
-			vertical_id: box.vertical_id,
-			vertical_name: box.vertical?.name ?? "",
-			client_id: box.client_id,
-			client_name: box.client?.name ?? "",
-			vehicle_number: box.vehicle_number,
-			x_primary_key: box.id,
-		})),
-	});
+	// Archive boxes to box_deleted, then delete — atomic to avoid ghost archive rows on failure
+	return prisma.$transaction(async (tx) => {
+		await tx.box_deleted.createMany({
+			data: boxes.map((box) => ({
+				id: box.id,
+				name: box.name,
+				box_display_id: box.box_display_id,
+				vertical_id: box.vertical_id,
+				vertical_name: box.vertical?.name ?? "",
+				client_id: box.client_id,
+				client_name: box.client?.name ?? "",
+				vehicle_number: box.vehicle_number,
+				x_primary_key: box.id,
+			})),
+		});
 
-	// Delete connections and relations if not handled by Cascade
-	// restaurant_box and vertical_delivery_employee_box have OnDelete: Cascade in schema
-
-	return prisma.box.deleteMany({
-		where: {
-			id: { in: ids },
-			client_id: client_id,
-		},
+		return tx.box.deleteMany({
+			where: {
+				id: { in: ids },
+				client_id: client_id,
+			},
+		});
 	});
 };
 

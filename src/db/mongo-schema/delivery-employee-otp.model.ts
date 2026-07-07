@@ -7,7 +7,7 @@ export type DeliveryEmployeeOtpModel = Document & {
 	role: VerticalDeliveryEmployeeRoleType;
 	otp: string;
 	otp_id: string;
-	for_what: "login" | "forget_password" | "set_new_password" | "unlock_box";
+	for_what: "login" | "forget_password" | "set_new_password" | "unlock_box" | "delete_account";
 	metadata?: any;
 	failed_attempts?: number;
 	createdAt: Date;
@@ -36,7 +36,7 @@ const deliveryEmployeeOtpSchema = new Schema<DeliveryEmployeeOtpModel>(
 		},
 		for_what: {
 			type: String,
-			enum: ["login", "forget_password", "set_new_password", "unlock_box"],
+			enum: ["login", "forget_password", "set_new_password", "unlock_box", "delete_account"],
 			required: true,
 			default: "login",
 		},

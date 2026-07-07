@@ -25,6 +25,7 @@ export const updateTelemetryValidator = zValidator(
 		zone_2_target_temp: z.number().optional(),
 		ambient_temp: z.number().optional(),
 		is_power_on: z.boolean().optional(),
+		is_charging: z.boolean().optional(),
 		bluetooth_available: z.boolean().optional(),
 		wifi_connected: z.boolean().optional(),
 		cellular_active: z.boolean().optional(),

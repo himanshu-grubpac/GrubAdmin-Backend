@@ -1,14 +1,14 @@
-import type { VerticalDeliveryEmployeeRoleType } from "@/types/common";
+import type { HospitalityEmployeeRoleType } from "@/types/common";
 import { createMiddleware } from "hono/factory";
-import type { client, vertical_delivery_employee } from "@/db/types";
+import type { client, vertical_hospitality_employee } from "@/db/types";
 import { APIError } from "@/types/error";
 import { JWT } from "@/utils/jwt.ts";
-import { getUniqueVerticalDeliveryEmployee } from "@/db/actions/vertical-delivery-employee.actions";
+import { getUniqueHospitalityEmployee } from "@/db/actions/hospitality/employee.actions";
 import { prisma } from "@/db";
 import { NODE_ENV } from "@/configs/env.ts";
 import { logger } from "@/utils/logger";
 
-export const hospitalityAuthGuard = (type?: VerticalDeliveryEmployeeRoleType[], customErrorMessage?: string) =>
+export const hospitalityAuthGuard = (type?: HospitalityEmployeeRoleType[], customErrorMessage?: string) =>
 	createMiddleware<{
 		Variables: {
 			user_id: string;
@@ -17,8 +17,8 @@ export const hospitalityAuthGuard = (type?: VerticalDeliveryEmployeeRoleType[], 
 			debug_client_organization_name: string;
 			vertical_id: string;
 			debug_vertical_name: string;
-			user: client | vertical_delivery_employee;
-			type: VerticalDeliveryEmployeeRoleType;
+			user: client | vertical_hospitality_employee;
+			type: HospitalityEmployeeRoleType;
 			is_impersonation?: boolean;
 		};
 	}>(async (context, next) => {
@@ -39,11 +39,11 @@ export const hospitalityAuthGuard = (type?: VerticalDeliveryEmployeeRoleType[], 
 			impersonationAdminId = impersonationUser.admin_id;
 			logger.info(`[Auth] Impersonation token verified: admin=${impersonationUser.admin_id} target_customer=${impersonationUser.client_id}`);
 		} else {
-			const user = JWT.verifyDeliveryAuthToken(authToken);
+			const user = JWT.verifyHospitalityAuthToken(authToken);
 			userId = user.id;
 		}
 
-		const employee = await getUniqueVerticalDeliveryEmployee({
+		const employee = await getUniqueHospitalityEmployee({
 			id: userId,
 		});
 
@@ -65,7 +65,7 @@ export const hospitalityAuthGuard = (type?: VerticalDeliveryEmployeeRoleType[], 
 		const client_id =
 			employee.type === "admin"
 				? (employee.employee as client).id
-				: (employee.employee as vertical_delivery_employee).client_id;
+				: (employee.employee as vertical_hospitality_employee).client_id;
 
 		if (!client_id) {
 			logger.error(`[Auth] No client ID: userId=${userId} employeeType=${employee.type}`);

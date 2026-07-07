@@ -31,7 +31,7 @@ export const setNewPasswordHandler = createHandlers(
 				throw new APIError(undefined, "hospitality.auth.login.AUTH_TOKEN_REQUIRED");
 			}
 
-			const decoded = JWT.verifyDeliveryAuthToken(token);
+			const decoded = JWT.verifyHospitalityAuthToken(token);
 			userId = decoded.id;
 		} else if (bodyToken) {
 			const otp_id_body = body.otp_id;
@@ -39,7 +39,7 @@ export const setNewPasswordHandler = createHandlers(
 			const target_otp_id = otp_id_body || otp_id_cookie;
 
 			try {
-				const decoded = JWT.verifyDeliveryAuthToken(bodyToken);
+				const decoded = JWT.verifyHospitalityAuthToken(bodyToken);
 
 				if (decoded.type !== "password_reset") {
 					throw new APIError(undefined, "hospitality.auth.login.INVALID_AUTH_TOKEN");

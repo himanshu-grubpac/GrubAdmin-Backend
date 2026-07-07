@@ -1,12 +1,12 @@
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { validatorErrorHandler } from "@/utils/zod.ts";
+import { pageLimitFields } from "@/validators/pagination";
 
 export const getNotificationsRequestQueryValidator = zValidator(
 	"query",
 	z.object({
-		page: z.coerce.number().int().min(1).optional(),
-		limit: z.coerce.number().int().min(1).optional(),
+		...pageLimitFields,
 		types: z.union([
 			z.enum(["warning", "error", "success", "notification"]),
 			z.array(z.enum(["warning", "error", "success", "notification"])),

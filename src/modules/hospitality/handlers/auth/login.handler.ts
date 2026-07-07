@@ -70,7 +70,7 @@ export const loginHandler = createHandlers(
 			);
 		}
 
-		const token = JWT.signDeliveryAuthToken({
+		const token = JWT.signHospitalityAuthToken({
 			role: "admin",
 			id: clientRecord.id,
 		});

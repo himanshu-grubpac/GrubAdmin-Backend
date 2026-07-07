@@ -2,6 +2,17 @@ import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { validatorErrorHandler } from "@/utils/zod.ts";
 import { PAGE_SIZE } from "@/configs/constants.ts";
+import { normalizeMedicalAccessMode } from "@/db/actions/medical/box.actions";
+
+const medicalAccessModeSchema = z.preprocess(
+	(val) => (typeof val === "string" ? normalizeMedicalAccessMode(val) : val),
+	z.enum(["public", "all_employees", "restaurant_employees"]),
+);
+
+const medicalAccessModeOptionalSchema = z.preprocess(
+	(val) => (typeof val === "string" ? normalizeMedicalAccessMode(val) : val),
+	z.enum(["public", "all_employees", "restaurant_employees"]).optional(),
+);
 
 export const getBoxesRequestQueryValidator = zValidator(
 	"query",
@@ -111,9 +122,7 @@ export const createGrubpacRequestBodyValidator = zValidator(
 		box_id: z.string().min(1, "Box ID is required").max(50, "Box ID cannot exceed 50 characters"),
 		department_ids: z.array(z.string().ulid()).optional().default([]),
 		blocked_employee_ids: z.array(z.string().ulid()).optional().default([]),
-		access_mode: z.enum(["public", "all_employees", "restaurant_employees"], {
-			error: "Please provide a valid access mode (public, all_employees, or restaurant_employees)",
-		}),
+		access_mode: medicalAccessModeSchema,
 	}).strict(),
 	(r) => {
 		if (!r.success) validatorErrorHandler(r.error);
@@ -126,6 +135,8 @@ export const updateGrubpacRequestBodyValidator = zValidator(
 		id: z.string().ulid("Please provide a valid box id"),
 		name: z.string().max(100, "Name cannot exceed 100 characters").optional(),
 		department_ids: z.array(z.string().ulid("Please provide a valid department id")).optional(),
+		blocked_employee_ids: z.array(z.string().ulid()).optional(),
+		access_mode: medicalAccessModeOptionalSchema,
 	}).strict(),
 	(r) => {
 		if (!r.success) validatorErrorHandler(r.error);

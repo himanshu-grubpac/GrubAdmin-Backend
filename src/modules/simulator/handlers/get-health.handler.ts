@@ -1,19 +1,42 @@
 import { createHandlers } from "@/utils/hono-factory.ts";
 import { boxIdParamValidator } from "../validators/simulator.validators.ts";
 import { prisma } from "@/db";
+import {
+	buildSimulatorConnectedUser,
+	enforceSimulatorHeartbeatTimeout,
+	recordSimulatorHeartbeat,
+} from "@/db/actions/simulator.connection.actions.ts";
 
 export const getHealthHandler = createHandlers(
 	boxIdParamValidator,
 	async (context) => {
 		const { box_id } = context.req.valid("param");
+
+		await enforceSimulatorHeartbeatTimeout(box_id);
+
 		const box = await prisma.box.findUnique({
 			where: { id: box_id },
-			include: { telemetry: true, lock: true },
+			include: {
+				telemetry: true,
+				lock: true,
+				connection_employee: {
+					select: {
+						id: true,
+						employee_display_id: true,
+						first_name: true,
+						last_name: true,
+					},
+				},
+			},
 		});
 
 		if (!box) {
 			return context.json<any>({ status: "error", message: "Box not found" }, { status: 404 });
 		}
+
+		recordSimulatorHeartbeat(box_id);
+
+		const connected_user = buildSimulatorConnectedUser(box);
 
 		return context.json<any>(
 			{
@@ -23,24 +46,46 @@ export const getHealthHandler = createHandlers(
 					display_id: box.box_display_id,
 					is_locked: box.lock?.lock_status === "locked",
 					driver_id: box.connection_employee_id || null,
+					connected_user,
 					restaurant_id: null,
+					is_driver_connected: !!box.connection_employee_id,
+					connection_status: box.telemetry?.cellular_signal || box.telemetry?.connection_status || "strong",
+					battery_1_level: box.telemetry?.battery_1_percentage ?? 23,
+					battery_2_level: box.telemetry?.battery_2_percentage ?? 80,
+					battery_level: box.telemetry?.battery_percentage ?? 80,
+					ambient_temp: box.telemetry?.ext_temp ?? 32,
+					zone_1_temp: box.telemetry?.zone1_temp ?? 4.2,
+					zone_2_temp: box.telemetry?.zone2_temp ?? 4.5,
+					gps_available: box.telemetry?.gps_status === "on",
+					bluetooth_available: box.telemetry?.bluetooth_status === "on",
+					wifi_connected: box.telemetry?.wifi_status === "on",
+					is_power_on: box.telemetry?.power_status === "on",
+					latitude: 28.6139,
+					longitude: 77.209,
+					solar_panel: box.telemetry?.solar_status === "on",
+					"220V_110V_port": box.telemetry?.port_big_status === "on",
+					Memorycard_used: box.telemetry?.memory_percentage ? box.telemetry.memory_percentage / 100 : 0.15,
+					gyrosensor: box.telemetry?.gyrosensor_status === "on" ? "detected" : "not_detected",
+					turn_signals: box.telemetry?.turn_signal_status === "on" ? "detected" : "not_detected",
+					is_dual_zone: box.telemetry?.dual_zone_status === "on",
 					settings: {
 						is_power_on: box.telemetry?.power_status === "on",
-						is_dual_zone: false,
-						zone_1_target_temp: box.telemetry?.zone1_temp || 4,
-						zone_2_target_temp: box.telemetry?.zone2_temp || 4,
-						zone_1_status: true,
-						zone_2_status: false,
-						saveToCard: true,
-						Adas: true,
+						is_charging: box.telemetry?.charging_status === "on",
+						is_dual_zone: box.telemetry?.dual_zone_status === "on",
+						zone_1_target_temp: box.telemetry?.zone1_target_temp ?? 4,
+						zone_2_target_temp: box.telemetry?.zone2_target_temp ?? 4,
+						zone_1_status: box.telemetry?.zone1_status === "on",
+						zone_2_status: box.telemetry?.zone2_status === "on",
+						saveToCard: box.telemetry?.save_to_memory_status === "on",
+						Adas: box.telemetry?.adas_status === "on",
 						BoxCam: box.telemetry?.camera_status === "on",
 						advert_screen: box.telemetry?.advert_screen_status === "on",
 						ioniser: box.telemetry?.ioniser_status === "on",
-						light_status: box.telemetry?.light_status === "on"
-					}
-				}
+						light_status: box.telemetry?.light_status === "on",
+					},
+				},
 			},
-			{ status: 200 }
+			{ status: 200 },
 		);
-	}
+	},
 );

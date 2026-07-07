@@ -1,70 +1,88 @@
-import { loggerService } from "@/services/system-log.ts";
 import { createHandlers } from "@/utils/hono-factory.ts";
 import { medicalAuthGuard } from "@/middlewares/auth";
 import { unlockGrublockRequestBodyValidator } from "medical/validators/box.validators.ts";
 import { saveMedicalEmployeeOtp } from "@/db/actions/medical-otp.actions.ts";
+import { createNotification } from "@/db/actions/notification.actions.ts";
+import { loggerService } from "@/services/system-log.ts";
+import { APIError } from "@/types/error";
 import type { APIResponse } from "@/types/api";
-import { Otp } from "@/utils/otp.ts";
 
 export const unlockGrublockHandler = createHandlers(
 	medicalAuthGuard(["admin", "manager", "handler"]),
 	unlockGrublockRequestBodyValidator,
 	async (context) => {
-		const { user, type } = context.var;
-		const { ids, consumer_full_name, consumer_country_code, consumer_phone } = context.req.valid("json");
+		const { client_id, user_id, user, type, vertical_id } = context.var;
+		const { ids, consumer_full_name, consumer_country_code, consumer_phone } =
+			context.req.valid("json");
 
 		const userObj = user as any;
-		const otp = process.env.NODE_ENV === "production" ? Otp.generateOtp(4) : "2026";
+		const userName = type === "admin"
+			? (userObj.name as string)
+			: `${userObj.first_name || ""} ${userObj.last_name || ""}`.trim();
 
-		const updatedOtpRecord = await saveMedicalEmployeeOtp({
-			email: userObj.email as string,
+		const otp = process.env.NODE_ENV === "production"
+			? String(Math.floor(1000 + Math.random() * 9000))
+			: "2026";
+
+		const otpResult = await saveMedicalEmployeeOtp({
+			email: userObj.email,
 			otp,
 			role: type,
 			for_what: "unlock_box",
 			metadata: {
 				ids,
-				consumer: consumer_full_name
-					? {
-						full_name: consumer_full_name,
-						country_code: consumer_country_code || "",
-						phone: consumer_phone || "",
-					}
-					: undefined,
+				requested_by: user_id,
+				client_id,
 			},
 		});
 
-		if (!updatedOtpRecord) {
-			return context.json<APIResponse<null>>(
-				{ success: false, code: 500, error: "Failed to generate OTP" },
-				{ status: 500 },
-			);
+		if (!otpResult) {
+			throw new APIError("Failed to generate OTP", undefined, undefined, 500);
 		}
 
+		// Create notification for each unlock request
 		try {
-			for (const id of ids) {
+			for (const boxId of ids) {
+				await createNotification({
+					client_id,
+					vertical_id,
+					box_id: boxId,
+					type: "notification",
+					title: "Unlock Requested",
+					description: `Unlock OTP requested for box ${boxId}. OTP sent to registered email.`,
+				});
+			}
+		} catch (err) {
+			console.error("Failed to create unlock request notification:", err);
+		}
+
+		// Start auto-injected log
+		try {
+			const subjects = (context.req.valid("json") as any)?.ids || [];
+			for (const id of subjects) {
 				await loggerService.log({
 					category: "GrubLock",
 					type: "Status",
-					actor: { id: userObj.id as string, name: userObj.email || "Unknown", role: type, table: "vertical_medical_employee" },
-					client_id: context.var.client_id,
+					actor: {
+						id: client_id || "Unknown",
+						name: userName || "Admin",
+						role: type,
+						table: "client",
+					},
+					client_id,
 					subject: { id, name: id, type: "box" },
-					metadata: { action: "unlock" },
+					metadata: { action: "unlock_request" },
 				});
 			}
-		} catch {
-			// non-fatal
-		}
+		} catch (err) {}
+		// End auto-injected log
 
-		return context.json<APIResponse<{ otp_id: string; is_otp: boolean; otp_details: { type: string; values: string[] } }>>(
+		return context.json<APIResponse<{ otp_id: string }>>(
 			{
 				success: true,
 				code: 200,
+				data: { otp_id: otpResult.id },
 				message: "OTP sent to mobile successfully",
-				data: {
-					otp_id: updatedOtpRecord.otp_id,
-					is_otp: true,
-					otp_details: { type: "email", values: [userObj.email as string] },
-				},
 			},
 			{ status: 200 },
 		);

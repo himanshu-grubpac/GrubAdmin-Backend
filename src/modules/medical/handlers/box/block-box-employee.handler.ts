@@ -1,24 +1,31 @@
+import { createHandlers } from "@/utils/hono-factory.ts";
 import { medicalAuthGuard } from "@/middlewares/auth";
-import { createHandlers } from "@/utils/hono-factory";
-import { APIError } from "@/types/error";
-import type { APIResponse } from "@/types/api";
+import { createNotification } from "@/db/actions/notification.actions.ts";
 import { prisma } from "@/db";
+import type { APIResponse } from "@/types/api";
 
 export const blockBoxEmployeeHandler = createHandlers(
 	medicalAuthGuard(["admin", "manager"]),
 	async (context) => {
-		const { client_id } = context.var;
+		const { client_id, vertical_id } = context.var;
 		const { box_id, employee_id } = await context.req.json();
 
 		if (!box_id || !employee_id) {
-			throw new APIError("Please provide box_id and employee_id", undefined, undefined, 400);
+			return context.json<APIResponse<null>>(
+				{
+					success: false,
+					code: 400,
+					error: "box_id and employee_id are required",
+				},
+				{ status: 400 },
+			);
 		}
 
-		const permission = await prisma.vertical_medical_employee_box.upsert({
+		const result = await prisma.vertical_medical_employee_box.upsert({
 			where: {
 				employee_id_box_id: {
-					employee_id,
 					box_id,
+					employee_id,
 				},
 			},
 			update: { status: "blocked" },
@@ -29,11 +36,28 @@ export const blockBoxEmployeeHandler = createHandlers(
 			},
 		});
 
-		return context.json<APIResponse<typeof permission>>({
-			success: true,
-			code: 200,
-			message: "Employee blocked from box successfully!",
-			data: permission,
-		});
+		// Create notification for blocked employee
+		try {
+			await createNotification({
+				client_id,
+				vertical_id,
+				box_id,
+				type: "warning",
+				title: "Employee Blocked from Box",
+				description: `Employee ${employee_id} has been blocked from accessing box ${box_id}`,
+			});
+		} catch (err) {
+			console.error("Failed to create block notification:", err);
+		}
+
+		return context.json<APIResponse<typeof result>>(
+			{
+				success: true,
+				code: 200,
+				message: "Employee blocked from box successfully!",
+				data: result,
+			},
+			{ status: 200 },
+		);
 	},
 );

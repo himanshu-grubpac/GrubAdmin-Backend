@@ -99,7 +99,7 @@ export const getNotifications = async ({
 	]);
 
 	const unread_count = await prisma.notification.count({
-		where: { client_id, is_read: false, is_dismissed: false },
+		where: { client_id, ...(vertical_id && { vertical_id }), is_read: false, is_dismissed: false },
 	});
 
 	return { notifications, count, unread_count };

@@ -16,6 +16,22 @@ interface ResponseData {
 	count: number;
 }
 
+const isMedicalFaq = (faq: any, verticalId: string, categoryId?: string) => {
+	if (!faq.categories || faq.categories.length === 0) {
+		return false;
+	}
+	return faq.categories.some((entry: any) => {
+		const cat = entry.category;
+		if (!cat || cat.vertical_id !== verticalId) {
+			return false;
+		}
+		if (categoryId) {
+			return cat.id === categoryId;
+		}
+		return true;
+	});
+};
+
 export const searchSupportQuestionsHandler = createHandlers(
 	medicalAuthGuard(),
 	searchSupportQuestionsRequestQueryValidator,
@@ -28,17 +44,31 @@ export const searchSupportQuestionsHandler = createHandlers(
 			throw new APIError("No such vertical found!", undefined, undefined, 400);
 		}
 
+		if (!query?.trim()) {
+			return context.json<APIResponse<ResponseData>>(
+				{
+					success: true,
+					code: 200,
+					data: { faqs: [], count: 0 },
+				},
+				{ status: 200 },
+			);
+		}
+
 		const questionsResponse = await getFaqQuestions({
-			vertical_id: vertical.id,
-			query,
+			query: query.trim(),
 			state: "active",
 			publishing_status: "published",
-			pageSize: limit,
+			pageSize: limit ?? 50,
 			category_id,
 		});
 
+		const medicalFaqs = (questionsResponse.faqs as any[]).filter((faq) =>
+			isMedicalFaq(faq, vertical.id, category_id),
+		);
+
 		const mappedFaqs: ResponseData["faqs"] = [];
-		for (const faq of questionsResponse.faqs as any[]) {
+		for (const faq of medicalFaqs) {
 			if (category_id) {
 				mappedFaqs.push({
 					id: faq.id,
@@ -46,6 +76,7 @@ export const searchSupportQuestionsHandler = createHandlers(
 				});
 			} else if (faq.categories && faq.categories.length > 0) {
 				for (const cat of faq.categories) {
+					if (cat.category?.vertical_id !== vertical.id) continue;
 					mappedFaqs.push({
 						id: faq.id,
 						question: faq.question,

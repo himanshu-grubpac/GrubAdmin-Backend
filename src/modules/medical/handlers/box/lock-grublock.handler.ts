@@ -2,6 +2,7 @@ import { createHandlers } from "@/utils/hono-factory.ts";
 import { medicalAuthGuard } from "@/middlewares/auth";
 import { lockUnlockGrublockRequestBodyValidator } from "medical/validators/box.validators.ts";
 import { updateMedicalBoxLockStatus } from "@/db/actions/medical/box.actions.ts";
+import { createNotification } from "@/db/actions/notification.actions.ts";
 import type { APIResponse } from "@/types/api";
 import { resolveMessageTemplate } from "@/utils/message";
 
@@ -46,6 +47,22 @@ export const lockGrublockHandler = createHandlers(
 			message: "Boxes locked successfully",
 			data: result,
 		};
+
+		// Create notification for each locked box
+		try {
+			for (const boxId of ids) {
+				await createNotification({
+					client_id,
+					vertical_id,
+					box_id: boxId,
+					type: "warning",
+					title: "Box Locked",
+					description: `Box ${boxId} has been locked${consumer_full_name ? ` by ${consumer_full_name}` : ""}`,
+				});
+			}
+		} catch (err) {
+			console.error("Failed to create lock notification:", err);
+		}
 
 		return context.json<APIResponse<typeof result>>(response, response.code as 200);
 	},

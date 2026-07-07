@@ -40,8 +40,14 @@ async function main() {
     // Delete questions that might be orphaned
     await prisma.faq_question.deleteMany({});
 
-    // Clean up support icons to avoid duplicates
+    // Clean up support icons to avoid duplicates (handle both legacy and new keys)
     const iconKeys = [
+        "icons/gear.svg",
+        "icons/suitcase-medical.svg",
+        "icons/bluetooth-on.svg",
+        "icons/exclamation-triangle.svg",
+        "icons/user-shield.svg",
+        "icons/question-circle.svg",
         "Support/Card/gear.svg",
         "Support/Card/suitcase-medical.svg",
         "Support/Card/bluetooth-on.svg",
@@ -60,12 +66,12 @@ async function main() {
     const seededIcons: Record<string, string> = {};
 
     const iconsToSeed = [
-        { name: "Setup & Installation", key: "Support/Card/gear.svg" },
-        { name: "Troubleshooting", key: "Support/Card/suitcase-medical.svg" },
-        { name: "Device Connection", key: "Support/Card/bluetooth-on.svg" },
-        { name: "Alert & Notification", key: "Support/Card/exclamation-triangle.svg" },
-        { name: "Account & App Support", key: "Support/Card/user-shield.svg" },
-        { name: "Others", key: "Support/Card/question-circle.svg" }
+        { name: "Setup & Installation", key: "icons/gear.svg" },
+        { name: "Troubleshooting", key: "icons/suitcase-medical.svg" },
+        { name: "Device Connection", key: "icons/bluetooth-on.svg" },
+        { name: "Alert & Notification", key: "icons/exclamation-triangle.svg" },
+        { name: "Account & App Support", key: "icons/user-shield.svg" },
+        { name: "Others", key: "icons/question-circle.svg" }
     ];
 
     for (const icon of iconsToSeed) {

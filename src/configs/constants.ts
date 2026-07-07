@@ -183,6 +183,8 @@ export const NOTIFICATIONS_STATUS = ["read", "unread"] as const;
 
 export const NOTIFICATIONS_TYPE = ["success", "warning", "error"] as const;
 
+export const PRISMA_NOTIFICATIONS_TYPE = ["warning", "error", "success", "notification"] as const;
+
 export const NOTIFICATION_GOAL = [
 	"deletion",
 	"creation",
@@ -201,6 +203,10 @@ export const MEDICAL_EMPLOYEE_ROLES = [
 	"admin",
 	"manager",
 	"handler",
+] as const;
+
+export const HOSPITALITY_EMPLOYEE_ROLES = [
+	"admin",
 ] as const;
 
 export const GrublockStatus = ["unlocked", "locked"] as const;

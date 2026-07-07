@@ -71,7 +71,6 @@ export const getMedicalNotifications = async (params: GetMedicalNotificationsPar
 			{ title: { contains: search } },
 			{ description: { contains: search } },
 			{ box_name: { contains: search } },
-			{ restaurant_name: { contains: search } },
 		];
 	}
 
@@ -96,14 +95,14 @@ export const getMedicalNotifications = async (params: GetMedicalNotificationsPar
 	return { notifications, count, unread_count };
 };
 
-export const getMedicalNotificationDropdowns = async (client_id: string) => {
+export const getMedicalNotificationDropdowns = async (client_id: string, vertical_id?: string) => {
 	const [departments, boxes] = await prisma.$transaction([
 		prisma.vertical_medical_department.findMany({
 			where: { client_id },
 			select: { id: true, name: true },
 		}),
 		prisma.box.findMany({
-			where: { client_id },
+			where: { client_id, ...(vertical_id && { vertical_id }) },
 			select: { id: true, name: true, box_display_id: true },
 		}),
 	]);
