@@ -6,6 +6,7 @@ import {
 	enforceSimulatorHeartbeatTimeout,
 	recordSimulatorHeartbeat,
 } from "@/db/actions/simulator.connection.actions.ts";
+import { computeOverallBatteryLevel } from "@/utils/box-battery.ts";
 
 export const getHealthHandler = createHandlers(
 	boxIdParamValidator,
@@ -50,9 +51,9 @@ export const getHealthHandler = createHandlers(
 					restaurant_id: null,
 					is_driver_connected: !!box.connection_employee_id,
 					connection_status: box.telemetry?.cellular_signal || box.telemetry?.connection_status || "strong",
-					battery_1_level: box.telemetry?.battery_1_percentage ?? 23,
-					battery_2_level: box.telemetry?.battery_2_percentage ?? 80,
-					battery_level: box.telemetry?.battery_percentage ?? 80,
+					battery_1_level: box.telemetry?.battery_1_percentage ?? null,
+					battery_2_level: box.telemetry?.battery_2_percentage ?? null,
+					battery_level: computeOverallBatteryLevel(box.telemetry),
 					ambient_temp: box.telemetry?.ext_temp ?? 32,
 					zone_1_temp: box.telemetry?.zone1_temp ?? 4.2,
 					zone_2_temp: box.telemetry?.zone2_temp ?? 4.5,

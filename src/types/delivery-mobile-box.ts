@@ -3,7 +3,7 @@ export interface MobileBoxSummary {
 	box_display_id: string;
 	name: string;
 	is_connected: boolean;
-	battery_level: number;
+	battery_level: number | null;
 	is_locked: boolean;
 }
 
