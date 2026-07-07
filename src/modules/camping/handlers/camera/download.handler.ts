@@ -13,9 +13,10 @@ export const downloadFeedHandler = createHandlers(
 		const box_id = context.req.param("box_id");
 		const feed_id = context.req.param("feed_id");
 		const client_id = context.get("client_id");
+		const vertical_id = context.get("vertical_id");
 
 		const box = await prisma.box.findFirst({
-			where: { id: box_id, client_id },
+			where: { id: box_id, client_id, vertical_id },
 		});
 
 		if (!box) {

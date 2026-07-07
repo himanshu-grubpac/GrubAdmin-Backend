@@ -15,6 +15,7 @@ export const getLiveStreamHandler = createHandlers(
 	async (context) => {
 		const box_id = context.req.param("box_id");
 		const client_id = context.get("client_id");
+		const vertical_id = context.get("vertical_id");
 		const camera = parseInt(context.req.query("camera") || "1");
 
 		if (camera < 1 || camera > 4) {
@@ -22,7 +23,7 @@ export const getLiveStreamHandler = createHandlers(
 		}
 
 		const box = await prisma.box.findFirst({
-			where: { id: box_id, client_id },
+			where: { id: box_id, client_id, vertical_id },
 			include: { telemetry: true },
 		});
 

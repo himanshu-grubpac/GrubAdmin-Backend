@@ -26,10 +26,11 @@ export const getBoxLogsHandler = createHandlers(
 	async (context) => {
 		const box_id = context.req.param("box_id");
 		const client_id = context.get("client_id");
+		const vertical_id = context.get("vertical_id");
 		const { page, page_size } = context.req.valid("query");
 
 		const box = await prisma.box.findFirst({
-			where: { id: box_id, client_id },
+			where: { id: box_id, client_id, vertical_id },
 		});
 
 		if (!box) {

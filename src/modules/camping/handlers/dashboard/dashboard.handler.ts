@@ -36,30 +36,30 @@ export const getDashboardHandler = createHandlers(
 	async (context) => {
 		const client_id = context.get("client_id");
 		const user = context.get("user");
+		const vertical_id = context.get("vertical_id");
 
 		const currentHour = new Date().getHours();
 		let greeting = "Good evening";
 		if (currentHour < 12) greeting = "Good morning";
 		else if (currentHour < 17) greeting = "Good afternoon";
 
+		const boxWhere = { client_id, vertical_id, status: { not: "unassigned" } as const };
+
 		const client = prisma.client.findUnique({
 			where: { id: client_id },
 		});
 
-		const totalBoxes = prisma.box.count({
-			where: { client_id, status: { not: "unassigned" } },
-		});
+		const totalBoxes = prisma.box.count({ where: boxWhere });
 
 		const connectedBoxes = prisma.box.count({
 			where: {
-				client_id,
-				status: { not: "unassigned" },
+				...boxWhere,
 				telemetry: { connection_status: "connected" },
 			},
 		});
 
 		const boxes = prisma.box.findMany({
-			where: { client_id, status: { not: "unassigned" } },
+			where: boxWhere,
 			select: {
 				id: true,
 				name: true,
