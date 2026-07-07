@@ -28,6 +28,12 @@ export const getSupportAnswerHandler = createHandlers(
             throw new APIError("FAQ not found", undefined, undefined, 404);
         }
 
+        // Delivery portal is a read-only help surface — only published FAQs are
+        // visible. Drafts must not be reachable via a known/guessed id.
+        if (faq.publishing_status !== "published") {
+            throw new APIError("FAQ not found", undefined, undefined, 404);
+        }
+
         return context.json<APIResponse<ResponseData>>(
             {
                 success: true,

@@ -105,7 +105,7 @@ export const getRestaurantsHandler = createHandlers(
 				success: true,
 				code: 200,
 				data: {
-					count: restaurants.length,
+					count: restaurantsData.count,
 					restaurants: restaurants,
 				},
 				pagination: calculatePagination(finalPage, finalLimit ?? restaurantsData.count, restaurantsData.count),

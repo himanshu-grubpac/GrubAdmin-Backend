@@ -57,10 +57,14 @@ export const getNotifications = async ({
 		is_dismissed: is_dismissed ?? false,
 	};
 
-	// Filter by boxes in specific restaurants
+	// Filter by boxes in specific restaurants — scope to the caller's client so
+	// a foreign/guessed restaurant_id cannot surface another tenant's boxes.
 	if (restaurant_ids && restaurant_ids.length > 0) {
 		const boxesInRestaurants = await prisma.restaurant_box.findMany({
-			where: { restaurant_id: { in: restaurant_ids } },
+			where: {
+				restaurant_id: { in: restaurant_ids },
+				restaurant: { client_id },
+			},
 			select: { box_id: true }
 		});
 		const targetBoxIds = boxesInRestaurants.map(rb => rb.box_id);

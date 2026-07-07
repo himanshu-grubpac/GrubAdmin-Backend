@@ -12,6 +12,7 @@ import { APIError } from "@/types/error";
 import type { VerticalDeliveryEmployeeRoleType } from "@/types/common";
 import { nullifyEmptyFKs } from "@/utils/clean-query.ts";
 import { logger } from "@/utils/logger";
+import { Bcrypt } from "@/utils/bcrypt.ts";
 
 interface GetUniqueVerticalDeliveryEmployeeArgs {
 	email?: string;
@@ -86,6 +87,63 @@ export const getUniqueVerticalDeliveryEmployee = async (
 	});
 
 	return null;
+};
+
+type VerticalDeliveryLoginCandidate = NonNullable<GetUniqueVerticalDeliveryEmployeeResponse>;
+
+export type ResolvePasswordLoginResult =
+	| { ok: true; employee: VerticalDeliveryLoginCandidate }
+	| { ok: false; reason: "not_found" }
+	| { ok: false; reason: "password_not_set" }
+	| { ok: false; reason: "invalid_credentials" }
+	| { ok: false; reason: "ambiguous_account" };
+
+/** Resolve login when the same email may exist on multiple clients (password disambiguates). */
+export const resolveVerticalDeliveryEmployeeForPasswordLogin = async (
+	email: string,
+	password: string,
+): Promise<ResolvePasswordLoginResult> => {
+	const [clients, employees] = await Promise.all([
+		prisma.client.findMany({ where: { email } }),
+		prisma.vertical_delivery_employee.findMany({ where: { email } }),
+	]);
+
+	const candidates: VerticalDeliveryLoginCandidate[] = [
+		...clients.map((employee) => ({ type: "admin" as const, employee })),
+		...employees.map((employee) => ({ type: employee.role, employee })),
+	];
+
+	if (candidates.length === 0) {
+		return { ok: false, reason: "not_found" };
+	}
+
+	const withPassword = candidates.filter((candidate) => !!candidate.employee.password);
+	if (withPassword.length === 0) {
+		return { ok: false, reason: "password_not_set" };
+	}
+
+	const passwordMatches: VerticalDeliveryLoginCandidate[] = [];
+	for (const candidate of withPassword) {
+		const isMatch = await Bcrypt.compareHash({
+			data: password,
+			hashedValue: candidate.employee.password!,
+		});
+		if (isMatch) {
+			passwordMatches.push(candidate);
+		}
+	}
+
+	if (passwordMatches.length === 1) {
+		const match = passwordMatches[0];
+		if (match) {
+			return { ok: true, employee: match };
+		}
+	}
+	if (passwordMatches.length > 1) {
+		return { ok: false, reason: "ambiguous_account" };
+	}
+
+	return { ok: false, reason: "invalid_credentials" };
 };
 
 interface ActivateVerticalDeliveryEmployeeArgs {
@@ -1009,7 +1067,6 @@ export const getVerticalDeliveryEmployeeById = async (
 				},
 			},
 			vertical_delivery_employee_boxes: {
-				take: 20, // Strict limit on relationship serialization
 				orderBy: { created_at: "desc" },
 				include: { box: true },
 			},

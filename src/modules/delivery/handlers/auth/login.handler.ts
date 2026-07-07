@@ -1,8 +1,7 @@
 import { createHandlers } from "@/utils/hono-factory";
 import { loginRequestBodyValidator } from "delivery/validators/auth.validators";
-import { activateVerticalDeliveryEmployee, getUniqueVerticalDeliveryEmployee } from "@/db/actions/vertical-delivery-employee.actions";
+import { activateVerticalDeliveryEmployee, resolveVerticalDeliveryEmployeeForPasswordLogin } from "@/db/actions/vertical-delivery-employee.actions";
 import { APIError } from "@/types/error";
-import { Bcrypt } from "@/utils/bcrypt.ts";
 import { JWT } from "@/utils/jwt.ts";
 import { loggerService } from "@/services/system-log.ts";
 import { resolveMessageTemplate } from "@/utils/message";
@@ -21,17 +20,37 @@ export const loginHandler = createHandlers(
 	async (context) => {
 		const { email, password, remember_me } = context.req.valid("json");
 
-		const employee = await getUniqueVerticalDeliveryEmployee({
-			email,
-		});
+		const loginResult = await resolveVerticalDeliveryEmployeeForPasswordLogin(email, password);
 
-		console.log(employee);
+		if (!loginResult.ok) {
+			const is_account_found = loginResult.reason !== "not_found";
 
-		const is_account_found = !!employee;
-
-		if (!employee) {
-			throw new APIError("No employee can be found!", "delivery.auth.login.ACCOUNT_NOT_FOUND", { is_account_found });
+			if (loginResult.reason === "not_found") {
+				throw new APIError("No employee can be found!", "delivery.auth.login.ACCOUNT_NOT_FOUND", { is_account_found: false });
+			}
+			if (loginResult.reason === "password_not_set") {
+				throw new APIError(
+					"Please login using OTP and set a password first to login using password",
+					"delivery.auth.login.PASSWORD_NOT_SET",
+					{ is_account_found, is_password_set: false },
+				);
+			}
+			if (loginResult.reason === "ambiguous_account") {
+				throw new APIError(
+					"Multiple accounts match these credentials. Contact support.",
+					"delivery.auth.login.INVALID_CREDENTIALS",
+					{ is_account_found, is_password_set: true },
+				);
+			}
+			throw new APIError(
+				"Invalid login credentials, the I'd and the password does not match",
+				"delivery.auth.login.INVALID_CREDENTIALS",
+				{ is_account_found, is_password_set: true },
+			);
 		}
+
+		const employee = loginResult.employee;
+		const is_account_found = true;
 
 		if (employee.type === "delivery" || employee.type === ("driver" as any)) {
 			throw new APIError("You are not authorized to login.", "delivery.auth.login.UNAUTHORIZED", { is_account_found });
@@ -50,34 +69,7 @@ export const loginHandler = createHandlers(
 			});
 		}
 
-		const is_password_set = !!employee.employee.password;
-
-		if (!employee.employee.password) {
-			throw new APIError(
-				"Please login using OTP and set a password first to login using password",
-				"delivery.auth.login.PASSWORD_NOT_SET",
-				{
-					is_account_found,
-					is_password_set,
-				}
-			);
-		}
-
-		const isCorrectPassword = await Bcrypt.compareHash({
-			data: password,
-			hashedValue: employee.employee.password,
-		});
-
-		if (!isCorrectPassword) {
-			throw new APIError(
-				"Invalid login credentials, the I'd and the password does not match",
-				"delivery.auth.login.INVALID_CREDENTIALS",
-				{
-					is_account_found,
-					is_password_set,
-				}
-			);
-		}
+		const is_password_set = true;
 
 		const client_id =
 			employee.type === "admin"
