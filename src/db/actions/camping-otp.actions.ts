@@ -8,7 +8,7 @@ interface SaveCampingOtpArgs {
 	email: string;
 	otp: string;
 	role: CampingEmployeeRoleType;
-	for_what: "login" | "forget_password" | "set_new_password";
+	for_what: "login" | "forget_password" | "set_new_password" | "unlock_box";
 	metadata?: any;
 }
 

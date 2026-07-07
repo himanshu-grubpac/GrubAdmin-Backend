@@ -36,6 +36,7 @@ export type BoxConfigModel = Document & {
 	save_to_card: boolean;
 	restaurant_id: string | null;
 	driver_id: string | null;
+	surveillance_mode?: boolean;
 };
 
 const boxConfigSchema = new Schema<BoxConfigModel>(
@@ -152,6 +153,10 @@ const boxConfigSchema = new Schema<BoxConfigModel>(
 			type: String,
 			trim: true,
 			default: null,
+		},
+		surveillance_mode: {
+			type: Boolean,
+			default: false,
 		},
 	},
 	{

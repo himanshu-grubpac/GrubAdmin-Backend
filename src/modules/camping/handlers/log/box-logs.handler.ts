@@ -2,6 +2,8 @@ import { createHandlers } from "@/utils/hono-factory";
 import { campingAuthGuard } from "@/middlewares/auth";
 import { APIError } from "@/types/error";
 import { prisma } from "@/db";
+import { getSystemLogs } from "@/db/actions/system-log.action";
+import { calculatePagination } from "@/utils/pagination";
 import type { APIResponse } from "@/types/api";
 import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
@@ -36,10 +38,28 @@ export const getBoxLogsHandler = createHandlers(
 			throw new APIError(undefined, "camping.box.NOT_FOUND");
 		}
 
-		return context.json<APIResponse<{ message: string }>>({
+		const result = await getSystemLogs({
+			client_id,
+			subject_id: box.id,
+			category: "GrubPac",
+			page,
+			page_size,
+		});
+
+		return context.json<APIResponse<any>>({
 			success: true,
 			code: 200,
-			data: { message: "Logs endpoint placeholder - integrate with system-log service" },
+			message: "Box logs fetched successfully",
+			data: {
+				logs: result.logs,
+				count: result.page_count,
+				total: result.total_count,
+			},
+			pagination: calculatePagination(
+				result.page || 1,
+				result.page_size || result.total_count,
+				result.total_count,
+			),
 		});
 	},
 );

@@ -48,7 +48,18 @@ import {
 import {
 	getBoxLogsHandler,
 } from "camping/handlers/log";
-
+import {
+	listBoxesHandler,
+	registerBoxHandler,
+	getBoxDetailsHandler,
+	removeBoxHandler,
+	updateBoxSettingsHandler,
+	connectBoxHandler,
+	disconnectBoxHandler,
+	requestLockOtpHandler,
+	verifyLockOtpHandler,
+	lockBoxHandler,
+} from "camping/handlers/box";
 export const campingRouter = new Hono();
 
 campingRouter.onError(globalErrorHandler);
@@ -100,3 +111,15 @@ campingRouter.post("/support/write-to-us", ...writeToUsHandler);
 
 /* Logs Router */
 campingRouter.get("/boxes/:box_id/logs", ...getBoxLogsHandler);
+
+/* Box Router */
+campingRouter.get("/boxes", ...listBoxesHandler);
+campingRouter.post("/boxes", ...registerBoxHandler);
+campingRouter.get("/boxes/:box_id", ...getBoxDetailsHandler);
+campingRouter.delete("/boxes/:box_id", ...removeBoxHandler);
+campingRouter.patch("/boxes/:box_id/settings", ...updateBoxSettingsHandler);
+campingRouter.post("/boxes/:box_id/connection", ...connectBoxHandler);
+campingRouter.delete("/boxes/:box_id/connection", ...disconnectBoxHandler);
+campingRouter.post("/boxes/:box_id/lock/otp", ...requestLockOtpHandler);
+campingRouter.post("/boxes/:box_id/lock/verify", ...verifyLockOtpHandler);
+campingRouter.patch("/boxes/:box_id/lock", ...lockBoxHandler);

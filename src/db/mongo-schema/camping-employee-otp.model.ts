@@ -7,7 +7,7 @@ export type CampingEmployeeOtpModel = Document & {
 	role: CampingEmployeeRoleType;
 	otp: string;
 	otp_id: string;
-	for_what: "login" | "forget_password" | "set_new_password";
+	for_what: "login" | "forget_password" | "set_new_password" | "unlock_box";
 	metadata?: any;
 	failed_attempts?: number;
 	createdAt: Date;
@@ -36,7 +36,7 @@ const campingEmployeeOtpSchema = new Schema<CampingEmployeeOtpModel>(
 		},
 		for_what: {
 			type: String,
-			enum: ["login", "forget_password", "set_new_password"],
+			enum: ["login", "forget_password", "set_new_password", "unlock_box"],
 			required: true,
 			default: "login",
 		},

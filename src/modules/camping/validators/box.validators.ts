@@ -26,6 +26,7 @@ export const updateBoxSettingsRequestBodyValidator = zValidator(
 		zone1_status: z.enum(["on", "off"]).optional(),
 		zone2_status: z.enum(["on", "off"]).optional(),
 		ioniser_status: z.enum(["on", "off"]).optional(),
+		surveillance_mode: z.boolean().optional(),
 	}),
 	(response) => {
 		if (!response.success) {
