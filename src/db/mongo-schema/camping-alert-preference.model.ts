@@ -8,6 +8,7 @@ export type CampingAlertPreferenceModel = Document & {
 	lock_alerts: boolean;
 	display_alerts: boolean;
 	other_alerts: boolean;
+	theme: "light" | "dark";
 	createdAt: Date;
 	updatedAt: Date;
 };
@@ -41,6 +42,11 @@ const campingAlertPreferenceSchema = new Schema<CampingAlertPreferenceModel>(
 		other_alerts: {
 			type: Boolean,
 			default: true,
+		},
+		theme: {
+			type: String,
+			enum: ["light", "dark"],
+			default: "light",
 		},
 		createdAt: {
 			type: Date,

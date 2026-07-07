@@ -22,6 +22,7 @@ export const searchSupportQuestionsHandler = createHandlers(
 	campingAuthGuard(),
 	searchQueryValidator,
 	async (context) => {
+		const vertical_id = context.get("vertical_id");
 		const { q } = context.req.valid("query");
 
 		const questions = await prisma.faq_question.findMany({
@@ -29,6 +30,13 @@ export const searchSupportQuestionsHandler = createHandlers(
 				publishing_status: "published",
 				status: "active",
 				question: { contains: q },
+				categories: {
+					some: {
+						category: {
+							vertical_id,
+						},
+					},
+				},
 			},
 			include: {
 				categories: {
