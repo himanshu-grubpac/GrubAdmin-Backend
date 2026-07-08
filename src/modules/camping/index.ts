@@ -19,6 +19,8 @@ import {
 	confirmUpdateAccountHandler,
 	deleteAccountEligibilityHandler,
 	deleteAccountHandler,
+	updatePreferencesHandler,
+	getConfigHandler,
 } from "camping/handlers/account";
 import {
 	getDashboardHandler,
@@ -86,6 +88,10 @@ campingRouter.patch("/account/update/resend-otp", ...updateAccountResendOtpHandl
 campingRouter.patch("/account/confirm", ...confirmUpdateAccountHandler);
 campingRouter.get("/account/delete-eligibility", ...deleteAccountEligibilityHandler);
 campingRouter.delete("/account", ...deleteAccountHandler);
+campingRouter.put("/account/preferences", ...updatePreferencesHandler);
+
+/* Settings Router */
+campingRouter.get("/config", ...getConfigHandler);
 
 /* Dashboard Router */
 campingRouter.get("/dashboard", ...getDashboardHandler);
@@ -104,9 +110,11 @@ campingRouter.patch("/boxes/:box_id/surveillance/toggle", ...toggleSurveillanceH
 
 /* Notification Router */
 campingRouter.get("/notification", ...getNotificationsHandler);
+campingRouter.get("/notifications", ...getNotificationsHandler);
 campingRouter.get("/notification/count", ...getUnreadNotificationsCountHandler);
 campingRouter.get("/notification/dropdowns", ...getNotificationDropdownsHandler);
 campingRouter.patch("/notification", ...markNotificationsHandler);
+campingRouter.patch("/notifications", ...markNotificationsHandler);
 campingRouter.post("/notification/test-trigger", ...testTriggerNotificationHandler);
 
 /* Support Router */

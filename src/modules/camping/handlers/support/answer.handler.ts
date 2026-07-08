@@ -23,10 +23,22 @@ export const getSupportAnswerHandler = createHandlers(
 	campingAuthGuard(),
 	getAnswerQueryValidator,
 	async (context) => {
+		const vertical_id = context.get("vertical_id");
 		const { question_id } = context.req.valid("query");
 
-		const question = await prisma.faq_question.findUnique({
-			where: { id: question_id },
+		const question = await prisma.faq_question.findFirst({
+			where: {
+				id: question_id,
+				status: "active",
+				publishing_status: "published",
+				categories: {
+					some: {
+						category: {
+							vertical_id,
+						},
+					},
+				},
+			},
 			include: {
 				categories: {
 					include: { category: true },

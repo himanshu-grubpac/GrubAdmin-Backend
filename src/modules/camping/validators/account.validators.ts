@@ -35,3 +35,21 @@ export const confirmUpdateOtpRequestBodyValidator = zValidator(
 		}
 	},
 );
+
+export const updatePreferencesRequestBodyValidator = zValidator(
+	"json",
+	z.object({
+		box_id: z.string().min(1, { error: "box_id is required" }).optional(),
+		camera_alerts: z.boolean().optional(),
+		battery_alerts: z.boolean().optional(),
+		lock_alerts: z.boolean().optional(),
+		display_alerts: z.boolean().optional(),
+		other_alerts: z.boolean().optional(),
+		theme: z.enum(["light", "dark"]).optional(),
+	}),
+	(response) => {
+		if (!response.success) {
+			validatorErrorHandler(response.error);
+		}
+	},
+);

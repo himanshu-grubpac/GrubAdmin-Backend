@@ -87,9 +87,7 @@ export const setNewPasswordRequestBodyValidator = zValidator(
 			email: z.string().trim().email({
 				error: "Please provide a valid email",
 			}),
-			full_name: z.string().trim().min(1, {
-				error: "Please provide your full name",
-			}),
+			full_name: z.string().trim().min(1).optional(),
 			password: z
 				.string({
 					error: "Please provide a password",
