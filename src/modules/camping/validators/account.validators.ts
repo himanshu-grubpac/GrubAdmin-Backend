@@ -27,7 +27,7 @@ export const confirmUpdateOtpRequestBodyValidator = zValidator(
 			.trim()
 			.min(4, { error: "Otp must be 4 characters long!" })
 			.max(4, { error: "Otp must be 4 characters long!" }),
-		otp_id: z.string().optional(),
+		otp_id: z.string().min(1, { error: "OTP ID is required" }),
 	}),
 	(response) => {
 		if (!response.success) {
