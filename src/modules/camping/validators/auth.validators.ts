@@ -122,6 +122,42 @@ export const setNewPasswordRequestBodyValidator = zValidator(
 	},
 );
 
+export const signupRequestBodyValidator = zValidator(
+	"json",
+	z.object({
+		email: z.string().trim().email({
+			error: "Please provide a valid email address",
+		}),
+		password: z
+			.string({
+				error: "Please provide a valid password",
+			})
+			.trim()
+			.min(8, "Password must be at least 8 characters long!")
+			.max(20, "Password must be at most 20 characters long!"),
+		confirm_password: z
+			.string({
+				error: "Please provide a confirm password",
+			})
+			.trim()
+			.min(8, "Password must be at least 8 characters long!")
+			.max(20, "Password must be at most 20 characters long!"),
+		full_name: z.string().trim().min(1, {
+			error: "Please provide your full name",
+		}),
+		mobile_number: z.string().trim().optional(),
+		country_code: z.string().trim().optional(),
+	}).refine((data) => data.password === data.confirm_password, {
+		message: "Passwords do not match",
+		path: ["confirm_password"],
+	}),
+	(response) => {
+		if (!response.success) {
+			validatorErrorHandler(response.error);
+		}
+	},
+);
+
 export const forgetPasswordSendOtpValidator = zValidator(
 	"json",
 	z.object({

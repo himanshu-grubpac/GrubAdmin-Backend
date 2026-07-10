@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { globalErrorHandler } from "@/middlewares/error";
 import { reqInputsMiddleware } from "@/middlewares/req-inputs";
 import {
+	signupHandler,
 	loginHandler,
 	logoutHandler,
 	sendOtpHandler,
@@ -71,6 +72,7 @@ campingRouter.onError(globalErrorHandler);
 campingRouter.use(reqInputsMiddleware);
 
 /* Auth Router */
+campingRouter.post("/auth/signup", ...signupHandler);
 campingRouter.post("/auth/login", ...loginHandler);
 campingRouter.post("/auth/send-otp", ...sendOtpHandler);
 campingRouter.post("/auth/verify-otp", ...verifyOtpHandler);

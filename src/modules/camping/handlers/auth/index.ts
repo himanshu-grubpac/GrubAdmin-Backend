@@ -1,3 +1,4 @@
+export * from "./signup.handler";
 export * from "./login.handler";
 export * from "./logout.handler";
 export * from "./send-otp.handler";

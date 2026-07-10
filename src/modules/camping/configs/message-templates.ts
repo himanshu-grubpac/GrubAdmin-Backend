@@ -2,6 +2,12 @@ import type { MessageTemplateMap } from "@/configs/template-types";
 
 export const campingMessageTemplates: MessageTemplateMap = {
 	auth: {
+		SIGNUP_SUCCESS: {
+			message: "Account created successfully!",
+			code: 201,
+			message_toast_title: "Welcome!",
+			message_toast_description: "Your account has been created successfully.",
+		},
 		LOGIN_SUCCESS: {
 			message: "Login successful!",
 			code: 200,
