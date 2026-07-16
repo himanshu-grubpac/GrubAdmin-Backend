@@ -541,12 +541,19 @@ export const assignMedicalBoxToEmployee = async (
 		where: { id: { in: box_ids }, client_id },
 	});
 
-	if (boxes.length === 0) {
-		throw new APIError("No boxes found", undefined, undefined, 404);
+	if (boxes.length !== box_ids.length) {
+		throw new APIError(
+			"One or more boxes were not found for this client.",
+			undefined,
+			undefined,
+			404,
+		);
 	}
 
+	const ownedBoxIds = boxes.map((box) => box.id);
+
 	await prisma.vertical_medical_employee_box.createMany({
-		data: box_ids.flatMap((box_id) =>
+		data: ownedBoxIds.flatMap((box_id) =>
 			employee_ids.map((employee_id) => ({
 				box_id,
 				employee_id,
@@ -555,7 +562,7 @@ export const assignMedicalBoxToEmployee = async (
 		skipDuplicates: true,
 	});
 
-	return { assigned_count: box_ids.length * employee_ids.length };
+	return { assigned_count: ownedBoxIds.length * employee_ids.length };
 };
 
 export const getMedicalEmployeeBoxes = async (employeeId: string) => {

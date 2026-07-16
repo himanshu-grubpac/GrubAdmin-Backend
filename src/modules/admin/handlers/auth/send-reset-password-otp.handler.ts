@@ -1,11 +1,11 @@
 import { createHandlers } from "@/utils/hono-factory.ts";
 import { sendPasswordResetOtpRequestBodyValidator } from "@/modules/admin/validators/auth.validators.ts";
 import { getUniqueAdmin } from "@/db/actions/admin.actions.ts";
-import { APIError } from "@/types/error";
-import { getSavedOtp, saveOtp } from "@/db/actions/otp.actions.ts";
-import { Otp } from "@/utils/otp.ts";
+import { saveOtp } from "@/db/actions/otp.actions.ts";
 import type { APIResponse } from "@/types/api";
 import { services } from "@/services";
+import { FRONTEND_URL, MAIL } from "@/configs/env.ts";
+import crypto from "crypto";
 
 export const sentResetPasswordOtpHandler = createHandlers(
 	sendPasswordResetOtpRequestBodyValidator,
@@ -23,32 +23,32 @@ export const sentResetPasswordOtpHandler = createHandlers(
 			return context.json<APIResponse>({ success: true, code: 200 }, 200);
 		}
 
-		const sentOtp = await getSavedOtp(normalizedEmail);
+		const token = crypto.randomBytes(32).toString("hex");
 
-		if (sentOtp) {
-			throw new APIError(
-				"Otp has already been sent try resending the otp",
-				undefined,
-				undefined,
-				400,
-			);
+		const updatedOtpRecord = await saveOtp({
+			email: normalizedEmail,
+			otp: token,
+			role: admin.type,
+			for_what: "forget_password",
+			is_password_reset: true,
+		});
+
+		if (!updatedOtpRecord) {
+			return context.json<APIResponse>({ success: true, code: 200 }, 200);
 		}
 
-		const otp = Otp.generateOtp(4); // 4 digits = 10,000 combinations
+		if (!FRONTEND_URL) {
+			throw new Error("FRONTEND_URL is required for reset password links.");
+		}
 
-				await saveOtp({
-					email: normalizedEmail,
-					otp,
-					role: admin.type,
-					for_what: "forget_password",
-					is_password_reset: true,
-				});
+		const otp_id = updatedOtpRecord.otp_id;
+		const resetUrl = `${FRONTEND_URL.replace(/\/$/, "")}/reset-password?token=${token}&email=${encodeURIComponent(normalizedEmail)}&link_id=${otp_id}`;
 
 		await services.mailer.sendEmail({
-			from: process.env.MAIL ?? "",  // Use configured mail env var, not a hardcoded personal address
-			subject: "Reset Password OTP",
+			from: MAIL,
+			subject: "Reset Password Link",
 			to: normalizedEmail,
-			text: `Your OTP for resetting your password is ${otp}`,
+			text: `Click the link below to reset your password (LINK_ID: ${otp_id}):\n${resetUrl}\n\nThis link will expire in 5 minutes.`,
 		});
 
 		return context.json<APIResponse>({
@@ -57,4 +57,3 @@ export const sentResetPasswordOtpHandler = createHandlers(
 		});
 	},
 );
-

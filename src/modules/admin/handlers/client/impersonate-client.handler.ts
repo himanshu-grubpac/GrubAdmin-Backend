@@ -96,7 +96,16 @@ export const impersonateClientHandler = createHandlers(
 
 		logger.info(`[Impersonation] Successfully completed for admin ${admin!.id} → client ${client.id}`);
 
-		const baseUrl = CLIENT_DASHBOARD_URL || "http://13.127.79.155";
+		if (!CLIENT_DASHBOARD_URL) {
+			throw new APIError(
+				"Client dashboard URL is not configured. Set CLIENT_DASHBOARD_URL.",
+				undefined,
+				undefined,
+				500,
+			);
+		}
+
+		const baseUrl = CLIENT_DASHBOARD_URL.replace(/\/$/, "");
 
 		const impersonationPathMap: Record<string, string> = {
 			[DELIVERY_VERTICAL_NAME]: "/impersonate",
@@ -105,7 +114,8 @@ export const impersonateClientHandler = createHandlers(
 		};
 
 		const impersonationPath = impersonationPathMap[verticalName] || "/impersonate";
-		const redirectUrl = `${baseUrl}${impersonationPath}?token=${impersonationToken}`;
+		const exchangeCode = JWT.signImpersonationExchangeCode(impersonationToken);
+		const redirectUrl = `${baseUrl}${impersonationPath}?code=${encodeURIComponent(exchangeCode)}`;
 
 		const response = {
 			success: true,

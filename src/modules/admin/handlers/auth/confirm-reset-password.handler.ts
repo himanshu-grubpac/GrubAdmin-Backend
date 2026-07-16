@@ -9,9 +9,6 @@ import {
 } from "@/db/actions/otp-attempt.actions.ts";
 import { APIError } from "@/types/error";
 import { Bcrypt } from "@/utils/bcrypt.ts";
-import { JWT } from "@/utils/jwt.ts";
-import { setAuthCookie } from "@/utils/cookie.ts";
-import { JWT_ACCESS_TOKEN_EXPIRY } from "@/configs/env.ts";
 import { getUniqueAdmin, updateAdmin } from "@/db/actions/admin.actions.ts";
 import type { APIResponse } from "@/types/api";
 
@@ -106,13 +103,6 @@ export const confirmResetPasswordHandler = createHandlers(
 		});
 
 		await deleteSavedOtp(normalizedEmail);
-
-		const token = JWT.signAuthToken({
-			id: admin.user.id,
-			role: admin.type,
-		});
-
-		setAuthCookie(context, token, { expiresIn: JWT_ACCESS_TOKEN_EXPIRY });
 
 		return context.json<APIResponse>(
 			{

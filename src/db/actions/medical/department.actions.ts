@@ -593,7 +593,9 @@ export const reassignDepartmentResources = async (
 		}),
 	]);
 
-	if (fromDepartments.length === 0) throw new APIError("Source departments not found", undefined, undefined, 404);
+	if (fromDepartments.length !== from_department_ids.length) {
+		throw new APIError("Source departments not found", undefined, undefined, 404);
+	}
 	if (!toDepartment) throw new APIError(undefined, "medical.department.assign.manager.NOT_FOUND", undefined, 404);
 
 	await prisma.$transaction(async (tx) => {
@@ -646,21 +648,28 @@ export const reassignDepartmentResources = async (
 
 		if (reassign_boxes) {
 			const dbs = await tx.vertical_medical_department_box.findMany({
-				where: { department_id: { in: from_department_ids } }
+				where: {
+					department_id: { in: fromDepartments.map((department) => department.id) },
+				},
 			});
 			const boxIds = dbs.map((db: any) => db.box_id);
+			const ownedBoxes = await tx.box.findMany({
+				where: { id: { in: boxIds }, client_id },
+				select: { id: true },
+			});
+			const ownedBoxIds = ownedBoxes.map((box) => box.id);
 
 			await tx.vertical_medical_department_box.deleteMany({
-				where: { box_id: { in: boxIds } },
+				where: { box_id: { in: ownedBoxIds } },
 			});
 
-			if (boxIds.length > 0) {
+			if (ownedBoxIds.length > 0) {
 				await tx.vertical_medical_department_box.createMany({
-					data: boxIds.map((box_id: string) => ({
+					data: ownedBoxIds.map((box_id: string) => ({
 						box_id,
 						department_id: to_department_id,
-						status: "shared"
-					}))
+						status: "shared",
+					})),
 				});
 			}
 		}

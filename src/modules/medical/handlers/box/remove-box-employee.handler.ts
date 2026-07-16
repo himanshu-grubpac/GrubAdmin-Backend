@@ -14,6 +14,21 @@ export const removeBoxEmployeeHandler = createHandlers(
 			throw new APIError("Please provide box_id and employee_id", undefined, undefined, 400);
 		}
 
+		const [box, employee] = await Promise.all([
+			prisma.box.findFirst({
+				where: { id: box_id, client_id },
+				select: { id: true },
+			}),
+			prisma.vertical_medical_employee.findFirst({
+				where: { id: employee_id, client_id },
+				select: { id: true },
+			}),
+		]);
+
+		if (!box || !employee) {
+			throw new APIError("Box or employee not found", undefined, undefined, 404);
+		}
+
 		await prisma.vertical_medical_employee_box.deleteMany({
 			where: {
 				box_id,

@@ -61,7 +61,6 @@ export const createFaqHandler = createHandlers(
 		const fileResponses = await Promise.allSettled(
 			uploadedFiles.map((file) =>
 				services.s3.uploadToS3({
-					acl: "public-read",
 					prefix: FAQ_FOLDER_PREFIX,
 					file,
 				}),

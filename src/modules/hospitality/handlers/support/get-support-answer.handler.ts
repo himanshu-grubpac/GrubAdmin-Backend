@@ -28,6 +28,10 @@ export const getSupportAnswerHandler = createHandlers(
 			throw new APIError("FAQ not found", undefined, undefined, 404);
 		}
 
+		if (faq.publishing_status !== "published") {
+			throw new APIError("FAQ not found", undefined, undefined, 404);
+		}
+
 		return context.json<APIResponse<ResponseData>>(
 			{
 				success: true,

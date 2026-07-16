@@ -135,6 +135,10 @@ export const updateRole = async (args: UpdateRoleArgs) => {
 		data.name_normalized = normalizeRoleName(args.name);
 	}
 
+	if (args.isSuperAdmin === true) {
+		data.is_super_admin = true;
+	}
+
 	try {
 		return await prisma.role.update({
 			where: {

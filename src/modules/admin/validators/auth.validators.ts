@@ -19,6 +19,7 @@ export const loginRequestBodyValidator = zValidator(
 			.max(20, {
 				error: "Password can be at max 20 characters long",
 			}),
+		remember_me: z.boolean().optional(),
 	}),
 	(response) => {
 		if (!response.success) {

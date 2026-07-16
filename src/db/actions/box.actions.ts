@@ -314,6 +314,7 @@ export const toggleAssignBoxes = async (args: ToggleAssignBoxesArgs) => {
 				id: true,
 				vertical_id: true,
 				status: true,
+				client_id: true,
 			},
 		});
 
@@ -342,6 +343,14 @@ export const toggleAssignBoxes = async (args: ToggleAssignBoxesArgs) => {
 			for (const box of boxes) {
 				if (box.vertical_id !== client.vertical_id) {
 					throw new APIError(undefined, "delivery.box.VERTICAL_MISMATCH", undefined, 400);
+				}
+				if (box.client_id && box.client_id !== client_id) {
+					throw new APIError(
+						"One or more boxes are already assigned to another client.",
+						undefined,
+						undefined,
+						409,
+					);
 				}
 			}
 		}

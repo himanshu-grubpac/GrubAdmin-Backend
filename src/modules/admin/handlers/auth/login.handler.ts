@@ -5,7 +5,7 @@ import { APIError } from "@/types/error";
 import { Bcrypt } from "@/utils/bcrypt";
 import { JWT } from "@/utils/jwt";
 import { setAuthCookie } from "@/utils/cookie";
-import { JWT_ACCESS_TOKEN_EXPIRY } from "@/configs/env";
+import { JWT_ACCESS_TOKEN_EXPIRY, JWT_REFRESH_TOKEN_EXPIRY } from "@/configs/env";
 import type { APIResponse } from "@/types/api";
 import { resolveMessageTemplate } from "@/utils/message.ts";
 import { services } from "@/services";
@@ -15,7 +15,7 @@ import { logger } from "@/utils/logger";
 export const loginHandler = createHandlers(
 	loginRequestBodyValidator,
 	async (context) => {
-		const { email, password } = context.req.valid("json");
+		const { email, password, remember_me } = context.req.valid("json");
 		const normalizedEmail = email.trim().toLowerCase();
 
 		logger.info(`Login attempt for: ${normalizedEmail}`);
@@ -25,8 +25,8 @@ export const loginHandler = createHandlers(
 		});
 
 		if (!admin) {
-			logger.warn(`Login failed - account not found: ${normalizedEmail}`);
-			throw new APIError(undefined, "admin.auth.ACCOUNT_NOT_FOUND", undefined, 404);
+			logger.warn(`Login failed - invalid credentials: ${normalizedEmail}`);
+			throw new APIError(undefined, "admin.account.INVALID_PASSWORD", undefined, 401);
 		}
 
 		if (!admin.user.password) {
@@ -35,8 +35,8 @@ export const loginHandler = createHandlers(
 		}
 
 		if (admin.user.status === "suspended") {
-			logger.warn(`Login failed - account suspended: ${normalizedEmail}`);
-			throw new APIError(undefined, "admin.auth.UNAUTHORIZED", undefined, 403);
+			logger.warn(`Login failed - invalid credentials: ${normalizedEmail}`);
+			throw new APIError(undefined, "admin.account.INVALID_PASSWORD", undefined, 401);
 		}
 
 		const isCorrectPassword = await Bcrypt.compareHash({
@@ -58,14 +58,18 @@ export const loginHandler = createHandlers(
 			});
 		}
 
+		const tokenExpiry = remember_me
+			? JWT_REFRESH_TOKEN_EXPIRY
+			: JWT_ACCESS_TOKEN_EXPIRY;
+
 		const token = JWT.signAuthToken({
 			id: admin.user.id,
 			role: admin.type,
-		});
+		}, tokenExpiry);
 
 		// Set JWT token as HttpOnly Secure cookie (do this before async logging
 		// so the cookie is set even if the log call fails)
-		setAuthCookie(context, token, { expiresIn: JWT_ACCESS_TOKEN_EXPIRY });
+		setAuthCookie(context, token, { expiresIn: tokenExpiry });
 
 		// Log the login event asynchronously — never block login response on logging
 		const ip = context.req.header("x-forwarded-for")?.split(",")[0] || 

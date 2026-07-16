@@ -34,6 +34,13 @@ export const createRoleHandler = createHandlers(
 			throw new APIError("Unauthorized: Only a Super Admin can create a Super Admin role", undefined, undefined, 403);
 		}
 
+		if (permissions && !adminRole?.is_super_admin) {
+			Permission.assertPermissionsSubset(
+				adminRole?.permissions_json as Record<string, string[]>,
+				permissions as Record<string, string[]>,
+			);
+		}
+
 		const role = await createRole({
 			name,
 			permissions,
