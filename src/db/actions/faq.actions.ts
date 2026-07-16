@@ -254,7 +254,7 @@ export const updateFaqQuestion = async (args: UpdateFaqQuestionArgs) => {
 	}
 
 	const existingAttachments = (faq.attachments as string[] | null) ?? [];
-	const filesDeletedSet = new Set(file_keys_deleted);
+	const filesDeletedSet = new Set(file_keys_deleted ?? []);
 
 	const updatedFiles = existingAttachments.filter(
 		(ex) => !filesDeletedSet.has(ex),
