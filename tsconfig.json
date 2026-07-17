@@ -13,6 +13,8 @@
 		"allowImportingTsExtensions": true,
 		"verbatimModuleSyntax": true,
 		"noEmit": true,
+		// Bun globals (Bun, bun:test) — already in package.json as @types/bun
+		"types": ["bun"],
 		// Best practices
 		"strict": true,
 		"skipLibCheck": true,

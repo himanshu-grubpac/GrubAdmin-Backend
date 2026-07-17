@@ -23,7 +23,7 @@ Bun.serve({
 	port: PORT,
 	idleTimeout: 120,
 	maxRequestBodySize: 50 * 1024 * 1024, // 50MB
-	error(error) {
+	error(error: Error) {
 		logger.error(`Server error: ${error.message}`, {
 			stack: error.stack,
 		});

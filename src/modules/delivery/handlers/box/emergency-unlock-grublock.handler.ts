@@ -64,14 +64,33 @@ export const emergencyUnlockGrublockHandler = createHandlers(
 
   // Create notification for each emergency unlocked box
   try {
+   const boxes = await prisma.box.findMany({
+    where: { id: { in: ids }, client_id },
+    select: {
+     id: true,
+     name: true,
+     box_display_id: true,
+     restaurant_boxes: {
+      take: 1,
+      select: { restaurant: { select: { name: true } } },
+     },
+    },
+   });
+   const byId = new Map(boxes.map((b) => [b.id, b]));
+
    for (const boxId of ids) {
+    const box = byId.get(boxId);
+    const label = box?.box_display_id || box?.name || "Unknown";
     await createNotification({
      client_id,
      vertical_id,
      box_id: boxId,
+     box_display_id: box?.box_display_id,
+     box_name: box?.name ?? undefined,
+     restaurant_name: box?.restaurant_boxes[0]?.restaurant?.name,
      type: "warning",
      title: "Emergency Unlock",
-     description: `Box ${boxId} has been emergency unlocked${reason ? ` (Reason: ${reason})` : ""}`,
+     description: `Box ${label} has been emergency unlocked${reason ? ` (Reason: ${reason})` : ""}`,
     });
    }
   } catch (err) {

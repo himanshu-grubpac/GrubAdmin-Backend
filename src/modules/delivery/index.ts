@@ -43,6 +43,7 @@ import {
 	getEmployeeDropdownsHandler,
 	reassignEmployeeHandler,
 	searchEmployeesHandler,
+	getEmployeeSuspendedSummaryHandler,
 } from "delivery/handlers/employee";
 import {
 	createRestaurantHandler,
@@ -61,6 +62,7 @@ import {
 	getDeleteSummaryHandler,
 	getReassignmentCandidatesHandler,
 	validateReassignmentHandler,
+	getRestaurantSuspendedSummaryHandler,
 } from "delivery/handlers/restaurant";
 import { getDashboardHandler } from "delivery/handlers/dashboard";
 import {
@@ -86,6 +88,7 @@ import {
 	reassignBoxEmployeeHandler,
 	blockBoxEmployeeHandler,
 	removeBoxEmployeeHandler,
+	getGrubpacSuspendedSummaryHandler,
 } from "delivery/handlers/box";
 import { 
 	postRestaurantLogsHandler,
@@ -174,6 +177,7 @@ deliveryRouter.get("/employee", ...getEmployeesHandler);             // ?query&s
 deliveryRouter.get("/employee/details", ...getEmployeeByIdHandler); // ?id=...
 deliveryRouter.get("/employee/dropdowns", ...getEmployeeDropdownsHandler);
 deliveryRouter.get("/employee/search", ...searchEmployeesHandler);
+deliveryRouter.get("/employee/suspended/summary", ...getEmployeeSuspendedSummaryHandler);
 deliveryRouter.patch("/employee/suspend", ...suspendEmployeesHandler);
 deliveryRouter.patch("/employee/reactivate", ...reactivateEmployeesHandler);
 deliveryRouter.put("/employee", ...updateEmployeeHandler);           // body: { id, ... }
@@ -190,6 +194,7 @@ deliveryRouter.get("/restaurant", ...getRestaurantsHandler);                    
 deliveryRouter.get("/restaurant/details", ...getRestaurantByIdHandler);         // ?id=...
 deliveryRouter.get("/restaurant/employees", ...getRestaurantEmployeesHandler);  // ?id=...&status=...
 deliveryRouter.get("/restaurant/delete-summary", ...getDeleteSummaryHandler);
+deliveryRouter.get("/restaurant/suspended/summary", ...getRestaurantSuspendedSummaryHandler);
 deliveryRouter.get("/restaurant/reassignment-candidates", ...getReassignmentCandidatesHandler);
 deliveryRouter.post("/restaurant/reassign/validate", ...validateReassignmentHandler);
 deliveryRouter.patch("/restaurant/resource/suspend", ...suspendRestaurantResourcesHandler);
@@ -210,6 +215,7 @@ deliveryRouter.get("/restaurant/search", ...searchRestaurantsHandler);
  */
 deliveryRouter.get("/grubpac", ...getGrubpacHandler);
 deliveryRouter.get("/grubpac/search", ...searchGrubpacHandler);
+deliveryRouter.get("/grubpac/suspended/summary", ...getGrubpacSuspendedSummaryHandler);
 deliveryRouter.delete("/grubpac", ...deleteGrubpacHandler);
 deliveryRouter.patch("/grubpac/reassign", ...reassignGrubpacHandler);
 deliveryRouter.patch("/grubpac/reassign/employee", ...reassignBoxEmployeeHandler);

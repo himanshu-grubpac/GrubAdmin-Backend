@@ -43,7 +43,7 @@ export const getSupportQuestionsHandler = createHandlers(
 				code: 200,
 				data: {
 					faqs: questionsResponse.faqs,
-					count: questionsResponse.faqs.length,
+					count: questionsResponse.count,
 				},
 				pagination: calculatePagination(page ?? 1, limit ?? questionsResponse.count, questionsResponse.count),
 			},

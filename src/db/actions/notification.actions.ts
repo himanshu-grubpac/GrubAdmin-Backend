@@ -17,8 +17,8 @@ export interface GetNotificationsParams {
 export interface MarkNotificationsParams {
 	client_id: string;
 	vertical_id?: string;
-	/** Specific IDs to mark. If omitted, all notifications for the client are marked. */
-	ids?: string[];
+	/** Specific IDs to mark — required to avoid accidental dismiss-all. */
+	ids: string[];
 	is_read?: boolean;
 	is_dismissed?: boolean;
 }
@@ -124,10 +124,14 @@ export const markNotifications = async ({
 	is_read,
 	is_dismissed,
 }: MarkNotificationsParams) => {
+	if (!ids.length) {
+		return { updated_count: 0 };
+	}
+
 	const where: Prisma.notificationWhereInput = {
 		client_id,
 		...(vertical_id && { vertical_id }),
-		...(ids && ids.length > 0 ? { id: { in: ids } } : { is_dismissed: false }),
+		id: { in: ids },
 	};
 
 	const data: Prisma.notificationUpdateManyMutationInput = {};

@@ -12,9 +12,10 @@ import {
  deleteSavedDeliveryEmployeeOtp,
  getSavedDeliveryEmployeeOtp,
 } from "@/db/actions/delivery-employee-otp.actions";
+import { prisma } from "@/db";
 
 export const verifyUnlockGrublockHandler = createHandlers(
- deliveryAuthGuard(["admin", "manager", "delivery"]),
+ deliveryAuthGuard(["admin", "manager"]),
  verifyUnlockGrublockRequestBodyValidator,
  async (context) => {
   const { client_id, user_id, user, type, vertical_id } = context.var;
@@ -54,14 +55,33 @@ export const verifyUnlockGrublockHandler = createHandlers(
 
   // Create notification for each verified unlock
   try {
+   const boxes = await prisma.box.findMany({
+    where: { id: { in: ids }, client_id },
+    select: {
+     id: true,
+     name: true,
+     box_display_id: true,
+     restaurant_boxes: {
+      take: 1,
+      select: { restaurant: { select: { name: true } } },
+     },
+    },
+   });
+   const byId = new Map(boxes.map((b) => [b.id, b]));
+
    for (const boxId of ids) {
+    const box = byId.get(boxId);
+    const label = box?.box_display_id || box?.name || "Unknown";
     await createNotification({
      client_id,
      vertical_id,
      box_id: boxId,
+     box_display_id: box?.box_display_id,
+     box_name: box?.name ?? undefined,
+     restaurant_name: box?.restaurant_boxes[0]?.restaurant?.name,
      type: "success",
      title: "Box Unlocked",
-     description: `Box ${boxId} has been unlocked successfully`,
+     description: `Box ${label} has been unlocked successfully`,
     });
    }
   } catch (err) {

@@ -57,6 +57,7 @@ export const verifyOtpRequestBodyValidator = zValidator(
 			.max(4, {
 				error: "Otp must be 4 characters long!",
 			}),
+		remember_me: z.boolean().optional(),
 	}),
 	(response) => {
 		if (!response.success) {

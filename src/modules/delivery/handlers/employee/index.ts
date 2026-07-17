@@ -8,3 +8,4 @@ export * from "./reactivate-employees.handler";
 export * from "./reassign-employee.handler";
 export * from "./get-employee-dropdowns.handler";
 export * from "./search-employees.handler";
+export * from "./get-suspended-summary.handler";

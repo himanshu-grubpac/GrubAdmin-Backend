@@ -20,3 +20,4 @@ export * from "./emergency-unlock-grublock.handler";
 export * from "./reassign-box-employee.handler";
 export * from "./block-box-employee.handler";
 export * from "./remove-box-employee.handler";
+export * from "./get-suspended-summary.handler";

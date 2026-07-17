@@ -17,12 +17,13 @@ import type { APIResponse } from "@/types/api";
 import { resolveMessageTemplate } from "@/utils/message";
 import { getCookie, deleteCookie } from "hono/cookie";
 import { prisma } from "@/db";
+import { syncVerticalEmailRegistry } from "@/utils/vertical-email-registry";
 
 export const confirmUpdateAccountHandler = createHandlers(
 	hospitalityAuthGuard(),
 	confirmUpdateAccountRequestBodyValidator,
 	async (context) => {
-		const { user } = context.var;
+		const { user, vertical_id } = context.var;
 
 		const { otp, otp_id: otp_id_body } = context.req.valid("json");
 		const otp_id_cookie = getCookie(context, "otp_id");
@@ -74,6 +75,15 @@ export const confirmUpdateAccountHandler = createHandlers(
 			where: { id: user.id },
 			data: updatePayload,
 		});
+
+		if (updatedDetails.email && vertical_id) {
+			await syncVerticalEmailRegistry({
+				verticalId: vertical_id,
+				email: updatedDetails.email,
+				ownerType: "client",
+				ownerId: user.id,
+			});
+		}
 
 		await deleteDeliveryEmployeeUpdateOtp(user.id);
 

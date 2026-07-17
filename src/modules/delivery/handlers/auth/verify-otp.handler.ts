@@ -9,7 +9,7 @@ import { DeliveryEmployeeOtp } from "@/db/mongo-schema/delivery-employee-otp.mod
 import { APIError } from "@/types/error";
 import {
 	activateVerticalDeliveryEmployee,
-	getUniqueVerticalDeliveryEmployee,
+	resolveVerticalDeliveryEmployeeForEmailAuth,
 } from "@/db/actions/vertical-delivery-employee.actions";
 import { JWT } from "@/utils/jwt.ts";
 import type { APIResponse } from "@/types/api";
@@ -21,12 +21,13 @@ interface ResponseData {
 	auth_token: string;
 	otp_for_what: string;
 	is_password_set: boolean;
+	client_id: string;
 }
 
 export const verifyOtpHandler = createHandlers(
 	verifyOtpRequestBodyValidator,
 	async (context) => {
-		const { email, otp, otp_id: otp_id_body } = context.req.valid("json");
+		const { email, otp, otp_id: otp_id_body, remember_me } = context.req.valid("json");
 		const otp_id_cookie = getCookie(context, "otp_id");
 		const target_otp_id = otp_id_body || otp_id_cookie;
 
@@ -53,13 +54,19 @@ export const verifyOtpHandler = createHandlers(
 
 		await deleteSavedDeliveryEmployeeOtp(email);
 
-		const employee = await getUniqueVerticalDeliveryEmployee({
-			email,
-		});
+		const resolved = await resolveVerticalDeliveryEmployeeForEmailAuth(email);
 
-		if (!employee?.employee) {
+		if (!resolved.ok) {
+			if (resolved.reason === "ambiguous_account") {
+				throw new APIError(
+					"Multiple accounts match this email. Contact support.",
+					"delivery.auth.login.INVALID_CREDENTIALS",
+				);
+			}
 			throw new APIError(undefined, "delivery.auth.login.ACCOUNT_NOT_FOUND");
 		}
+
+		const employee = resolved.employee;
 
 		if (
 			employee.employee.status === "suspended"
@@ -84,10 +91,13 @@ export const verifyOtpHandler = createHandlers(
 				? (employee.employee as client).id
 				: ((employee.employee as vertical_delivery_employee).client_id ?? "");
 
-		const token = JWT.signDeliveryAuthToken({
-			id: employee.employee.id,
-			role: employee.type,
-		});
+		const token = JWT.signDeliveryAuthToken(
+			{
+				id: employee.employee.id,
+				role: employee.type,
+			},
+			remember_me ? ("7d" as const) : ("24h" as const),
+		);
 
 		// Log access
 		const emp = employee.employee as any;
@@ -125,6 +135,7 @@ export const verifyOtpHandler = createHandlers(
 					auth_token: token,
 					otp_for_what: for_what,
 					is_password_set: !!employee.employee.password,
+					client_id,
 				},
 			},
 			{

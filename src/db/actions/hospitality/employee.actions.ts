@@ -7,6 +7,9 @@ import { APIError } from "@/types/error";
 import type { HospitalityEmployeeRoleType } from "@/types/common";
 import { nullifyEmptyFKs } from "@/utils/clean-query.ts";
 import { logger } from "@/utils/logger";
+import { HOSPITALITY_VERTICAL_NAME } from "@/configs/constants";
+import { getVertical } from "@/db/actions/vertical.actions";
+import { releaseVerticalEmailsByOwners } from "@/utils/vertical-email-registry";
 
 interface DeleteHospitalityEmployeesArgs {
 	ids: string[];
@@ -33,28 +36,36 @@ export const deleteHospitalityEmployees = async (args: DeleteHospitalityEmployee
 	const foundIds = employees.map((e) => e.id);
 	const missingIds = ids.filter((id) => !foundIds.includes(id));
 
-	await prisma.vertical_hospitality_employee_deleted.createMany({
-		data: employees.map((e) => ({
-			first_name: e.first_name,
-			last_name: e.last_name,
-			country_code: e.country_code,
-			mobile_number: e.mobile_number,
-			email: e.email,
-			employee_display_id: e.employee_display_id,
-			joining_date: e.joining_date,
-			client_id: e.client_id,
-			client_name: e.client?.name ?? "",
-			role_name: e.role,
-			profile_pic: e.profile_pic,
-			x_primary_key: e.id,
-		})),
-	});
+	await prisma.$transaction(async (tx) => {
+		await releaseVerticalEmailsByOwners({
+			db: tx,
+			ownerType: "hospitality_employee",
+			ownerIds: foundIds,
+		});
 
-	await prisma.vertical_hospitality_employee.deleteMany({
-		where: {
-			id: { in: foundIds },
-			client_id,
-		},
+		await tx.vertical_hospitality_employee_deleted.createMany({
+			data: employees.map((e) => ({
+				first_name: e.first_name,
+				last_name: e.last_name,
+				country_code: e.country_code,
+				mobile_number: e.mobile_number,
+				email: e.email,
+				employee_display_id: e.employee_display_id,
+				joining_date: e.joining_date,
+				client_id: e.client_id,
+				client_name: e.client?.name ?? "",
+				role_name: e.role,
+				profile_pic: e.profile_pic,
+				x_primary_key: e.id,
+			})),
+		});
+
+		await tx.vertical_hospitality_employee.deleteMany({
+			where: {
+				id: { in: foundIds },
+				client_id,
+			},
+		});
 	});
 
 	return {
@@ -93,9 +104,15 @@ export const getUniqueHospitalityEmployee = async (
 		phone ? { mobile_number: phone } : {},
 	].filter((condition) => Object.keys(condition).length > 0);
 
+	const hospitalityVertical =
+		email || phone ? await getVertical(HOSPITALITY_VERTICAL_NAME) : null;
+
 	const clientWhere: any = {};
 	if (id) clientWhere.id = id;
 	if (orConditions.length > 0) clientWhere.OR = orConditions;
+	if (hospitalityVertical && (email || phone)) {
+		clientWhere.vertical_id = hospitalityVertical.id;
+	}
 
 	const clientRecord = Object.keys(clientWhere).length > 0
 		? await prisma.client.findFirst({ where: clientWhere })
@@ -112,6 +129,9 @@ export const getUniqueHospitalityEmployee = async (
 	if (id) employeeWhere.id = id;
 	if (employee_display_id) employeeWhere.employee_display_id = employee_display_id;
 	if (orConditions.length > 0) employeeWhere.OR = orConditions;
+	if (hospitalityVertical && (email || phone)) {
+		employeeWhere.client = { vertical_id: hospitalityVertical.id };
+	}
 
 	const hospitalityEmployee = Object.keys(employeeWhere).length > 0
 		? await prisma.vertical_hospitality_employee.findFirst({ where: employeeWhere })

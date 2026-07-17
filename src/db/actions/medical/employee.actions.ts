@@ -7,6 +7,14 @@ import { APIError } from "@/types/error";
 import type { MedicalEmployeeRoleType } from "@/types/common";
 import { nullifyEmptyFKs } from "@/utils/clean-query.ts";
 import { logger } from "@/utils/logger";
+import { assertEmailAvailableInVertical } from "@/utils/account";
+import { MEDICAL_VERTICAL_NAME } from "@/configs/constants";
+import { getVertical } from "@/db/actions/vertical.actions";
+import {
+	claimVerticalEmail,
+	releaseVerticalEmailsByOwners,
+	syncVerticalEmailRegistry,
+} from "@/utils/vertical-email-registry";
 
 interface GetUniqueMedicalEmployeeArgs {
 	email?: string;
@@ -38,9 +46,15 @@ export const getUniqueMedicalEmployee = async (
 		phone ? { mobile_number: phone } : {},
 	].filter((condition) => Object.keys(condition).length > 0);
 
+	const medicalVertical =
+		email || phone ? await getVertical(MEDICAL_VERTICAL_NAME) : null;
+
 	const clientWhere: any = {};
 	if (id) clientWhere.id = id;
 	if (orConditions.length > 0) clientWhere.OR = orConditions;
+	if (medicalVertical && (email || phone)) {
+		clientWhere.vertical_id = medicalVertical.id;
+	}
 
 	const clientRecord = Object.keys(clientWhere).length > 0
 		? await prisma.client.findFirst({ where: clientWhere })
@@ -57,6 +71,9 @@ export const getUniqueMedicalEmployee = async (
 	if (id) employeeWhere.id = id;
 	if (employee_display_id) employeeWhere.employee_display_id = employee_display_id;
 	if (orConditions.length > 0) employeeWhere.OR = orConditions;
+	if (medicalVertical && (email || phone)) {
+		employeeWhere.client = { vertical_id: medicalVertical.id };
+	}
 
 	const medicalEmployee = Object.keys(employeeWhere).length > 0
 		? await prisma.vertical_medical_employee.findFirst({ where: employeeWhere })
@@ -168,18 +185,48 @@ export const updateMedicalEmployee = async (
 
 	if (type === "admin") {
 		if (email) {
-			const existingClient = await prisma.client.findFirst({
-				where: {
-					email,
-					NOT: {
-						id,
-					},
-				},
+			const clientRecord = await prisma.client.findUnique({
+				where: { id },
+				select: { vertical_id: true },
 			});
-
-			if (existingClient) {
-				throw new APIError(undefined, "medical.common.EMAIL_ALREADY_EXISTS");
+			if (!clientRecord?.vertical_id) {
+				throw new APIError("Client vertical is not configured", undefined, undefined, 400);
 			}
+			try {
+				await assertEmailAvailableInVertical(email, clientRecord.vertical_id, {
+					excludeClientId: id,
+				});
+			} catch (error) {
+				if (error instanceof APIError && error.code === 409) {
+					throw new APIError(undefined, "medical.common.EMAIL_ALREADY_EXISTS");
+				}
+				throw error;
+			}
+
+			return prisma.$transaction(async (tx) => {
+				const updated = await tx.client.update({
+					where: { id },
+					data: {
+						status,
+						email,
+						country_code,
+						mobile_number,
+						organization_name: type === "admin" && "organization" in args ? args.organization : undefined,
+						password,
+						name: first_name || last_name
+							? `${first_name ? first_name : ""}${last_name ? ` ${last_name}` : ""}`
+							: undefined,
+					},
+				});
+				await syncVerticalEmailRegistry({
+					db: tx,
+					verticalId: clientRecord.vertical_id!,
+					email,
+					ownerType: "client",
+					ownerId: id,
+				});
+				return updated;
+			});
 		}
 
 		return prisma.client.update({
@@ -201,18 +248,48 @@ export const updateMedicalEmployee = async (
 	}
 
 	if (email) {
-		const existingEmployee = await prisma.vertical_medical_employee.findFirst({
-			where: {
-				email,
-				NOT: {
-					id,
-				},
-			},
+		const employeeRecord = await prisma.vertical_medical_employee.findUnique({
+			where: { id },
+			select: { client: { select: { vertical_id: true } } },
 		});
-
-		if (existingEmployee) {
-			throw new APIError(undefined, "medical.common.EMAIL_ALREADY_EXISTS");
+		const verticalId = employeeRecord?.client?.vertical_id;
+		if (!verticalId) {
+			throw new APIError("Client vertical is not configured", undefined, undefined, 400);
 		}
+		try {
+			await assertEmailAvailableInVertical(email, verticalId, {
+				excludeEmployeeId: id,
+			});
+		} catch (error) {
+			if (error instanceof APIError && error.code === 409) {
+				throw new APIError(undefined, "medical.common.EMAIL_ALREADY_EXISTS");
+			}
+			throw error;
+		}
+
+		return prisma.$transaction(async (tx) => {
+			const updated = await tx.vertical_medical_employee.update({
+				where: { id },
+				data: {
+					status,
+					email,
+					first_name,
+					last_name,
+					country_code,
+					mobile_number,
+					department_id,
+					password,
+				},
+			});
+			await syncVerticalEmailRegistry({
+				db: tx,
+				verticalId,
+				email,
+				ownerType: "medical_employee",
+				ownerId: id,
+			});
+			return updated;
+		});
 	}
 
 	return prisma.vertical_medical_employee.update({
@@ -305,11 +382,24 @@ export const createMedicalEmployee = async (
 		throw new APIError(undefined, "medical.common.SUPER_ADMIN_EMAIL_CONFLICT");
 	}
 
+	if (email) {
+		if (!client.vertical_id) {
+			throw new APIError("Client vertical is not configured", undefined, undefined, 400);
+		}
+		try {
+			await assertEmailAvailableInVertical(email, client.vertical_id);
+		} catch (error) {
+			if (error instanceof APIError && error.code === 409) {
+				throw new APIError(undefined, "medical.common.EMAIL_ALREADY_EXISTS");
+			}
+			throw error;
+		}
+	}
+
 	const existingEmployee = await prisma.vertical_medical_employee.findFirst({
 		where: {
 			client_id,
 			OR: [
-				{ email },
 				{ employee_display_id },
 				{
 					AND: [{ country_code }, { mobile_number }],
@@ -319,9 +409,6 @@ export const createMedicalEmployee = async (
 	});
 
 	if (existingEmployee) {
-		if (existingEmployee.email === email) {
-			throw new APIError(undefined, "medical.common.EMAIL_ALREADY_EXISTS");
-		}
 		if (existingEmployee.employee_display_id === employee_display_id) {
 			throw new APIError(undefined, "medical.common.DISPLAY_ID_ALREADY_EXISTS");
 		}
@@ -334,21 +421,36 @@ export const createMedicalEmployee = async (
 	}
 
 	try {
-		return await prisma.vertical_medical_employee.create({
-			data: {
-				first_name,
-				last_name,
-				email,
-				country_code,
-				mobile_number,
-				client_id,
-				employee_display_id,
-				joining_date,
-				role,
-				department_id,
-			},
+		return await prisma.$transaction(async (tx) => {
+			const created = await tx.vertical_medical_employee.create({
+				data: {
+					first_name,
+					last_name,
+					email,
+					country_code,
+					mobile_number,
+					client_id,
+					employee_display_id,
+					joining_date,
+					role,
+					department_id,
+				},
+			});
+
+			if (client.vertical_id && email) {
+				await claimVerticalEmail({
+					db: tx,
+					verticalId: client.vertical_id,
+					email,
+					ownerType: "medical_employee",
+					ownerId: created.id,
+				});
+			}
+
+			return created;
 		});
 	} catch (error: any) {
+		if (error instanceof APIError) throw error;
 		if (error?.code === "P2002") {
 			const target = error.meta?.target as string[] | undefined;
 			if (target?.includes("email")) {
@@ -879,29 +981,37 @@ export const deleteMedicalEmployees = async (args: DeleteMedicalEmployeesArgs) =
 	const foundIds = employees.map((e) => e.id);
 	const missingIds = ids.filter((id) => !foundIds.includes(id));
 
-	await prisma.vertical_medical_employee_deleted.createMany({
-		data: employees.map((e) => ({
-			first_name: e.first_name,
-			last_name: e.last_name,
-			country_code: e.country_code,
-			mobile_number: e.mobile_number,
-			email: e.email,
-			employee_display_id: e.employee_display_id,
-			joining_date: e.joining_date,
-			client_id: e.client_id,
-			client_name: e.client?.name ?? "",
-			role_name: e.role,
-			department_name: e.department?.name ?? null,
-			profile_pic: e.profile_pic,
-			x_primary_key: e.id,
-		})),
-	});
+	await prisma.$transaction(async (tx) => {
+		await releaseVerticalEmailsByOwners({
+			db: tx,
+			ownerType: "medical_employee",
+			ownerIds: foundIds,
+		});
 
-	await prisma.vertical_medical_employee.deleteMany({
-		where: {
-			id: { in: foundIds },
-			client_id,
-		},
+		await tx.vertical_medical_employee_deleted.createMany({
+			data: employees.map((e) => ({
+				first_name: e.first_name,
+				last_name: e.last_name,
+				country_code: e.country_code,
+				mobile_number: e.mobile_number,
+				email: e.email,
+				employee_display_id: e.employee_display_id,
+				joining_date: e.joining_date,
+				client_id: e.client_id,
+				client_name: e.client?.name ?? "",
+				role_name: e.role,
+				department_name: e.department?.name ?? null,
+				profile_pic: e.profile_pic,
+				x_primary_key: e.id,
+			})),
+		});
+
+		await tx.vertical_medical_employee.deleteMany({
+			where: {
+				id: { in: foundIds },
+				client_id,
+			},
+		});
 	});
 
 	return {
@@ -1056,23 +1166,55 @@ export const updateMedicalEmployeeById = async (
 	}
 
 	if (email) {
-		const existingEmployee = await prisma.vertical_medical_employee.findFirst({
-			where: {
-				email,
-				NOT: {
-					id,
-				},
-			},
+		const existingClient = await prisma.client.findUnique({
+			where: { id: client_id },
+			select: { vertical_id: true },
 		});
-
-		if (existingEmployee) {
-			throw new APIError(
-				"This email is already registered with another account!",
-				undefined,
-				undefined,
-				400,
-			);
+		if (!existingClient?.vertical_id) {
+			throw new APIError("Client vertical is not configured", undefined, undefined, 400);
 		}
+		try {
+			await assertEmailAvailableInVertical(email, existingClient.vertical_id, {
+				excludeEmployeeId: id,
+			});
+		} catch (error) {
+			if (error instanceof APIError && error.code === 409) {
+				throw new APIError(
+					"This email is already registered with another account!",
+					undefined,
+					undefined,
+					400,
+				);
+			}
+			throw error;
+		}
+
+		return prisma.$transaction(async (tx) => {
+			const updated = await tx.vertical_medical_employee.update({
+				where: { id, client_id },
+				data: {
+					first_name,
+					last_name,
+					country_code,
+					mobile_number,
+					employee_display_id,
+					joining_date,
+					email,
+					role,
+					department_id,
+				},
+				omit: { password: true },
+				include: { department: true },
+			});
+			await syncVerticalEmailRegistry({
+				db: tx,
+				verticalId: existingClient.vertical_id!,
+				email,
+				ownerType: "medical_employee",
+				ownerId: id,
+			});
+			return updated;
+		});
 	}
 
 	return prisma.vertical_medical_employee.update({

@@ -8,9 +8,10 @@ import { createNotification } from "@/db/actions/notification.actions.ts";
 import { services } from "@/services";
 import { APIError } from "@/types/error";
 import type { APIResponse } from "@/types/api";
+import { prisma } from "@/db";
 
 export const unlockGrublockHandler = createHandlers(
- deliveryAuthGuard(["admin", "manager", "delivery"]),
+ deliveryAuthGuard(["admin", "manager"]),
  unlockGrublockRequestBodyValidator,
  async (context) => {
   const { client_id, user_id, user, type, vertical_id } = context.var;
@@ -57,14 +58,33 @@ export const unlockGrublockHandler = createHandlers(
 
   // Create notification for each unlock request
   try {
+   const boxes = await prisma.box.findMany({
+    where: { id: { in: ids }, client_id },
+    select: {
+     id: true,
+     name: true,
+     box_display_id: true,
+     restaurant_boxes: {
+      take: 1,
+      select: { restaurant: { select: { name: true } } },
+     },
+    },
+   });
+   const byId = new Map(boxes.map((b) => [b.id, b]));
+
    for (const boxId of ids) {
+    const box = byId.get(boxId);
+    const label = box?.box_display_id || box?.name || "Unknown";
     await createNotification({
      client_id,
      vertical_id,
      box_id: boxId,
+     box_display_id: box?.box_display_id,
+     box_name: box?.name ?? undefined,
+     restaurant_name: box?.restaurant_boxes[0]?.restaurant?.name,
      type: "notification",
      title: "Unlock Requested",
-     description: `Unlock OTP requested for box ${boxId}${consumer_full_name ? ` by ${consumer_full_name}` : ""}. OTP sent to registered email.`,
+     description: `Unlock OTP requested for box ${label}${consumer_full_name ? ` by ${consumer_full_name}` : ""}. OTP sent to registered email.`,
     });
    }
   } catch (err) {

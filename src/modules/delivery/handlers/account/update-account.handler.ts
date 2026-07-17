@@ -17,12 +17,13 @@ import type { client, vertical_delivery_employee } from "@/db/types";
 import { getCookie, setCookie } from "hono/cookie";
 import { resolveMessageTemplate } from "@/utils/message.ts";
 import { prisma } from "@/db";
+import { assertEmailAvailableInVertical } from "@/utils/account";
 
 export const updateAccountHandler = createHandlers(
 	deliveryAuthGuard(),
 	updateAccountRequestBodyValidator,
 	async (context) => {
-		const { user, type } = context.var;
+		const { user, type, vertical_id } = context.var;
 
 		const {
 			full_name,
@@ -128,13 +129,19 @@ export const updateAccountHandler = createHandlers(
 
 		// ── Validate email and phone uniqueness BEFORE sending OTP ─────────
 		if (isEmailChanged && newEmail) {
-			const existingEmail = await prisma.client.findFirst({
-				where: { email: newEmail, id: { not: user.id } },
-			}) || await prisma.vertical_delivery_employee.findFirst({
-				where: { email: newEmail, id: { not: user.id } },
-			});
-			if (existingEmail) {
-				throw new APIError("This email is already in use by another account.", "delivery.account.EMAIL_EXISTS", undefined, 409);
+			if (!vertical_id) {
+				throw new APIError("Client vertical is not configured", undefined, undefined, 400);
+			}
+			try {
+				await assertEmailAvailableInVertical(newEmail, vertical_id, {
+					excludeClientId: type === "admin" ? user.id : undefined,
+					excludeEmployeeId: type !== "admin" ? user.id : undefined,
+				});
+			} catch (error) {
+				if (error instanceof APIError && error.code === 409) {
+					throw new APIError("This email is already in use by another account.", "delivery.account.EMAIL_EXISTS", undefined, 409);
+				}
+				throw error;
 			}
 		}
 

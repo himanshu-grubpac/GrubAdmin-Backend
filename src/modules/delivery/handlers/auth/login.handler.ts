@@ -13,6 +13,7 @@ interface ResponseData {
 	auth_token: string;
 	is_account_found: boolean;
 	is_password_set: boolean;
+	client_id: string;
 }
 
 export const loginHandler = createHandlers(
@@ -119,6 +120,7 @@ export const loginHandler = createHandlers(
 				auth_token: token,
 				is_account_found,
 				is_password_set,
+				client_id,
 			},
 		});
 	},

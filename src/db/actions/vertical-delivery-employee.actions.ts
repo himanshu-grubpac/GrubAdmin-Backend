@@ -13,6 +13,14 @@ import type { VerticalDeliveryEmployeeRoleType } from "@/types/common";
 import { nullifyEmptyFKs } from "@/utils/clean-query.ts";
 import { logger } from "@/utils/logger";
 import { Bcrypt } from "@/utils/bcrypt.ts";
+import { DELIVERY_VERTICAL_NAME } from "@/configs/constants";
+import { getVertical } from "@/db/actions/vertical.actions";
+import { assertEmailAvailableInVertical } from "@/utils/account";
+import {
+	claimVerticalEmail,
+	releaseVerticalEmailsByOwners,
+	syncVerticalEmailRegistry,
+} from "@/utils/vertical-email-registry";
 
 interface GetUniqueVerticalDeliveryEmployeeArgs {
 	email?: string;
@@ -45,11 +53,16 @@ export const getUniqueVerticalDeliveryEmployee = async (
 		phone ? { mobile_number: phone } : {},
 	].filter((condition) => Object.keys(condition).length > 0);
 
+	const deliveryVertical =
+		email || phone ? await getVertical(DELIVERY_VERTICAL_NAME) : null;
+
 	// Step 1: Look up client (acts as "admin" / super-admin of their own vertical)
-	// No hard-coded vertical filter — any client can authenticate
 	const clientWhere: any = {};
 	if (id) clientWhere.id = id;
 	if (orConditions.length > 0) clientWhere.OR = orConditions;
+	if (deliveryVertical && (email || phone)) {
+		clientWhere.vertical_id = deliveryVertical.id;
+	}
 
 	const clientRecord = Object.keys(clientWhere).length > 0
 		? await prisma.client.findFirst({ where: clientWhere })
@@ -67,6 +80,9 @@ export const getUniqueVerticalDeliveryEmployee = async (
 	if (id) employeeWhere.id = id;
 	if (employee_display_id) employeeWhere.employee_display_id = employee_display_id;
 	if (orConditions.length > 0) employeeWhere.OR = orConditions;
+	if (deliveryVertical && (email || phone)) {
+		employeeWhere.client = { vertical_id: deliveryVertical.id };
+	}
 
 	const deliveryEmployee = Object.keys(employeeWhere).length > 0
 		? await prisma.vertical_delivery_employee.findFirst({ where: employeeWhere })
@@ -91,6 +107,14 @@ export const getUniqueVerticalDeliveryEmployee = async (
 
 type VerticalDeliveryLoginCandidate = NonNullable<GetUniqueVerticalDeliveryEmployeeResponse>;
 
+const getDeliveryVerticalId = async (): Promise<string> => {
+	const vertical = await getVertical(DELIVERY_VERTICAL_NAME);
+	if (!vertical) {
+		throw new APIError("Delivery vertical not configured", undefined, undefined, 500);
+	}
+	return vertical.id;
+};
+
 export type ResolvePasswordLoginResult =
 	| { ok: true; employee: VerticalDeliveryLoginCandidate }
 	| { ok: false; reason: "not_found" }
@@ -103,9 +127,18 @@ export const resolveVerticalDeliveryEmployeeForPasswordLogin = async (
 	email: string,
 	password: string,
 ): Promise<ResolvePasswordLoginResult> => {
+	const deliveryVerticalId = await getDeliveryVerticalId();
+
 	const [clients, employees] = await Promise.all([
-		prisma.client.findMany({ where: { email } }),
-		prisma.vertical_delivery_employee.findMany({ where: { email } }),
+		prisma.client.findMany({
+			where: { email, vertical_id: deliveryVerticalId },
+		}),
+		prisma.vertical_delivery_employee.findMany({
+			where: {
+				email,
+				client: { vertical_id: deliveryVerticalId },
+			},
+		}),
 	]);
 
 	const candidates: VerticalDeliveryLoginCandidate[] = [
@@ -144,6 +177,53 @@ export const resolveVerticalDeliveryEmployeeForPasswordLogin = async (
 	}
 
 	return { ok: false, reason: "invalid_credentials" };
+};
+
+export type ResolveEmailAuthResult =
+	| { ok: true; employee: VerticalDeliveryLoginCandidate }
+	| { ok: false; reason: "not_found" }
+	| { ok: false; reason: "ambiguous_account" };
+
+/**
+ * Resolve OTP / forgot-password auth by email.
+ * Scoped to Delivery vertical only (same email may exist in other verticals).
+ * Password login can disambiguate duplicates within Delivery; email-only flows must reject ambiguity
+ * instead of findFirst (wrong-tenant risk).
+ */
+export const resolveVerticalDeliveryEmployeeForEmailAuth = async (
+	email: string,
+): Promise<ResolveEmailAuthResult> => {
+	const deliveryVerticalId = await getDeliveryVerticalId();
+
+	const [clients, employees] = await Promise.all([
+		prisma.client.findMany({
+			where: { email, vertical_id: deliveryVerticalId },
+		}),
+		prisma.vertical_delivery_employee.findMany({
+			where: {
+				email,
+				client: { vertical_id: deliveryVerticalId },
+			},
+		}),
+	]);
+
+	const candidates: VerticalDeliveryLoginCandidate[] = [
+		...clients.map((employee) => ({ type: "admin" as const, employee })),
+		...employees.map((employee) => ({ type: employee.role, employee })),
+	];
+
+	if (candidates.length === 0) {
+		return { ok: false, reason: "not_found" };
+	}
+	if (candidates.length > 1) {
+		return { ok: false, reason: "ambiguous_account" };
+	}
+
+	const match = candidates[0];
+	if (!match) {
+		return { ok: false, reason: "not_found" };
+	}
+	return { ok: true, employee: match };
 };
 
 interface ActivateVerticalDeliveryEmployeeArgs {
@@ -240,60 +320,106 @@ export const updateVerticalDeliveryEmployee = async (
 		});
 
 		if (email) {
-			const existingClient = await prisma.client.findFirst({
-				where: {
-					email,
-					vertical_id: clientRecord?.vertical_id,
-					NOT: {
-						id,
-					},
-				},
-			});
-
-			if (existingClient) {
-				throw new APIError(undefined, "delivery.common.EMAIL_ALREADY_EXISTS");
+			if (!clientRecord?.vertical_id) {
+				throw new APIError("Client vertical is not configured", undefined, undefined, 400);
+			}
+			try {
+				await assertEmailAvailableInVertical(email, clientRecord.vertical_id, {
+					excludeClientId: id,
+				});
+			} catch (error) {
+				if (error instanceof APIError && error.code === 409) {
+					throw new APIError(undefined, "delivery.common.EMAIL_ALREADY_EXISTS");
+				}
+				throw error;
 			}
 		}
 
-		return prisma.client.update({
-			where: {
-				id,
-			},
-			data: {
-				status,
-				email,
-				country_code,
-				mobile_number,
-				organization_name:
-					type === "admin" ? args.organization : undefined,
-				password,
-				name:
-					first_name || last_name
-						? `${first_name ? first_name : ""}${last_name ? ` ${last_name}` : ""}`
-						: undefined,
-			},
+		return prisma.$transaction(async (tx) => {
+			const updated = await tx.client.update({
+				where: {
+					id,
+				},
+				data: {
+					status,
+					email,
+					country_code,
+					mobile_number,
+					organization_name:
+						type === "admin" ? args.organization : undefined,
+					password,
+					name:
+						first_name || last_name
+							? `${first_name ? first_name : ""}${last_name ? ` ${last_name}` : ""}`
+							: undefined,
+				},
+			});
+
+			if (email && clientRecord?.vertical_id) {
+				await syncVerticalEmailRegistry({
+					db: tx,
+					verticalId: clientRecord.vertical_id,
+					email,
+					ownerType: "client",
+					ownerId: id,
+				});
+			}
+
+			return updated;
 		});
 	}
 
 	if (email) {
 		const employeeRecord = await prisma.vertical_delivery_employee.findUnique({
 			where: { id },
-			select: { client_id: true },
-		});
-
-		const existingEmployee = await prisma.vertical_delivery_employee.findFirst({
-			where: {
-				email,
-				client_id: employeeRecord?.client_id,
-				NOT: {
-					id,
-				},
+			select: {
+				client: { select: { vertical_id: true } },
 			},
 		});
 
-		if (existingEmployee) {
-			throw new APIError(undefined, "delivery.common.EMAIL_ALREADY_EXISTS");
+		const verticalId = employeeRecord?.client?.vertical_id;
+		if (!verticalId) {
+			throw new APIError("Client vertical is not configured", undefined, undefined, 400);
 		}
+
+		try {
+			await assertEmailAvailableInVertical(email, verticalId, {
+				excludeEmployeeId: id,
+			});
+		} catch (error) {
+			if (error instanceof APIError && error.code === 409) {
+				throw new APIError(undefined, "delivery.common.EMAIL_ALREADY_EXISTS");
+			}
+			throw error;
+		}
+
+		return prisma.$transaction(async (tx) => {
+			const updated = await tx.vertical_delivery_employee.update({
+				where: {
+					id,
+				},
+				data: {
+					status,
+					email,
+					first_name,
+					last_name,
+					country_code,
+					mobile_number,
+					restaurant_id: args.restaurant_id,
+					password,
+				},
+			});
+
+			await syncVerticalEmailRegistry({
+				db: tx,
+				verticalId,
+				email,
+				ownerType: "delivery_employee",
+				ownerId: id,
+			});
+
+			return updated;
+		});
 	}
 
 	return prisma.vertical_delivery_employee.update({
@@ -388,27 +514,35 @@ export const createVerticalDeliveryEmployee = async (
 		throw new APIError(undefined, "delivery.common.SUPER_ADMIN_EMAIL_CONFLICT");
 	}
 
+	if (email) {
+		if (!client.vertical_id) {
+			throw new APIError("Client vertical is not configured", undefined, undefined, 400);
+		}
+		try {
+			await assertEmailAvailableInVertical(email, client.vertical_id);
+		} catch (error) {
+			if (error instanceof APIError && error.code === 409) {
+				throw new APIError(undefined, "delivery.common.EMAIL_ALREADY_EXISTS");
+			}
+			throw error;
+		}
+	}
+
 	const uniquenessOr: Array<Record<string, unknown>> = [
 		{ employee_display_id },
 		{
 			AND: [{ country_code }, { mobile_number }],
 		},
 	];
-	if (email) {
-		uniquenessOr.unshift({ email });
-	}
 
 	const existingEmployee = await prisma.vertical_delivery_employee.findFirst({
 		where: {
-			client_id, // Scope uniqueness checks strictly to the active tenant
+			client_id, // display id / mobile uniqueness remains per-tenant
 			OR: uniquenessOr,
 		},
 	});
 
 	if (existingEmployee) {
-		if (email && existingEmployee.email === email) {
-			throw new APIError(undefined, "delivery.common.EMAIL_ALREADY_EXISTS");
-		}
 		if (existingEmployee.employee_display_id === employee_display_id) {
 			throw new APIError(undefined, "delivery.common.DISPLAY_ID_ALREADY_EXISTS");
 		}
@@ -421,21 +555,36 @@ export const createVerticalDeliveryEmployee = async (
 	}
 
 	try {
-		return await prisma.vertical_delivery_employee.create({
-			data: {
-				first_name,
-				last_name,
-				email: emailForCreate,
-				country_code,
-				mobile_number,
-				client_id,
-				employee_display_id,
-				joining_date,
-				role,
-				restaurant_id,
-			},
+		return await prisma.$transaction(async (tx) => {
+			const created = await tx.vertical_delivery_employee.create({
+				data: {
+					first_name,
+					last_name,
+					email: emailForCreate,
+					country_code,
+					mobile_number,
+					client_id,
+					employee_display_id,
+					joining_date,
+					role,
+					restaurant_id,
+				},
+			});
+
+			if (client.vertical_id) {
+				await claimVerticalEmail({
+					db: tx,
+					verticalId: client.vertical_id,
+					email: emailForCreate,
+					ownerType: "delivery_employee",
+					ownerId: created.id,
+				});
+			}
+
+			return created;
 		});
 	} catch (error: any) {
+		if (error instanceof APIError) throw error;
 		if (error?.code === "P2002") {
 			const target = error.meta?.target as string[] | undefined;
 			if (target?.includes("email")) {
@@ -1000,29 +1149,37 @@ export const deleteVerticalDeliveryEmployees = async (args: DeleteVerticalDelive
 	const foundIds = employees.map((e) => e.id);
 	const missingIds = ids.filter((id) => !foundIds.includes(id));
 
-	// Archive employees
-	await prisma.vertical_delivery_employee_deleted.createMany({
-		data: employees.map((e) => ({
-			first_name: e.first_name,
-			last_name: e.last_name,
-			country_code: e.country_code,
-			mobile_number: `deleted_${Date.now()}_${e.mobile_number}`,
-			email: `deleted_${Date.now()}_${e.email}`,
-			employee_display_id: e.employee_display_id,
-			joining_date: e.joining_date,
-			client_id: e.client_id,
-			client_name: e.client?.name ?? "",
-			role_name: e.role,
-			profile_pic: e.profile_pic,
-			x_primary_key: e.id,
-		})),
-	});
+	await prisma.$transaction(async (tx) => {
+		await releaseVerticalEmailsByOwners({
+			db: tx,
+			ownerType: "delivery_employee",
+			ownerIds: foundIds,
+		});
 
-	await prisma.vertical_delivery_employee.deleteMany({
-		where: {
-			id: { in: foundIds },
-			client_id,
-		},
+		// Archive employees
+		await tx.vertical_delivery_employee_deleted.createMany({
+			data: employees.map((e) => ({
+				first_name: e.first_name,
+				last_name: e.last_name,
+				country_code: e.country_code,
+				mobile_number: `deleted_${Date.now()}_${e.mobile_number}`,
+				email: `deleted_${Date.now()}_${e.email}`,
+				employee_display_id: e.employee_display_id,
+				joining_date: e.joining_date,
+				client_id: e.client_id,
+				client_name: e.client?.name ?? "",
+				role_name: e.role,
+				profile_pic: e.profile_pic,
+				x_primary_key: e.id,
+			})),
+		});
+
+		await tx.vertical_delivery_employee.deleteMany({
+			where: {
+				id: { in: foundIds },
+				client_id,
+			},
+		});
 	});
 
 	return {
@@ -1184,24 +1341,57 @@ export const updateVerticalDeliveryEmployeeById = async (
 	}
 
 	if (email) {
-		const existingEmployee = await prisma.vertical_delivery_employee.findFirst({
-			where: {
-				email,
-				client_id,
-				NOT: {
-					id,
-				},
-			},
+		const existingClient = await prisma.client.findUnique({
+			where: { id: client_id },
+			select: { vertical_id: true },
 		});
-
-		if (existingEmployee) {
-			throw new APIError(
-				"This email is already registered with another account!",
-				undefined,
-				undefined,
-				400,
-			);
+		if (!existingClient?.vertical_id) {
+			throw new APIError("Client vertical is not configured", undefined, undefined, 400);
 		}
+		try {
+			await assertEmailAvailableInVertical(email, existingClient.vertical_id, {
+				excludeEmployeeId: id,
+			});
+		} catch (error) {
+			if (error instanceof APIError && error.code === 409) {
+				throw new APIError(
+					"This email is already registered with another account!",
+					undefined,
+					undefined,
+					400,
+				);
+			}
+			throw error;
+		}
+
+		return prisma.$transaction(async (tx) => {
+			const updated = await tx.vertical_delivery_employee.update({
+				where: { id, client_id },
+				data: {
+					first_name,
+					last_name,
+					country_code,
+					mobile_number,
+					employee_display_id,
+					joining_date,
+					email,
+					role,
+					restaurant_id,
+				},
+				omit: { password: true },
+				include: { restaurant: true },
+			});
+
+			await syncVerticalEmailRegistry({
+				db: tx,
+				verticalId: existingClient.vertical_id!,
+				email,
+				ownerType: "delivery_employee",
+				ownerId: id,
+			});
+
+			return updated;
+		});
 	}
 
 	return prisma.vertical_delivery_employee.update({
