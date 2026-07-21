@@ -151,6 +151,49 @@ export const registerDriverBox = async (args: {
 			throw new APIError("Box is already registered to this driver", undefined, undefined, 409);
 		}
 
+		if (existing?.status === "unlinked") {
+			const reactivated = await tx.vertical_delivery_employee_box.updateMany({
+				where: {
+					id: existing.id,
+					employee_id: args.employee_id,
+					box_id: box.id,
+					status: "unlinked",
+					box: { client_id: args.client_id },
+				},
+				data: {
+					status: "shared",
+					unlinked_at: null,
+					access: "direct",
+					created_at: new Date(),
+				},
+			});
+
+			if (reactivated.count === 1) {
+				return toMobileBoxSummary(box as BoxWithRelations, args.employee_id);
+			}
+
+			const current = await tx.vertical_delivery_employee_box.findUnique({
+				where: {
+					employee_id_box_id: {
+						employee_id: args.employee_id,
+						box_id: box.id,
+					},
+				},
+				select: { status: true },
+			});
+
+			if (current?.status === "blocked") {
+				throw new APIError(
+					"Unauthorized access... please contact the admin",
+					undefined,
+					undefined,
+					403,
+				);
+			}
+
+			throw new APIError("Box is already registered to this driver", undefined, undefined, 409);
+		}
+
 		await tx.vertical_delivery_employee_box.create({
 			data: {
 				box_id: box.id,
