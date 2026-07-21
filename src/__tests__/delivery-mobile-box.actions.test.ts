@@ -5,8 +5,12 @@ const mockPrisma = {
 	vertical_delivery_employee_box: {
 		findFirst: mock(() => Promise.resolve(null)),
 		findMany: mock(() => Promise.resolve([])),
+		findUnique: mock(() => Promise.resolve(null)),
+		updateMany: mock(() => Promise.resolve({ count: 1 })),
+		create: mock(() => Promise.resolve({})),
 	},
 	box: {
+		findFirst: mock(() => Promise.resolve(null)),
 		updateMany: mock(() => Promise.resolve({ count: 1 })),
 	},
 	box_telemetry_latest: {
@@ -23,7 +27,7 @@ mock.module("@/db", () => ({
 	getMongoConnectionState: () => "connected",
 }));
 
-const { resolveDriverBoxById } = await import(
+const { registerDriverBox, resolveDriverBoxById } = await import(
 	"@/db/actions/delivery-mobile/box.actions.ts"
 );
 
@@ -98,5 +102,93 @@ describe("delivery-mobile box actions — resolveDriverBoxById", () => {
 			expect(error).toBeInstanceOf(APIError);
 			expect((error as APIError).code).toBe(403);
 		}
+	});
+});
+
+describe("delivery-mobile box actions — registerDriverBox", () => {
+	const box = {
+		id: "box-ulid",
+		box_display_id: "GP-BOX-556102",
+		name: "Box #556102",
+		status: "active",
+		connection_employee_id: null,
+		telemetry: null,
+		lock: null,
+	};
+
+	beforeEach(() => {
+		mockPrisma.box.findFirst.mockReset();
+		mockPrisma.box.findFirst.mockResolvedValue(box as any);
+		mockPrisma.vertical_delivery_employee_box.findFirst.mockReset();
+		mockPrisma.vertical_delivery_employee_box.findUnique.mockReset();
+		mockPrisma.vertical_delivery_employee_box.updateMany.mockReset();
+		mockPrisma.vertical_delivery_employee_box.create.mockReset();
+	});
+
+	test("reactivates the same employee's unlinked assignment", async () => {
+		mockPrisma.vertical_delivery_employee_box.findFirst.mockResolvedValue({
+			id: "assignment-1",
+			status: "unlinked",
+			unlinked_at: new Date(),
+			access: "public",
+		} as any);
+		mockPrisma.vertical_delivery_employee_box.updateMany.mockResolvedValue({ count: 1 });
+
+		const result = await registerDriverBox({
+			scanned_code: " GP-BOX-556102 ",
+			employee_id: "driver-1",
+			client_id: "client-1",
+		});
+
+		expect(result.id).toBe("box-ulid");
+		expect(mockPrisma.vertical_delivery_employee_box.updateMany).toHaveBeenCalledWith({
+			where: expect.objectContaining({
+				id: "assignment-1",
+				employee_id: "driver-1",
+				box_id: "box-ulid",
+				status: "unlinked",
+			}),
+			data: {
+				status: "shared",
+				unlinked_at: null,
+				access: "direct",
+				created_at: expect.any(Date),
+			},
+		});
+		expect(mockPrisma.vertical_delivery_employee_box.create).not.toHaveBeenCalled();
+	});
+
+	test("returns the existing conflict when concurrent reactivation already won", async () => {
+		mockPrisma.vertical_delivery_employee_box.findFirst.mockResolvedValue({
+			id: "assignment-1",
+			status: "unlinked",
+		} as any);
+		mockPrisma.vertical_delivery_employee_box.updateMany.mockResolvedValue({ count: 0 });
+		mockPrisma.vertical_delivery_employee_box.findUnique.mockResolvedValue({
+			status: "shared",
+		} as any);
+
+		await expect(
+			registerDriverBox({
+				scanned_code: "GP-BOX-556102",
+				employee_id: "driver-1",
+				client_id: "client-1",
+			}),
+		).rejects.toMatchObject({ code: 409 });
+	});
+
+	test("keeps blocked assignments rejected", async () => {
+		mockPrisma.vertical_delivery_employee_box.findFirst.mockResolvedValue({
+			id: "assignment-1",
+			status: "blocked",
+		} as any);
+
+		await expect(
+			registerDriverBox({
+				scanned_code: "GP-BOX-556102",
+				employee_id: "driver-1",
+				client_id: "client-1",
+			}),
+		).rejects.toMatchObject({ code: 403 });
 	});
 });

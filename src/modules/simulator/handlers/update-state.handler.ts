@@ -1,6 +1,10 @@
 import { createHandlers } from "@/utils/hono-factory.ts";
 import { updateTelemetryValidator, boxIdParamValidator } from "../validators/simulator.validators.ts";
-import { updateBoxTelemetry } from "@/db/actions/simulator.actions.ts";
+import {
+	createSimulatorNotifications,
+	evaluateSimulatorTelemetryNotifications,
+	updateBoxTelemetry,
+} from "@/db/actions/simulator.actions.ts";
 import { prisma } from "@/db";
 import {
 	buildSimulatorConnectedUser,
@@ -19,6 +23,27 @@ export const updateStateHandler = createHandlers(
 
 		await enforceSimulatorHeartbeatTimeout(box_id);
 		recordSimulatorHeartbeat(box_id);
+
+		const existingBox = await prisma.box.findUnique({
+			where: { id: box_id },
+			select: {
+				client_id: true,
+				vertical_id: true,
+				telemetry: true,
+			},
+		});
+		if (!existingBox) {
+			return context.json<any>(
+				{ status: "error", message: "Box not found" },
+				{ status: 404 },
+			);
+		}
+		if (!existingBox.client_id || !existingBox.vertical_id) {
+			return context.json<any>(
+				{ status: "error", message: "Box client or vertical metadata is unavailable" },
+				{ status: 409 },
+			);
+		}
 
 		// Map simulator payload to DB schema
 		const mappedData: any = {};
@@ -69,7 +94,7 @@ export const updateStateHandler = createHandlers(
 		if (body.gyrosensor !== undefined) mappedData.gyrosensor_status = (body.gyrosensor === "detected" || body.gyrosensor === "ok") ? "on" : "off";
 		if (body.turn_signals !== undefined) mappedData.turn_signal_status = (body.turn_signals === "detected" || body.turn_signals === "ok") ? "on" : "off";
 
-		await updateBoxTelemetry(box_id, mappedData);
+		const updatedTelemetry = await updateBoxTelemetry(box_id, mappedData);
 
 		if (body.is_power_on === false) {
 			await disconnectSimulatorBoxOnPowerOff(box_id);
@@ -97,6 +122,13 @@ export const updateStateHandler = createHandlers(
 				{ status: 404 }
 			);
 		}
+
+		const notifications = evaluateSimulatorTelemetryNotifications(
+			existingBox.telemetry,
+			updatedTelemetry,
+			body,
+		);
+		await createSimulatorNotifications(box.id, notifications);
 
 		const connected_user = buildSimulatorConnectedUser(box);
 
