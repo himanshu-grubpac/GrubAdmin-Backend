@@ -28,11 +28,19 @@ export const getFaqsHandler = createHandlers(
 
 		const { admin } = context.var;
 
+		const permsRequired: PermissionLabelFor<"support">[] = [];
+
+		if (state === "active") {
+			permsRequired.push(SUPPORT_PERMISSIONS.view_active_resources);
+		} else if (state === "suspended") {
+			permsRequired.push(SUPPORT_PERMISSIONS.view_suspended_categories);
+		}
+
 		Permission.checkAdminPermissions({
 			admin,
 			is_super_admin: state === "deleted",
 			permissions_allowed: {
-				support: [SUPPORT_PERMISSIONS.view_active_resources],
+				support: permsRequired,
 			},
 		});
 

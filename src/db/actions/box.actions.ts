@@ -314,6 +314,7 @@ export const toggleAssignBoxes = async (args: ToggleAssignBoxesArgs) => {
 				id: true,
 				vertical_id: true,
 				status: true,
+				client_id: true,
 			},
 		});
 
@@ -342,6 +343,14 @@ export const toggleAssignBoxes = async (args: ToggleAssignBoxesArgs) => {
 			for (const box of boxes) {
 				if (box.vertical_id !== client.vertical_id) {
 					throw new APIError(undefined, "delivery.box.VERTICAL_MISMATCH", undefined, 400);
+				}
+				if (box.client_id && box.client_id !== client_id) {
+					throw new APIError(
+						"One or more boxes are already assigned to another client.",
+						undefined,
+						undefined,
+						409,
+					);
 				}
 			}
 		}
@@ -569,6 +578,16 @@ export const getBoxes = async (
 };
 
 
+export const clientHasBoxes = async (client_id: string) => {
+	const count = await prisma.box.count({
+		where: {
+			client_id,
+			status: { not: "suspended" },
+		},
+	});
+	return count > 0;
+};
+
 export const getDeliveryEmployeeBoxes = async (employeeId: string) => {
 	const assignments = await prisma.vertical_delivery_employee_box.findMany({
 		where: {
@@ -675,6 +694,94 @@ export const getVerticalDeliveryBoxes = async (args: GetVerticalDeliveryBoxesArg
 		telemetryFilter.ext_temp = { gte: ext_min, lte: ext_max };
 	}
 
+	// Employee / permission scoping. This can itself produce an `OR` (the
+	// "shared" branch), which previously lived on the same `where` object as the
+	// search `OR` below — so the later `OR` silently overwrote the employee one
+	// (dropping the employee filter). Build it separately and combine both under
+	// `AND` so search and employee scoping always apply together.
+	const employeeFilter: Prisma.boxWhereInput = employee_id
+		? (await (async () => {
+			const employee = await prisma.vertical_delivery_employee.findUnique({
+				where: { id: employee_id, client_id },
+				select: { role: true, restaurant_id: true }
+			});
+
+			if (employee?.role === "manager") {
+				if (!employee.restaurant_id) return { id: { in: [] } };
+				if (permission_status === "blocked") {
+					return {
+						vertical_delivery_employee_boxes: {
+							some: {
+								employee_id,
+								status: "blocked",
+							},
+						},
+					};
+				}
+				return {
+					restaurant_boxes: { some: { restaurant_id: employee.restaurant_id } },
+					NOT: {
+						vertical_delivery_employee_boxes: {
+							some: {
+								employee_id,
+								status: "blocked",
+							},
+						},
+					},
+				};
+			}
+
+			if (permission_status === "shared") {
+				return {
+					OR: [
+						{ vertical_delivery_employee_boxes: { some: { employee_id, status: "shared", access: "direct" } } },
+						{ vertical_delivery_employee_boxes: { some: { status: "shared", access: "public" } } },
+						{ vertical_delivery_employee_boxes: { some: { status: "shared", access: "all_employees" } } },
+					],
+				};
+			}
+
+			return {
+				vertical_delivery_employee_boxes: {
+					some: {
+						employee_id,
+						...(permission_status ? { status: permission_status as any } : {}),
+					},
+				},
+			};
+		})())
+		: (permission_status
+			? {
+				vertical_delivery_employee_boxes: {
+					some: {
+						status: permission_status as any,
+					},
+				},
+			}
+			: {});
+
+	const { OR: employeeOr, ...employeeFilterRest } = employeeFilter;
+
+	const searchOr: Prisma.boxWhereInput[] | undefined = query
+		? [
+			{ name: { contains: query } },
+			{ box_display_id: { contains: query } },
+			{ vehicle_number: { contains: query } },
+			{
+				restaurant_boxes: {
+					some: {
+						restaurant: { name: { contains: query } },
+						status: "shared",
+					},
+				},
+			},
+		]
+		: undefined;
+
+	const andConditions: Prisma.boxWhereInput[] = [];
+	if (employeeOr) andConditions.push({ OR: employeeOr });
+	if (searchOr) andConditions.push({ OR: searchOr });
+
 	const boxesQueryArgs: Prisma.boxFindManyArgs = {
 		where: {
 			client_id: client_id,
@@ -700,97 +807,8 @@ export const getVerticalDeliveryBoxes = async (args: GetVerticalDeliveryBoxesArg
 					: undefined,
 			...(Object.keys(telemetryFilter).length > 0 ? { telemetry: { is: telemetryFilter } } : {}),
 			lock: grublock_status ? { lock_status: grublock_status as box_lock_status } : undefined,
-			...(employee_id
-				? (await (async () => {
-					const employee = await prisma.vertical_delivery_employee.findUnique({
-						where: { id: employee_id, client_id },
-						select: { role: true, restaurant_id: true }
-					});
-
-					if (employee?.role === "manager") {
-						if (!employee.restaurant_id) return { id: { in: [] } };
-						if (permission_status === "blocked") {
-							return {
-								vertical_delivery_employee_boxes: {
-									some: {
-										employee_id,
-										status: "blocked",
-									},
-								},
-							};
-						}
-						return {
-							restaurant_boxes: { some: { restaurant_id: employee.restaurant_id } },
-							NOT: {
-								vertical_delivery_employee_boxes: {
-									some: {
-										employee_id,
-										status: "blocked",
-									},
-								},
-							},
-						};
-					}
-
-					if (permission_status === "shared") {
-						return {
-							OR: [
-								{ vertical_delivery_employee_boxes: { some: { employee_id, status: "shared", access: "direct" } } },
-								{ vertical_delivery_employee_boxes: { some: { status: "shared", access: "public" } } },
-								{ vertical_delivery_employee_boxes: { some: { status: "shared", access: "all_employees" } } },
-							],
-						};
-					}
-
-					return {
-						vertical_delivery_employee_boxes: {
-							some: {
-								employee_id,
-								...(permission_status ? { status: permission_status as any } : {}),
-							},
-						},
-					};
-				})())
-				: (permission_status
-					? {
-						vertical_delivery_employee_boxes: {
-							some: {
-								status: permission_status as any,
-							},
-						},
-					}
-					: {})),
-			OR: query
-				? [
-					{
-						name: {
-							contains: query,
-						},
-					},
-					{
-						box_display_id: {
-							contains: query,
-						},
-					},
-					{
-						vehicle_number: {
-							contains: query,
-						},
-					},
-					{
-						restaurant_boxes: {
-							some: {
-								restaurant: {
-									name: {
-										contains: query,
-									},
-								},
-								status: "shared",
-							},
-						},
-					},
-				]
-				: undefined,
+			...employeeFilterRest,
+			...(andConditions.length > 0 ? { AND: andConditions } : {}),
 		},
 
 		skip:
@@ -897,6 +915,9 @@ export const getVerticalDeliveryBoxes = async (args: GetVerticalDeliveryBoxesArg
 			access_mode,
 			permissions_blocked: blockedPermissions,
 			permissions_blocked_count: blockedPermissions.length,
+			blocked_employee_ids: blockedPermissions
+				.map((p: any) => p.employee_id)
+				.filter(Boolean),
 			grublock_status: lock?.lock_status || "unlocked",
 			consumer_info,
 			restaurants: (restaurant_boxes || [])
@@ -1243,6 +1264,28 @@ export const updateVerticalDeliveryGrubpac = async (args: UpdateVerticalDelivery
 
 
 		if (restaurant_ids !== undefined) {
+			if (restaurant_ids.length > 0) {
+				// Enforce tenant ownership: every restaurant must belong to the
+				// same client as the box, otherwise a caller could link a box to
+				// another tenant's restaurant (cross-tenant IDOR).
+				const uniqueRestaurantIds = [...new Set(restaurant_ids)];
+				const ownedCount = await tx.restaurant.count({
+					where: {
+						id: { in: uniqueRestaurantIds },
+						client_id,
+					},
+				});
+
+				if (ownedCount !== uniqueRestaurantIds.length) {
+					throw new APIError(
+						"One or more restaurants are invalid or do not belong to this account.",
+						"delivery.box.INVALID_RESTAURANT",
+						undefined,
+						400,
+					);
+				}
+			}
+
 			await tx.restaurant_box.deleteMany({
 				where: {
 					box_id: id,
@@ -1363,7 +1406,37 @@ export const updateVerticalDeliveryGrubpac = async (args: UpdateVerticalDelivery
 			}
 		}
 
-		return updatedBox;
+		// Recompute permission summary from the persisted state so the response
+		// carries top-level access_mode + blocked_employee_ids for immediate UI
+		// (avoids a stale read until the next full list refresh).
+		const finalPermissions = await tx.vertical_delivery_employee_box.findMany({
+			where: { box_id: id },
+			select: { employee_id: true, status: true, access: true },
+		});
+		const finalRestaurantBoxes = await tx.restaurant_box.findMany({
+			where: { box_id: id },
+			select: { restaurant_id: true },
+		});
+		const clientEmployees = await tx.vertical_delivery_employee.findMany({
+			where: { client_id, status: { not: "suspended" } },
+			select: { id: true, restaurant_id: true },
+		});
+
+		const sharedPermissions = finalPermissions.filter((p) => p.status === "shared");
+		const blockedEmployeeIds = finalPermissions
+			.filter((p) => p.status === "blocked" && p.employee_id)
+			.map((p) => p.employee_id as string);
+		const resolvedAccessMode = calculateAccessMode(
+			sharedPermissions,
+			clientEmployees,
+			finalRestaurantBoxes.map((rb) => rb.restaurant_id),
+		);
+
+		return {
+			...updatedBox,
+			access_mode: resolvedAccessMode,
+			blocked_employee_ids: blockedEmployeeIds,
+		};
 	});
 };
 
@@ -1624,12 +1697,89 @@ export const getVerticalDeliveryGrubpacDetails = async (args: GetVerticalDeliver
 		access_mode,
 		permissions_blocked: blockedEmployees,
 		permissions_blocked_count: blockedEmployees.length,
+		blocked_employee_ids: permissions
+			.filter((p: any) => p.status === "blocked" && p.employee_id)
+			.map((p: any) => p.employee_id),
 		permission_status: with_permission_for_employee_id ? permission_status : undefined,
-		grublock_status: lock?.lock_status || null,
+		grublock_status: lock?.lock_status || "unlocked",
 		consumer_info,
 		restaurants: (restaurant_boxes || [])
 			.map((rb: any) => rb.restaurant)
 			.filter(Boolean),
+	};
+};
+
+interface GetVerticalDeliveryGrubpacEditDetailsArgs {
+	id: string;
+	client_id: string;
+}
+
+export const getVerticalDeliveryGrubpacEditDetails = async (
+	args: GetVerticalDeliveryGrubpacEditDetailsArgs,
+) => {
+	const { id, client_id } = args;
+
+	const box = await prisma.box.findFirst({
+		where: { id, client_id, status: { not: "suspended" } },
+		select: {
+			id: true,
+			name: true,
+			box_display_id: true,
+			vehicle_number: true,
+			restaurant_boxes: {
+				where: { status: "shared" },
+				select: { restaurant_id: true },
+			},
+			vertical_delivery_employee_boxes: {
+				select: {
+					employee_id: true,
+					status: true,
+					access: true,
+				},
+			},
+		},
+	});
+
+	if (!box) {
+		throw new APIError(undefined, "delivery.box.NOT_FOUND", undefined, 404);
+	}
+
+	const clientEmployees = await prisma.vertical_delivery_employee.findMany({
+		where: { client_id },
+		select: { id: true, restaurant_id: true },
+	});
+
+	const restaurant_ids = box.restaurant_boxes.map((rb) => rb.restaurant_id);
+	const sharedPermissions = box.vertical_delivery_employee_boxes.filter(
+		(p) => p.status === "shared",
+	);
+	const access_mode = calculateAccessMode(
+		sharedPermissions,
+		clientEmployees,
+		restaurant_ids,
+	);
+	const blocked_employee_ids = box.vertical_delivery_employee_boxes
+		.filter((p) => p.status === "blocked" && p.employee_id)
+		.map((p) => p.employee_id as string);
+
+	const blockedCount = blocked_employee_ids.length;
+	const sharedCount = sharedPermissions.length;
+	const totalCount = box.vertical_delivery_employee_boxes.length;
+
+	return {
+		id: box.id,
+		name: box.name,
+		box_id: box.box_display_id,
+		vehicle_number: box.vehicle_number,
+		restaurant_ids,
+		access_mode,
+		blocked_employee_ids,
+		permissions_blocked_count: blockedCount,
+		permissionSummary: {
+			total: totalCount,
+			blocked: blockedCount,
+			shared: sharedCount,
+		},
 	};
 };
 

@@ -4,6 +4,7 @@ import type {
 	MobileBoxSummary,
 } from "@/types/delivery-mobile-box";
 import type { box_lock, box_telemetry_latest } from "@/db/types";
+import { computeOverallBatteryLevel } from "@/utils/box-battery.ts";
 
 type BoxWithRelations = {
 	id: string;
@@ -51,7 +52,7 @@ export const toMobileBoxSummary = (
 		box_display_id: box.box_display_id,
 		name: box.name,
 		is_connected: isConnected,
-		battery_level: telemetry?.battery_percentage ?? 0,
+		battery_level: computeOverallBatteryLevel(telemetry),
 		is_locked: box.lock?.lock_status === "locked",
 	};
 };

@@ -89,4 +89,34 @@ export class Permission {
 			perm: rolesPermissions,
 		};
 	}
+
+	static assertPermissionsSubset(
+		callerPermissions: Record<string, string[] | undefined> | null | undefined,
+		requestedPermissions: Record<string, string[] | Record<string, string>>,
+	): void {
+		if (!requestedPermissions || typeof requestedPermissions !== "object") {
+			return;
+		}
+
+		for (const [topic, values] of Object.entries(requestedPermissions)) {
+			if (!Array.isArray(values)) continue;
+			const callerSet = new Set(
+				(callerPermissions?.[topic] || []).map((perm) =>
+					String(perm).trim().toLowerCase(),
+				),
+			);
+
+			for (const value of values) {
+				const normalized = String(value).trim().toLowerCase();
+				if (!callerSet.has(normalized)) {
+					throw new APIError(
+						`You cannot grant permission '${value}' in '${topic}' — exceeds your access`,
+						undefined,
+						undefined,
+						403,
+					);
+				}
+			}
+		}
+	}
 }

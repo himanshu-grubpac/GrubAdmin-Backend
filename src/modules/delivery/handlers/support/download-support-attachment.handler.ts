@@ -16,10 +16,11 @@ export const downloadSupportAttachmentHandler = createHandlers(
 			throw new APIError("Access denied: Invalid attachment path", undefined, undefined, 403);
 		}
 
-		// Security: Verify that the path belongs to an active (non-deleted) FAQ question
+		// Security: only published, non-deleted FAQs may expose attachments
 		const faq = await prisma.faq_question.findFirst({
 			where: {
 				status: { not: "deleted" },
+				publishing_status: "published",
 				attachments: {
 					array_contains: pathParam,
 				},

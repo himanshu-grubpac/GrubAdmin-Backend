@@ -1,6 +1,6 @@
 import { createHandlers } from "@/utils/hono-factory.ts";
 import { sendOtpRequestBodyValidator } from "delivery/validators/auth.validators.ts";
-import { getUniqueVerticalDeliveryEmployee } from "@/db/actions/vertical-delivery-employee.actions";
+import { resolveVerticalDeliveryEmployeeForEmailAuth } from "@/db/actions/vertical-delivery-employee.actions";
 import { APIError } from "@/types/error";
 import { Otp } from "@/utils/otp.ts";
 import {
@@ -18,13 +18,19 @@ export const sendOtpHandler = createHandlers(
 		const otp_id_cookie = getCookie(context, "otp_id");
 		const target_otp_id = otp_id_body || otp_id_cookie;
 
-		const employee = await getUniqueVerticalDeliveryEmployee({
-			email,
-		});
+		const resolved = await resolveVerticalDeliveryEmployeeForEmailAuth(email);
 
-		if (!employee) {
+		if (!resolved.ok) {
+			if (resolved.reason === "ambiguous_account") {
+				throw new APIError(
+					"Multiple accounts match this email. Contact support.",
+					"delivery.auth.login.INVALID_CREDENTIALS",
+				);
+			}
 			throw new APIError(undefined, "delivery.auth.login.ACCOUNT_NOT_FOUND");
 		}
+
+		const employee = resolved.employee;
 
 		if (employee.type === "delivery" || employee.type === ("driver" as any)) {
 			throw new APIError(undefined, "delivery.auth.login.UNAUTHORIZED");

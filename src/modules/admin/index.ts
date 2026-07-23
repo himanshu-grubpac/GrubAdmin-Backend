@@ -16,6 +16,7 @@ import { ipMiddleware } from "@/middlewares/common/ip.ts";
 import {
 	confirmUpdateAccountHandler,
 	deleteAccountEligiblityHandler,
+	deleteAccountHandler,
 	getMyAccountHandler,
 	updateAccountResendOtpHandler,
 	updateAccountHandler,
@@ -148,6 +149,7 @@ adminRouter.get(
 	"/account/delete-eligibility",
 	...deleteAccountEligiblityHandler,
 );
+adminRouter.delete("/account/delete", ...deleteAccountHandler);
 
 /**
  * Name: Admin Customer Route

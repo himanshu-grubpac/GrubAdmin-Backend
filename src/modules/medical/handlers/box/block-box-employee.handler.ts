@@ -2,6 +2,7 @@ import { createHandlers } from "@/utils/hono-factory.ts";
 import { medicalAuthGuard } from "@/middlewares/auth";
 import { createNotification } from "@/db/actions/notification.actions.ts";
 import { prisma } from "@/db";
+import { APIError } from "@/types/error";
 import type { APIResponse } from "@/types/api";
 
 export const blockBoxEmployeeHandler = createHandlers(
@@ -19,6 +20,21 @@ export const blockBoxEmployeeHandler = createHandlers(
 				},
 				{ status: 400 },
 			);
+		}
+
+		const [box, employee] = await Promise.all([
+			prisma.box.findFirst({
+				where: { id: box_id, client_id },
+				select: { id: true },
+			}),
+			prisma.vertical_medical_employee.findFirst({
+				where: { id: employee_id, client_id },
+				select: { id: true },
+			}),
+		]);
+
+		if (!box || !employee) {
+			throw new APIError("Box or employee not found", undefined, undefined, 404);
 		}
 
 		const result = await prisma.vertical_medical_employee_box.upsert({

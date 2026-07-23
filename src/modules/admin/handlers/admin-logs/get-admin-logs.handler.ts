@@ -4,11 +4,22 @@ import { getAdminLogsRequestQueryValidators } from "@/modules/admin/validators/l
 import { getSystemLogs } from "@/db/actions/system-log.action.ts";
 import type { APIResponse } from "@/types/api";
 import { calculatePagination } from "@/utils/pagination.ts";
+import { Permission } from "@/utils/permission.ts";
+import { EMPLOYEES_PERMISSIONS } from "@/configs/constants.ts";
 
 export const getAdminLogsHandler = createHandlers(
 	authGuard(["admin", "employee"]),
 	getAdminLogsRequestQueryValidators,
 	async (context) => {
+		const { admin } = context.var;
+
+		Permission.checkAdminPermissions({
+			admin,
+			permissions_allowed: {
+				employees: [EMPLOYEES_PERMISSIONS.view_employee_logs],
+			},
+		});
+
 		const {
 			search,
 			page,

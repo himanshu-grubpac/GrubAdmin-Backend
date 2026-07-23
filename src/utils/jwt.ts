@@ -1,7 +1,7 @@
 import { AUTH_SECRET, DELIVERY_AUTH_SECRET, MEDICAL_AUTH_SECRET, HOSPITALITY_AUTH_SECRET, CAMPING_AUTH_SECRET, JWT_ACCESS_TOKEN_EXPIRY, JWT_REFRESH_TOKEN_EXPIRY } from "@/configs/env";
 import { APIError } from "@/types/error";
 import type { AuthPayload, DeliveryAuthPayload, MedicalAuthPayload, HospitalityAuthPayload, CampingAuthPayload, ImpersonationPayload } from "@/types/jwt";
-import { type JwtPayload, sign, verify } from "jsonwebtoken";
+import { type JwtPayload, sign, verify, type SignOptions } from "jsonwebtoken";
 import { logger } from "@/utils/logger";
 import { randomUUID } from "crypto";
 
@@ -45,14 +45,14 @@ export class JWT {
 		return user;
 	}
 
-	static signAuthToken(payload: AuthPayload): string {
+	static signAuthToken(payload: AuthPayload, expiresIn?: number): string {
 		return sign(
 			{
 				user: payload,
 			},
 			AUTH_SECRET,
 			{
-				expiresIn: JWT_ACCESS_TOKEN_EXPIRY, 
+				expiresIn: expiresIn ?? JWT_ACCESS_TOKEN_EXPIRY,
 			},
 		);
 	}
@@ -126,14 +126,17 @@ export class JWT {
 		);
 	}
 
-	static signDeliveryAuthToken(payload: DeliveryAuthPayload): string {
+	static signDeliveryAuthToken(
+		payload: DeliveryAuthPayload,
+		expiresIn: SignOptions["expiresIn"] = "24h",
+	): string {
 		return sign(
 			{
 				user: payload,
 			},
 			DELIVERY_AUTH_SECRET,
 			{
-				expiresIn: "24h",
+				expiresIn,
 			},
 		);
 	}
@@ -150,6 +153,37 @@ export class JWT {
 				expiresIn: IMPERSONATION_TOKEN_EXPIRY,
 			},
 		);
+	}
+
+	static signImpersonationExchangeCode(impersonationToken: string): string {
+		return sign(
+			{
+				purpose: "impersonation_exchange",
+				token: impersonationToken,
+			},
+			AUTH_SECRET,
+			{
+				expiresIn: 120,
+			},
+		);
+	}
+
+	static verifyImpersonationExchangeCode(code: string): string {
+		try {
+			const decoded = verify(code, AUTH_SECRET) as {
+				purpose?: string;
+				token?: string;
+			};
+
+			if (decoded?.purpose !== "impersonation_exchange" || !decoded?.token) {
+				throw new APIError("Invalid impersonation exchange code", undefined, undefined, 401);
+			}
+
+			return decoded.token;
+		} catch (err) {
+			if (err instanceof APIError) throw err;
+			throw new APIError("Invalid or expired impersonation exchange code", undefined, undefined, 401);
+		}
 	}
 
 	static verifyImpersonationToken(token: string): ImpersonationPayload {

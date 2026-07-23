@@ -17,8 +17,8 @@ export interface GetNotificationsParams {
 export interface MarkNotificationsParams {
 	client_id: string;
 	vertical_id?: string;
-	/** Specific IDs to mark. If omitted, all notifications for the client are marked. */
-	ids?: string[];
+	/** Specific IDs to mark — required to avoid accidental dismiss-all. */
+	ids: string[];
 	is_read?: boolean;
 	is_dismissed?: boolean;
 }
@@ -57,10 +57,14 @@ export const getNotifications = async ({
 		is_dismissed: is_dismissed ?? false,
 	};
 
-	// Filter by boxes in specific restaurants
+	// Filter by boxes in specific restaurants — scope to the caller's client so
+	// a foreign/guessed restaurant_id cannot surface another tenant's boxes.
 	if (restaurant_ids && restaurant_ids.length > 0) {
 		const boxesInRestaurants = await prisma.restaurant_box.findMany({
-			where: { restaurant_id: { in: restaurant_ids } },
+			where: {
+				restaurant_id: { in: restaurant_ids },
+				restaurant: { client_id },
+			},
 			select: { box_id: true }
 		});
 		const targetBoxIds = boxesInRestaurants.map(rb => rb.box_id);
@@ -120,10 +124,14 @@ export const markNotifications = async ({
 	is_read,
 	is_dismissed,
 }: MarkNotificationsParams) => {
+	if (!ids.length) {
+		return { updated_count: 0 };
+	}
+
 	const where: Prisma.notificationWhereInput = {
 		client_id,
 		...(vertical_id && { vertical_id }),
-		...(ids && ids.length > 0 ? { id: { in: ids } } : { is_dismissed: false }),
+		id: { in: ids },
 	};
 
 	const data: Prisma.notificationUpdateManyMutationInput = {};

@@ -135,7 +135,7 @@ export const updateAccountHandler = createHandlers(
 				from: MAIL,
 				subject: "OTP for Account Update",
 				to: user.email,
-				text: `Your account update OTP is ${otp}`,
+				text: `Your account update OTP is ${otp}. This OTP will verify your new mobile number ${country_code}${mobile_number}.`,
 			}).catch(err => {
 				logger.error("Failed to send profile update OTP email in background:", err);
 			});

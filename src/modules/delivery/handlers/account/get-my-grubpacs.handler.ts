@@ -1,6 +1,6 @@
 import { createHandlers } from "@/utils/hono-factory.ts";
 import { deliveryAuthGuard } from "@/middlewares/auth";
-import { prisma } from "@/db";
+import { getVerticalDeliveryBoxes } from "@/db/actions/box.actions.ts";
 import type { APIResponse } from "@/types/api";
 import { getMyGrubpacsRequestQueryValidator } from "delivery/validators/account.validators.ts";
 
@@ -11,39 +11,16 @@ export const getMyGrubpacsHandler = createHandlers(
 		const { client_id } = context.var;
 		const { power_status, query } = context.req.valid("query") as any;
 
-		const whereClause: any = {
-			client_id: client_id,
-			status: {
-				not: "suspended",
-			},
-		};
-
-		if (power_status) {
-			whereClause.telemetry = {
-				is: {
-					power_status: power_status,
-				},
-			};
-		}
-
-		if (query) {
-			whereClause.OR = [
-				{ name: { contains: query } },
-				{ box_display_id: { contains: query } },
-			];
-		}
-
-		const [boxes, count] = await Promise.all([
-			prisma.box.findMany({
-				where: whereClause,
-				orderBy: {
-					created_at: "desc",
-				},
-			}),
-			prisma.box.count({
-				where: whereClause,
-			}),
-		]);
+		// Reuse the canonical grubpac reader so each box carries flattened
+		// telemetry (power_status etc.) and permission rows, which the transfer
+		// ownership screen relies on. The previous raw prisma query returned bare
+		// box rows without telemetry/permissions.
+		const { boxes, count } = await getVerticalDeliveryBoxes({
+			client_id,
+			power_status,
+			query,
+			fetchAll: true,
+		});
 
 		return context.json<APIResponse<any>>(
 			{

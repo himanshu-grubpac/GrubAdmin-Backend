@@ -254,7 +254,7 @@ export const updateFaqQuestion = async (args: UpdateFaqQuestionArgs) => {
 	}
 
 	const existingAttachments = (faq.attachments as string[] | null) ?? [];
-	const filesDeletedSet = new Set(file_keys_deleted);
+	const filesDeletedSet = new Set(file_keys_deleted ?? []);
 
 	const updatedFiles = existingAttachments.filter(
 		(ex) => !filesDeletedSet.has(ex),
@@ -385,33 +385,31 @@ interface ChangeFaqQuestionsCategoryArgs {
 export const changeFaqQuestionsCategory = async (
 	args: ChangeFaqQuestionsCategoryArgs,
 ) => {
-	console.log(args);
-
-	// 1. Fetch active (non-deleted) FAQ question IDs first
-	const activeFaqs = await prisma.faq_question.findMany({
-		where: {
-			id: { in: args.question_ids },
-			NOT: { status: "deleted" },
-		},
-		select: { id: true },
-	});
-	const activeFaqIds = activeFaqs.map((faq) => faq.id);
-
-	if (activeFaqIds.length === 0) {
-		return { count: 0 };
-	}
-
-	// 2. Perform the updateMany safely without illegal relation filters
-	return prisma.faq_question_category.updateMany({
-		where: {
-			question_id: {
-				in: activeFaqIds,
+	return prisma.$transaction(async (tx) => {
+		const activeFaqs = await tx.faq_question.findMany({
+			where: {
+				id: { in: args.question_ids },
+				NOT: { status: "deleted" },
 			},
-			category_id: args.current_category,
-		},
-		data: {
-			category_id: args.new_category,
-		},
+			select: { id: true },
+		});
+		const activeFaqIds = activeFaqs.map((faq) => faq.id);
+
+		if (activeFaqIds.length === 0) {
+			return { count: 0 };
+		}
+
+		return tx.faq_question_category.updateMany({
+			where: {
+				question_id: {
+					in: activeFaqIds,
+				},
+				category_id: args.current_category,
+			},
+			data: {
+				category_id: args.new_category,
+			},
+		});
 	});
 };
 export const getFaqQuestionById = async (id: string): Promise<faq_question | null> => {

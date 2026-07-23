@@ -4,12 +4,26 @@ import type { client, Prisma } from "@/db/types";
 import { prisma } from "..";
 import { CLIENT_ORDERING_FACTORS, PAGE_SIZE, LONG_PAGE_SIZE } from "@/configs/constants";
 import type { BoxType } from "@/types/common/box-type.ts";
+import {
+	claimVerticalEmail,
+	releaseVerticalEmailByOwner,
+	syncVerticalEmailRegistry,
+} from "@/utils/vertical-email-registry";
 
 interface CreateClientArgs {
 	data: Prisma.clientCreateInput;
 	select?: Prisma.clientSelect;
 	omit?: Prisma.clientOmit;
 }
+
+const resolveCreateVerticalId = (data: Prisma.clientCreateInput): string | undefined => {
+	const dataAny = data as Record<string, unknown> & {
+		vertical?: { connect?: { id?: string } };
+	};
+	if (typeof dataAny.vertical_id === "string") return dataAny.vertical_id;
+	if (typeof dataAny.vertical?.connect?.id === "string") return dataAny.vertical.connect.id;
+	return undefined;
+};
 
 export const createClient = async (args: CreateClientArgs) => {
 	const { data, select, omit } = args;
@@ -27,21 +41,42 @@ export const createClient = async (args: CreateClientArgs) => {
 		);
 	}
 
+	const verticalId = resolveCreateVerticalId(data);
+
 	if (typeof data.email === "string") {
-		await checkEmailAvailability(data.email);
+		await checkEmailAvailability(data.email, undefined, verticalId);
 	}
 
 	try {
-		return await (select
-			? prisma.client.create({
-					data,
-					select,
-				})
-			: prisma.client.create({
-					data,
-					omit,
-				}));
+		return await prisma.$transaction(async (tx) => {
+			const created = select
+				? await tx.client.create({
+						data,
+						select,
+					})
+				: await tx.client.create({
+						data,
+						omit,
+					});
+
+			const createdId = (created as { id: string }).id;
+			const createdVerticalId =
+				(created as { vertical_id?: string | null }).vertical_id ?? verticalId;
+
+			if (typeof data.email === "string" && createdVerticalId) {
+				await claimVerticalEmail({
+					db: tx,
+					verticalId: createdVerticalId,
+					email: data.email,
+					ownerType: "client",
+					ownerId: createdId,
+				});
+			}
+
+			return created;
+		});
 	} catch (error: any) {
+		if (error instanceof APIError) throw error;
 		if (error.code === "P2002") {
 			const targets = error.meta?.target || "";
 			if (targets.includes("client_display_id") || targets.includes("client_id")) {
@@ -245,24 +280,48 @@ export const updateClient = async (args: UpdateClientArgs) => {
 		throw new Error("You cannot use both select and omit query together!");
 	}
 
-	// Normalize email if provided
+	const existing = await prisma.client.findUnique({
+		where: { id },
+		select: { vertical_id: true, email: true },
+	});
+
+	// Normalize email if provided — uniqueness is scoped to the client's vertical
 	if (typeof data.email === "string") {
-		await checkEmailAvailability(data.email, id);
+		await checkEmailAvailability(
+			data.email,
+			id,
+			existing?.vertical_id ?? undefined,
+		);
 	}
 
 	try {
-		return await (select
-			? prisma.client.update({
-					where: { id },
-					data,
-					select,
-				})
-			: prisma.client.update({
-					where: { id },
-					data,
-					omit,
-				}));
+		return await prisma.$transaction(async (tx) => {
+			const updated = select
+				? await tx.client.update({
+						where: { id },
+						data,
+						select,
+					})
+				: await tx.client.update({
+						where: { id },
+						data,
+						omit,
+					});
+
+			if (typeof data.email === "string" && existing?.vertical_id) {
+				await syncVerticalEmailRegistry({
+					db: tx,
+					verticalId: existing.vertical_id,
+					email: data.email,
+					ownerType: "client",
+					ownerId: id,
+				});
+			}
+
+			return updated;
+		});
 	} catch (error: any) {
+		if (error instanceof APIError) throw error;
 		if (error.code === "P2002") {
 			const targets = error.meta?.target || "";
 			if (targets.includes("client_display_id") || targets.includes("client_id")) {
@@ -304,6 +363,12 @@ export const deleteClient = async (id: string) => {
 				400,
 			);
 		}
+
+		await releaseVerticalEmailByOwner({
+			db: tx,
+			ownerType: "client",
+			ownerId: id,
+		});
 
 		// Move to client_deleted
 		await tx.client_deleted.create({

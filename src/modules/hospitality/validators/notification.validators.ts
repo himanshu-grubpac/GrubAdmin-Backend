@@ -45,7 +45,8 @@ export const getNotificationsRequestQueryValidator = zValidator(
 export const markNotificationsRequestBodyValidator = zValidator(
 	"json",
 	z.object({
-		ids: z.array(z.string().ulid("Please provide valid notification ids")).optional(),
+		/** Required — never allow bulk-dismiss of the entire tenant without explicit ids. */
+		ids: z.array(z.string().ulid("Please provide valid notification ids")).min(1, "Provide at least one notification id"),
 		is_read: z.boolean().optional(),
 		is_dismissed: z.boolean().optional(),
 	}).refine((d) => d.is_read !== undefined || d.is_dismissed !== undefined, {

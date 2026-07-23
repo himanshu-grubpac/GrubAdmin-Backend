@@ -19,6 +19,8 @@ describe("delivery-mobile box mappers", () => {
 		telemetry: {
 			connection_status: "connected",
 			battery_percentage: 88,
+			battery_1_percentage: 90,
+			battery_2_percentage: 80,
 			dual_zone_status: "on",
 			zone1_temp: -5,
 			zone2_temp: 25,
@@ -40,8 +42,34 @@ describe("delivery-mobile box mappers", () => {
 		expect(summary.box_display_id).toBe("GP-BOX-556102");
 		expect(summary.name).toBe("Box #556102");
 		expect(summary.is_connected).toBe(true);
-		expect(summary.battery_level).toBe(88);
+		// Overall battery is the mean of the two cells (90 + 80) / 2 = 85,
+		// derived from the cells and not the stored battery_percentage (88).
+		expect(summary.battery_level).toBe(85);
 		expect(summary.is_locked).toBe(true);
+	});
+
+	test("toMobileBoxSummary averages the two battery cells", () => {
+		const summary = toMobileBoxSummary(
+			{ ...sampleBox, telemetry: { battery_1_percentage: 60, battery_2_percentage: 40 } } as any,
+			driverId,
+		);
+		expect(summary.battery_level).toBe(50);
+	});
+
+	test("toMobileBoxSummary uses the only reported cell when one is missing", () => {
+		const summary = toMobileBoxSummary(
+			{ ...sampleBox, telemetry: { battery_1_percentage: 73, battery_2_percentage: null } } as any,
+			driverId,
+		);
+		expect(summary.battery_level).toBe(73);
+	});
+
+	test("toMobileBoxSummary returns null when neither cell has reported", () => {
+		const summary = toMobileBoxSummary(
+			{ ...sampleBox, telemetry: { battery_percentage: 88 } } as any,
+			driverId,
+		);
+		expect(summary.battery_level).toBeNull();
 	});
 
 	test("toMobileBoxDetails includes telemetry and settings", () => {

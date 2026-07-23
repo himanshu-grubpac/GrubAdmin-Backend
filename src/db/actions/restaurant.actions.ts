@@ -476,6 +476,16 @@ export const unassignRestaurantResources = async (
 		},
 	});
 
+	const validatedRestaurantIds = restaurants.map((restaurant) => restaurant.id);
+	if (validatedRestaurantIds.length !== ids.length) {
+		throw new APIError(
+			"One or more restaurants were not found for this client.",
+			undefined,
+			undefined,
+			404,
+		);
+	}
+
 	const boxIds = restaurants
 		.map((restaurant) => restaurant.restaurant_boxes.map((rb) => rb.box_id))
 		.flat();
@@ -484,7 +494,7 @@ export const unassignRestaurantResources = async (
 		await tx.restaurant_box.deleteMany({
 			where: {
 				restaurant_id: {
-					in: ids,
+					in: validatedRestaurantIds,
 				},
 			},
 		});
@@ -492,7 +502,7 @@ export const unassignRestaurantResources = async (
 		await tx.vertical_delivery_employee.updateMany({
 			where: {
 				restaurant_id: {
-					in: restaurants.map((restaurant) => restaurant.id),
+					in: validatedRestaurantIds,
 				},
 				client_id,
 			},

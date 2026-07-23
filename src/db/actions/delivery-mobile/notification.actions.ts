@@ -2,6 +2,26 @@ import { prisma } from "@/db";
 import type { Prisma } from "@/db/prisma";
 import type { notification_category, notification_type } from "@/db/prisma";
 
+const IST_TIMEZONE = "Asia/Kolkata";
+
+const formatCreatedAtToIST = (value: Date): string => {
+	const parts = new Intl.DateTimeFormat("en-CA", {
+		timeZone: IST_TIMEZONE,
+		year: "numeric",
+		month: "2-digit",
+		day: "2-digit",
+		hour: "2-digit",
+		minute: "2-digit",
+		second: "2-digit",
+		hour12: false,
+	}).formatToParts(value);
+
+	const part = (type: Intl.DateTimeFormatPartTypes) =>
+		parts.find((p) => p.type === type)?.value ?? "00";
+
+	return `${part("year")}-${part("month")}-${part("day")}T${part("hour")}:${part("minute")}:${part("second")}+05:30`;
+};
+
 export const getDeliveryNotifications = async (args: {
 	client_id: string;
 	employee_id: string;
@@ -112,7 +132,7 @@ export const getDeliveryNotifications = async (args: {
 		}
 	}
 
-	const [total, data] = await Promise.all([
+	const [total, rows] = await Promise.all([
 		prisma.notification.count({ where }),
 		prisma.notification.findMany({
 			where,
@@ -121,6 +141,11 @@ export const getDeliveryNotifications = async (args: {
 			take: args.limit,
 		}),
 	]);
+
+	const data = rows.map((notification) => ({
+		...notification,
+		created_at: formatCreatedAtToIST(notification.created_at),
+	}));
 
 	const unread_count = await prisma.notification.count({
 		where: { ...where, is_read: false },

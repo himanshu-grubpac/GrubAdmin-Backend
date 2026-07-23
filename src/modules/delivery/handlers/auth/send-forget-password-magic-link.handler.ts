@@ -1,6 +1,6 @@
 import { createHandlers } from "@/utils/hono-factory.ts";
 import { sendForgetPasswordMagicLinkRequestBodyValidator } from "delivery/validators/auth.validators.ts";
-import { getUniqueVerticalDeliveryEmployee } from "@/db/actions/vertical-delivery-employee.actions";
+import { resolveVerticalDeliveryEmployeeForEmailAuth } from "@/db/actions/vertical-delivery-employee.actions";
 import { APIError } from "@/types/error";
 import { getSavedOtp, saveOtp } from "@/db/actions/otp.actions.ts";
 import { services } from "@/services";
@@ -14,13 +14,19 @@ export const sendForgetPasswordMagicLinkHandler = createHandlers(
 	async (context) => {
 		const { email } = context.req.valid("json");
 
-		const employee = await getUniqueVerticalDeliveryEmployee({
-			email,
-		});
+		const resolved = await resolveVerticalDeliveryEmployeeForEmailAuth(email);
 
-		if (!employee) {
+		if (!resolved.ok) {
+			if (resolved.reason === "ambiguous_account") {
+				throw new APIError(
+					"Multiple accounts match this email. Contact support.",
+					"delivery.auth.login.INVALID_CREDENTIALS",
+				);
+			}
 			throw new APIError(undefined, "delivery.auth.login.ACCOUNT_NOT_FOUND");
 		}
+
+		const employee = resolved.employee;
 
 		if (employee.employee.status === "suspended") {
 			throw new APIError(undefined, "delivery.auth.login.SUSPENDED");

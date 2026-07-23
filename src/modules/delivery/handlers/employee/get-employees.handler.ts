@@ -182,7 +182,7 @@ export const getEmployeesHandler = createHandlers(
 				{
 					success: true,
 					code: 200,
-					data: { employees, count: employees.length },
+					data: { employees, count: employeesData.count },
 					pagination: calculatePagination(finalPage, finalLimit, employeesData.count),
 				},
 				{ status: 200 },
@@ -332,7 +332,7 @@ export const getEmployeesHandler = createHandlers(
 			{
 				success: true,
 				code: 200,
-				data: { employees, count: employees.length },
+				data: { employees, count: employeesData.count },
 				pagination: calculatePagination(finalPage, finalLimit ?? employeesData.count, employeesData.count),
 			},
 			{ status: 200 },

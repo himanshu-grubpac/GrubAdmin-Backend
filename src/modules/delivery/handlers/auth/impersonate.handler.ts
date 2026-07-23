@@ -10,17 +10,24 @@ import { DEFAULT_IP_ADDRESS } from "@/configs/constants";
 import type { client } from "@/db/types";
 
 interface ImpersonateRequestBody {
-	token: string;
+	token?: string;
+	code?: string;
 }
 
 export const deliveryImpersonateHandler = createHandlers(
 	async (context) => {
-		const { token } = await context.req.json<ImpersonateRequestBody>().catch(() => {
-			throw new APIError("Request body must contain a token field", undefined, undefined, 400);
-		});
+		// Ensure the parsed body always matches the expected shape (token/code are optional).
+		const body = await context.req
+			.json<ImpersonateRequestBody>()
+			.catch(() => ({} as ImpersonateRequestBody));
+		let token = body?.token;
+
+		if (!token && body?.code) {
+			token = JWT.verifyImpersonationExchangeCode(body.code);
+		}
 
 		if (!token) {
-			throw new APIError("Impersonation token is required", undefined, undefined, 400);
+			throw new APIError("Impersonation token or exchange code is required", undefined, undefined, 400);
 		}
 
 		const payload = JWT.verifyImpersonationToken(token);
@@ -95,7 +102,15 @@ export const deliveryImpersonateHandler = createHandlers(
 			effected_name: clientRecord.name,
 		}).catch(() => {});
 
-		const deliveryBaseUrl = CLIENT_DASHBOARD_URL || "http://13.127.79.155";
+		if (!CLIENT_DASHBOARD_URL) {
+			throw new APIError(
+				"Client dashboard URL is not configured. Set CLIENT_DASHBOARD_URL.",
+				undefined,
+				undefined,
+				500,
+			);
+		}
+		const deliveryBaseUrl = CLIENT_DASHBOARD_URL.replace(/\/$/, "");
 
 		// Use return_url from token payload if provided, otherwise default to dashboard
 		const targetPath = payload.return_url || "/delivery/dashboard";

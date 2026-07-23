@@ -65,17 +65,46 @@ model icon {
 }
 
 model vertical {
-  id             String          @id @default(ulid())
-  name           String          @unique
-  status         vertical_status @default(active)
-  display_order  Int             @default(999)
-  created_at     DateTime        @default(now())
-  updated_at     DateTime        @updatedAt
+  id             String                   @id @default(ulid())
+  name           String                   @unique
+  status         vertical_status          @default(active)
+  display_order  Int                      @default(999)
+  created_at     DateTime                 @default(now())
+  updated_at     DateTime                 @updatedAt
   boxes          box[]
   clients        client[]
   faq_categories faq_category[]
+  email_registry vertical_email_registry[]
 
   @@index([name])
+}
+
+/// Cross-tenant email uniqueness within a vertical (clients + employees).
+/// Same email may exist in different verticals; not within the same vertical_id.
+enum vertical_email_owner_type {
+  client
+  delivery_employee
+  medical_employee
+  hospitality_employee
+}
+
+model vertical_email_registry {
+  id          String                     @id @default(ulid())
+  vertical_id String
+  /// Always stored normalized (trim + lowercase) by application helpers.
+  email       String                     @db.VarChar(191)
+  owner_type  vertical_email_owner_type
+  owner_id    String
+  created_at  DateTime                   @default(now())
+  updated_at  DateTime                   @updatedAt
+  vertical    vertical                   @relation(fields: [vertical_id], references: [id], onDelete: Cascade)
+
+  /// Race-safe uniqueness across clients + employees in one vertical.
+  @@unique([vertical_id, email])
+  /// One registry claim per account entity (supports atomic upsert on email change).
+  @@unique([owner_type, owner_id])
+  @@index([email])
+  @@map("vertical_email_registry")
 }
 
 model client {
