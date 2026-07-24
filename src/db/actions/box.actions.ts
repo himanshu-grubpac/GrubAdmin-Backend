@@ -313,6 +313,7 @@ export const toggleAssignBoxes = async (args: ToggleAssignBoxesArgs) => {
 			select: {
 				id: true,
 				vertical_id: true,
+				vertical: { select: { name: true } },
 				status: true,
 				client_id: true,
 			},
@@ -355,28 +356,32 @@ export const toggleAssignBoxes = async (args: ToggleAssignBoxesArgs) => {
 			}
 		}
 
-		// Sync BoxConfig.client_id to match assignment state
-		try {
-			if (client_id) {
-				requireMongoDB("BoxConfig.updateMany");
-				await BoxConfig.updateMany(
-					{ box_id: { $in: box_ids } },
-					{ $set: { client_id } },
-				);
-			} else {
-				requireMongoDB("BoxConfig.updateMany");
-				await BoxConfig.updateMany(
-					{ box_id: { $in: box_ids } },
-					{ $unset: { client_id: "" } },
-				);
-			}
-		} catch (err) {
-			logger.warn(`MongoDB BoxConfig update failed during box assignment: ${err}`);
-		}
-
-		// Single source of truth for this module’s "assignment" UI is box.client_id.
+		// Single source of truth for this module's "assignment" UI is box.client_id.
 		// However, we must also clear dependent assignment relations on unassign so the UI and lists stay consistent.
 		if (client_id === null) {
+			// Separate Hospitality boxes from others:
+			//   - Hospitality boxes: keep client_id, only remove floor/employee associations.
+			//   - Non-Hospitality boxes: fully unassign (client_id = null).
+			const hospitalityIds = boxes
+				.filter((b) => b.vertical?.name === "Hospitality")
+				.map((b) => b.id);
+			const nonHospitalityIds = boxes
+				.filter((b) => !b.vertical || b.vertical?.name !== "Hospitality")
+				.map((b) => b.id);
+
+			// Sync BoxConfig.client_id — only unset for non-Hospitality boxes.
+			try {
+				if (nonHospitalityIds.length > 0) {
+					requireMongoDB("BoxConfig.updateMany");
+					await BoxConfig.updateMany(
+						{ box_id: { $in: nonHospitalityIds } },
+						{ $unset: { client_id: "" } },
+					);
+				}
+			} catch (err) {
+				logger.warn(`MongoDB BoxConfig update failed during box assignment: ${err}`);
+			}
+
 			// Clear any restaurant-level assignments and employee-level shares tied to these boxes.
 			await tx.restaurant_box.updateMany({
 				where: {
@@ -396,6 +401,54 @@ export const toggleAssignBoxes = async (args: ToggleAssignBoxesArgs) => {
 					status: "blocked",
 				},
 			});
+
+		// Hospitality-specific: clear floor box assignments so no orphaned records remain.
+		await tx.vertical_hospitality_floor_box.deleteMany({
+			where: {
+				box_id: { in: box_ids },
+			},
+		});
+
+		// Medical-specific: clear department and employee box assignments.
+			await tx.vertical_medical_department_box.deleteMany({
+				where: {
+					box_id: { in: box_ids },
+				},
+			});
+
+			await tx.vertical_medical_employee_box.deleteMany({
+				where: {
+					box_id: { in: box_ids },
+				},
+			});
+
+			// Camping-specific: clear site box assignments.
+			await tx.vertical_camping_site_box.deleteMany({
+				where: {
+					box_id: { in: box_ids },
+				},
+			});
+
+			// Fully unassign non-Hospitality boxes from the client.
+			if (nonHospitalityIds.length > 0) {
+				await tx.box.updateMany({
+					where: { id: { in: nonHospitalityIds } },
+					data: { client_id: null },
+				});
+			}
+
+			return { updated: true };
+		}
+
+		// Assigning: sync Mongo and update SQL.
+		try {
+			requireMongoDB("BoxConfig.updateMany");
+			await BoxConfig.updateMany(
+				{ box_id: { $in: box_ids } },
+				{ $set: { client_id } },
+			);
+		} catch (err) {
+			logger.warn(`MongoDB BoxConfig update failed during box assignment: ${err}`);
 		}
 
 		return tx.box.updateMany({

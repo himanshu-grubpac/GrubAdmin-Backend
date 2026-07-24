@@ -529,18 +529,12 @@ export const actionHospitalityBoxes = async (args: ActionHospitalityBoxesArgs) =
 export const getHospitalityDashboardMetrics = async (client_id: string) => {
 	const [
 		floor_count,
-		employee_count,
 		active_box_count,
 		active_cold_chain_count,
 		temperature_alarm_count,
 	] = await Promise.all([
 		prisma.vertical_hospitality_floor.count({
 			where: { client_id, status: "active" },
-		}),
-		// Prisma client typing may lag behind schema changes in local env.
-		// Use runtime-safe `as any` here to avoid false-positive TS errors.
-		(prisma as any).vertical_hospitality_employee.count({
-			where: { client_id, status: { not: "suspended" } },
 		}),
 		prisma.box.count({
 			where: { client_id, status: "active" },
@@ -563,7 +557,6 @@ export const getHospitalityDashboardMetrics = async (client_id: string) => {
 
 	return {
 		floor_count,
-		employee_count,
 		active_box_count,
 		active_cold_chain_count,
 		temperature_alarm_count,

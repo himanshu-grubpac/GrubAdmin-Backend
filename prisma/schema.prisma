@@ -85,7 +85,6 @@ enum vertical_email_owner_type {
   client
   delivery_employee
   medical_employee
-  hospitality_employee
 }
 
 model vertical_email_registry {
@@ -133,7 +132,6 @@ model client {
   medical_departments         vertical_medical_department[]
   medical_consumers           vertical_medical_consumer[]
   hospitality_floors          vertical_hospitality_floor[]  @relation("ClientToHospitalityFloor")
-	hospitality_employees       vertical_hospitality_employee[]
 	camping_sites               vertical_camping_site[] @relation("ClientToCampingSite")
 
 	@@unique([vertical_id, email])
@@ -246,8 +244,6 @@ model box {
   connection_employee                 vertical_delivery_employee? @relation("box_connection", fields: [connection_employee_id], references: [id])
   medical_connection_employee_id      String?
   medical_connection_employee         vertical_medical_employee?  @relation("medical_box_connection", fields: [medical_connection_employee_id], references: [id])
-  hospitality_connection_employee_id  String?
-  hospitality_connection_employee     vertical_hospitality_employee? @relation("hospitality_box_connection", fields: [hospitality_connection_employee_id], references: [id])
   client                         client?                     @relation(fields: [client_id], references: [id])
   vertical                       vertical?                   @relation(fields: [vertical_id], references: [id])
   lock                           box_lock?
@@ -259,14 +255,12 @@ model box {
   medical_consumer_boxes           vertical_medical_consumer_box[]   @relation("vertical_medical_consumer_boxes")
   medical_department_boxes         vertical_medical_department_box[]
   hospitality_floor_boxes          vertical_hospitality_floor_box[]  @relation("BoxToHospitalityFloor")
-	hospitality_employee_boxes       vertical_hospitality_employee_box[] @relation("vertical_hospitality_employee_boxes")
 	camping_site_boxes               vertical_camping_site_box[] @relation("CampingBoxToSite")
 
 	@@index([client_id], map: "box_client_id_fkey")
   @@index([vertical_id], map: "box_vertical_id_fkey")
   @@index([connection_employee_id], map: "box_connection_employee_id_fkey")
   @@index([medical_connection_employee_id], map: "box_medical_connection_employee_id_fkey")
-  @@index([hospitality_connection_employee_id], map: "box_hospitality_connection_employee_id_fkey")
 }
 
 model restaurant {
@@ -746,23 +740,6 @@ model vertical_medical_department_deleted {
   updated_at    DateTime @updatedAt
 }
 
-// ── Hospitality Enums ─────────────────────────────────────────────────────────
-
-enum hospitality_employee_role {
-  admin
-}
-
-enum hospitality_employee_box_status {
-  shared
-  blocked
-}
-
-enum hospitality_employee_box_access {
-  direct
-  public
-  all_employees
-}
-
 // ── Medical Enums ────────────────────────────────────────────────────────────
 
 enum medical_department_status {
@@ -837,73 +814,6 @@ enum hospitality_floor_box_status {
   shared
   not_shared
   blocked
-}
-
-// Hospitality Employee
-model vertical_hospitality_employee {
-  id                  String                          @id @default(ulid())
-  first_name          String
-  last_name           String
-  country_code        String
-  mobile_number       String
-  email               String
-  password            String?
-  employee_display_id String
-  joining_date        DateTime                        @default(now())
-  client_id           String?
-  role                hospitality_employee_role
-  status              employee_status                 @default(unassigned)
-  profile_pic         String?
-  created_at          DateTime                        @default(now())
-  updated_at          DateTime                        @updatedAt
-  client              client?                         @relation(fields: [client_id], references: [id])
-  connected_boxes     box[]                           @relation("hospitality_box_connection")
-  employee_boxes      vertical_hospitality_employee_box[] @relation("vertical_hospitality_employee_boxes")
-
-  @@unique([client_id, email])
-  @@unique([client_id, employee_display_id])
-  @@unique([client_id, country_code, mobile_number])
-  @@index([client_id], map: "vertical_hospitality_employee_client_id_fkey")
-  @@map("vertical_hospitality_employee")
-}
-
-// Hospitality Employee-Box Assignment
-model vertical_hospitality_employee_box {
-  id          String                             @id @default(ulid())
-  employee_id String?
-  box_id      String
-  status      hospitality_employee_box_status    @default(shared)
-  access      hospitality_employee_box_access    @default(direct)
-  created_at  DateTime                           @default(now())
-  updated_at  DateTime                           @updatedAt
-  box         box                                @relation("vertical_hospitality_employee_boxes", fields: [box_id], references: [id], onDelete: Cascade)
-  employee    vertical_hospitality_employee?     @relation("vertical_hospitality_employee_boxes", fields: [employee_id], references: [id], onDelete: SetNull)
-
-  @@unique([employee_id, box_id])
-  @@index([box_id], map: "vertical_hospitality_employee_box_box_id_fkey")
-  @@index([employee_id], map: "vertical_hospitality_employee_box_employee_id_fkey")
-  @@map("vertical_hospitality_employee_box")
-}
-
-// Hospitality Deleted Employee Archive
-model vertical_hospitality_employee_deleted {
-  id                  String   @id @default(ulid())
-  first_name          String
-  last_name           String
-  country_code        String
-  mobile_number       String
-  email               String
-  employee_display_id String
-  joining_date        DateTime
-  client_id           String?
-  client_name         String?
-  role_name           String?
-  profile_pic         String?
-  x_primary_key       String?
-  created_at          DateTime @default(now())
-  updated_at          DateTime @updatedAt
-
-  @@map("vertical_hospitality_employee_deleted")
 }
 
 // Hospitality Floor

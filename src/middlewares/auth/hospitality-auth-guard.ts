@@ -1,14 +1,12 @@
-import type { HospitalityEmployeeRoleType } from "@/types/common";
 import { createMiddleware } from "hono/factory";
-import type { client, vertical_hospitality_employee } from "@/db/types";
+import type { client } from "@/db/types";
 import { APIError } from "@/types/error";
 import { JWT } from "@/utils/jwt.ts";
-import { getUniqueHospitalityEmployee } from "@/db/actions/hospitality/employee.actions";
 import { prisma } from "@/db";
 import { NODE_ENV } from "@/configs/env.ts";
 import { logger } from "@/utils/logger";
 
-export const hospitalityAuthGuard = (type?: HospitalityEmployeeRoleType[], customErrorMessage?: string) =>
+export const hospitalityAuthGuard = () =>
 	createMiddleware<{
 		Variables: {
 			user_id: string;
@@ -17,8 +15,8 @@ export const hospitalityAuthGuard = (type?: HospitalityEmployeeRoleType[], custo
 			debug_client_organization_name: string;
 			vertical_id: string;
 			debug_vertical_name: string;
-			user: client | vertical_hospitality_employee;
-			type: HospitalityEmployeeRoleType;
+			user: client;
+			type: "admin";
 			is_impersonation?: boolean;
 		};
 	}>(async (context, next) => {
@@ -30,65 +28,35 @@ export const hospitalityAuthGuard = (type?: HospitalityEmployeeRoleType[], custo
 
 		let userId: string;
 		let isImpersonation = false;
-		let impersonationAdminId: string | null = null;
 
 		if (JWT.isImpersonationToken(authToken)) {
 			const impersonationUser = JWT.verifyImpersonationToken(authToken);
 			userId = impersonationUser.client_id;
 			isImpersonation = true;
-			impersonationAdminId = impersonationUser.admin_id;
 			logger.info(`[Auth] Impersonation token verified: admin=${impersonationUser.admin_id} target_customer=${impersonationUser.client_id}`);
 		} else {
 			const user = JWT.verifyHospitalityAuthToken(authToken);
 			userId = user.id;
 		}
 
-		const employee = await getUniqueHospitalityEmployee({
-			id: userId,
-		});
-
-		if (!employee) {
-			logger.error(`[Auth] Employee lookup failed: userId=${userId} isImpersonation=${isImpersonation}`);
-			throw new APIError("No employee found... unauthorized access", undefined, undefined, 403);
-		}
-
-		if (type && !type.includes(employee?.type)) {
-			logger.warn(`[Auth] Role check failed: userId=${userId} expectedType=${type?.join(",")} actualType=${employee.type}`);
-			throw new APIError(
-				customErrorMessage || "Unauthorized access... please contact the admin",
-				undefined,
-				undefined,
-				403,
-			);
-		}
-
-		const client_id =
-			employee.type === "admin"
-				? (employee.employee as client).id
-				: (employee.employee as vertical_hospitality_employee).client_id;
-
-		if (!client_id) {
-			logger.error(`[Auth] No client ID: userId=${userId} employeeType=${employee.type}`);
-			throw new APIError(
-				"No client ID found associated with this account",
-				undefined,
-				undefined,
-				403,
-			);
-		}
-
-		const client = await prisma.client.findUnique({
-			where: { id: client_id },
+		const clientRecord = await prisma.client.findUnique({
+			where: { id: userId },
 			include: { vertical: true },
 		});
 
-		const debug_client_name = client?.name || "";
-		const debug_client_organization_name = client?.organization_name || "";
-		const vertical_id = client?.vertical_id || "";
-		const debug_vertical_name = client?.vertical?.name || "";
+		if (!clientRecord) {
+			logger.error(`[Auth] Client lookup failed: userId=${userId} isImpersonation=${isImpersonation}`);
+			throw new APIError("No account found... unauthorized access", undefined, undefined, 403);
+		}
 
-		context.set("user", employee.employee);
-		context.set("type", employee.type);
+		const client_id = clientRecord.id;
+		const debug_client_name = clientRecord.name || "";
+		const debug_client_organization_name = clientRecord.organization_name || "";
+		const vertical_id = clientRecord.vertical_id || "";
+		const debug_vertical_name = clientRecord.vertical?.name || "";
+
+		context.set("user", clientRecord);
+		context.set("type", "admin");
 		context.set("user_id", userId);
 		context.set("client_id", client_id);
 		context.set("debug_client_name", debug_client_name);

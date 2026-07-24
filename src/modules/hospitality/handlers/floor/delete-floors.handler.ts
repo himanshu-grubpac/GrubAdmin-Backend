@@ -11,13 +11,13 @@ interface ResponseData {
 }
 
 export const deleteFloorsHandler = createHandlers(
-	hospitalityAuthGuard(["admin"]),
+	hospitalityAuthGuard(),
 	deleteFloorsRequestBodyValidator,
 	async (context) => {
 		const { client_id } = context.var;
 		const { ids, destination_floor_id } = context.req.valid("json");
 
-		const { user_id, user, type } = context.var;
+		const { user_id, user } = context.var;
 
 		// Fetch names before deletion for logging
 		const floorsToDelete = await prisma.vertical_hospitality_floor.findMany({
@@ -36,9 +36,6 @@ export const deleteFloorsHandler = createHandlers(
 
 		// Log each deletion
 		const userObj = user as any;
-		const actorName = type === "admin" 
-			? userObj.name 
-			: `${userObj.first_name} ${userObj.last_name || ""}`.trim();
 
 		for (const floor of floorsToDelete) {
 			await loggerService.log({
@@ -46,9 +43,9 @@ export const deleteFloorsHandler = createHandlers(
 				type: "Deletion",
 				actor: {
 					id: user_id,
-					name: actorName,
-					role: type,
-					table: type === "admin" ? "client" : "vertical_hospitality_employee",
+					name: userObj.name || "",
+					role: "admin",
+					table: "client",
 				},
 				client_id,
 				subject: {

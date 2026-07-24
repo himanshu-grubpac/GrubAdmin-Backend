@@ -11,13 +11,13 @@ interface ResponseData {
 }
 
 export const reactivateFloorsHandler = createHandlers(
-	hospitalityAuthGuard(["admin"]),
+	hospitalityAuthGuard(),
 	reactivateFloorsRequestBodyValidator,
 	async (context) => {
 		const { client_id } = context.var;
 		const { ids, reactivate_boxes } = context.req.valid("json");
 
-		const { user_id, user, type } = context.var;
+		const { user_id, user } = context.var;
 
 		// Fetch names before reactivation for logging
 		const floorsToReactivate = await prisma.vertical_hospitality_floor.findMany({
@@ -33,9 +33,6 @@ export const reactivateFloorsHandler = createHandlers(
 
 		// Log each reactivation
 		const userObj = user as any;
-		const actorName = type === "admin" 
-			? userObj.name 
-			: `${userObj.first_name} ${userObj.last_name || ""}`.trim();
 
 		for (const floor of floorsToReactivate) {
 			await loggerService.log({
@@ -43,9 +40,9 @@ export const reactivateFloorsHandler = createHandlers(
 				type: "Activation",
 				actor: {
 					id: user_id,
-					name: actorName,
-					role: type,
-					table: type === "admin" ? "client" : "vertical_hospitality_employee",
+					name: userObj.name || "",
+					role: "admin",
+					table: "client",
 				},
 				client_id,
 				subject: {

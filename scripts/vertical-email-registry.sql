@@ -27,12 +27,13 @@ WHERE e.email IS NOT NULL AND TRIM(e.email) <> '' AND c.vertical_id IS NOT NULL
 GROUP BY LOWER(TRIM(e.email)), c.vertical_id
 HAVING cnt > 1;
 
-SELECT LOWER(TRIM(e.email)) AS email, c.vertical_id, COUNT(*) AS cnt
-FROM vertical_hospitality_employee e
-JOIN client c ON c.id = e.client_id
-WHERE e.email IS NOT NULL AND TRIM(e.email) <> '' AND c.vertical_id IS NOT NULL
-GROUP BY LOWER(TRIM(e.email)), c.vertical_id
-HAVING cnt > 1;
+-- Hospitality employee table removed — no longer applicable.
+-- SELECT LOWER(TRIM(e.email)) AS email, c.vertical_id, COUNT(*) AS cnt
+-- FROM vertical_hospitality_employee e
+-- JOIN client c ON c.id = e.client_id
+-- WHERE e.email IS NOT NULL AND TRIM(e.email) <> '' AND c.vertical_id IS NOT NULL
+-- GROUP BY LOWER(TRIM(e.email)), c.vertical_id
+-- HAVING cnt > 1;
 
 -- Cross-table collisions (same email used by client AND employee in same vertical)
 SELECT LOWER(TRIM(x.email)) AS email, x.vertical_id, COUNT(*) AS cnt
@@ -49,11 +50,12 @@ FROM (
   FROM vertical_medical_employee e
   JOIN client c ON c.id = e.client_id
   WHERE e.email IS NOT NULL AND TRIM(e.email) <> '' AND c.vertical_id IS NOT NULL
-  UNION ALL
-  SELECT e.email, c.vertical_id
-  FROM vertical_hospitality_employee e
-  JOIN client c ON c.id = e.client_id
-  WHERE e.email IS NOT NULL AND TRIM(e.email) <> '' AND c.vertical_id IS NOT NULL
+  -- Hospitality employee table removed — no longer applicable.
+  -- UNION ALL
+  -- SELECT e.email, c.vertical_id
+  -- FROM vertical_hospitality_employee e
+  -- JOIN client c ON c.id = e.client_id
+  -- WHERE e.email IS NOT NULL AND TRIM(e.email) <> '' AND c.vertical_id IS NOT NULL
 ) x
 GROUP BY LOWER(TRIM(x.email)), x.vertical_id
 HAVING cnt > 1;

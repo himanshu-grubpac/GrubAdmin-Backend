@@ -48,7 +48,11 @@ export const getHospitalityNotifications = async (params: GetHospitalityNotifica
 		...(vertical_id && { vertical_id }),
 		...(types && types.length > 0 && { type: { in: types } }),
 		...(is_read !== undefined && { is_read }),
-		is_dismissed: is_dismissed ?? false,
+		...(is_dismissed !== undefined
+			? { is_dismissed }
+			: is_read === true
+				? {}
+				: { is_dismissed: false }),
 	};
 
 	const boxesOnFloors = await prisma.vertical_hospitality_floor_box.findMany({

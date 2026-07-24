@@ -63,10 +63,14 @@ export function enrichFaqlCategoryResponse<T extends Record<string, unknown>>(
 	category: T,
 	baseUrl: string,
 ): T & { icon_url: string } {
-	const icon = (category as Record<string, unknown>).icon as { bucket_key: string | null } | null;
+	const rawIcon = (category as Record<string, unknown>).icon as { bucket_key: string | null; id: string | null; name: string | null } | null;
+	// Replace null icon with a safe fallback to prevent consumers from
+	// crashing when accessing icon.bucket_key on a category without an icon.
+	const icon = rawIcon ?? { id: null, name: null, bucket_key: null };
 	return {
 		...category,
-		icon_url: icon ? buildAssetUrl(baseUrl, icon.bucket_key) : "",
+		icon,
+		icon_url: rawIcon ? buildAssetUrl(baseUrl, rawIcon.bucket_key) : "",
 	};
 }
 

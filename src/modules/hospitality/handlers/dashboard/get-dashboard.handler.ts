@@ -8,7 +8,6 @@ interface ResponseData {
 	is_password_set: boolean;
 	has_boxes: boolean;
 	floor_count: number;
-	employee_count: number;
 	active_box_count: number;
 	active_cold_chain_count: number;
 	temperature_alarm_count: number;

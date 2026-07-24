@@ -11,13 +11,13 @@ interface ResponseData {
 }
 
 export const suspendFloorsHandler = createHandlers(
-	hospitalityAuthGuard(["admin"]),
+	hospitalityAuthGuard(),
 	suspendFloorsRequestBodyValidator,
 	async (context) => {
 		const { client_id } = context.var;
 		const { ids, resource_status, destination_floor_id } = context.req.valid("json");
 
-		const { user_id, user, type } = context.var;
+		const { user_id, user } = context.var;
 
 		// Fetch names before suspension for logging
 		const floorsToSuspend = await prisma.vertical_hospitality_floor.findMany({
@@ -37,9 +37,6 @@ export const suspendFloorsHandler = createHandlers(
 
 		// Log each suspension
 		const userObj = user as any;
-		const actorName = type === "admin" 
-			? userObj.name 
-			: `${userObj.first_name} ${userObj.last_name || ""}`.trim();
 
 		for (const floor of floorsToSuspend) {
 			await loggerService.log({
@@ -47,9 +44,9 @@ export const suspendFloorsHandler = createHandlers(
 				type: "Suspension",
 				actor: {
 					id: user_id,
-					name: actorName,
-					role: type,
-					table: type === "admin" ? "client" : "vertical_hospitality_employee",
+					name: userObj.name || "",
+					role: "admin",
+					table: "client",
 				},
 				client_id,
 				subject: {

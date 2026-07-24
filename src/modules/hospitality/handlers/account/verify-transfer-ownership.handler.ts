@@ -22,7 +22,7 @@ import { Bcrypt } from "@/utils/bcrypt.ts";
 import { ulid } from "ulid";
 import { Otp as OtpUtil } from "@/utils/otp";
 import { services } from "@/services";
-import { RestaurantLog, GrubpacLog, ClientAdminLog } from "@/db/mongo-schema";
+import { BoxConfig, RestaurantLog, GrubpacLog, ClientAdminLog } from "@/db/mongo-schema";
 import { resolveMessageTemplate } from "@/utils/message";
 import type { client } from "@/db/types";
 
@@ -40,18 +40,27 @@ const resolveTargetClient = async (
 	},
 ) => {
 	const targetClient = await tx.client.findFirst({
-		where: { email: recipient.email },
+		where: { email: recipient.email, vertical_id },
 	});
 
 	if (!targetClient) {
 		throw new APIError("Account with this email does not exist.", undefined, undefined, 404);
 	}
 
+	if (targetClient.status !== "active") {
+		throw new APIError(
+			"The destination account is not active. Please ask the owner to reactivate their account first.",
+			undefined,
+			undefined,
+			400,
+		);
+	}
+
 	return targetClient;
 };
 
 export const verifyTransferOwnershipHandler = createHandlers(
-	hospitalityAuthGuard(["admin"]),
+	hospitalityAuthGuard(),
 	verifyTransferOwnershipRequestBodyValidator,
 	async (context) => {
 		const { user_id, client_id, vertical_id, user } = context.var;
@@ -96,8 +105,8 @@ export const verifyTransferOwnershipHandler = createHandlers(
 
 		const { transfer_mode, ids, name, organization_name, country_code, phone, email, country, state } = otpRecord;
 
-		await prisma.$transaction(async (tx) => {
-			const targetClient = await resolveTargetClient(tx, vertical_id, {
+		const targetClient = await prisma.$transaction(async (tx) => {
+			const found = await resolveTargetClient(tx, vertical_id, {
 				name,
 				organization_name,
 				country_code,
@@ -110,15 +119,38 @@ export const verifyTransferOwnershipHandler = createHandlers(
 			if (transfer_mode === "all") {
 				await tx.box.updateMany({
 					where: { client_id },
-					data: { client_id: targetClient.id },
+					data: { client_id: found.id },
 				});
 			} else if (transfer_mode === "selected" && ids && ids.length > 0) {
 				await tx.box.updateMany({
 					where: { id: { in: ids }, client_id },
-					data: { client_id: targetClient.id },
+					data: { client_id: found.id },
 				});
 			}
+
+			return found;
 		});
+
+		// Sync MongoDB BoxConfig to prevent data drift after ownership transfer.
+		try {
+			const transferredIds =
+				transfer_mode === "all"
+					? (
+							await prisma.box.findMany({
+								where: { client_id: targetClient.id },
+								select: { id: true },
+							})
+						).map((b) => b.id)
+					: ids;
+			if (transferredIds && transferredIds.length > 0) {
+				await BoxConfig.updateMany(
+					{ box_id: { $in: transferredIds } },
+					{ $set: { client_id: targetClient.id } },
+				);
+			}
+		} catch (err) {
+			console.error("Failed to sync BoxConfig after ownership transfer:", err);
+		}
 
 		await deleteHospitalityTransferOwnershipOtp(user_id);
 
@@ -136,7 +168,7 @@ export const verifyTransferOwnershipHandler = createHandlers(
 );
 
 export const transferEntireAccountHandler = createHandlers(
-	hospitalityAuthGuard(["admin"]),
+	hospitalityAuthGuard(),
 	transferEntireAccountRequestBodyValidator,
 	async (context) => {
 		const { user_id, client_id, user } = context.var;
@@ -190,7 +222,7 @@ export const transferEntireAccountHandler = createHandlers(
 );
 
 export const verifyTransferEntireAccountHandler = createHandlers(
-	hospitalityAuthGuard(["admin"]),
+	hospitalityAuthGuard(),
 	verifyTransferOwnershipRequestBodyValidator,
 	async (context) => {
 		const { user_id, client_id, vertical_id, user } = context.var;
@@ -255,6 +287,16 @@ export const verifyTransferEntireAccountHandler = createHandlers(
 
 			return targetClient.id;
 		});
+
+		// Sync MongoDB BoxConfig after entire account transfer.
+		try {
+			await BoxConfig.updateMany(
+				{ client_id },
+				{ $set: { client_id: targetClientId } },
+			);
+		} catch (err) {
+			console.error("Failed to sync BoxConfig after entire account transfer:", err);
+		}
 
 		await Promise.all([
 			ClientAdminLog.updateMany({ client_id }, { $set: { client_id: targetClientId } }),

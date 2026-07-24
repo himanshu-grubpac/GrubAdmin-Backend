@@ -54,7 +54,11 @@ export const getNotifications = async ({
 		...(vertical_id && { vertical_id }),
 		...(types && types.length > 0 && { type: { in: types } }),
 		...(is_read !== undefined && { is_read }),
-		is_dismissed: is_dismissed ?? false,
+		...(is_dismissed !== undefined
+			? { is_dismissed }
+			: is_read === true
+				? {}
+				: { is_dismissed: false }),
 	};
 
 	// Filter by boxes in specific restaurants — scope to the caller's client so
@@ -137,6 +141,10 @@ export const markNotifications = async ({
 	const data: Prisma.notificationUpdateManyMutationInput = {};
 	if (is_read !== undefined) data.is_read = is_read;
 	if (is_dismissed !== undefined) data.is_dismissed = is_dismissed;
+	// Dismiss implies read — any dismissed notification is also marked as read
+	if (is_dismissed === true && is_read !== false) {
+		data.is_read = true;
+	}
 
 	const result = await prisma.notification.updateMany({ where, data });
 	return { updated_count: result.count };

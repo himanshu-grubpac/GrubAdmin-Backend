@@ -13,7 +13,7 @@ import { Bcrypt } from "@/utils/bcrypt.ts";
 import type { client } from "@/db/types";
 
 export const transferOwnershipHandler = createHandlers(
-	hospitalityAuthGuard(["admin"]),
+	hospitalityAuthGuard(),
 	transferOwnershipRequestBodyValidator,
 	async (context) => {
 		const { user_id, client_id, user } = context.var;

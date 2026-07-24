@@ -11,7 +11,7 @@ interface ResponseData {
 }
 
 export const createFloorHandler = createHandlers(
-	hospitalityAuthGuard(["admin"]),
+	hospitalityAuthGuard(),
 	createFloorRequestBodyValidator,
 	async (context) => {
 		const { client_id } = context.var;
@@ -23,20 +23,17 @@ export const createFloorHandler = createHandlers(
 			status,
 		});
 
-		const { user_id, user, type: userType } = context.var;
+		const { user_id, user } = context.var;
 		const userObj = user as any;
-		const actorName = userType === "admin" 
-			? userObj.name 
-			: `${userObj.first_name} ${userObj.last_name || ""}`.trim();
 
 		await loggerService.log({
 			category: "Floor",
 			type: "Creation",
 			actor: {
 				id: user_id,
-				name: actorName,
-				role: userType,
-				table: userType === "admin" ? "client" : "vertical_hospitality_employee",
+				name: userObj.name || "",
+				role: "admin",
+				table: "client",
 			},
 			client_id,
 			subject: {

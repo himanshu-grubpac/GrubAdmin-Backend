@@ -48,7 +48,11 @@ export const getMedicalNotifications = async (params: GetMedicalNotificationsPar
 		...(vertical_id && { vertical_id }),
 		...(types && types.length > 0 && { type: { in: types } }),
 		...(is_read !== undefined && { is_read }),
-		is_dismissed: is_dismissed ?? false,
+		...(is_dismissed !== undefined
+			? { is_dismissed }
+			: is_read === true
+				? {}
+				: { is_dismissed: false }),
 	};
 
 	const boxesInDepartments = await prisma.vertical_medical_department_box.findMany({
