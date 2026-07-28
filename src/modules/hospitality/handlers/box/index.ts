@@ -6,4 +6,3 @@ export * from "./update-grubpac.handler";
 export * from "./reassign-grubpac.handler";
 export * from "./suspend-grubpac.handler";
 export * from "./reactivate-grubpac.handler";
-export * from "./delete-grubpac.handler";

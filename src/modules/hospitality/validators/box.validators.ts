@@ -55,16 +55,6 @@ export const reactivateBoxesRequestBodyValidator = zValidator(
 	},
 );
 
-export const deleteBoxesRequestBodyValidator = zValidator(
-	"json",
-	z.object({
-		ids: z.string().ulid("Please provide valid box ids").array().min(1, "Please provide at least one box id"),
-	}),
-	(r) => {
-		if (!r.success) validatorErrorHandler(r.error);
-	},
-);
-
 export const reassignBoxesRequestBodyValidator = zValidator(
 	"json",
 	z.object({

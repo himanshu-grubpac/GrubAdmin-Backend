@@ -37,7 +37,6 @@ import {
 } from "hospitality/handlers/floor";
 import {
 	getGrubpacHandler,
-	deleteGrubpacHandler,
 	actionGrubpacHandler,
 	suspendGrubpacHandler,
 	reactivateGrubpacHandler,
@@ -115,7 +114,7 @@ hospitalityRouter.get("/grubpac/search", ...searchGrubpacHandler);
 hospitalityRouter.get("/grubpac/details", ...getGrubpacDetailsHandler);
 hospitalityRouter.put("/grubpac", ...updateGrubpacHandler);
 hospitalityRouter.patch("/grubpac/reassign", ...reassignGrubpacHandler);
-hospitalityRouter.delete("/grubpac", ...deleteGrubpacHandler);
+
 hospitalityRouter.patch("/grubpac/suspend", ...suspendGrubpacHandler);
 hospitalityRouter.patch("/grubpac/reactivate", ...reactivateGrubpacHandler);
 hospitalityRouter.patch("/grubpac/action", ...actionGrubpacHandler);
