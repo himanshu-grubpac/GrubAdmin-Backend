@@ -56,7 +56,6 @@ import {
 	getSupportQuestionsHandler,
 	searchSupportQuestionsHandler,
 	getSupportAnswerHandler,
-	downloadSupportAttachmentHandler,
 } from "hospitality/handlers/support";
 import {
 	postGrubpacLogsHandler,
@@ -132,5 +131,5 @@ hospitalityRouter.get("/support/category", ...getSupportCategoriesHandler);
 hospitalityRouter.get("/support/faq", ...getSupportQuestionsHandler);
 hospitalityRouter.get("/support/search", ...searchSupportQuestionsHandler);
 hospitalityRouter.get("/support/answer", ...getSupportAnswerHandler);
-hospitalityRouter.get("/support/faq/attachment/download", ...downloadSupportAttachmentHandler);
+
 
