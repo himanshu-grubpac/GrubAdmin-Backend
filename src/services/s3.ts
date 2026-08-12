@@ -2,11 +2,13 @@ import {
 	DeleteObjectsCommand,
 	GetBucketLocationCommand,
 	GetObjectCommand,
+	HeadObjectCommand,
 	ListObjectsV2Command,
 	type ObjectCannedACL,
 	PutObjectCommand,
 	S3Client,
 } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import {
 	AWS_BUCKET_NAME,
 	AWS_KEY,
@@ -159,7 +161,6 @@ export class s3Service {
 			console.error("Critical: Failed to clean up uploaded S3 objects during rollback:", error);
 		}
 	}
-
 	async getObjectFromS3(key: string) {
 		const download = async () => {
 			const command = new GetObjectCommand({
@@ -184,6 +185,107 @@ export class s3Service {
 					throw retryError;
 				}
 			}
+			throw error;
+		}
+	}
+
+	async objectExists(key: string): Promise<boolean> {
+		const check = async () => {
+			await this.client.send(
+				new HeadObjectCommand({
+					Bucket: this.bucket,
+					Key: key,
+				}),
+			);
+			return true;
+		};
+
+		try {
+			return await check();
+		} catch (error: any) {
+			const status = error?.$metadata?.httpStatusCode;
+			if (status === 404 || error?.name === "NotFound") {
+				return false;
+			}
+
+			const isRedirect =
+				status === 301 ||
+				String(error?.message || error || "").includes(
+					"must be addressed using the specified endpoint",
+				);
+
+			if (isRedirect) {
+				await this.resolveBucketRegion();
+				try {
+					return await check();
+				} catch (retryError: any) {
+					const retryStatus = retryError?.$metadata?.httpStatusCode;
+					if (retryStatus === 404 || retryError?.name === "NotFound") {
+						return false;
+					}
+					throw retryError;
+				}
+			}
+
+			throw error;
+		}
+	}
+
+	async getPresignedUrl(key: string, expiresInSeconds = 900): Promise<string> {
+		const sign = async () => {
+			const command = new GetObjectCommand({
+				Bucket: this.bucket,
+				Key: key,
+			});
+			return getSignedUrl(this.client, command, { expiresIn: expiresInSeconds });
+		};
+
+		try {
+			return await sign();
+		} catch (error: any) {
+			const isRedirect =
+				error.$metadata?.httpStatusCode === 301 ||
+				String(error?.message || error || "").includes(
+					"must be addressed using the specified endpoint",
+				);
+
+			if (isRedirect) {
+				await this.resolveBucketRegion();
+				return sign();
+			}
+
+			throw error;
+		}
+	}
+
+	async getPresignedPutUrl(
+		key: string,
+		contentType?: string,
+		expiresInSeconds = 900,
+	): Promise<string> {
+		const sign = async () => {
+			const command = new PutObjectCommand({
+				Bucket: this.bucket,
+				Key: key,
+				...(contentType ? { ContentType: contentType } : {}),
+			});
+			return getSignedUrl(this.client, command, { expiresIn: expiresInSeconds });
+		};
+
+		try {
+			return await sign();
+		} catch (error: any) {
+			const isRedirect =
+				error.$metadata?.httpStatusCode === 301 ||
+				String(error?.message || error || "").includes(
+					"must be addressed using the specified endpoint",
+				);
+
+			if (isRedirect) {
+				await this.resolveBucketRegion();
+				return sign();
+			}
+
 			throw error;
 		}
 	}

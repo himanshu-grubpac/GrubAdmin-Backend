@@ -13,6 +13,11 @@ import {
 	recordSimulatorHeartbeat,
 } from "@/db/actions/simulator.connection.actions.ts";
 import { computeOverallBatteryLevel } from "@/utils/box-battery.ts";
+import {
+	isSimulatorGpsAvailable,
+	resolveSimulatorLatitude,
+	resolveSimulatorLongitude,
+} from "@/utils/simulator-gps.ts";
 
 export const updateStateHandler = createHandlers(
 	boxIdParamValidator,
@@ -79,7 +84,37 @@ export const updateStateHandler = createHandlers(
 
 		if (body.bluetooth_available !== undefined) mappedData.bluetooth_status = body.bluetooth_available ? "on" : "off";
 		if (body.wifi_connected !== undefined) mappedData.wifi_status = body.wifi_connected ? "on" : "off";
-		if (body.gps_available !== undefined) mappedData.gps_status = body.gps_available ? "on" : "off";
+		if (body.latitude !== undefined) mappedData.latitude = body.latitude;
+		if (body.longitude !== undefined) mappedData.longitude = body.longitude;
+
+		// GPS stays active for location even when the box is powered off.
+		if (
+			body.is_power_on === false ||
+			body.gps_available !== undefined ||
+			body.latitude !== undefined ||
+			body.longitude !== undefined ||
+			existingBox.telemetry?.gps_status !== "on"
+		) {
+			mappedData.gps_status = "on";
+		}
+
+		if (body.is_power_on === false) {
+			if (body.latitude === undefined && existingBox.telemetry?.latitude != null) {
+				mappedData.latitude = Number(existingBox.telemetry.latitude);
+			}
+			if (body.longitude === undefined && existingBox.telemetry?.longitude != null) {
+				mappedData.longitude = Number(existingBox.telemetry.longitude);
+			}
+		}
+
+		if (
+			body.latitude !== undefined ||
+			body.longitude !== undefined ||
+			mappedData.latitude !== undefined ||
+			mappedData.longitude !== undefined
+		) {
+			mappedData.gps_updated_at = new Date();
+		}
 		if (body.solar_panel !== undefined) mappedData.solar_status = body.solar_panel ? "on" : "off";
 		if (body["220V_110V_port"] !== undefined) mappedData.port_big_status = body["220V_110V_port"] ? "on" : "off";
 		if (body.Memorycard_used !== undefined) mappedData.memory_percentage = Math.round(body.Memorycard_used * 100);
@@ -131,6 +166,7 @@ export const updateStateHandler = createHandlers(
 		await createSimulatorNotifications(box.id, notifications);
 
 		const connected_user = buildSimulatorConnectedUser(box);
+		const gpsAvailable = isSimulatorGpsAvailable();
 
 		return context.json<any>(
 			{
@@ -150,12 +186,12 @@ export const updateStateHandler = createHandlers(
 					ambient_temp: box.telemetry?.ext_temp ?? 32,
 					zone_1_temp: box.telemetry?.zone1_temp ?? 4.2,
 					zone_2_temp: box.telemetry?.zone2_temp ?? 4.5,
-					gps_available: box.telemetry?.gps_status === "on",
+					gps_available: gpsAvailable,
 					bluetooth_available: box.telemetry?.bluetooth_status === "on",
 					wifi_connected: box.telemetry?.wifi_status === "on",
 					is_power_on: box.telemetry?.power_status === "on",
-					latitude: 28.6139,
-					longitude: 77.209,
+					latitude: resolveSimulatorLatitude(box.telemetry),
+					longitude: resolveSimulatorLongitude(box.telemetry),
 					solar_panel: box.telemetry?.solar_status === "on",
 					"220V_110V_port": box.telemetry?.port_big_status === "on",
 					Memorycard_used: box.telemetry?.memory_percentage ? box.telemetry.memory_percentage / 100 : 0.15,

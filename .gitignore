@@ -1,4 +1,4 @@
-# dependencies (bun install)
+﻿# dependencies (bun install)
 node_modules
 
 # output
@@ -31,7 +31,13 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 # Local editor / agent / workspace (never commit)
 .agents/
 .cursor/
+.vscode/
 *.code-workspace
+.image-root.txt
+
+# Non-production doc generators and audits
+scripts/generate_enterprise_docs_docx.py
+scripts/generate_hospitality_figma_fe_audit.py
 
 # Finder (MacOS) folder config
 .DS_Store
@@ -39,6 +45,16 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 /src/db/prisma
 bun.lock
 tmp/
-docs/
+
+# Docs (local only) - allow Flutter/mobile API catalog
+docs/*
+!docs/mobile-vertical-api-endpoints.xlsx
+!docs/mobile-vertical-api-endpoints.csv
+
+# Migrations already applied on Aiven — schema.prisma is source of truth for this push
+prisma/migrations/20260810120000_hospitality_bugfix_schema/
+prisma/migrations/20260811120000_add_camping_consumer/
+prisma/migrations/20260812120000_mobile_vertical_gps_camera/
+
 snapshot_error.log
 dumps/

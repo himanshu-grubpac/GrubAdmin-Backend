@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { globalErrorHandler } from "@/middlewares/error";
+import { createMobileRateLimits } from "@/middlewares/mobile-rate-limits";
 import { getConfigHandler } from "@/modules/delivery-mobile/handlers/config";
 import {
 	loginHandler,
@@ -27,6 +28,7 @@ import { getDashboardHandler } from "@/modules/delivery-mobile/handlers/dashboar
 import {
 	getSupportCategoriesHandler,
 	getSupportQuestionsHandler,
+	getSupportAnswerHandler,
 } from "@/modules/delivery-mobile/handlers/support";
 import {
 	createRestaurantHandler,
@@ -64,24 +66,27 @@ import {
 
 export const deliveryMobileRouter = new Hono();
 
+const limits = createMobileRateLimits("delivery-mobile");
+
 deliveryMobileRouter.onError(globalErrorHandler);
+deliveryMobileRouter.use("*", limits.general);
 
 /**
  * Name: Delivery Mobile Auth Router
  * Description: This router is responsible for handling all the delivery mobile auth things including the clients.
  * Base route: /api/v1/delivery-mobile/auth
  */
-deliveryMobileRouter.post("/auth/login", ...loginHandler);
-deliveryMobileRouter.post("/auth/send-otp", ...sendOtpHandler);
-deliveryMobileRouter.post("/auth/verify-otp", ...verifyOtpHandler);
-deliveryMobileRouter.post("/auth/resend-otp", ...sendOtpHandler);
-deliveryMobileRouter.post("/auth/forget-password/otp/send", ...sendForgetPasswordOtpHandler);
-deliveryMobileRouter.post("/auth/forget-password/otp/verify", ...verifyForgetPasswordOtpHandler);
-deliveryMobileRouter.post("/auth/forget-password/set-password", ...setNewPasswordHandler);
-deliveryMobileRouter.post("/auth/set-password", ...setNewPasswordHandler);
-deliveryMobileRouter.post("/auth/forget-password/otp/resend", ...sendForgetPasswordOtpHandler);
-deliveryMobileRouter.post("/auth/reset-password", ...resetPasswordHandler);
-deliveryMobileRouter.post("/auth/check-account", ...checkAccountHandler);
+deliveryMobileRouter.post("/auth/login", limits.auth, ...loginHandler);
+deliveryMobileRouter.post("/auth/send-otp", limits.auth, ...sendOtpHandler);
+deliveryMobileRouter.post("/auth/verify-otp", limits.auth, ...verifyOtpHandler);
+deliveryMobileRouter.post("/auth/resend-otp", limits.auth, ...sendOtpHandler);
+deliveryMobileRouter.post("/auth/forget-password/otp/send", limits.auth, ...sendForgetPasswordOtpHandler);
+deliveryMobileRouter.post("/auth/forget-password/otp/verify", limits.auth, ...verifyForgetPasswordOtpHandler);
+deliveryMobileRouter.post("/auth/forget-password/set-password", limits.auth, ...setNewPasswordHandler);
+deliveryMobileRouter.post("/auth/set-password", limits.auth, ...setNewPasswordHandler);
+deliveryMobileRouter.post("/auth/forget-password/otp/resend", limits.auth, ...sendForgetPasswordOtpHandler);
+deliveryMobileRouter.post("/auth/reset-password", limits.auth, ...resetPasswordHandler);
+deliveryMobileRouter.post("/auth/check-account", limits.auth, ...checkAccountHandler);
 deliveryMobileRouter.post("/auth/logout", ...logoutHandler);
 deliveryMobileRouter.post("/auth/refresh", ...refreshTokenHandler);
 
@@ -94,15 +99,17 @@ deliveryMobileRouter.get("/profile", ...getProfileHandler);
 deliveryMobileRouter.put("/account", ...updateAccountHandler);
 deliveryMobileRouter.patch(
 	"/account/update/resend-otp",
+	limits.sensitiveOtp,
 	...updateAccountResendOtpHandler,
 );
-deliveryMobileRouter.patch("/account/confirm", ...confirmUpdateAccountHandler);
+deliveryMobileRouter.patch("/account/confirm", limits.sensitiveOtp, ...confirmUpdateAccountHandler);
 deliveryMobileRouter.post(
 	"/account/transfer-ownership",
 	...transferOwnershipHandler,
 );
 deliveryMobileRouter.post(
 	"/account/transfer-ownership/verify",
+	limits.sensitiveOtp,
 	...verifyTransferOwnershipHandler,
 );
 deliveryMobileRouter.get(
@@ -125,6 +132,7 @@ deliveryMobileRouter.get("/dashboard", ...getDashboardHandler);
  */
 deliveryMobileRouter.get("/support/category", ...getSupportCategoriesHandler);
 deliveryMobileRouter.get("/support/faq", ...getSupportQuestionsHandler);
+deliveryMobileRouter.get("/support/answer", ...getSupportAnswerHandler);
 
 /**
  * Base route: /api/v1/delivery-mobile/employee
@@ -167,8 +175,8 @@ deliveryMobileRouter.delete("/boxes/:box_id", ...removeBoxHandler);
 deliveryMobileRouter.patch("/boxes/:box_id/settings", ...updateBoxSettingsHandler);
 deliveryMobileRouter.post("/boxes/:box_id/connection", ...connectBoxHandler);
 deliveryMobileRouter.delete("/boxes/:box_id/connection", ...disconnectBoxHandler);
-deliveryMobileRouter.post("/boxes/:box_id/lock/otp", ...requestLockOtpHandler);
-deliveryMobileRouter.post("/boxes/:box_id/lock/verify", ...verifyLockOtpHandler);
+deliveryMobileRouter.post("/boxes/:box_id/lock/otp", limits.sensitiveOtp, ...requestLockOtpHandler);
+deliveryMobileRouter.post("/boxes/:box_id/lock/verify", limits.sensitiveOtp, ...verifyLockOtpHandler);
 deliveryMobileRouter.patch("/boxes/:box_id/lock", ...lockBoxHandler);
 
 /**

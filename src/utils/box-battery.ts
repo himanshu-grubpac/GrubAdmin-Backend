@@ -23,3 +23,13 @@ export const computeOverallBatteryLevel = (
 	const total = cells.reduce((sum, value) => sum + value, 0);
 	return Math.round(total / cells.length);
 };
+
+/** ~24h runtime at 100% battery, scaled linearly. Null when unknown or charging. */
+export const computeBatteryEstimatedHours = (
+	batteryLevel: number | null,
+	isCharging: boolean,
+	isPowerOn: boolean,
+): number | null => {
+	if (batteryLevel == null || !isPowerOn || isCharging) return null;
+	return Math.round((batteryLevel / 100) * 24 * 10) / 10;
+};

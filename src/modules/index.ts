@@ -6,6 +6,9 @@ import { deliveryMobileRouter } from "@/modules/delivery-mobile";
 import { medicalRouter } from "@/modules/medical";
 import { hospitalityRouter } from "@/modules/hospitality";
 import { simulatorRouter } from "@/modules/simulator";
+import { medicalMobileDriverRouter } from "@/modules/medical-mobile/driver";
+import { medicalMobileOwnerRouter } from "@/modules/medical-mobile/owner";
+import { campConsumerRouter } from "@/modules/camp-consumer";
 
 export const router = new Hono();
 
@@ -16,4 +19,7 @@ router.route("/delivery-mobile", deliveryMobileRouter);
 router.route("/medical", medicalRouter);
 router.route("/hospitality", hospitalityRouter);
 router.route("/simulator", simulatorRouter);
+router.route("/medical-mobile/driver", medicalMobileDriverRouter);
+router.route("/medical-mobile/owner", medicalMobileOwnerRouter);
+router.route("/camp-consumer", campConsumerRouter);
 

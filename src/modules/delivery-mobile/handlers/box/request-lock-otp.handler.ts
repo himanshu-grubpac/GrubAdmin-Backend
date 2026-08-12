@@ -32,8 +32,8 @@ export const requestLockOtpHandler = createHandlers(
 		const user = context.get("user") as { email?: string };
 		const employeeEmail = user.email?.trim() ?? "";
 		const { box_id } = context.req.valid("param");
-		const { action } = context.req.valid("json");
 		const isProduction = process.env.NODE_ENV === "production";
+		const action = "unlock" as const;
 
 		const { box } = await resolveDriverBoxById({
 			box_id,
@@ -71,12 +71,11 @@ export const requestLockOtpHandler = createHandlers(
 		}
 
 		if (isProduction) {
-			const actionLabel = action === "unlock" ? "unlock" : "lock";
 			await services.mailer.sendEmail({
 				from: "ankan@sqaby.com",
-				subject: `Delivery Mobile - GrubLock ${actionLabel} OTP`,
+				subject: "Delivery Mobile - GrubLock unlock OTP",
 				to: employeeEmail,
-				text: `Your OTP to ${actionLabel} GrubLock on ${box.box_display_id} is ${otp}`,
+				text: `Your OTP to unlock GrubLock on ${box.box_display_id} is ${otp}`,
 			});
 		}
 
@@ -98,10 +97,7 @@ export const requestLockOtpHandler = createHandlers(
 			// logging must not block OTP response
 		}
 
-		const message =
-			action === "unlock"
-				? "Unlock OTP sent successfully"
-				: "Lock OTP sent successfully";
+		const message = "Unlock OTP sent successfully";
 
 		const responseData: LockOtpResponseData = isProduction
 			? {

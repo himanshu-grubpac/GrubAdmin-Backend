@@ -119,6 +119,7 @@ model client {
   mobile_number               String?
   country_code                String?
   status                      client_status                 @default(active)
+  auth_token_version          Int                           @default(0)
   created_at                  DateTime                      @default(now())
   updated_at                  DateTime                      @updatedAt
   vertical_id                 String?
@@ -132,6 +133,7 @@ model client {
   medical_employees           vertical_medical_employee[]
   medical_departments         vertical_medical_department[]
   medical_consumers           vertical_medical_consumer[]
+  camping_consumers           vertical_camping_consumer[]
   hospitality_floors          vertical_hospitality_floor[]  @relation("ClientToHospitalityFloor")
   hospitality_employees       vertical_hospitality_employee[]
 
@@ -256,9 +258,11 @@ model box {
   restaurant_boxes                 restaurant_box[]
   medical_employee_boxes           vertical_medical_employee_box[]   @relation("vertical_medical_employee_boxes")
   medical_consumer_boxes           vertical_medical_consumer_box[]   @relation("vertical_medical_consumer_boxes")
+  camping_consumer_boxes           vertical_camping_consumer_box[]   @relation("vertical_camping_consumer_boxes")
   medical_department_boxes         vertical_medical_department_box[]
   hospitality_floor_boxes          vertical_hospitality_floor_box[]  @relation("BoxToHospitalityFloor")
   hospitality_employee_boxes       vertical_hospitality_employee_box[] @relation("vertical_hospitality_employee_boxes")
+  camp_camera_feeds                camp_camera_feed[]
 
   @@index([client_id], map: "box_client_id_fkey")
   @@index([vertical_id], map: "box_vertical_id_fkey")
@@ -597,9 +601,32 @@ model box_telemetry_latest {
   zone2_status          hardware_state?        @default(unknown)
   cellular_signal       String?
 
+  latitude              Decimal?  @db.Decimal(10, 7)
+  longitude             Decimal?  @db.Decimal(10, 7)
+  gps_updated_at        DateTime?
+  surveillance_enabled  Boolean?
+
   updated_at DateTime @updatedAt
 
   box box @relation(fields: [box_id], references: [id], onDelete: Cascade)
+}
+
+model camp_camera_feed {
+  id            String   @id @default(ulid())
+  box_id        String
+  cam_id        Int
+  recorded_at   DateTime
+  s3_key        String
+  duration_sec  Int?
+  thumbnail_key String?
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  box box @relation(fields: [box_id], references: [id], onDelete: Cascade)
+
+  @@index([box_id, recorded_at])
+  @@index([box_id, cam_id])
+  @@map("camp_camera_feed")
 }
 
 // ── Medical Vertical ─────────────────────────────────────────────────────────
@@ -713,6 +740,40 @@ model vertical_medical_consumer_box {
   @@index([consumer_id])
 }
 
+model vertical_camping_consumer {
+  id                 String                          @id @default(ulid())
+  full_name          String?
+  email              String                          @unique
+  country_code       String?
+  phone              String?
+  password           String?
+  auth_token_version Int                             @default(0)
+  status             camping_consumer_status         @default(pending)
+  client_id          String?
+  created_at         DateTime                        @default(now())
+  updated_at         DateTime                        @updatedAt
+  client             client?                         @relation(fields: [client_id], references: [id])
+  boxes              vertical_camping_consumer_box[] @relation("vertical_camping_consumer_boxes")
+
+  @@unique([phone, country_code])
+  @@index([client_id], map: "vertical_camping_consumer_client_id_fkey")
+  @@map("vertical_camping_consumer")
+}
+
+model vertical_camping_consumer_box {
+  id          String                      @id @default(ulid())
+  consumer_id String
+  box_id      String
+  status      camping_consumer_box_status @default(active)
+  created_at  DateTime                    @default(now())
+  updated_at  DateTime                    @updatedAt
+  box         box                         @relation("vertical_camping_consumer_boxes", fields: [box_id], references: [id], onDelete: Cascade, map: "vertical_camping_consumer_box_box_fkey")
+  consumer    vertical_camping_consumer   @relation("vertical_camping_consumer_boxes", fields: [consumer_id], references: [id], onDelete: Cascade, map: "vertical_camping_consumer_box_consumer_fkey")
+
+  @@index([box_id])
+  @@index([consumer_id])
+}
+
 model vertical_medical_employee_deleted {
   id                  String   @id @default(ulid())
   first_name          String
@@ -803,6 +864,17 @@ enum delivery_consumer_status {
   pending
   delivered
   cancelled
+}
+
+enum camping_consumer_status {
+  pending
+  active
+  suspended
+}
+
+enum camping_consumer_box_status {
+  active
+  inactive
 }
 
 enum notification_category {

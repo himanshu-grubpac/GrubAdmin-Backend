@@ -42,12 +42,12 @@ export const updateBoxSettingsBodyValidator = zValidator(
 	},
 );
 
-const lockActionSchema = z.enum(["unlock", "lock"]);
+const unlockOnlyActionSchema = z.literal("unlock");
 
 export const lockOtpBodyValidator = zValidator(
 	"json",
 	z.object({
-		action: lockActionSchema,
+		action: unlockOnlyActionSchema,
 	}),
 	(r) => {
 		if (!r.success) validatorErrorHandler(r.error);
@@ -58,7 +58,7 @@ export const verifyLockOtpBodyValidator = zValidator(
 	"json",
 	z.object({
 		code: z.string().length(4, "OTP must be 4 digits"),
-		action: lockActionSchema,
+		action: unlockOnlyActionSchema,
 	}),
 	(r) => {
 		if (!r.success) validatorErrorHandler(r.error);

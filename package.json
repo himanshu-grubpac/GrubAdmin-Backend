@@ -36,6 +36,7 @@
 	},
 	"dependencies": {
 		"@aws-sdk/client-s3": "^3.920.0",
+		"@aws-sdk/s3-request-presigner": "^3.1108.0",
 		"@googlemaps/places": "^2.2.0",
 		"@hono/zod-validator": "^0.7.4",
 		"@prisma/adapter-mariadb": "^7.8.0",

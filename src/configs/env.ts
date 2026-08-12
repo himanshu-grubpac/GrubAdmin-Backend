@@ -23,6 +23,7 @@ export const AUTH_SECRET = process.env.AUTH_SECRET as string;
 export const DELIVERY_AUTH_SECRET = process.env.DELIVERY_AUTH_SECRET as string;
 export const MEDICAL_AUTH_SECRET = process.env.MEDICAL_AUTH_SECRET as string;
 export const HOSPITALITY_AUTH_SECRET = process.env.HOSPITALITY_AUTH_SECRET as string;
+export const CAMPING_AUTH_SECRET = process.env.CAMPING_AUTH_SECRET as string;
 
 // JWT Token Expiration Settings (in seconds)
 export const JWT_ACCESS_TOKEN_EXPIRY = parseInt(process.env.JWT_ACCESS_TOKEN_EXPIRY || "86400"); // Default: 24 hours
@@ -41,7 +42,23 @@ export const AWS_REGION = process.env.AWS_REGION as string;
 
 export const AWS_BUCKET_NAME = process.env.AWS_BUCKET_NAME as string;
 
+/** S3 key prefix for camp consumer camera objects (e.g. `camp-camera`). */
+export const CAMERA_S3_PREFIX = process.env.CAMERA_S3_PREFIX || "camp-camera";
+
+/** Optional legacy web share page base URL — unused by native share (Option A). */
+export const MEDICAL_MOBILE_SHARE_BASE_URL = process.env.MEDICAL_MOBILE_SHARE_BASE_URL as
+	| string
+	| undefined;
+
+/** Optional simulator default coordinates when GPS is on but lat/lng omitted. */
+export const SIMULATOR_DEFAULT_LAT = process.env.SIMULATOR_DEFAULT_LAT;
+export const SIMULATOR_DEFAULT_LNG = process.env.SIMULATOR_DEFAULT_LNG;
+
+/** Production values: see .env.production.example (IPs removed from code). */
 export const FRONTEND_URL = process.env.FRONTEND_URL as string;
+/** Hospitality portal origin — optional in dev (falls back to http://localhost:3000); required in production. */
+export const HOSPITALITY_FRONTEND_URL = process.env.HOSPITALITY_FRONTEND_URL as string | undefined;
+/** Shared admin/client dashboard URL; hospitality fallback when HOSPITALITY_FRONTEND_URL is unset. Production: .env.production.example */
 export const CLIENT_DASHBOARD_URL = process.env.CLIENT_DASHBOARD_URL as string;
 
 export const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY as string;
@@ -56,6 +73,8 @@ export const loadEnv = (): void => {
 		"MAIL_PASS",
 		"AUTH_SECRET",
 		"DELIVERY_AUTH_SECRET",
+		"HOSPITALITY_AUTH_SECRET",
+		"CAMPING_AUTH_SECRET",
 		"AWS_KEY",
 		"AWS_REGION",
 		"AWS_BUCKET_NAME",

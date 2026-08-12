@@ -7,6 +7,11 @@ import {
 	recordSimulatorHeartbeat,
 } from "@/db/actions/simulator.connection.actions.ts";
 import { computeOverallBatteryLevel } from "@/utils/box-battery.ts";
+import {
+	isSimulatorGpsAvailable,
+	resolveSimulatorLatitude,
+	resolveSimulatorLongitude,
+} from "@/utils/simulator-gps.ts";
 
 export const getHealthHandler = createHandlers(
 	boxIdParamValidator,
@@ -38,6 +43,7 @@ export const getHealthHandler = createHandlers(
 		recordSimulatorHeartbeat(box_id);
 
 		const connected_user = buildSimulatorConnectedUser(box);
+		const gpsAvailable = isSimulatorGpsAvailable();
 
 		return context.json<any>(
 			{
@@ -57,12 +63,12 @@ export const getHealthHandler = createHandlers(
 					ambient_temp: box.telemetry?.ext_temp ?? 32,
 					zone_1_temp: box.telemetry?.zone1_temp ?? 4.2,
 					zone_2_temp: box.telemetry?.zone2_temp ?? 4.5,
-					gps_available: box.telemetry?.gps_status === "on",
+					gps_available: gpsAvailable,
 					bluetooth_available: box.telemetry?.bluetooth_status === "on",
 					wifi_connected: box.telemetry?.wifi_status === "on",
 					is_power_on: box.telemetry?.power_status === "on",
-					latitude: 28.6139,
-					longitude: 77.209,
+					latitude: resolveSimulatorLatitude(box.telemetry),
+					longitude: resolveSimulatorLongitude(box.telemetry),
 					solar_panel: box.telemetry?.solar_status === "on",
 					"220V_110V_port": box.telemetry?.port_big_status === "on",
 					Memorycard_used: box.telemetry?.memory_percentage ? box.telemetry.memory_percentage / 100 : 0.15,

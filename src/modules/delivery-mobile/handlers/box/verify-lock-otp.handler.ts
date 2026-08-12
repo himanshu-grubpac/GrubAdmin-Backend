@@ -21,7 +21,8 @@ export const verifyLockOtpHandler = createHandlers(
 			last_name?: string | null;
 		};
 		const { box_id } = context.req.valid("param");
-		const { code, action } = context.req.valid("json");
+		const { code } = context.req.valid("json");
+		const action = "unlock" as const;
 
 		const employeeName =
 			`${user.first_name ?? ""} ${user.last_name ?? ""}`.trim() || "Driver";
@@ -54,10 +55,7 @@ export const verifyLockOtpHandler = createHandlers(
 			// logging must not block verify response
 		}
 
-		const message =
-			action === "unlock"
-				? "Grublock unlocked successfully"
-				: "Grublock locked successfully";
+		const message = "Grublock unlocked successfully";
 
 		return context.json<APIResponse<null>>(
 			{

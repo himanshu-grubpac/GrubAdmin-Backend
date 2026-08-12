@@ -1,12 +1,14 @@
-import { AUTH_SECRET, DELIVERY_AUTH_SECRET, MEDICAL_AUTH_SECRET, HOSPITALITY_AUTH_SECRET, JWT_ACCESS_TOKEN_EXPIRY, JWT_REFRESH_TOKEN_EXPIRY } from "@/configs/env";
+import { AUTH_SECRET, DELIVERY_AUTH_SECRET, MEDICAL_AUTH_SECRET, HOSPITALITY_AUTH_SECRET, CAMPING_AUTH_SECRET, JWT_ACCESS_TOKEN_EXPIRY, JWT_REFRESH_TOKEN_EXPIRY } from "@/configs/env";
 import { APIError } from "@/types/error";
 import type { AuthPayload, DeliveryAuthPayload, MedicalAuthPayload, HospitalityAuthPayload, ImpersonationPayload } from "@/types/jwt";
+import type { MedicalMobileAuthPayload } from "@/types/jwt/medical-mobile-auth-payload";
+import type { CampingAuthPayload } from "@/types/jwt/camping-auth-payload";
 import { type JwtPayload, sign, verify, type SignOptions } from "jsonwebtoken";
 import { logger } from "@/utils/logger";
 import { randomUUID } from "crypto";
 
 const MEDICAL_SECRET = MEDICAL_AUTH_SECRET || DELIVERY_AUTH_SECRET;
-const HOSPITALITY_SECRET = HOSPITALITY_AUTH_SECRET || DELIVERY_AUTH_SECRET;
+const HOSPITALITY_SECRET = HOSPITALITY_AUTH_SECRET;
 
 interface JwtAuthPayload extends JwtPayload {
 	user?: AuthPayload;
@@ -22,6 +24,10 @@ interface MedicalJwtAuthPayload extends JwtPayload {
 
 interface HospitalityJwtAuthPayload extends JwtPayload {
 	user?: HospitalityAuthPayload;
+}
+
+interface CampingJwtAuthPayload extends JwtPayload {
+	user?: CampingAuthPayload;
 }
 
 interface JwtImpersonationPayload extends JwtPayload {
@@ -113,7 +119,10 @@ export class JWT {
 	static signHospitalityAuthToken(payload: HospitalityAuthPayload): string {
 		return sign(
 			{
-				user: payload,
+				user: {
+					...payload,
+					token_version: payload.token_version ?? 0,
+				},
 			},
 			HOSPITALITY_SECRET,
 			{
@@ -236,5 +245,114 @@ export class JWT {
 		}
 
 		return user;
+	}
+
+	static verifyCampingAuthToken(token: string): CampingAuthPayload {
+		const { user } = verify(token, CAMPING_AUTH_SECRET) as CampingJwtAuthPayload;
+
+		if (!user) {
+			throw new APIError(
+				"The auth token is either invalid or has expired!",
+				undefined,
+				undefined,
+				401,
+			);
+		}
+
+		return user;
+	}
+
+	static signCampingAuthToken(
+		payload: CampingAuthPayload,
+		expiresIn: SignOptions["expiresIn"] = JWT_ACCESS_TOKEN_EXPIRY,
+	): string {
+		return sign(
+			{
+				user: {
+					...payload,
+					type: payload.type ?? "consumer",
+					token_version: payload.token_version ?? 0,
+				},
+			},
+			CAMPING_AUTH_SECRET,
+			{
+				expiresIn,
+			},
+		);
+	}
+
+	static signCampingRefreshToken(payload: CampingAuthPayload): string {
+		return sign(
+			{
+				user: {
+					...payload,
+					type: payload.type ?? "consumer",
+					token_version: payload.token_version ?? 0,
+				},
+			},
+			CAMPING_AUTH_SECRET,
+			{
+				expiresIn: JWT_REFRESH_TOKEN_EXPIRY,
+			},
+		);
+	}
+
+	static verifyCampingRefreshToken(token: string): CampingAuthPayload {
+		const { user } = verify(token, CAMPING_AUTH_SECRET) as CampingJwtAuthPayload;
+
+		if (!user) {
+			throw new APIError(
+				"The refresh token is either invalid or has expired!",
+				undefined,
+				undefined,
+				401,
+			);
+		}
+
+		return user;
+	}
+
+	static signMedicalMobileAuthToken(
+		payload: MedicalMobileAuthPayload,
+		expiresIn: SignOptions["expiresIn"] = JWT_ACCESS_TOKEN_EXPIRY,
+	): string {
+		return sign(
+			{
+				user: {
+					...payload,
+					persona: payload.persona ?? "driver",
+				},
+			},
+			MEDICAL_SECRET,
+			{ expiresIn },
+		);
+	}
+
+	static signMedicalMobileRefreshToken(payload: MedicalMobileAuthPayload): string {
+		return sign(
+			{
+				user: {
+					...payload,
+					persona: payload.persona ?? "driver",
+				},
+			},
+			MEDICAL_SECRET,
+			{ expiresIn: JWT_REFRESH_TOKEN_EXPIRY },
+		);
+	}
+
+	static verifyMedicalMobileRefreshToken(token: string): MedicalMobileAuthPayload {
+		const { user } = verify(token, MEDICAL_SECRET) as MedicalJwtAuthPayload;
+
+		if (!user) {
+			throw new APIError(
+				"The refresh token is either invalid or has expired!",
+				undefined,
+				undefined,
+				401,
+			);
+		}
+
+		return user as MedicalMobileAuthPayload;
 	}
 }

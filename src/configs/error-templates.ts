@@ -12,6 +12,7 @@ import { deliveryErrorTemplates } from "@/modules/delivery/configs/error-templat
 import { adminErrorTemplates } from "@/modules/admin/configs/error-templates";
 import { medicalErrorTemplates } from "@/modules/medical/configs/error-templates";
 import { hospitalityErrorTemplates } from "@/modules/hospitality/configs/error-templates";
+import { campingErrorTemplates } from "@/modules/camp-consumer/configs/error-templates";
 
 // Re-export types for consumers that do `import type { ErrorTemplateMap } from "@/configs/error-templates"`
 export type {
@@ -25,6 +26,7 @@ export { adminErrorTemplates } from "@/modules/admin/configs/error-templates";
 
 // delivery-mobile re-exports delivery's templates (shared namespace)
 export { deliveryMobileErrorTemplates } from "@/modules/delivery-mobile/configs/error-templates";
+export { campingErrorTemplates } from "@/modules/camp-consumer/configs/error-templates";
 
 import type { ErrorTemplateMap } from "@/configs/template-types";
 
@@ -39,4 +41,5 @@ export const errorTemplates: ErrorTemplateMap = {
 	admin: adminErrorTemplates,
 	medical: medicalErrorTemplates,
 	hospitality: hospitalityErrorTemplates,
+	camping: campingErrorTemplates,
 };

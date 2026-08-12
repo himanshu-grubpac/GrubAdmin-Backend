@@ -1,6 +1,8 @@
 import { ClientAdminLog, DeliveryEmployeeLog, RestaurantLog, GrubpacLog, DepartmentLog } from "@/db/mongo-schema";
 import type { LogCategory, LogType } from "@/services/system-log.ts";
 
+const escapeRegex = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 interface GetLogsArgs {
 	category?: LogCategory | LogCategory[] | string;
 	type?: LogType | LogType[];
@@ -83,7 +85,7 @@ export const getSystemLogs = async (args: GetLogsArgs) => {
 	}
 
 	const searchTokens = search
-		? search.trim().replace(/\s+/g, " ").split(" ").filter(Boolean)
+		? search.trim().replace(/\s+/g, " ").split(" ").filter(Boolean).map(escapeRegex)
 		: [];
 	const hasSearch = searchTokens.length > 0;
 
