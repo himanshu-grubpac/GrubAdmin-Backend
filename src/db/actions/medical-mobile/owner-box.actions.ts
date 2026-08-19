@@ -23,7 +23,7 @@ import {
 	toMobileBoxSettings,
 	type BoxWithRelations,
 } from "@/db/actions/medical-mobile/box.mapper.ts";
-import { computeOverallBatteryLevel } from "@/utils/box-battery.ts";
+import { computeBatteryEstimatedHours, computeOverallBatteryLevel } from "@/utils/box-battery.ts";
 import {
 	BOX_POWERED_OFF_CONNECT_MESSAGE,
 	isBoxPoweredOff,
@@ -67,6 +67,9 @@ export const toOwnerMobileBoxSummary = (box: BoxWithRelations): MobileBoxSummary
 export const toOwnerMobileBoxDetails = (box: BoxWithRelations): MobileBoxDetails => {
 	const summary = toOwnerMobileBoxSummary(box);
 	const telemetry = box.telemetry;
+	const batteryLevel = summary.battery_level;
+	const isCharging = hardwareStateToBool(telemetry?.charging_status);
+	const isPowerOn = hardwareStateToBool(telemetry?.power_status);
 
 	return {
 		...summary,
@@ -78,10 +81,11 @@ export const toOwnerMobileBoxDetails = (box: BoxWithRelations): MobileBoxDetails
 		health_status: telemetry?.health_status ?? null,
 		battery_1_level: telemetry?.battery_1_percentage ?? null,
 		battery_2_level: telemetry?.battery_2_percentage ?? null,
-		is_charging: hardwareStateToBool(telemetry?.charging_status),
+		is_charging: isCharging,
 		wifi_connected: hardwareStateToBool(telemetry?.wifi_status),
 		bluetooth_available: hardwareStateToBool(telemetry?.bluetooth_status),
-		is_power_on: hardwareStateToBool(telemetry?.power_status),
+		is_power_on: isPowerOn,
+		battery_estimated_hours: computeBatteryEstimatedHours(batteryLevel, isCharging, isPowerOn),
 		is_driver_connected: !!box.medical_connection_employee_id,
 		settings: toMobileBoxSettings(telemetry),
 	};

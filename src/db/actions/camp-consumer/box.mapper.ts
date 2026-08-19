@@ -4,7 +4,7 @@ import type {
 	MobileBoxSummary,
 } from "@/types/mobile-box";
 import type { box_lock, box_telemetry_latest } from "@/db/types";
-import { computeOverallBatteryLevel } from "@/utils/box-battery.ts";
+import { computeBatteryEstimatedHours, computeOverallBatteryLevel } from "@/utils/box-battery.ts";
 
 type BoxWithRelations = {
 	id: string;
@@ -54,6 +54,9 @@ export const toMobileBoxSummary = (box: BoxWithRelations): MobileBoxSummary => {
 export const toMobileBoxDetails = (box: BoxWithRelations): MobileBoxDetails => {
 	const summary = toMobileBoxSummary(box);
 	const telemetry = box.telemetry;
+	const batteryLevel = summary.battery_level;
+	const isCharging = hardwareStateToBool(telemetry?.charging_status);
+	const isPowerOn = hardwareStateToBool(telemetry?.power_status);
 
 	return {
 		...summary,
@@ -65,10 +68,11 @@ export const toMobileBoxDetails = (box: BoxWithRelations): MobileBoxDetails => {
 		health_status: telemetry?.health_status ?? null,
 		battery_1_level: telemetry?.battery_1_percentage ?? null,
 		battery_2_level: telemetry?.battery_2_percentage ?? null,
-		is_charging: hardwareStateToBool(telemetry?.charging_status),
+		is_charging: isCharging,
 		wifi_connected: hardwareStateToBool(telemetry?.wifi_status),
 		bluetooth_available: hardwareStateToBool(telemetry?.bluetooth_status),
-		is_power_on: hardwareStateToBool(telemetry?.power_status),
+		is_power_on: isPowerOn,
+		battery_estimated_hours: computeBatteryEstimatedHours(batteryLevel, isCharging, isPowerOn),
 		is_driver_connected: summary.is_connected,
 		settings: toMobileBoxSettings(telemetry),
 	};

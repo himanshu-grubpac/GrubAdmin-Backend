@@ -31,7 +31,6 @@ export const changeMedicalDriverPassword = async (args: {
 		where: { id: args.employee_id },
 		data: {
 			password: hashedPassword,
-			auth_token_version: { increment: 1 },
 		},
 	});
 };

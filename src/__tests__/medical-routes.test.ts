@@ -10,11 +10,11 @@ function getMedicalRoutePaths(): string[] {
 }
 
 describe("Medical route registration", () => {
-	test("does not register admin-only grubpac create update delete routes", () => {
+	test("does not register admin-only grubpac create or delete routes", () => {
 		const routes = getMedicalRoutePaths();
 		expect(routes).not.toContain("POST /api/v1/medical/grubpac");
-		expect(routes).not.toContain("PUT /api/v1/medical/grubpac");
 		expect(routes).not.toContain("DELETE /api/v1/medical/grubpac");
+		expect(routes).toContain("PUT /api/v1/medical/grubpac");
 	});
 
 	test("registers phase 6 department grubpac and auth routes", () => {
