@@ -265,6 +265,7 @@ model box {
   camp_camera_feeds                camp_camera_feed[]
 
   @@index([client_id], map: "box_client_id_fkey")
+  @@index([client_id, vertical_id, status], map: "box_client_vertical_status_idx")
   @@index([vertical_id], map: "box_vertical_id_fkey")
   @@index([connection_employee_id], map: "box_connection_employee_id_fkey")
   @@index([medical_connection_employee_id], map: "box_medical_connection_employee_id_fkey")
@@ -1020,4 +1021,74 @@ model vertical_hospitality_floor_deleted {
   updated_at    DateTime @updatedAt
 
   @@map("vertical_hospitality_floor_deleted")
+}
+
+enum hospitality_employee_otp_for_what {
+  login
+  forget_password
+  set_new_password
+  delete_account
+}
+
+/// Hospitality-only OTP storage (MySQL). Replaces Mongo hospitality_employee_otp collection.
+model hospitality_employee_otp {
+  id              String                            @id @default(ulid())
+  email           String                            @db.VarChar(191)
+  role            hospitality_employee_role
+  otp             String
+  otp_id          String                            @unique(map: "hospitality_employee_otp_otp_id_key") @db.VarChar(32)
+  for_what        hospitality_employee_otp_for_what @default(login)
+  metadata        Json?
+  failed_attempts Int                               @default(0)
+  created_at      DateTime                          @default(now())
+  updated_at      DateTime                          @updatedAt
+
+  @@index([email, created_at], map: "hospitality_employee_otp_email_created_at_idx")
+  @@map("hospitality_employee_otp")
+}
+
+/// Hospitality-only OTP lockout counters (MySQL). Replaces Mongo OtpAttempt for hospitality routes (P2-13).
+model hospitality_otp_attempt {
+  id           String    @id @default(ulid())
+  email        String    @db.VarChar(191)
+  scope        String    @db.VarChar(64)
+  attempts     Int       @default(0)
+  last_attempt DateTime  @default(now())
+  is_locked    Boolean   @default(false)
+  lock_until   DateTime?
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @updatedAt
+
+  @@unique([email, scope], map: "hospitality_otp_attempt_email_scope_key")
+  @@index([lock_until], map: "hospitality_otp_attempt_lock_until_idx")
+  @@map("hospitality_otp_attempt")
+}
+
+enum hospitality_outbox_kind {
+  notification
+  log
+}
+
+enum hospitality_outbox_status {
+  pending
+  processing
+  completed
+  failed
+}
+
+/// Hospitality dual-write outbox — MySQL anchor for Mongo notification/log replay (Phase 2 stub).
+model hospitality_outbox_event {
+  id         String                    @id @default(ulid())
+  client_id  String                    @db.VarChar(32)
+  kind       hospitality_outbox_kind
+  payload    Json
+  status     hospitality_outbox_status @default(pending)
+  attempts   Int                       @default(0)
+  last_error String?                   @db.Text
+  created_at DateTime                  @default(now())
+  updated_at DateTime                  @updatedAt
+
+  @@index([status, created_at], map: "hospitality_outbox_status_created_idx")
+  @@index([client_id, kind], map: "hospitality_outbox_client_kind_idx")
+  @@map("hospitality_outbox_event")
 }
