@@ -36,6 +36,7 @@ describe("Hospitality route registration", () => {
 			"DELETE /api/v1/hospitality/account",
 			"GET /api/v1/hospitality/grubpac",
 			"GET /api/v1/hospitality/grubpac/search",
+			"GET /api/v1/hospitality/grubpac/dropdowns",
 			"GET /api/v1/hospitality/grubpac/details",
 			"PUT /api/v1/hospitality/grubpac",
 			"PATCH /api/v1/hospitality/grubpac/reassign",
@@ -52,6 +53,7 @@ describe("Hospitality route registration", () => {
 		const routes = getHospitalityRoutePaths();
 		const expected = [
 			"GET /api/v1/hospitality/notification",
+			"POST /api/v1/hospitality/notification/search",
 			"GET /api/v1/hospitality/notification/dropdowns",
 			"GET /api/v1/hospitality/notification/count",
 			"PATCH /api/v1/hospitality/notification",
@@ -72,6 +74,7 @@ describe("Hospitality route registration", () => {
 		const auth = await import("hospitality/handlers/auth");
 
 		expect(typeof notification.getNotificationsHandler).toBe("object");
+		expect(typeof notification.searchNotificationsHandler).toBe("object");
 		expect(typeof notification.getNotificationDropdownsHandler).toBe("object");
 		expect(typeof notification.getUnreadNotificationsCountHandler).toBe("object");
 		expect(typeof notification.markNotificationsHandler).toBe("object");
@@ -94,5 +97,18 @@ describe("Hospitality notifications integration", () => {
 		const mod = await import("@/db/actions/hospitality-notification.actions.ts");
 		expect(typeof mod.getHospitalityNotifications).toBe("function");
 		expect(typeof mod.getHospitalityNotificationDropdowns).toBe("function");
+		expect(typeof mod.getHospitalityUnreadNotificationsCount).toBe("function");
+	});
+});
+
+describe("Hospitality auth env helpers", () => {
+	test("getHospitalityFrontendUrl and getHospitalityMailFrom resolve without error", async () => {
+		const { getHospitalityFrontendUrl, getHospitalityMailFrom } = await import(
+			"hospitality/handlers/auth/auth.utils",
+		);
+		const url = getHospitalityFrontendUrl();
+		expect(url).toMatch(/^https?:\/\//);
+		expect(url.endsWith("/")).toBe(false);
+		expect(getHospitalityMailFrom()).toMatch(/@/);
 	});
 });

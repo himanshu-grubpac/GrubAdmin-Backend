@@ -71,6 +71,14 @@ export const getSavedOtp = async (email: string, otp_id?: string) => {
 	}).sort({ createdAt: -1 });
 };
 
+/** Opaque reset link lookup — link_id is otp_id for forget_password flow. */
+export const getForgetPasswordOtpByLinkId = async (link_id: string) => {
+	return Otp.findOne({
+		otp_id: link_id,
+		for_what: "forget_password",
+	});
+};
+
 export const getOtpByToken = async (email: string, token: string) => {
 	const normalizedEmail = normalizeEmail(email);
 	const record = await Otp.findOne({

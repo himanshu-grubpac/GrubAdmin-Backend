@@ -5,8 +5,10 @@ import { APIError } from "@/types/error";
 import { JWT } from "@/utils/jwt.ts";
 import { getUniqueHospitalityEmployee } from "@/db/actions/hospitality/employee.actions";
 import { prisma } from "@/db";
-import { NODE_ENV } from "@/configs/env.ts";
-import { logger } from "@/utils/logger";
+import { HOSPITALITY_VERTICAL_NAME } from "@/configs/constants";
+import { logHospitality } from "hospitality/utils/hospitality-logger";
+import { extractHospitalityAuthToken } from "hospitality/utils/hospitality-auth-cookie";
+import { extractPasswordFromUser } from "hospitality/utils/sanitize-user";
 
 export const hospitalityAuthGuard = (type?: HospitalityEmployeeRoleType[], customErrorMessage?: string) =>
 	createMiddleware<{
@@ -17,12 +19,14 @@ export const hospitalityAuthGuard = (type?: HospitalityEmployeeRoleType[], custo
 			debug_client_organization_name: string;
 			vertical_id: string;
 			debug_vertical_name: string;
-			user: client | vertical_hospitality_employee;
+			user: Omit<client | vertical_hospitality_employee, "password">;
+			password_hash: string | null;
+			is_password_set: boolean;
 			type: HospitalityEmployeeRoleType;
 			is_impersonation?: boolean;
 		};
 	}>(async (context, next) => {
-		const authToken = context.req.header("authorization")?.split(" ")[1];
+		const authToken = extractHospitalityAuthToken(context);
 
 		if (!authToken) {
 			throw new APIError("Unauthenticated access", undefined, undefined, 401);
@@ -30,30 +34,38 @@ export const hospitalityAuthGuard = (type?: HospitalityEmployeeRoleType[], custo
 
 		let userId: string;
 		let isImpersonation = false;
-		let impersonationAdminId: string | null = null;
 
 		if (JWT.isImpersonationToken(authToken)) {
-			const impersonationUser = JWT.verifyImpersonationToken(authToken);
-			userId = impersonationUser.client_id;
-			isImpersonation = true;
-			impersonationAdminId = impersonationUser.admin_id;
-			logger.info(`[Auth] Impersonation token verified: admin=${impersonationUser.admin_id} target_customer=${impersonationUser.client_id}`);
-		} else {
-			const user = JWT.verifyHospitalityAuthToken(authToken);
-			userId = user.id;
+			throw new APIError(
+				"Impersonation token must be exchanged via /hospitality/auth/impersonate",
+				undefined,
+				undefined,
+				403,
+			);
 		}
+
+		const user = JWT.verifyHospitalityAuthToken(authToken);
+		userId = user.id;
+		isImpersonation = user.is_impersonation === true;
 
 		const employee = await getUniqueHospitalityEmployee({
 			id: userId,
 		});
 
 		if (!employee) {
-			logger.error(`[Auth] Employee lookup failed: userId=${userId} isImpersonation=${isImpersonation}`);
+			logHospitality(context, "error", "hospitality_auth_employee_not_found", {
+				user_id: userId,
+				is_impersonation: isImpersonation,
+			});
 			throw new APIError("No employee found... unauthorized access", undefined, undefined, 403);
 		}
 
 		if (type && !type.includes(employee?.type)) {
-			logger.warn(`[Auth] Role check failed: userId=${userId} expectedType=${type?.join(",")} actualType=${employee.type}`);
+			logHospitality(context, "warn", "hospitality_auth_role_denied", {
+				user_id: userId,
+				expected_roles: type,
+				actual_role: employee.type,
+			});
 			throw new APIError(
 				customErrorMessage || "Unauthorized access... please contact the admin",
 				undefined,
@@ -68,7 +80,10 @@ export const hospitalityAuthGuard = (type?: HospitalityEmployeeRoleType[], custo
 				: (employee.employee as vertical_hospitality_employee).client_id;
 
 		if (!client_id) {
-			logger.error(`[Auth] No client ID: userId=${userId} employeeType=${employee.type}`);
+			logHospitality(context, "error", "hospitality_auth_missing_client_id", {
+				user_id: userId,
+				employee_type: employee.type,
+			});
 			throw new APIError(
 				"No client ID found associated with this account",
 				undefined,
@@ -82,12 +97,50 @@ export const hospitalityAuthGuard = (type?: HospitalityEmployeeRoleType[], custo
 			include: { vertical: true },
 		});
 
+		if (!client) {
+			logHospitality(context, "error", "hospitality_auth_client_not_found", {
+				user_id: userId,
+				client_id,
+			});
+			throw new APIError("Unauthorized access... please contact the admin", undefined, undefined, 403);
+		}
+
+		if (client.vertical?.name !== HOSPITALITY_VERTICAL_NAME) {
+			logHospitality(context, "warn", "hospitality_auth_wrong_vertical", {
+				user_id: userId,
+				client_id,
+			});
+			throw new APIError("You are not authorized to login.", undefined, undefined, 403);
+		}
+
+		if (client.status !== "active") {
+			logHospitality(context, "warn", "hospitality_auth_inactive_client", {
+				user_id: userId,
+				client_id,
+				status: client.status,
+			});
+			throw new APIError("Your account is not active.", undefined, undefined, 403);
+		}
+
+		const tokenVersion = user.token_version ?? 0;
+		if (tokenVersion !== (client.auth_token_version ?? 0)) {
+			throw new APIError(
+				"The auth token is either invalid or has expired!",
+				undefined,
+				undefined,
+				401,
+			);
+		}
+
 		const debug_client_name = client?.name || "";
 		const debug_client_organization_name = client?.organization_name || "";
 		const vertical_id = client?.vertical_id || "";
 		const debug_vertical_name = client?.vertical?.name || "";
 
-		context.set("user", employee.employee);
+		const { user: sanitizedUser, password_hash, is_password_set } = extractPasswordFromUser(employee.employee);
+		context.set("user", sanitizedUser);
+		context.set("password_hash", password_hash);
+		context.set("is_password_set", is_password_set);
 		context.set("type", employee.type);
 		context.set("user_id", userId);
 		context.set("client_id", client_id);
@@ -98,33 +151,4 @@ export const hospitalityAuthGuard = (type?: HospitalityEmployeeRoleType[], custo
 		if (isImpersonation) context.set("is_impersonation", true);
 
 		await next();
-
-		if (
-			context.res.ok &&
-			context.res.headers.get("Content-Type")?.includes("application/json")
-		) {
-			try {
-				const body = (await context.res.json()) as any;
-				if (body && typeof body === "object") {
-					if (!body.client_id) body.client_id = client_id;
-					if (!body.vertical_id) body.vertical_id = vertical_id;
-					if (!body.user_id) body.user_id = userId;
-					if (!body.vertical_name) body.vertical_name = debug_vertical_name;
-					if (!body.is_impersonation) body.is_impersonation = isImpersonation;
-
-					if (NODE_ENV !== "production") {
-						body.debug = {
-							...(body.debug || {}),
-							client_name: debug_client_name,
-							client_organization_name: debug_client_organization_name,
-							vertical_name: debug_vertical_name,
-							is_impersonation: isImpersonation,
-						};
-					}
-
-					context.res = context.json(body, context.res.status as any);
-				}
-			} catch (e) {
-			}
-		}
 	});

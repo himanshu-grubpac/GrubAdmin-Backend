@@ -2,22 +2,37 @@ import { loggerService } from "@/services/system-log.ts";
 import { createHandlers } from "@/utils/hono-factory.ts";
 import { hospitalityAuthGuard } from "@/middlewares/auth";
 import { reactivateBoxesRequestBodyValidator } from "hospitality/validators/box.validators.ts";
-import { toggleSuspendHospitalityBoxes } from "@/db/actions/hospitality/box.actions.ts";
+import {
+	bulkReactivateHospitalityBoxesByFilter,
+	toggleSuspendHospitalityBoxes,
+} from "@/db/actions/hospitality/box.actions.ts";
 import type { APIResponse } from "@/types/api";
+import { resolveMessageTemplate } from "@/utils/message";
+import { fetchHospitalityBoxLogSubjects } from "hospitality/utils/hospitality-log-display.ts";
 
 export const reactivateGrubpacHandler = createHandlers(
-	hospitalityAuthGuard(),
+	hospitalityAuthGuard(["admin"]),
 	reactivateBoxesRequestBodyValidator,
 	async (context) => {
-		const { client_id } = context.var;
-		const { ids, reassign } = context.req.valid("json");
+		const { client_id, user_id, user, type, vertical_id } = context.var;
+		const body = context.req.valid("json");
+		const { reassign, activate_all } = body;
 
-		const result = await toggleSuspendHospitalityBoxes({
-			ids,
-			client_id,
-			state: "active",
-			reassign,
-		});
+		const result = activate_all
+			? await bulkReactivateHospitalityBoxesByFilter({
+					client_id,
+					vertical_id: vertical_id || undefined,
+					reassign,
+					query: body.query,
+					floor_assigned: body.floor_assigned,
+					room_assigned: body.room_assigned,
+				})
+			: await toggleSuspendHospitalityBoxes({
+					ids: body.ids!,
+					client_id,
+					state: "active",
+					reassign,
+				});
 
 		const updatedCount = result.updated_count;
 		const alreadyCount = result.already_in_state_count;
@@ -27,35 +42,69 @@ export const reactivateGrubpacHandler = createHandlers(
 			message += ` ${alreadyCount} box${alreadyCount === 1 ? "" : "es"} ${alreadyCount === 1 ? "was" : "were"} already active.`;
 		}
 
-		try {
-			const subjects = (context.req.valid("json") as any)?.ids || ((context.req.valid("json") as any)?.id ? [(context.req.valid("json") as any)?.id] : ["Unknown"]);
-			for (const id of subjects) {
+		const userObj = user as any;
+		const actorName =
+			type === "admin"
+				? userObj.name
+				: `${userObj.first_name} ${userObj.last_name || ""}`.trim();
+
+		const actor = {
+			id: user_id,
+			name: actorName,
+			role: type,
+			table: type === "admin" ? "client" : "vertical_hospitality_employee",
+		} as const;
+
+		if (activate_all) {
+			if (updatedCount > 0) {
 				await loggerService.log({
 					category: "GrubPac",
 					type: "Activation",
-					actor: { 
-						id: client_id || "Unknown", 
-						name: "Admin", 
-						role: "admin", 
-						table: "client" 
-					},
+					actor,
 					client_id,
-					subject: { id: id, name: id, type: "box" },
-					metadata: {  }
+					subject: {
+						id: client_id,
+						name: "Bulk activation",
+						type: "box" as const,
+					},
+					metadata: {
+						bulk: true,
+						updated_count: updatedCount,
+						reassign: reassign ?? false,
+					},
 				});
 			}
-		} catch (err) { }
+		} else {
+			const ids = body.ids!;
+			const boxSubjects = await fetchHospitalityBoxLogSubjects(ids, client_id);
 
-		return context.json<APIResponse<null>>(
-			{
-				success: true,
-				code: 200,
-				message,
-				data: null,
-			},
-			{
-				status: 200,
-			},
-		);
+			await Promise.all(
+				ids.map((id) => {
+					const subject = boxSubjects.get(id) ?? {
+						id,
+						name: "Box",
+						type: "box" as const,
+					};
+
+					return loggerService.log({
+						category: "GrubPac",
+						type: "Activation",
+						actor,
+						client_id,
+						subject,
+						metadata: {},
+					});
+				}),
+			);
+		}
+
+		const response = {
+			success: true as const,
+			...resolveMessageTemplate("hospitality.box.reactivate"),
+			message,
+			data: result,
+		};
+
+		return context.json<APIResponse<null>>(response as any, response.code as any);
 	},
 );

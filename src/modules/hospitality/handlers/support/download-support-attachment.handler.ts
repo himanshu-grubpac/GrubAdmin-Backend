@@ -1,9 +1,23 @@
 import { createHandlers } from "@/utils/hono-factory.ts";
 import { hospitalityAuthGuard } from "@/middlewares/auth";
 import { downloadSupportAttachmentRequestQueryValidator } from "hospitality/validators/support.validators.ts";
+import { getVertical } from "@/db/actions/vertical.actions.ts";
+import { HOSPITALITY_VERTICAL_NAME } from "@/configs/constants.ts";
 import { prisma } from "@/db";
 import { services } from "@/services";
 import { APIError } from "@/types/error";
+
+const sanitizeContentDispositionFilename = (filename: string): string => {
+	const stripped = filename.replace(/[\r\n"]/g, "").replace(/[^\x20-\x7E]/g, "_");
+	return stripped.slice(0, 255) || "attachment";
+};
+
+const buildContentDispositionHeader = (filename: string): string => {
+	const safeAscii = sanitizeContentDispositionFilename(filename);
+	const encoded = encodeURIComponent(filename)
+		.replace(/['()*]/g, (char) => `%${char.charCodeAt(0).toString(16).toUpperCase()}`);
+	return `attachment; filename="${safeAscii}"; filename*=UTF-8''${encoded}`;
+};
 
 export const downloadSupportAttachmentHandler = createHandlers(
 	hospitalityAuthGuard(),
@@ -15,11 +29,25 @@ export const downloadSupportAttachmentHandler = createHandlers(
 			throw new APIError("Access denied: Invalid attachment path", undefined, undefined, 403);
 		}
 
+		const vertical = await getVertical(HOSPITALITY_VERTICAL_NAME);
+
+		if (!vertical) {
+			throw new APIError("No such vertical found!", undefined, undefined, 400);
+		}
+
 		const faq = await prisma.faq_question.findFirst({
 			where: {
 				status: { not: "deleted" },
+				publishing_status: "published",
 				attachments: {
 					array_contains: pathParam,
+				},
+				categories: {
+					some: {
+						category: {
+							vertical_id: vertical.id,
+						},
+					},
 				},
 			},
 		});
@@ -47,7 +75,7 @@ export const downloadSupportAttachmentHandler = createHandlers(
 
 			return context.body(fileBuffer, 200, {
 				"Content-Type": contentType,
-				"Content-Disposition": `attachment; filename="${originalFilename}"`,
+				"Content-Disposition": buildContentDispositionHeader(originalFilename),
 			});
 		} catch (error: any) {
 			if (error.name === "NoSuchKey") {

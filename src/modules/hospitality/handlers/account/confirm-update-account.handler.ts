@@ -10,47 +10,41 @@ import {
 	incrementOtpAttempt,
 	resetOtpAttempt,
 	getOtpLockoutRemaining,
-} from "@/db/actions/otp-attempt.actions";
+} from "@/db/actions/hospitality-otp-attempt.actions";
 import { Bcrypt } from "@/utils/bcrypt.ts";
 import { APIError } from "@/types/error";
-import type { APIResponse } from "@/types/api";
 import { resolveMessageTemplate } from "@/utils/message";
 import { getCookie, deleteCookie } from "hono/cookie";
-import { prisma } from "@/db";
-import { syncVerticalEmailRegistry } from "@/utils/vertical-email-registry";
+import { updateHospitalityAccountProfile } from "@/db/actions/hospitality/employee.actions";
+import { getHospitalityUserOtpLockKey } from "hospitality/handlers/auth/hospitality-otp-lockout";
 
 export const confirmUpdateAccountHandler = createHandlers(
 	hospitalityAuthGuard(),
 	confirmUpdateAccountRequestBodyValidator,
 	async (context) => {
-		const { user, vertical_id } = context.var;
+		const { user, type } = context.var;
 
 		const { otp, otp_id: otp_id_body } = context.req.valid("json");
 		const otp_id_cookie = getCookie(context, "otp_id");
 		const target_otp_id = otp_id_body || otp_id_cookie;
 
-		const ip_address = context.req.header("x-forwarded-for") ||
-			context.req.header("x-real-ip") ||
-			context.req.header("cf-connecting-ip") ||
-			"unknown";
+		const lockKey = getHospitalityUserOtpLockKey(user.id, user.email);
 
-		const normalizedEmail = user.email ? user.email.trim().toLowerCase() : "unknown";
-
-		const isLocked = await isOtpAttemptLocked({ email: normalizedEmail, ip_address });
+		const isLocked = await isOtpAttemptLocked(lockKey);
 		if (isLocked) {
-			const remainingMinutes = await getOtpLockoutRemaining({ email: normalizedEmail, ip_address });
+			const remainingMinutes = await getOtpLockoutRemaining(lockKey);
 			throw new APIError(
 				`Account temporarily locked due to too many failed attempts. Try again in ${remainingMinutes} minutes.`,
 				undefined,
 				undefined,
-				429
+				429,
 			);
 		}
 
 		const updatedDetails = await getDeliveryEmployeeUpdateOtp(user.id, target_otp_id);
 
 		if (!updatedDetails) {
-			await incrementOtpAttempt({ email: normalizedEmail, ip_address });
+			await incrementOtpAttempt(lockKey);
 			throw new APIError(undefined, "hospitality.account.NO_CHANGE_REQUESTS", undefined, 400);
 		}
 
@@ -60,33 +54,36 @@ export const confirmUpdateAccountHandler = createHandlers(
 		});
 
 		if (!isMatch) {
-			await incrementOtpAttempt({ email: normalizedEmail, ip_address });
+			await incrementOtpAttempt(lockKey);
 			throw new APIError(undefined, "hospitality.auth.login.OTP_INVALID", undefined, 400);
 		}
 
-		await resetOtpAttempt({ email: normalizedEmail, ip_address });
+		await resetOtpAttempt(lockKey);
 
-		const updatePayload: any = {};
-		if (updatedDetails.email) updatePayload.email = updatedDetails.email;
-		if (updatedDetails.mobile_number) updatePayload.mobile_number = updatedDetails.mobile_number;
-		if (updatedDetails.country_code) updatePayload.country_code = updatedDetails.country_code;
+		const pendingPassword =
+			updatedDetails.last_name &&
+			typeof updatedDetails.last_name === "string" &&
+			updatedDetails.last_name.startsWith("$2")
+				? updatedDetails.last_name
+				: undefined;
 
-		await prisma.client.update({
-			where: { id: user.id },
-			data: updatePayload,
+		await updateHospitalityAccountProfile({
+			id: user.id,
+			type,
+			first_name: updatedDetails.first_name ?? undefined,
+			last_name:
+				updatedDetails.last_name && !pendingPassword
+					? updatedDetails.last_name
+					: undefined,
+			organization: updatedDetails.organization_name ?? undefined,
+			email: updatedDetails.email ?? undefined,
+			country_code: updatedDetails.country_code ?? undefined,
+			mobile_number: updatedDetails.mobile_number ?? undefined,
+			password: pendingPassword,
+			increment_auth_token_version: !!pendingPassword && type === "admin",
 		});
 
-		if (updatedDetails.email && vertical_id) {
-			await syncVerticalEmailRegistry({
-				verticalId: vertical_id,
-				email: updatedDetails.email,
-				ownerType: "client",
-				ownerId: user.id,
-			});
-		}
-
 		await deleteDeliveryEmployeeUpdateOtp(user.id);
-
 		deleteCookie(context, "otp_id", { path: "/" });
 
 		const response = {
@@ -94,7 +91,8 @@ export const confirmUpdateAccountHandler = createHandlers(
 			...resolveMessageTemplate("hospitality.employee.profile.UPDATE_SUCCESS", { id: user.id }),
 			is_otp: false,
 			has_changed: true,
-			message_debug: "The OTP has been successfully verified, and the requested changes have been applied.",
+			message_debug:
+				"The OTP has been successfully verified, and the requested changes have been applied.",
 			data: {
 				otp_id: target_otp_id,
 			},

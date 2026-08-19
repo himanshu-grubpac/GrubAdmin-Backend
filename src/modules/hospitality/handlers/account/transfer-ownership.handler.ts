@@ -6,11 +6,14 @@ import { APIError } from "@/types/error";
 import { prisma } from "@/db";
 import type { APIResponse } from "@/types/api";
 import { Otp as OtpUtil } from "@/utils/otp";
-import { createHospitalityTransferOwnershipOtp } from "@/db/actions/hospitality-transfer-ownership-otp.actions";
+import { createHospitalityTransferOwnershipOtp, deleteHospitalityTransferOwnershipOtp } from "@/db/actions/hospitality-transfer-ownership-otp.actions";
 import { ulid } from "ulid";
 import { services } from "@/services";
 import { Bcrypt } from "@/utils/bcrypt.ts";
 import type { client } from "@/db/types";
+import { getHospitalityMailFrom, isHospitalityOtpDevLogEnabled, logHospitalityOtpDev } from "hospitality/handlers/auth/auth.utils";
+import { logHospitality } from "hospitality/utils/hospitality-logger";
+import { queueHospitalityMail } from "hospitality/utils/hospitality-mail-queue";
 
 export const transferOwnershipHandler = createHandlers(
 	hospitalityAuthGuard(["admin"]),
@@ -33,7 +36,9 @@ export const transferOwnershipHandler = createHandlers(
 			throw new APIError("User email not found", undefined, undefined, 404);
 		}
 
-		if (email.trim().toLowerCase() === user.email.trim().toLowerCase()) {
+		const ownerEmail = user.email;
+
+		if (email.trim().toLowerCase() === ownerEmail.trim().toLowerCase()) {
 			throw new APIError(
 				"You cannot transfer ownership of your Grubpacs to your own account.",
 				undefined,
@@ -63,6 +68,8 @@ export const transferOwnershipHandler = createHandlers(
 		const hashedOtp = await Bcrypt.generateHash({ data: otp });
 		const otp_id = ulid();
 
+		await deleteHospitalityTransferOwnershipOtp(user_id);
+
 		await createHospitalityTransferOwnershipOtp({
 			user_id,
 			otp: hashedOtp,
@@ -78,19 +85,30 @@ export const transferOwnershipHandler = createHandlers(
 			state,
 		});
 
-		if (process.env.NODE_ENV !== "production") {
-			console.log(`\n🔑 [DEV ONLY] Generated Ownership Transfer OTP: ${otp} (Session ID: ${otp_id})\n`);
-		}
-		try {
-			await services.mailer.sendEmail({
-				to: user.email,
-				from: process.env.MAIL || "support@sqaby.com",
-				subject: "Grubpac Ownership Transfer OTP",
-				html: `<p>Your OTP for ownership transfer is: <b>${otp}</b>. Valid for 10 minutes.</p>`,
+		if (isHospitalityOtpDevLogEnabled()) {
+			logHospitalityOtpDev({
+				email: ownerEmail,
+				otp,
+				otp_id,
+				for_what: "transfer-ownership",
 			});
-		} catch (error) {
-			console.error("Failed to send transfer OTP email:", error);
 		}
+		queueHospitalityMail({
+			label: "transfer-ownership",
+			send: () =>
+				services.mailer.sendEmail({
+					to: ownerEmail,
+					from: getHospitalityMailFrom(),
+					subject: "Grubpac Ownership Transfer OTP",
+					html: `<p>Your OTP for ownership transfer is: <b>${otp}</b>. Valid for 10 minutes.</p>`,
+				}),
+			onFailure: async () => {
+				logHospitality(context, "error", "hospitality_transfer_ownership_mail_failed", {
+					client_id,
+					otp_id,
+				});
+			},
+		});
 
 		try {
 			await loggerService.log({
@@ -114,8 +132,15 @@ export const transferOwnershipHandler = createHandlers(
 			// non-fatal
 		}
 
-		return context.json<APIResponse<{ otp_id: string }>>(
-			{ success: true, code: 200, data: { otp_id } },
+		return context.json<APIResponse<{ otp_id: string; otp?: string }>>(
+			{
+				success: true,
+				code: 200,
+				data: {
+					otp_id,
+					...(isHospitalityOtpDevLogEnabled() ? { otp } : {}),
+				},
+			},
 			{ status: 200 },
 		);
 	},

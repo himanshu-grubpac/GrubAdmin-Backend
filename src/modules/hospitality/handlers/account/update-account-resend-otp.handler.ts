@@ -12,12 +12,16 @@ import { Bcrypt } from "@/utils/bcrypt.ts";
 
 import { resendUpdateAccountOtpRequestBodyValidator } from "hospitality/validators/account.validators.ts";
 import { getCookie, setCookie } from "hono/cookie";
+import {
+	getHospitalityMailFrom,
+	logHospitalityOtpDev,
+} from "hospitality/handlers/auth/auth.utils";
 
 export const updateAccountResendOtpHandler = createHandlers(
 	hospitalityAuthGuard(),
 	resendUpdateAccountOtpRequestBodyValidator,
 	async (context) => {
-		const { user } = context.var;
+		const { user, type } = context.var;
 		const { otp_id: otp_id_body } = context.req.valid("json");
 		const otp_id_cookie = getCookie(context, "otp_id");
 		const target_otp_id = otp_id_body || otp_id_cookie;
@@ -52,7 +56,7 @@ export const updateAccountResendOtpHandler = createHandlers(
 			user_id: user.id,
 			otp: hashedOtp,
 			email: oldEmployeeUpdateOtp.email ?? undefined,
-			role: "admin",
+			role: type === "admin" ? "admin" : "manager",
 		});
 
 		if (!updatedOtpRecord) {
@@ -68,22 +72,31 @@ export const updateAccountResendOtpHandler = createHandlers(
 			sameSite: "Lax",
 		});
 
-		let otpSendFailed = false;
+		const otpRecipient = oldEmployeeUpdateOtp.email || user.email || "";
+		logHospitalityOtpDev({
+			email: otpRecipient,
+			otp,
+			otp_id,
+			for_what: "account-update-resend",
+		});
+
 		try {
 			await services.mailer.sendEmail({
-				from: process.env.MAIL || "ankan@sqaby.com",
+				from: getHospitalityMailFrom(),
 				subject: "OTP for Account Update",
-				to: oldEmployeeUpdateOtp.email || user.email || "",
+				to: otpRecipient,
 				text: `Your OTP to update hospitality account is ${otp} (OTP Session ID: ${otp_id})`,
 			});
-		} catch (error) {
-			otpSendFailed = true;
+		} catch {
+			throw new APIError(undefined, "hospitality.auth.login.OTP_SEND_FAILED");
 		}
 
-		let message_debug = "A new verification OTP has been generated, and the OTP has been successfully delivered.";
-		if (otpSendFailed) {
-			message_debug = "A new verification OTP has been generated. However, the OTP delivery failed.";
-		}
+		const otpType =
+			oldEmployeeUpdateOtp.mobile_number && oldEmployeeUpdateOtp.email
+				? "both"
+				: oldEmployeeUpdateOtp.mobile_number
+					? "phone"
+					: "email";
 
 		return context.json<
 			APIResponse<{ otp_id: string; otp_details: { type: string; values: string[] } }> & {
@@ -96,11 +109,11 @@ export const updateAccountResendOtpHandler = createHandlers(
 			code: 200,
 			is_otp: true,
 			has_changed: true,
-			message_debug,
+			message_debug: "A new verification OTP has been generated, and the OTP has been successfully delivered.",
 			data: {
 				otp_id,
 				otp_details: {
-					type: "email",
+					type: otpType,
 					values: [oldEmployeeUpdateOtp.email!],
 				},
 			},

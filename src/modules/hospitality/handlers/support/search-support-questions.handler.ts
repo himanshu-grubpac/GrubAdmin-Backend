@@ -3,6 +3,7 @@ import { hospitalityAuthGuard } from "@/middlewares/auth";
 import { searchSupportQuestionsRequestQueryValidator } from "hospitality/validators/support.validators.ts";
 import { getVertical } from "@/db/actions/vertical.actions.ts";
 import { HOSPITALITY_VERTICAL_NAME } from "@/configs/constants.ts";
+import { SEARCH_PAGE_SIZE } from "@/validators/pagination.ts";
 import { APIError } from "@/types/error";
 import { getFaqQuestions } from "@/db/actions/faq.actions.ts";
 import type { APIResponse } from "@/types/api";
@@ -22,6 +23,11 @@ export const searchSupportQuestionsHandler = createHandlers(
 	async (context) => {
 		const { query, limit, category_id } = context.req.valid("query");
 
+		const trimmedQuery = query?.trim();
+		if (!trimmedQuery) {
+			throw new APIError("Please provide a search query", undefined, undefined, 400);
+		}
+
 		const vertical = await getVertical(HOSPITALITY_VERTICAL_NAME);
 
 		if (!vertical) {
@@ -30,10 +36,10 @@ export const searchSupportQuestionsHandler = createHandlers(
 
 		const questionsResponse = await getFaqQuestions({
 			vertical_id: vertical.id,
-			query,
+			query: trimmedQuery,
 			state: "active",
 			publishing_status: "published",
-			pageSize: limit,
+			pageSize: limit ?? SEARCH_PAGE_SIZE,
 			category_id,
 		});
 

@@ -5,12 +5,13 @@ import { suspendBoxesRequestBodyValidator } from "hospitality/validators/box.val
 import { toggleSuspendHospitalityBoxes } from "@/db/actions/hospitality/box.actions.ts";
 import type { APIResponse } from "@/types/api";
 import { resolveMessageTemplate } from "@/utils/message";
+import { fetchHospitalityBoxLogSubjects } from "hospitality/utils/hospitality-log-display.ts";
 
 export const suspendGrubpacHandler = createHandlers(
-	hospitalityAuthGuard(),
+	hospitalityAuthGuard(["admin"]),
 	suspendBoxesRequestBodyValidator,
 	async (context) => {
-		const { client_id } = context.var;
+		const { client_id, user_id, user, type } = context.var;
 		const { ids } = context.req.valid("json");
 
 		const result = await toggleSuspendHospitalityBoxes({
@@ -27,31 +28,42 @@ export const suspendGrubpacHandler = createHandlers(
 			message += ` ${alreadyCount} box${alreadyCount === 1 ? "" : "es"} ${alreadyCount === 1 ? "was" : "were"} already suspended.`;
 		}
 
+		const userObj = user as any;
+		const actorName =
+			type === "admin"
+				? userObj.name
+				: `${userObj.first_name} ${userObj.last_name || ""}`.trim();
+
+		const boxSubjects = await fetchHospitalityBoxLogSubjects(ids, client_id);
+
+		for (const id of ids) {
+			const subject = boxSubjects.get(id) ?? {
+				id,
+				name: "Box",
+				type: "box" as const,
+			};
+
+			await loggerService.log({
+				category: "GrubPac",
+				type: "Suspension",
+				actor: {
+					id: user_id,
+					name: actorName,
+					role: type,
+					table: type === "admin" ? "client" : "vertical_hospitality_employee",
+				},
+				client_id,
+				subject,
+				metadata: {},
+			});
+		}
+
 		const response = {
 			success: true as const,
 			...resolveMessageTemplate("hospitality.box.suspend"),
 			message,
 			data: result,
 		};
-
-		try {
-			const subjects = (context.req.valid("json") as any)?.ids || ((context.req.valid("json") as any)?.id ? [(context.req.valid("json") as any)?.id] : ["Unknown"]);
-			for (const id of subjects) {
-				await loggerService.log({
-					category: "GrubPac",
-					type: "Suspension",
-					actor: { 
-						id: client_id || "Unknown", 
-						name: "Admin", 
-						role: "admin", 
-						table: "client" 
-					},
-					client_id,
-					subject: { id: id, name: id, type: "box" },
-					metadata: {  }
-				});
-			}
-		} catch (err) { }
 
 		return context.json<APIResponse<null>>(response as any, response.code as any);
 	},

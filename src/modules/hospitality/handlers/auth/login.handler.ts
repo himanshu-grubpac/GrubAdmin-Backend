@@ -2,15 +2,20 @@ import { createHandlers } from "@/utils/hono-factory";
 import { loginRequestBodyValidator } from "hospitality/validators/auth.validators";
 import { APIError } from "@/types/error";
 import { Bcrypt } from "@/utils/bcrypt.ts";
-import { JWT } from "@/utils/jwt.ts";
 import { loggerService } from "@/services/system-log.ts";
 import { resolveMessageTemplate } from "@/utils/message";
 import type { APIResponse } from "@/types/api";
 import { prisma } from "@/db";
-import { buildHospitalityClientLookupWhere, normalizeAuthEmail } from "./auth.utils";
+import { HOSPITALITY_VERTICAL_NAME } from "@/configs/constants";
+import {
+	assertHospitalityClientHasEmail,
+	buildHospitalityClientLookupWhere,
+	normalizeAuthEmail,
+} from "./auth.utils";
+import { signHospitalitySessionToken } from "./hospitality-auth-token";
+import { setHospitalityAuthCookie } from "hospitality/utils/hospitality-auth-cookie";
 
 interface ResponseData {
-	auth_token: string;
 	is_account_found: boolean;
 	is_password_set: boolean;
 }
@@ -22,6 +27,10 @@ export const loginHandler = createHandlers(
 		const normalizedEmail = normalizeAuthEmail(email);
 		const normalizedPassword = password.trim();
 
+		if (!normalizedEmail) {
+			throw new APIError("Invalid login credentials", "hospitality.auth.login.INVALID_CREDENTIALS");
+		}
+
 		const clientRecord = await prisma.client.findFirst({
 			where: buildHospitalityClientLookupWhere(normalizedEmail),
 			include: { vertical: true },
@@ -29,28 +38,28 @@ export const loginHandler = createHandlers(
 
 		const is_account_found = !!clientRecord;
 
-		if (!clientRecord) {
-			throw new APIError("No client can be found!", "hospitality.auth.login.ACCOUNT_NOT_FOUND", { is_account_found });
+		if (!clientRecord || !assertHospitalityClientHasEmail(clientRecord)) {
+			throw new APIError("Invalid login credentials", "hospitality.auth.login.INVALID_CREDENTIALS");
 		}
 
-		if (clientRecord.vertical?.name !== "Hospitality") {
-			throw new APIError("You are not authorized to login.", "hospitality.auth.login.UNAUTHORIZED", { is_account_found });
+		if (clientRecord.vertical?.name !== HOSPITALITY_VERTICAL_NAME) {
+			throw new APIError("Invalid login credentials", "hospitality.auth.login.INVALID_CREDENTIALS");
 		}
 
 		if (clientRecord.status === "suspended") {
-			throw new APIError("Your account has been suspended!", "hospitality.auth.login.SUSPENDED", { is_account_found });
+			throw new APIError("Invalid login credentials", "hospitality.auth.login.INVALID_CREDENTIALS");
+		}
+
+		if (clientRecord.status !== "active") {
+			throw new APIError("Invalid login credentials", "hospitality.auth.login.INVALID_CREDENTIALS");
 		}
 
 		const is_password_set = !!clientRecord.password;
 
 		if (!clientRecord.password) {
 			throw new APIError(
-				"Please login using OTP and set a password first to login using password",
-				"hospitality.auth.login.PASSWORD_NOT_SET",
-				{
-					is_account_found,
-					is_password_set,
-				}
+				"Invalid login credentials",
+				"hospitality.auth.login.INVALID_CREDENTIALS",
 			);
 		}
 
@@ -63,17 +72,10 @@ export const loginHandler = createHandlers(
 			throw new APIError(
 				"Invalid login credentials",
 				"hospitality.auth.login.INVALID_CREDENTIALS",
-				{
-					is_account_found,
-					is_password_set,
-				}
 			);
 		}
 
-		const token = JWT.signHospitalityAuthToken({
-			role: "admin",
-			id: clientRecord.id,
-		});
+		const token = await signHospitalitySessionToken(clientRecord.id, "admin");
 
 		await loggerService.log({
 			category: "Profile",
@@ -88,19 +90,20 @@ export const loginHandler = createHandlers(
 			subject: {
 				id: clientRecord.id,
 				name: clientRecord.name || "",
-				type: "employee", // Maintain schema compatibility
+				type: "employee",
 			},
 			metadata: {
 				action: "login",
 			},
 		});
 
+		setHospitalityAuthCookie(context, token);
+
 		return context.json<APIResponse<ResponseData>>({
 			success: true,
 			client_id: clientRecord.id,
 			...resolveMessageTemplate("hospitality.auth.login.SUCCESS"),
 			data: {
-				auth_token: token,
 				is_account_found,
 				is_password_set,
 			},

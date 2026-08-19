@@ -15,13 +15,12 @@ export const editFloorHandler = createHandlers(
 	updateFloorRequestBodyValidator,
 	async (context) => {
 		const { client_id } = context.var;
-		const { id, name, status } = context.req.valid("json");
+		const { id, name } = context.req.valid("json");
 
 		const floor = await updateFloor({
 			id,
 			client_id,
 			name,
-			status,
 		});
 
 		const { user_id, user, type: userType } = context.var;

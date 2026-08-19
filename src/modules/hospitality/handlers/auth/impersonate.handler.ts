@@ -1,12 +1,13 @@
 import { createHandlers } from "@/utils/hono-factory";
 import { JWT } from "@/utils/jwt";
 import { APIError } from "@/types/error";
-import { setAuthCookie } from "@/utils/cookie";
 import { services } from "@/services";
-import { logger } from "@/utils/logger";
-import { CLIENT_DASHBOARD_URL } from "@/configs/env";
+import { logHospitality } from "hospitality/utils/hospitality-logger";
 import { DEFAULT_IP_ADDRESS, HOSPITALITY_VERTICAL_NAME } from "@/configs/constants";
 import { prisma } from "@/db";
+import { signHospitalitySessionToken } from "./hospitality-auth-token";
+import { getHospitalityFrontendUrl } from "./auth.utils";
+import { setHospitalityAuthCookie } from "hospitality/utils/hospitality-auth-cookie";
 
 interface ImpersonateRequestBody {
 	token: string;
@@ -28,7 +29,10 @@ export const hospitalityImpersonateHandler = createHandlers(
 			context.req.header("x-real-ip") ||
 			DEFAULT_IP_ADDRESS;
 
-		logger.info(`[Impersonation] Processing hospitality impersonation token: admin=${payload.admin_id} customer=${payload.client_id}`);
+		logHospitality(context, "info", "hospitality_impersonation_started", {
+			admin_id: payload.admin_id,
+			client_id: payload.client_id,
+		});
 
 		const clientRecord = await prisma.client.findUnique({
 			where: { id: payload.client_id },
@@ -36,7 +40,10 @@ export const hospitalityImpersonateHandler = createHandlers(
 		});
 
 		if (!clientRecord) {
-			logger.error(`[Impersonation] No hospitality client found for customer ${payload.client_id}`);
+			logHospitality(context, "error", "hospitality_impersonation_client_not_found", {
+				admin_id: payload.admin_id,
+				client_id: payload.client_id,
+			});
 			await services.adminLogger.log({
 				module: "client",
 				action: "impersonation",
@@ -52,12 +59,19 @@ export const hospitalityImpersonateHandler = createHandlers(
 		}
 
 		if (clientRecord.vertical?.name !== HOSPITALITY_VERTICAL_NAME) {
-			logger.error(`[Impersonation] Client is not hospitality vertical: ${payload.client_id}`);
+			logHospitality(context, "error", "hospitality_impersonation_wrong_vertical", {
+				admin_id: payload.admin_id,
+				client_id: payload.client_id,
+			});
 			throw new APIError("Invalid account type for impersonation", undefined, undefined, 403);
 		}
 
 		if (clientRecord.status !== "active") {
-			logger.warn(`[Impersonation] Customer account is ${clientRecord.status}: ${payload.client_id}`);
+			logHospitality(context, "warn", "hospitality_impersonation_inactive_client", {
+				admin_id: payload.admin_id,
+				client_id: payload.client_id,
+				status: clientRecord.status,
+			});
 			const statusMessages: Record<string, string> = {
 				suspended: "This account has been suspended.",
 				inactive: "This account is inactive.",
@@ -70,14 +84,17 @@ export const hospitalityImpersonateHandler = createHandlers(
 			);
 		}
 
-		const authToken = JWT.signHospitalityAuthToken({
-			role: "admin",
-			id: clientRecord.id,
+		const authToken = await signHospitalitySessionToken(clientRecord.id, "admin", {
+			is_impersonation: true,
+			admin_id: payload.admin_id,
 		});
 
-		setAuthCookie(context, authToken, { expiresIn: 86400 });
+		setHospitalityAuthCookie(context, authToken);
 
-		logger.info(`[Impersonation] Hospitality session created: admin=${payload.admin_id} logged_in_as=${clientRecord.id} (${clientRecord.name})`);
+		logHospitality(context, "info", "hospitality_impersonation_session_created", {
+			admin_id: payload.admin_id,
+			client_id: clientRecord.id,
+		});
 
 		await services.adminLogger.log({
 			module: "client",
@@ -91,14 +108,23 @@ export const hospitalityImpersonateHandler = createHandlers(
 			effected_name: clientRecord.name,
 		}).catch(() => {});
 
-		const baseUrl = CLIENT_DASHBOARD_URL || "http://13.127.79.155";
+		let baseUrl: string;
+		try {
+			baseUrl = getHospitalityFrontendUrl();
+		} catch {
+			throw new APIError(
+				"Hospitality frontend URL is not configured. Set HOSPITALITY_FRONTEND_URL, CLIENT_DASHBOARD_URL, or FRONTEND_URL.",
+				undefined,
+				undefined,
+				500,
+			);
+		}
 		const targetPath = payload.return_url || "/hospitality/dashboard";
 
 		return context.json({
 			success: true,
 			code: 200,
 			data: {
-				auth_token: authToken,
 				client: {
 					id: clientRecord.id,
 					name: clientRecord.name,

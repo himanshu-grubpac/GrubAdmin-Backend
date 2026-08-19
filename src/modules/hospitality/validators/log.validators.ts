@@ -36,6 +36,26 @@ export const filterStructure = {
 	}
 };
 
+export const settingsChangedAuditRequestBodyValidator = zValidator(
+	"json",
+	z
+		.object({
+			batch_id: z.string().min(1).optional(),
+			box_ids: z
+				.array(z.string().ulid("Please provide valid box ids"))
+				.min(1, "Please provide at least one box id")
+				.max(100, "Please provide at most 100 box ids")
+				.optional(),
+			since: z.string().datetime().optional(),
+		})
+		.refine((data) => Boolean(data.batch_id || (data.box_ids && data.box_ids.length > 0)), {
+			message: "Provide batch_id or box_ids",
+		}),
+	(r) => {
+		if (!r.success) validatorErrorHandler(r.error);
+	},
+);
+
 export const searchSystemLogsRequestBodyValidator = zValidator(
 	"json",
 	z.object({

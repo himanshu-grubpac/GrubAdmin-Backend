@@ -11,7 +11,23 @@ import {
 	getSavedOtp,
 } from "@/db/actions/otp.actions.ts";
 import { getCookie } from "hono/cookie";
-import { normalizeAuthEmail } from "./auth.utils";
+import { HOSPITALITY_VERTICAL_NAME } from "@/configs/constants";
+import {
+	buildHospitalityClientLookupWhere,
+	normalizeAuthEmail,
+} from "./auth.utils";
+import { signHospitalitySessionToken } from "./hospitality-auth-token";
+import type { HospitalityAuthPayload } from "@/types/jwt/hospitality-auth-payload";
+import {
+	extractHospitalityAuthToken,
+	setHospitalityAuthCookie,
+} from "hospitality/utils/hospitality-auth-cookie";
+
+const isJwtShape = (value: string) => value.split(".").length === 3;
+
+interface SetPasswordResponseData {
+	is_password_set: true;
+}
 
 export const setNewPasswordHandler = createHandlers(
 	setNewPasswordRequestBodyValidator,
@@ -22,23 +38,15 @@ export const setNewPasswordHandler = createHandlers(
 		const normalizedPassword = password.trim();
 		const bodyToken = body.auth_token;
 
-		const authHeader = context.req.header("Authorization");
 		let userId: string | undefined;
+		let bearerPayload: HospitalityAuthPayload | undefined;
 
-		if (authHeader && authHeader.startsWith("Bearer ")) {
-			const token = authHeader.split(" ")[1];
-			if (!token) {
-				throw new APIError(undefined, "hospitality.auth.login.AUTH_TOKEN_REQUIRED");
-			}
-
-			const decoded = JWT.verifyHospitalityAuthToken(token);
-			userId = decoded.id;
-		} else if (bodyToken) {
+		if (bodyToken) {
 			const otp_id_body = body.otp_id;
 			const otp_id_cookie = getCookie(context, "otp_id");
 			const target_otp_id = otp_id_body || otp_id_cookie;
 
-			try {
+			if (isJwtShape(bodyToken)) {
 				const decoded = JWT.verifyHospitalityAuthToken(bodyToken);
 
 				if (decoded.type !== "password_reset") {
@@ -50,28 +58,36 @@ export const setNewPasswordHandler = createHandlers(
 				if (normalizedEmail) {
 					const clientByToken = await prisma.client.findUnique({
 						where: { id: decoded.id },
+						include: { vertical: true },
 					});
+					if (clientByToken?.vertical?.name !== HOSPITALITY_VERTICAL_NAME) {
+						throw new APIError(undefined, "hospitality.auth.login.UNAUTHORIZED");
+					}
+					const tokenEmail = clientByToken?.email
+						? normalizeAuthEmail(clientByToken.email)
+						: undefined;
 
-					if (normalizedEmail && clientByToken?.email !== normalizedEmail) {
+					if (tokenEmail !== normalizedEmail) {
 						throw new APIError(undefined, "hospitality.auth.login.CREDENTIAL_MISMATCH");
 					}
 				}
-			} catch (error) {
-				if (error instanceof APIError) {
-					throw error;
-				}
-
-				const clientRecord = await prisma.client.findFirst({
-					where: { email: normalizedEmail },
-				});
-
-				if (!clientRecord || !clientRecord.email) {
+			} else {
+				if (!normalizedEmail) {
 					throw new APIError(undefined, "hospitality.auth.login.ACCOUNT_NOT_FOUND");
 				}
 
-				const savedOtp = await getSavedOtp(clientRecord.email, target_otp_id);
+				const clientForOtp = await prisma.client.findFirst({
+					where: buildHospitalityClientLookupWhere(normalizedEmail),
+					include: { vertical: true },
+				});
 
+				if (!clientForOtp?.email) {
+					throw new APIError(undefined, "hospitality.auth.login.ACCOUNT_NOT_FOUND");
+				}
+
+				const savedOtp = await getSavedOtp(clientForOtp.email, target_otp_id);
 				const { compareOtp } = await import("@/db/actions/otp.actions.ts");
+
 				if (!savedOtp || !(await compareOtp(bodyToken, savedOtp.otp))) {
 					throw new APIError(undefined, "hospitality.auth.login.INVALID_OTP_TOKEN");
 				}
@@ -80,10 +96,21 @@ export const setNewPasswordHandler = createHandlers(
 					throw new APIError(undefined, "hospitality.auth.login.OTP_INVALID");
 				}
 
-				userId = clientRecord.id;
+				userId = clientForOtp.id;
 			}
 		} else {
-			throw new APIError(undefined, "hospitality.auth.login.AUTH_TOKEN_REQUIRED");
+			const sessionToken = extractHospitalityAuthToken(context);
+			if (!sessionToken) {
+				throw new APIError(undefined, "hospitality.auth.login.AUTH_TOKEN_REQUIRED");
+			}
+
+			const decoded = JWT.verifyHospitalityAuthToken(sessionToken);
+			// Welcome / session path must not accept password-reset JWTs.
+			if (decoded.type === "password_reset") {
+				throw new APIError(undefined, "hospitality.auth.login.INVALID_AUTH_TOKEN");
+			}
+			bearerPayload = decoded;
+			userId = decoded.id;
 		}
 
 		if (!userId) {
@@ -92,14 +119,46 @@ export const setNewPasswordHandler = createHandlers(
 
 		const clientRecord = await prisma.client.findUnique({
 			where: { id: userId },
+			include: { vertical: true },
 		});
 
 		if (!clientRecord) {
 			throw new APIError(undefined, "hospitality.auth.login.ACCOUNT_NOT_FOUND");
 		}
 
-		if (clientRecord.status === "suspended") {
-			throw new APIError(undefined, "hospitality.auth.login.SUSPENDED");
+		if (clientRecord.vertical?.name !== HOSPITALITY_VERTICAL_NAME) {
+			throw new APIError(undefined, "hospitality.auth.login.UNAUTHORIZED");
+		}
+
+		const recordEmail = clientRecord.email
+			? normalizeAuthEmail(clientRecord.email)
+			: undefined;
+		if (normalizedEmail && recordEmail !== normalizedEmail) {
+			throw new APIError(undefined, "hospitality.auth.login.CREDENTIAL_MISMATCH");
+		}
+
+		if (clientRecord.status !== "active") {
+			throw new APIError(
+				undefined,
+				clientRecord.status === "suspended"
+					? "hospitality.auth.login.SUSPENDED"
+					: "hospitality.auth.login.ACCOUNT_INACTIVE",
+			);
+		}
+
+		const currentVersion = clientRecord.auth_token_version ?? 0;
+
+		// Bearer Welcome path: reject revoked/stale session JWTs before mutating password.
+		if (bearerPayload) {
+			const tokenVersion = bearerPayload.token_version ?? 0;
+			if (tokenVersion !== currentVersion) {
+				throw new APIError(
+					"The auth token is either invalid or has expired!",
+					undefined,
+					undefined,
+					401,
+				);
+			}
 		}
 
 		const hashedPassword = await Bcrypt.generateHash({
@@ -107,25 +166,50 @@ export const setNewPasswordHandler = createHandlers(
 			saltLength: 10,
 		});
 
-		await prisma.client.update({
+		// Optimistic concurrency: second concurrent set-password loses (count=0).
+		const expectedVersion = bearerPayload
+			? (bearerPayload.token_version ?? 0)
+			: currentVersion;
+
+		const updated = await prisma.client.updateMany({
 			where: {
 				id: clientRecord.id,
+				auth_token_version: expectedVersion,
+				status: "active",
 			},
 			data: {
 				password: hashedPassword,
+				auth_token_version: { increment: 1 },
 			},
 		});
+
+		if (updated.count === 0) {
+			throw new APIError(
+				"The auth token is either invalid or has expired!",
+				undefined,
+				undefined,
+				401,
+			);
+		}
 
 		const clientEmail = clientRecord.email;
 		if (clientEmail) {
 			await deleteSavedOtp(clientEmail);
 		}
 
-		const response = {
-			success: true as const,
-			...resolveMessageTemplate("hospitality.auth.PASSWORD_SET_SUCCESS"),
-		};
+		const sessionToken = await signHospitalitySessionToken(clientRecord.id, "admin");
+		if (!sessionToken) {
+			throw new APIError(undefined, "hospitality.auth.login.AUTH_FAILED");
+		}
 
-		return context.json(response as any, response.code as any);
+		setHospitalityAuthCookie(context, sessionToken);
+
+		return context.json<APIResponse<SetPasswordResponseData>>({
+			success: true,
+			...resolveMessageTemplate("hospitality.auth.PASSWORD_SET_SUCCESS"),
+			data: {
+				is_password_set: true,
+			},
+		} as APIResponse<SetPasswordResponseData>);
 	},
 );

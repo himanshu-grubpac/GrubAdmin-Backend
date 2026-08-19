@@ -3,6 +3,9 @@ import { hospitalityAuthGuard } from "@/middlewares/auth";
 import { markNotificationsRequestBodyValidator } from "hospitality/validators/notification.validators.ts";
 import { markNotifications } from "@/db/actions/notification.actions.ts";
 import type { APIResponse } from "@/types/api";
+import {
+	hospitalityRequestMemo,
+} from "@/modules/hospitality/utils/hospitality-request-memo";
 
 interface ResponseData {
 	updated_count: number;
@@ -23,19 +26,25 @@ export const markNotificationsHandler = createHandlers(
 			is_dismissed,
 		});
 
-		const action = is_dismissed
-			? updated_count === 1
-				? "1 notification dismissed."
-				: `${updated_count} notifications dismissed.`
-			: updated_count === 1
-				? "1 notification marked as read."
-				: `${updated_count} notifications marked as read.`;
+		if (updated_count > 0 && (is_read || is_dismissed)) {
+			hospitalityRequestMemo.invalidatePrefix(
+				`notification-unread-count:${client_id}:`,
+			);
+		}
+
+		const verb = is_dismissed ? "dismissed" : "marked as read";
+		const message =
+			updated_count === 0
+				? `No notifications ${verb}.`
+				: updated_count === 1
+					? `1 notification ${verb}.`
+					: `${updated_count} notifications ${verb}.`;
 
 		return context.json<APIResponse<ResponseData>>(
 			{
 				success: true,
 				code: 200,
-				message: action,
+				message,
 				data: { updated_count },
 			},
 			{ status: 200 },

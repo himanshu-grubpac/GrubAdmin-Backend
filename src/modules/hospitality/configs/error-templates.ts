@@ -61,6 +61,13 @@ export const hospitalityErrorTemplates: ErrorTemplateMap = {
 				error_toast_title: "System Busy",
 				error_toast_description: "We are having trouble processing your request right now. Please try again in a few minutes.",
 			},
+			OTP_SEND_FAILED: {
+				message: "Failed to send OTP email. Please try again.",
+				code: 502,
+				error_toast_title: "Email Delivery Failed",
+				error_toast_description:
+					"We could not deliver the verification code to your email. Please try again in a few minutes or contact support.",
+			},
 			ACCOUNT_INACTIVE: {
 				message: "Your account is not active. Please contact support.",
 				code: 400,
@@ -78,6 +85,13 @@ export const hospitalityErrorTemplates: ErrorTemplateMap = {
 				code: 500,
 				error_toast_title: "System Error",
 				error_toast_description: "We couldn't generate your password reset link. Please contact support if this persists.",
+			},
+			MAGIC_LINK_SEND_FAILED: {
+				message: "Failed to send password reset email. Please try again.",
+				code: 502,
+				error_toast_title: "Email Delivery Failed",
+				error_toast_description:
+					"We could not deliver the password reset link to your email. Please try again in a few minutes or contact support.",
 			},
 			AUTH_TOKEN_REQUIRED: {
 				message: "Authentication token is required!",
@@ -241,6 +255,14 @@ export const hospitalityErrorTemplates: ErrorTemplateMap = {
 				error_toast_title: "Floors Not Found",
 				error_toast_description: "No suspended floors were found matching your selection.",
 			},
+		},
+	},
+	common: {
+		ACCESS_DENIED: {
+			message: "You do not have permission to perform this action.",
+			code: 403,
+			error_toast_title: "Access Denied",
+			error_toast_description: "Your role does not have permission to update this field. Please contact your administrator.",
 		},
 	},
 };

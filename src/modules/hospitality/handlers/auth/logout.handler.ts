@@ -3,11 +3,13 @@ import type { APIResponse } from "@/types/api";
 import { hospitalityAuthGuard } from "@/middlewares/auth";
 import { loggerService } from "@/services/system-log.ts";
 import { deleteCookie } from "hono/cookie";
+import { clearHospitalityAuthCookie } from "hospitality/utils/hospitality-auth-cookie";
 
 export const logoutHandler = createHandlers(
 	hospitalityAuthGuard(),
 	async (context) => {
 		deleteCookie(context, "otp_id");
+		clearHospitalityAuthCookie(context);
 		const { client_id, user_id, user, type } = context.var;
 		const userObj = user as any;
 		const actorName = type === "admin" 

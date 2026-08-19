@@ -7,6 +7,7 @@ import { APIError } from "@/types/error";
 import type { HospitalityEmployeeRoleType } from "@/types/common";
 import { nullifyEmptyFKs } from "@/utils/clean-query.ts";
 import { logger } from "@/utils/logger";
+import { maskAuthEmail } from "hospitality/handlers/auth/auth.utils";
 import { HOSPITALITY_VERTICAL_NAME } from "@/configs/constants";
 import { getVertical } from "@/db/actions/vertical.actions";
 import { releaseVerticalEmailsByOwners } from "@/utils/vertical-email-registry";
@@ -145,11 +146,167 @@ export const getUniqueHospitalityEmployee = async (
 	}
 
 	logger.warn(`[Auth] getUniqueHospitalityEmployee returned null`, {
-		email,
+		email: email ? maskAuthEmail(email) : undefined,
 		id,
-		phone,
+		phone: phone ? "***" : undefined,
 		employee_display_id,
 	});
 
 	return null;
+};
+
+interface UpdateHospitalityAccountProfileArgs {
+	id: string;
+	type: HospitalityEmployeeRoleType;
+	first_name?: string;
+	last_name?: string;
+	organization?: string;
+	email?: string;
+	country_code?: string;
+	mobile_number?: string;
+	password?: string;
+	increment_auth_token_version?: boolean;
+}
+
+/** Routes profile updates to client (admin) or vertical_hospitality_employee. */
+export const updateHospitalityAccountProfile = async (
+	args: UpdateHospitalityAccountProfileArgs,
+) => {
+	const {
+		id,
+		type,
+		first_name,
+		last_name,
+		organization,
+		email,
+		country_code,
+		mobile_number,
+		password,
+		increment_auth_token_version,
+	} = nullifyEmptyFKs(args);
+
+	if (type === "admin") {
+		const clientRecord = await prisma.client.findUnique({
+			where: { id },
+			select: { vertical_id: true, name: true },
+		});
+
+		if (email && clientRecord?.vertical_id) {
+			const { assertEmailAvailableInVertical } = await import("@/utils/account");
+			try {
+				await assertEmailAvailableInVertical(email, clientRecord.vertical_id, {
+					excludeClientId: id,
+				});
+			} catch (error) {
+				if (error instanceof APIError && error.code === 409) {
+					throw new APIError(
+						"This email is already in use by another account.",
+						"hospitality.account.EMAIL_EXISTS",
+						undefined,
+						409,
+					);
+				}
+				throw error;
+			}
+		}
+
+		const name =
+			first_name !== undefined || last_name !== undefined
+				? `${first_name ?? ""}${last_name ? ` ${last_name}` : ""}`.trim()
+				: undefined;
+
+		return prisma.$transaction(async (tx) => {
+			const updated = await tx.client.update({
+				where: { id },
+				data: {
+					email,
+					country_code,
+					mobile_number,
+					organization_name: organization,
+					password,
+					name,
+					...(increment_auth_token_version
+						? { auth_token_version: { increment: 1 } }
+						: {}),
+				},
+			});
+
+			if (email && clientRecord?.vertical_id) {
+				const { syncVerticalEmailRegistry } = await import("@/utils/vertical-email-registry");
+				await syncVerticalEmailRegistry({
+					db: tx,
+					verticalId: clientRecord.vertical_id,
+					email,
+					ownerType: "client",
+					ownerId: id,
+				});
+			}
+
+			return updated;
+		});
+	}
+
+	const employeeRecord = await prisma.vertical_hospitality_employee.findUnique({
+		where: { id },
+		select: { client: { select: { vertical_id: true } } },
+	});
+
+	const verticalId = employeeRecord?.client?.vertical_id;
+	if (email) {
+		if (!verticalId) {
+			throw new APIError("Client vertical is not configured", undefined, undefined, 400);
+		}
+		const { assertEmailAvailableInVertical } = await import("@/utils/account");
+		try {
+			await assertEmailAvailableInVertical(email, verticalId, {
+				excludeEmployeeId: id,
+			});
+		} catch (error) {
+			if (error instanceof APIError && error.code === 409) {
+				throw new APIError(
+					"This email is already in use by another account.",
+					"hospitality.account.EMAIL_EXISTS",
+					undefined,
+					409,
+				);
+			}
+			throw error;
+		}
+
+		return prisma.$transaction(async (tx) => {
+			const updated = await tx.vertical_hospitality_employee.update({
+				where: { id },
+				data: {
+					email,
+					first_name,
+					last_name,
+					country_code,
+					mobile_number,
+					password,
+				},
+			});
+
+			const { syncVerticalEmailRegistry } = await import("@/utils/vertical-email-registry");
+			await syncVerticalEmailRegistry({
+				db: tx,
+				verticalId,
+				email,
+				ownerType: "hospitality_employee",
+				ownerId: id,
+			});
+
+			return updated;
+		});
+	}
+
+	return prisma.vertical_hospitality_employee.update({
+		where: { id },
+		data: {
+			first_name,
+			last_name,
+			country_code,
+			mobile_number,
+			password,
+		},
+	});
 };

@@ -14,7 +14,7 @@ export const getFloorsHandler = createHandlers(
 	getFloorsRequestQueryValidator,
 	async (context) => {
 		const { client_id } = context.var;
-		const { query, status, page, limit } = context.req.valid("query");
+		const { query, status, page, limit, include_boxes } = context.req.valid("query");
 
 		const { floors, count } = await getFloors({
 			query,
@@ -22,6 +22,7 @@ export const getFloorsHandler = createHandlers(
 			page_size: limit,
 			page_number: page,
 			client_id,
+			include_boxes,
 		});
 
 		return context.json<APIResponse<ResponseData>>({

@@ -1,6 +1,28 @@
 import { APIError } from "@/types/error";
 import { prisma } from "..";
 import type { Prisma } from "../types";
+import { Prisma as PrismaClient } from "@/db/prisma";
+import { PAGE_SIZE } from "@/configs/constants";
+import { MAX_PAGE_SIZE } from "@/validators/pagination";
+import { hospitalityPrefixStringFilter } from "@/modules/hospitality/utils/hospitality-search";
+
+/** Preview cap per floor when include_boxes=true — full inventory uses floor resources API. */
+const FLOOR_LIST_BOXES_PREVIEW_LIMIT = 200;
+
+const throwDuplicateFloorNameError = (operation: "create" | "update") => {
+	throw new APIError(
+		"A floor with this name already exists under your account.",
+		operation === "create"
+			? "hospitality.floor.create.DUPLICATE_NAME"
+			: "hospitality.floor.update.DUPLICATE_NAME",
+		undefined,
+		409,
+	);
+};
+
+const isDuplicateFloorNameError = (error: unknown) =>
+	error instanceof PrismaClient.PrismaClientKnownRequestError &&
+	error.code === "P2002";
 
 interface CreateFloorArgs {
 	name: string;
@@ -11,30 +33,31 @@ interface CreateFloorArgs {
 export const createFloor = async (args: CreateFloorArgs) => {
 	const { name, client_id, status } = args;
 
-	// Check for uniqueness of Name + client_id
+	// DB @@unique([client_id, name]) spans all statuses — not only active floors.
 	const existingByName = await prisma.vertical_hospitality_floor.findFirst({
 		where: {
 			name,
 			client_id,
-			status: "active",
 		},
 	});
 	if (existingByName) {
-		throw new APIError(
-			"A floor with this name already exists under your account.",
-			"hospitality.floor.create.DUPLICATE_NAME",
-			undefined,
-			409,
-		);
+		throwDuplicateFloorNameError("create");
 	}
 
-	return prisma.vertical_hospitality_floor.create({
-		data: {
-			name,
-			client_id,
-			status,
-		},
-	});
+	try {
+		return await prisma.vertical_hospitality_floor.create({
+			data: {
+				name,
+				client_id,
+				status,
+			},
+		});
+	} catch (error) {
+		if (isDuplicateFloorNameError(error)) {
+			throwDuplicateFloorNameError("create");
+		}
+		throw error;
+	}
 };
 
 interface GetFloorByIdArgs {
@@ -60,6 +83,84 @@ export const getFloorById = async (args: GetFloorByIdArgs) => {
 	return floor;
 };
 
+export type HospitalityFloorBoxSummary = {
+	id: string;
+	room: string | null;
+	box_display_id: string | null;
+};
+
+export type HospitalityFloorListItem = {
+	id: string;
+	name: string;
+	status: string;
+	created_at: Date;
+	updated_at: Date;
+	/** Total assigned boxes for this floor (status-aware per list context). */
+	box_count: number;
+	/** Same as box_count when include_boxes=true — explicit total vs preview list length (G27). */
+	boxes_total_count?: number;
+	/** Length of boxes_list preview when include_boxes=true (may be less than boxes_total_count). */
+	boxes_preview_count?: number;
+	boxes_list?: HospitalityFloorBoxSummary[];
+};
+
+/** Box status filter for floor assignment counts — aligned with list context (G28 / C9). */
+export const resolveAssignedBoxCountWhere = (
+	listStatus?: "active" | "suspended" | "all",
+): Prisma.vertical_hospitality_floor_boxWhereInput | undefined => {
+	if (listStatus === "suspended") {
+		return { box: { status: "suspended" } };
+	}
+	if (listStatus === "all") {
+		return undefined;
+	}
+	return { box: { status: "active" } };
+};
+
+type FloorListRow = {
+	id: string;
+	name: string;
+	status: string;
+	created_at: Date;
+	updated_at: Date;
+	_count?: { boxes: number };
+	boxes?: Array<{
+		room: string | null;
+		box: { id: string; box_display_id: string | null };
+	}>;
+};
+
+export const mapHospitalityFloorListItem = (
+	floor: FloorListRow,
+	include_boxes: boolean,
+): HospitalityFloorListItem => {
+	const totalBoxCount = floor._count?.boxes ?? 0;
+	const item: HospitalityFloorListItem = {
+		id: floor.id,
+		name: floor.name,
+		status: floor.status,
+		created_at: floor.created_at,
+		updated_at: floor.updated_at,
+		box_count: totalBoxCount,
+	};
+
+	if (include_boxes) {
+		item.boxes_total_count = totalBoxCount;
+		if (floor.boxes) {
+			item.boxes_list = floor.boxes.map((assignment) => ({
+				id: assignment.box.id,
+				room: assignment.room ?? null,
+				box_display_id: assignment.box.box_display_id ?? null,
+			}));
+			item.boxes_preview_count = floor.boxes.length;
+		} else {
+			item.boxes_preview_count = 0;
+		}
+	}
+
+	return item;
+};
+
 interface GetFloorsArgs {
 	query?: string;
 	status?: "active" | "suspended" | "all";
@@ -67,6 +168,7 @@ interface GetFloorsArgs {
 	page_number?: number;
 	client_id: string;
 	fetch_all?: boolean;
+	include_boxes?: boolean;
 }
 
 export const getFloors = async (args: GetFloorsArgs) => {
@@ -77,36 +179,52 @@ export const getFloors = async (args: GetFloorsArgs) => {
 		page_number,
 		client_id,
 		fetch_all,
+		include_boxes = false,
 	} = args;
+
+	const assignedBoxCountWhere = resolveAssignedBoxCountWhere(status);
+	const safePageSize = fetch_all
+		? undefined
+		: Math.min(page_size ?? PAGE_SIZE, MAX_PAGE_SIZE);
+	const safePageNumber = Math.max(page_number ?? 1, 1);
 
 	const floorsQuery: Prisma.vertical_hospitality_floorFindManyArgs = {
 		where: {
 			client_id,
 			status: status === "all" ? undefined : (status || { not: "suspended" }),
-			name: query
-				? {
-						contains: query,
-					}
-				: undefined,
+			name: hospitalityPrefixStringFilter(query),
 		},
 		include: {
 			_count: {
 				select: {
 					boxes: {
-						where: {
-							box: {
-								status: "active",
-							},
-						},
+						where: assignedBoxCountWhere,
 					},
 				},
 			},
+			...(include_boxes
+				? {
+						boxes: {
+							where: assignedBoxCountWhere,
+							take: FLOOR_LIST_BOXES_PREVIEW_LIMIT,
+							select: {
+								room: true,
+								box: {
+									select: {
+										id: true,
+										box_display_id: true,
+									},
+								},
+							},
+						},
+					}
+				: {}),
 		},
 		skip:
-			!fetch_all && page_number && page_size
-				? (page_number - 1) * page_size
+			!fetch_all && safePageSize
+				? (safePageNumber - 1) * safePageSize
 				: undefined,
-		take: !fetch_all && page_size ? page_size : undefined,
+		take: safePageSize,
 	};
 
 	const [floors, count] = await Promise.all([
@@ -117,7 +235,9 @@ export const getFloors = async (args: GetFloorsArgs) => {
 	]);
 
 	return {
-		floors,
+		floors: floors.map((floor) =>
+			mapHospitalityFloorListItem(floor as FloorListRow, include_boxes),
+		),
 		count,
 	};
 };
@@ -146,27 +266,28 @@ export const updateFloor = async (args: UpdateFloorArgs) => {
 			where: {
 				name,
 				client_id,
-				status: "active",
 				id: { not: id },
 			},
 		});
 		if (existingByName) {
-			throw new APIError(
-				"A floor with this name already exists under your account.",
-				"hospitality.floor.update.DUPLICATE_NAME",
-				undefined,
-				409,
-			);
+			throwDuplicateFloorNameError("update");
 		}
 	}
 
-	return prisma.vertical_hospitality_floor.update({
-		where: { id, client_id },
-		data: {
-			name,
-			status,
-		},
-	});
+	try {
+		return await prisma.vertical_hospitality_floor.update({
+			where: { id, client_id },
+			data: {
+				name,
+				status,
+			},
+		});
+	} catch (error) {
+		if (isDuplicateFloorNameError(error)) {
+			throwDuplicateFloorNameError("update");
+		}
+		throw error;
+	}
 };
 
 interface DeleteFloorsArgs {
@@ -210,23 +331,6 @@ export const deleteFloors = async (args: DeleteFloorsArgs) => {
 		select: { box_id: true },
 	});
 	const boxIds = floorBoxes.map((fb) => fb.box_id);
-
-	// Check if there are active boxes
-	const activeBoxIdsResult = boxIds.length > 0
-		? await prisma.box.findMany({
-				where: { id: { in: boxIds }, status: { not: "suspended" } },
-				select: { id: true },
-			})
-		: [];
-
-	if (activeBoxIdsResult.length > 0 && !destination_floor_id) {
-		throw new APIError(
-			"Cannot delete floor(s) with active boxes assigned unless a destination floor is provided for reassignment.",
-			"hospitality.floor.delete.ACTIVE_DEPENDENCIES",
-			{ box_count: activeBoxIdsResult.length },
-			409,
-		);
-	}
 
 	const clientRecord = await prisma.client.findUnique({
 		where: { id: client_id },
@@ -293,6 +397,15 @@ export const suspendFloors = async (args: SuspendFloorsArgs) => {
 
 	if (floors.length === 0) {
 		throw new APIError("Floors not found", "hospitality.floor.suspend.NOT_FOUND", undefined, 404);
+	}
+
+	if (floors.length !== ids.length) {
+		throw new APIError(
+			"Some floors were not found or access denied",
+			"hospitality.floor.suspend.PARTIAL_FOUND",
+			undefined,
+			409,
+		);
 	}
 
 	const toSuspend = floors.filter((f) => f.status !== "suspended");
@@ -438,13 +551,9 @@ export const searchHospitalityFloors = async (args: SearchHospitalityFloorsArgs)
 			client_id,
 			status:
 				status === "all"
-					? { not: "suspended" }
+					? undefined
 					: (status as "active" | "suspended"),
-			name: query
-				? {
-						contains: query,
-					}
-				: undefined,
+			name: hospitalityPrefixStringFilter(query),
 		},
 		select: {
 			id: true,

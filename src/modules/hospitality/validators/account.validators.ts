@@ -179,7 +179,13 @@ export const verifyTransferOwnershipRequestBodyValidator = zValidator(
 	"json",
 	z.object({
 		otp_id: z.string().min(1, "OTP ID is required"),
-		otp: z.string().min(1, "OTP is required"),
+		otp: z
+			.string({
+				error: "Please provide a valid otp",
+			})
+			.trim()
+			.min(4, "Otp must be 4 characters long")
+			.max(4, "Otp must be 4 characters long"),
 	}),
 	(response) => {
 		if (!response.success) {
@@ -206,3 +212,23 @@ export const transferEntireAccountRequestBodyValidator = zValidator(
 	},
 );
 
+export const deleteAccountRequestBodyValidator = zValidator(
+	"json",
+	z.object({
+		email: z.string().trim().email({
+			error: "Please provide a valid email",
+		}),
+		otp: z
+			.string({
+				error: "Please provide a valid OTP",
+			})
+			.trim()
+			.min(4, "Please provide a valid OTP"),
+		otp_id: z.string().min(1, "OTP session is required"),
+	}),
+	(response) => {
+		if (!response.success) {
+			validatorErrorHandler(response.error);
+		}
+	},
+);

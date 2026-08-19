@@ -1,9 +1,11 @@
 import { createHandlers } from "@/utils/hono-factory.ts";
 import { hospitalityAuthGuard } from "@/middlewares/auth";
 import { getSupportAnswerRequestQueryValidator } from "hospitality/validators/support.validators.ts";
-import { getFaqQuestionById } from "@/db/actions/faq.actions.ts";
+import { getVertical } from "@/db/actions/vertical.actions.ts";
+import { HOSPITALITY_VERTICAL_NAME } from "@/configs/constants.ts";
 import { APIError } from "@/types/error";
 import type { APIResponse } from "@/types/api";
+import { prisma } from "@/db";
 
 interface ResponseData {
 	answer: string;
@@ -22,7 +24,27 @@ export const getSupportAnswerHandler = createHandlers(
 	async (context) => {
 		const { faq_id } = context.req.valid("query");
 
-		const faq = await getFaqQuestionById(faq_id);
+		const vertical = await getVertical(HOSPITALITY_VERTICAL_NAME);
+
+		if (!vertical) {
+			throw new APIError("No such vertical found!", undefined, undefined, 400);
+		}
+
+		const faq = await prisma.faq_question.findFirst({
+			where: {
+				id: faq_id,
+				NOT: {
+					status: "deleted",
+				},
+				categories: {
+					some: {
+						category: {
+							vertical_id: vertical.id,
+						},
+					},
+				},
+			},
+		});
 
 		if (!faq) {
 			throw new APIError("FAQ not found", undefined, undefined, 404);

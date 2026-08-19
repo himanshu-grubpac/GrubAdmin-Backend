@@ -17,9 +17,7 @@ interface ResponseData {
 export const getDashboardHandler = createHandlers(
 	hospitalityAuthGuard(),
 	async (context) => {
-		const { user, client_id } = context.var;
-
-		const is_password_set = !!user.password;
+		const { client_id, is_password_set } = context.var;
 		const has_boxes = (await prisma.box.count({
 			where: {
 				client_id,

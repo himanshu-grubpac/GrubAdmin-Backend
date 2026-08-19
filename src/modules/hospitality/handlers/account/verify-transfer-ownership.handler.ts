@@ -17,7 +17,9 @@ import {
 	incrementOtpAttempt,
 	resetOtpAttempt,
 	getOtpLockoutRemaining,
-} from "@/db/actions/otp-attempt.actions";
+} from "@/db/actions/hospitality-otp-attempt.actions";
+import { getHospitalityMailFrom, isHospitalityOtpDevLogEnabled, logHospitalityOtpDev } from "hospitality/handlers/auth/auth.utils";
+import { logHospitality } from "hospitality/utils/hospitality-logger";
 import { Bcrypt } from "@/utils/bcrypt.ts";
 import { ulid } from "ulid";
 import { Otp as OtpUtil } from "@/utils/otp";
@@ -25,6 +27,9 @@ import { services } from "@/services";
 import { RestaurantLog, GrubpacLog, ClientAdminLog } from "@/db/mongo-schema";
 import { resolveMessageTemplate } from "@/utils/message";
 import type { client } from "@/db/types";
+import { HOSPITALITY_VERTICAL_NAME } from "@/configs/constants";
+import { getHospitalityUserOtpLockKey } from "hospitality/handlers/auth/hospitality-otp-lockout";
+import { queueHospitalityMail } from "hospitality/utils/hospitality-mail-queue";
 
 const resolveTargetClient = async (
 	tx: Parameters<Parameters<typeof prisma.$transaction>[0]>[0],
@@ -40,7 +45,12 @@ const resolveTargetClient = async (
 	},
 ) => {
 	const targetClient = await tx.client.findFirst({
-		where: { email: recipient.email },
+		where: {
+			email: recipient.email,
+			vertical: { name: HOSPITALITY_VERTICAL_NAME },
+			status: "active",
+		},
+		include: { vertical: true },
 	});
 
 	if (!targetClient) {
@@ -57,15 +67,10 @@ export const verifyTransferOwnershipHandler = createHandlers(
 		const { user_id, client_id, vertical_id, user } = context.var;
 		const { otp_id, otp } = context.req.valid("json");
 
-		const ip_address = context.req.header("x-forwarded-for") ||
-			context.req.header("x-real-ip") ||
-			context.req.header("cf-connecting-ip") ||
-			"unknown";
+		const lockKey = getHospitalityUserOtpLockKey(user_id, user?.email);
 
-		const normalizedEmail = user?.email ? user.email.trim().toLowerCase() : "unknown";
-
-		if (await isOtpAttemptLocked({ email: normalizedEmail, ip_address })) {
-			const remainingMinutes = await getOtpLockoutRemaining({ email: normalizedEmail, ip_address });
+		if (await isOtpAttemptLocked(lockKey)) {
+			const remainingMinutes = await getOtpLockoutRemaining(lockKey);
 			throw new APIError(
 				`Account temporarily locked due to too many failed attempts. Try again in ${remainingMinutes} minutes.`,
 				undefined,
@@ -77,7 +82,7 @@ export const verifyTransferOwnershipHandler = createHandlers(
 		const otpRecord = await getHospitalityTransferOwnershipOtp(user_id, otp_id);
 
 		if (!otpRecord) {
-			await incrementOtpAttempt({ email: normalizedEmail, ip_address });
+			await incrementOtpAttempt(lockKey);
 			throw new APIError("Invalid OTP ID or OTP expired.", undefined, undefined, 404);
 		}
 
@@ -88,11 +93,11 @@ export const verifyTransferOwnershipHandler = createHandlers(
 		const isMatch = await Bcrypt.compareHash({ data: otp, hashedValue: otpRecord.otp });
 
 		if (!isMatch) {
-			await incrementOtpAttempt({ email: normalizedEmail, ip_address });
+			await incrementOtpAttempt(lockKey);
 			throw new APIError("Invalid OTP. Please try again.", undefined, undefined, 400);
 		}
 
-		await resetOtpAttempt({ email: normalizedEmail, ip_address });
+		await resetOtpAttempt(lockKey);
 
 		const { transfer_mode, ids, name, organization_name, country_code, phone, email, country, state } = otpRecord;
 
@@ -108,11 +113,17 @@ export const verifyTransferOwnershipHandler = createHandlers(
 			});
 
 			if (transfer_mode === "all") {
+				await tx.vertical_hospitality_floor_box.deleteMany({
+					where: { box: { client_id } },
+				});
 				await tx.box.updateMany({
 					where: { client_id },
 					data: { client_id: targetClient.id },
 				});
 			} else if (transfer_mode === "selected" && ids && ids.length > 0) {
+				await tx.vertical_hospitality_floor_box.deleteMany({
+					where: { box_id: { in: ids } },
+				});
 				await tx.box.updateMany({
 					where: { id: { in: ids }, client_id },
 					data: { client_id: targetClient.id },
@@ -146,13 +157,17 @@ export const transferEntireAccountHandler = createHandlers(
 			throw new APIError("User email not found", undefined, undefined, 404);
 		}
 
-		if (email.trim().toLowerCase() === user.email.trim().toLowerCase()) {
+		const ownerEmail = user.email;
+
+		if (email.trim().toLowerCase() === ownerEmail.trim().toLowerCase()) {
 			throw new APIError("You cannot transfer the account to yourself.", undefined, undefined, 400);
 		}
 
 		const otp = OtpUtil.generateOtp(4);
 		const hashedOtp = await Bcrypt.generateHash({ data: otp });
 		const otp_id = ulid();
+
+		await deleteHospitalityTransferOwnershipOtp(user_id);
 
 		await createHospitalityTransferOwnershipOtp({
 			user_id,
@@ -168,22 +183,40 @@ export const transferEntireAccountHandler = createHandlers(
 			state,
 		});
 
-		if (process.env.NODE_ENV !== "production") {
-			console.log(`\n🔑 [DEV ONLY] Entire Account Transfer OTP: ${otp} (Session ID: ${otp_id})\n`);
-		}
-		try {
-			await services.mailer.sendEmail({
-				to: user.email,
-				from: process.env.MAIL || "support@sqaby.com",
-				subject: "Complete Account Transfer OTP",
-				html: `<p>Your OTP for complete account transfer is: <b>${otp}</b>. Valid for 10 minutes.</p>`,
+		if (isHospitalityOtpDevLogEnabled()) {
+			logHospitalityOtpDev({
+				email: ownerEmail,
+				otp,
+				otp_id,
+				for_what: "transfer-entire-account",
 			});
-		} catch (error) {
-			console.error("Failed to send transfer OTP email:", error);
 		}
+		queueHospitalityMail({
+			label: "transfer-entire-account",
+			send: () =>
+				services.mailer.sendEmail({
+					to: ownerEmail,
+					from: getHospitalityMailFrom(),
+					subject: "Complete Account Transfer OTP",
+					html: `<p>Your OTP for complete account transfer is: <b>${otp}</b>. Valid for 10 minutes.</p>`,
+				}),
+			onFailure: async () => {
+				logHospitality(context, "error", "hospitality_transfer_entire_account_mail_failed", {
+					client_id,
+					otp_id,
+				});
+			},
+		});
 
-		return context.json<APIResponse<{ otp_id: string }>>(
-			{ success: true, code: 200, data: { otp_id } },
+		return context.json<APIResponse<{ otp_id: string; otp?: string }>>(
+			{
+				success: true,
+				code: 200,
+				data: {
+					otp_id,
+					...(isHospitalityOtpDevLogEnabled() ? { otp } : {}),
+				},
+			},
 			{ status: 200 },
 		);
 	},
@@ -196,13 +229,10 @@ export const verifyTransferEntireAccountHandler = createHandlers(
 		const { user_id, client_id, vertical_id, user } = context.var;
 		const { otp_id, otp } = context.req.valid("json");
 
-		const ip_address = context.req.header("x-forwarded-for") ||
-			context.req.header("x-real-ip") ||
-			"unknown";
-		const normalizedEmail = user?.email ? user.email.trim().toLowerCase() : "unknown";
+		const lockKey = getHospitalityUserOtpLockKey(user_id, user?.email);
 
-		if (await isOtpAttemptLocked({ email: normalizedEmail, ip_address })) {
-			const remainingMinutes = await getOtpLockoutRemaining({ email: normalizedEmail, ip_address });
+		if (await isOtpAttemptLocked(lockKey)) {
+			const remainingMinutes = await getOtpLockoutRemaining(lockKey);
 			throw new APIError(
 				`Account temporarily locked due to too many failed attempts. Try again in ${remainingMinutes} minutes.`,
 				undefined,
@@ -214,17 +244,17 @@ export const verifyTransferEntireAccountHandler = createHandlers(
 		const otpRecord = await getHospitalityTransferOwnershipOtp(user_id, otp_id);
 
 		if (!otpRecord || otpRecord.transfer_mode !== "entire_account") {
-			await incrementOtpAttempt({ email: normalizedEmail, ip_address });
+			await incrementOtpAttempt(lockKey);
 			throw new APIError("Invalid OTP ID or OTP expired.", undefined, undefined, 404);
 		}
 
 		const isMatch = await Bcrypt.compareHash({ data: otp, hashedValue: otpRecord.otp });
 		if (!isMatch) {
-			await incrementOtpAttempt({ email: normalizedEmail, ip_address });
+			await incrementOtpAttempt(lockKey);
 			throw new APIError("Invalid OTP. Please try again.", undefined, undefined, 400);
 		}
 
-		await resetOtpAttempt({ email: normalizedEmail, ip_address });
+		await resetOtpAttempt(lockKey);
 
 		const { name, organization_name, country_code, phone, email, country, state } = otpRecord;
 
@@ -251,6 +281,11 @@ export const verifyTransferEntireAccountHandler = createHandlers(
 			await tx.notification.updateMany({
 				where: { client_id },
 				data: { client_id: targetClient.id },
+			});
+
+			await tx.client.update({
+				where: { id: client_id },
+				data: { status: "inactive" },
 			});
 
 			return targetClient.id;

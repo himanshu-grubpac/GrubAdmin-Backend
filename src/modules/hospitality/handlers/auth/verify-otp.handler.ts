@@ -1,20 +1,32 @@
 import { createHandlers } from "@/utils/hono-factory.ts";
 import { verifyOtpRequestBodyValidator } from "hospitality/validators/auth.validators.ts";
 import {
-	deleteSavedDeliveryEmployeeOtp,
-	getSavedDeliveryEmployeeOtp,
-	compareOtp,
-} from "@/db/actions/delivery-employee-otp.actions.ts";
-import { DeliveryEmployeeOtp } from "@/db/mongo-schema/delivery-employee-otp.model.ts";
+	consumeHospitalityEmployeeOtp,
+	deleteHospitalityEmployeeOtpById,
+	incrementHospitalityEmployeeOtpFailedAttempts,
+} from "@/db/actions/hospitality-otp.actions.ts";
 import { APIError } from "@/types/error";
-import { JWT } from "@/utils/jwt.ts";
 import type { APIResponse } from "@/types/api";
 import { loggerService } from "@/services/system-log.ts";
 import { getCookie } from "hono/cookie";
 import { prisma } from "@/db";
+import {
+	isOtpAttemptLocked,
+	incrementOtpAttempt,
+	resetOtpAttempt,
+	getOtpLockoutRemaining,
+} from "@/db/actions/hospitality-otp-attempt.actions";
+import { HOSPITALITY_VERTICAL_NAME } from "@/configs/constants";
+import {
+	assertHospitalityClientHasEmail,
+	buildHospitalityClientLookupWhere,
+	normalizeAuthEmail,
+} from "./auth.utils";
+import { getHospitalityLoginOtpLockKey, HOSPITALITY_OTP_PER_RECORD_MAX_FAILED } from "./hospitality-otp-lockout";
+import { signHospitalitySessionToken } from "./hospitality-auth-token";
+import { setHospitalityAuthCookie } from "hospitality/utils/hospitality-auth-cookie";
 
 interface ResponseData {
-	auth_token: string;
 	otp_for_what: string;
 	is_password_set: boolean;
 }
@@ -23,53 +35,70 @@ export const verifyOtpHandler = createHandlers(
 	verifyOtpRequestBodyValidator,
 	async (context) => {
 		const { email, otp, otp_id: otp_id_body } = context.req.valid("json");
+		const normalizedEmail = normalizeAuthEmail(email);
+		if (!normalizedEmail) {
+			throw new APIError(undefined, "hospitality.auth.login.ACCOUNT_NOT_FOUND");
+		}
+		const lockKey = getHospitalityLoginOtpLockKey(normalizedEmail);
 		const otp_id_cookie = getCookie(context, "otp_id");
 		const target_otp_id = otp_id_body || otp_id_cookie;
 
-		const savedOtp = await getSavedDeliveryEmployeeOtp(email, target_otp_id);
-
-		if (!savedOtp) {
-			throw new APIError(undefined, "hospitality.auth.login.OTP_EXPIRED");
+		if (await isOtpAttemptLocked(lockKey)) {
+			const remainingMinutes = await getOtpLockoutRemaining(lockKey);
+			throw new APIError(
+				`Account temporarily locked due to too many failed attempts. Try again in ${remainingMinutes} minutes.`,
+				undefined,
+				undefined,
+				429,
+			);
 		}
 
-		const isMatch = await compareOtp(otp, savedOtp.otp);
+		const consumeResult = await consumeHospitalityEmployeeOtp(normalizedEmail, otp, target_otp_id);
 
-		if (!isMatch || savedOtp.for_what !== "login") {
-			const attempts = (savedOtp.failed_attempts ?? 0) + 1;
-			if (attempts >= 3) {
-				await deleteSavedDeliveryEmployeeOtp(email);
-				throw new APIError(undefined, "hospitality.auth.login.OTP_EXPIRED");
-			} else {
-				await DeliveryEmployeeOtp.updateOne({ _id: savedOtp._id }, { failed_attempts: attempts });
-				throw new APIError(undefined, "hospitality.auth.login.OTP_INVALID");
+		if (!consumeResult.consumed) {
+			if (consumeResult.reason === "invalid" && consumeResult.savedOtp) {
+				const attempts = await incrementHospitalityEmployeeOtpFailedAttempts(consumeResult.savedOtp.id);
+				if (attempts >= HOSPITALITY_OTP_PER_RECORD_MAX_FAILED) {
+					await deleteHospitalityEmployeeOtpById(consumeResult.savedOtp.id);
+					await incrementOtpAttempt(lockKey);
+					throw new APIError(undefined, "hospitality.auth.login.OTP_EXPIRED");
+				}
 			}
+
+			await incrementOtpAttempt(lockKey);
+			if (consumeResult.reason === "consumed") {
+				throw new APIError(undefined, "hospitality.auth.login.OTP_EXPIRED");
+			}
+			throw new APIError(
+				undefined,
+				consumeResult.reason === "expired"
+					? "hospitality.auth.login.OTP_EXPIRED"
+					: "hospitality.auth.login.OTP_INVALID",
+			);
 		}
 
-		const for_what = savedOtp.for_what;
+		const for_what = consumeResult.savedOtp.for_what;
 
-		await deleteSavedDeliveryEmployeeOtp(email);
+		await resetOtpAttempt(lockKey);
 
 		const clientRecord = await prisma.client.findFirst({
-			where: { email },
+			where: buildHospitalityClientLookupWhere(normalizedEmail),
 			include: { vertical: true },
 		});
 
-		if (!clientRecord) {
-			throw new APIError(undefined, "hospitality.auth.login.ACCOUNT_NOT_FOUND");
+		if (!clientRecord || !assertHospitalityClientHasEmail(clientRecord)) {
+			throw new APIError(undefined, "hospitality.auth.login.EMAIL_NOT_FOUND");
 		}
 
-		if (clientRecord.vertical?.name !== "Hospitality") {
+		if (clientRecord.vertical?.name !== HOSPITALITY_VERTICAL_NAME) {
 			throw new APIError(undefined, "hospitality.auth.login.UNAUTHORIZED");
 		}
 
-		if (clientRecord.status === "suspended") {
-			throw new APIError(undefined, "hospitality.auth.login.SUSPENDED");
+		if (clientRecord.status !== "active") {
+			throw new APIError(undefined, "hospitality.auth.login.ACCOUNT_INACTIVE");
 		}
 
-		const token = JWT.signHospitalityAuthToken({
-			id: clientRecord.id,
-			role: "admin",
-		});
+		const token = await signHospitalitySessionToken(clientRecord.id, "admin");
 
 		await loggerService.log({
 			category: "Profile",
@@ -92,13 +121,14 @@ export const verifyOtpHandler = createHandlers(
 			},
 		});
 
+		setHospitalityAuthCookie(context, token);
+
 		return context.json<APIResponse<ResponseData>>(
 			{
 				success: true,
 				code: 200,
 				client_id: clientRecord.id,
 				data: {
-					auth_token: token,
 					otp_for_what: for_what,
 					is_password_set: !!clientRecord.password,
 				},

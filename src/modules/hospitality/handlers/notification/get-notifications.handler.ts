@@ -1,50 +1,75 @@
 import { createHandlers } from "@/utils/hono-factory.ts";
 import { hospitalityAuthGuard } from "@/middlewares/auth";
-import { getNotificationsRequestQueryValidator } from "hospitality/validators/notification.validators.ts";
-import { getHospitalityNotifications } from "@/db/actions/hospitality-notification.actions.ts";
+import {
+	getNotificationsRequestQueryValidator,
+	searchNotificationsRequestBodyValidator,
+} from "hospitality/validators/notification.validators.ts";
+import {
+	getHospitalityNotifications,
+	type HospitalityNotificationListItem,
+} from "@/db/actions/hospitality-notification.actions.ts";
 import type { APIResponse } from "@/types/api";
-import type { notification } from "@/db/types";
 import { calculatePagination } from "@/utils/pagination.ts";
 
 interface ResponseData {
-	notifications: notification[];
-	count: number;
-	unread_count: number;
+	notifications: HospitalityNotificationListItem[];
 }
+
+type NotificationListFilters = {
+	page?: number;
+	limit?: number;
+	types?: HospitalityNotificationListItem["type"][];
+	floor_ids?: string[];
+	box_ids?: string[];
+	search?: string;
+	is_read?: boolean;
+	is_dismissed?: boolean;
+};
+
+const buildNotificationListPayload = async (
+	client_id: string,
+	vertical_id: string,
+	filters: NotificationListFilters,
+) => {
+	const { notifications, count, page: effectivePage, limit: effectiveLimit } =
+		await getHospitalityNotifications({
+			client_id,
+			vertical_id,
+			...filters,
+		});
+
+	return {
+		success: true as const,
+		code: 200 as const,
+		data: { notifications },
+		pagination: calculatePagination(effectivePage, effectiveLimit, count),
+	};
+};
 
 export const getNotificationsHandler = createHandlers(
 	hospitalityAuthGuard(),
 	getNotificationsRequestQueryValidator,
 	async (context) => {
 		const { client_id, vertical_id } = context.var;
-		const { page, limit, types, floor_ids, box_ids, search, is_read, is_dismissed } =
-			context.req.valid("query");
-
-		const { notifications, count, unread_count } = await getHospitalityNotifications({
+		const payload = await buildNotificationListPayload(
 			client_id,
 			vertical_id,
-			page,
-			limit,
-			types,
-			floor_ids,
-			box_ids,
-			search,
-			is_read,
-			is_dismissed,
-		});
-
-		return context.json<APIResponse<ResponseData>>(
-			{
-				success: true,
-				code: 200,
-				data: {
-					notifications,
-					count,
-					unread_count,
-				},
-				pagination: limit ? calculatePagination(page ?? 1, limit, count) : undefined,
-			},
-			{ status: 200 },
+			context.req.valid("query"),
 		);
+		return context.json<APIResponse<ResponseData>>(payload, { status: 200 });
+	},
+);
+
+export const searchNotificationsHandler = createHandlers(
+	hospitalityAuthGuard(),
+	searchNotificationsRequestBodyValidator,
+	async (context) => {
+		const { client_id, vertical_id } = context.var;
+		const payload = await buildNotificationListPayload(
+			client_id,
+			vertical_id,
+			context.req.valid("json"),
+		);
+		return context.json<APIResponse<ResponseData>>(payload, { status: 200 });
 	},
 );

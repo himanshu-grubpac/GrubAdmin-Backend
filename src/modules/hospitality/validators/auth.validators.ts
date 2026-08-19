@@ -2,6 +2,22 @@ import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { validatorErrorHandler } from "@/utils/zod.ts";
 
+/** Hospitality FE (SetNewPassword / forgot / reset): 8–20 chars, no spaces. No special-char mandate. */
+const hospitalityPasswordSchema = z
+	.string({
+		error: "Please provide a password",
+	})
+	.trim()
+	.min(8, {
+		error: "Password must be at least 8 characters long",
+	})
+	.max(20, {
+		error: "Password cannot exceed 20 characters",
+	})
+	.refine((value) => !/\s/.test(value), {
+		message: "Spaces are not allowed in the password",
+	});
+
 export const loginRequestBodyValidator = zValidator(
 	"json",
 	z.object({
@@ -13,8 +29,8 @@ export const loginRequestBodyValidator = zValidator(
 				error: "Please provide a valid password",
 			})
 			.trim()
-			.min(8, "Password must be at least 8 characters long!")
-			.max(20, "Password must be at most 20 characters long!"),
+			.min(1, "Password is required")
+			.max(72, "Password must be at most 72 characters long!"),
 		remember_me: z.boolean().optional(),
 	}),
 	(response) => {
@@ -107,17 +123,7 @@ export const resetPasswordMagicLinkRequestBodyValidator = zValidator(
 			.min(1, {
 				error: "Invalid reset token",
 			}),
-		password: z
-			.string({
-				error: "Please provide a password",
-			})
-			.trim()
-			.min(8, {
-				error: "Password must be at least 8 characters long",
-			})
-			.max(20, {
-				error: "Password can be at max 20 characters long",
-			}),
+		password: hospitalityPasswordSchema,
 	}),
 	(response) => {
 		if (!response.success) {
@@ -128,18 +134,27 @@ export const resetPasswordMagicLinkRequestBodyValidator = zValidator(
 
 export const verifyForgetPasswordMagicLinkRequestBodyValidator = zValidator(
 	"json",
-	z.object({
-		email: z.string().trim().email({
-			error: "Please provide a valid email",
-		}),
-		token: z
-			.string({
-				error: "Please provide a reset token",
-			})
-			.min(1, {
-				error: "Invalid reset token",
-			}),
-	}),
+	z
+		.object({
+			link_id: z.string().trim().min(1).optional(),
+			email: z.string().trim().email().optional(),
+			token: z
+				.string({
+					error: "Please provide a reset token",
+				})
+				.min(1, {
+					error: "Invalid reset token",
+				})
+				.optional(),
+		})
+		.refine(
+			(data) =>
+				Boolean(data.link_id) ||
+				(Boolean(data.email) && Boolean(data.token)),
+			{
+				message: "Provide link_id or email with token",
+			},
+		),
 	(response) => {
 		if (!response.success) {
 			validatorErrorHandler(response.error);
@@ -156,28 +171,8 @@ export const setNewPasswordRequestBodyValidator = zValidator(
 			}),
 			auth_token: z.string().optional(),
 			otp_id: z.string().optional(),
-			password: z
-				.string({
-					error: "Please provide a password",
-				})
-				.trim()
-				.min(8, {
-					error: "Password must be at least 8 characters long",
-				})
-				.max(20, {
-					error: "Password can be at max 20 characters long",
-				}),
-			confirm_password: z
-				.string({
-					error: "Please provide a confirm password",
-				})
-				.trim()
-				.min(8, {
-					error: "Password must be at least 8 characters long",
-				})
-				.max(20, {
-					error: "Password can be at max 20 characters long",
-				}),
+			password: hospitalityPasswordSchema,
+			confirm_password: hospitalityPasswordSchema,
 		})
 		.refine((data) => data.password === data.confirm_password, {
 			message: "Passwords do not match",

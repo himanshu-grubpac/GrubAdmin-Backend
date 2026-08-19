@@ -1,6 +1,6 @@
 import { createHandlers } from "@/utils/hono-factory.ts";
 import { hospitalityAuthGuard } from "@/middlewares/auth";
-import { getUnreadNotificationsCount } from "@/db/actions/notification.actions.ts";
+import { getHospitalityUnreadNotificationsCount } from "@/db/actions/hospitality-notification.actions.ts";
 import type { APIResponse } from "@/types/api";
 
 export const getUnreadNotificationsCountHandler = createHandlers(
@@ -8,7 +8,7 @@ export const getUnreadNotificationsCountHandler = createHandlers(
 	async (context) => {
 		const { client_id, vertical_id } = context.var;
 
-		const unread_count = await getUnreadNotificationsCount(client_id, vertical_id);
+		const unread_count = await getHospitalityUnreadNotificationsCount(client_id, vertical_id);
 
 		return context.json<APIResponse<{ unread_count: number }>>(
 			{

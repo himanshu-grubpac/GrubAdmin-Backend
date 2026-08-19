@@ -35,11 +35,6 @@ export const updateFloorRequestBodyValidator = zValidator(
 			.trim()
 			.min(1, "Name is required")
 			.optional(),
-		status: z
-			.union([z.literal("active"), z.literal("suspended")], {
-				error: "Please provide a valid status",
-			})
-			.optional(),
 	}),
 	(response) => {
 		if (!response.success) {
@@ -112,12 +107,18 @@ export const reactivateFloorsRequestBodyValidator = zValidator(
 	},
 );
 
+const optionalBooleanQueryField = z
+	.union([z.boolean(), z.literal("true"), z.literal("false"), z.literal("1"), z.literal("0")])
+	.optional()
+	.transform((value) => value === true || value === "true" || value === "1");
+
 export const getFloorsRequestQueryValidator = zValidator(
 	"query",
 	z.object({
 		query: z.string().trim().min(1, "Query is required").optional(),
 		search: z.string().trim().min(1, "Search is required").optional(),
 		...listPaginationFields,
+		include_boxes: optionalBooleanQueryField,
 		status: z
 			.union([z.literal("active"), z.literal("suspended"), z.literal("all")], {
 				error: "Please provide a valid status",
@@ -130,6 +131,7 @@ export const getFloorsRequestQueryValidator = zValidator(
 		page: data.page ?? data.page_number ?? 1,
 		limit: data.limit ?? data.page_size ?? undefined,
 		query: data.query ?? data.search,
+		include_boxes: data.include_boxes ?? false,
 	})),
 	(response) => {
 		if (!response.success) {
