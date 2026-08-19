@@ -4,10 +4,13 @@ import { getSavedOtp, deleteSavedOtp, getOtpByToken } from "@/db/actions/otp.act
 import { APIError } from "@/types/error";
 import { getUniqueVerticalDeliveryEmployee } from "@/db/actions/vertical-delivery-employee.actions";
 import { Bcrypt } from "@/utils/bcrypt.ts";
-import { JWT } from "@/utils/jwt.ts";
 import type { APIResponse } from "@/types/api";
 import { prisma } from "@/db";
 import { getCookie, setCookie } from "hono/cookie";
+import {
+	invalidateDeliveryAuthSessions,
+	signDeliverySessionToken,
+} from "delivery/handlers/auth/delivery-auth-token";
 
 interface ResponseData {
 	auth_token: string;
@@ -75,8 +78,17 @@ export const resetPasswordMagicLinkHandler = createHandlers(
 		// Delete the used token
 		await deleteSavedOtp(email);
 
+		const client_id =
+			employee.type === "admin"
+				? employee.employee.id
+				: ((employee.employee as { client_id?: string | null }).client_id ?? "");
+
+		if (client_id) {
+			await invalidateDeliveryAuthSessions(client_id);
+		}
+
 		// Generate auth token for immediate login
-		const auth_token = JWT.signDeliveryAuthToken({
+		const auth_token = await signDeliverySessionToken(client_id, {
 			role:
 				employee.type === "admin" ? "admin" : employee.type,
 			id: employee.employee.id,

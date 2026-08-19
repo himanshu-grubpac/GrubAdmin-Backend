@@ -7,9 +7,10 @@ import {
 } from "@/db/actions/delivery-employee-otp.actions.ts";
 import { APIError } from "@/types/error";
 import { getUniqueVerticalDeliveryEmployee } from "@/db/actions/vertical-delivery-employee.actions";
-import { JWT } from "@/utils/jwt.ts";
 import type { APIResponse } from "@/types/api";
 import { resolveMessageTemplate } from "@/utils/message.ts";
+import type { client, vertical_delivery_employee } from "@/db/types";
+import { signDeliverySessionToken } from "delivery/handlers/auth/delivery-auth-token";
 
 interface ResponseData {
 	auth_token: string;
@@ -56,8 +57,13 @@ export const verifyForgetPasswordOtpHandler = createHandlers(
 			throw new APIError(undefined, "delivery.auth.login.SUSPENDED", undefined, 403);
 		}
 
+		const client_id =
+			employee.type === "admin"
+				? (employee.employee as client).id
+				: ((employee.employee as vertical_delivery_employee).client_id ?? "");
+
 		// Generate a temporary reset token (expires in 10 minutes)
-		const token = JWT.signDeliveryAuthToken({
+		const token = await signDeliverySessionToken(client_id, {
 			id: employee.employee.id,
 			role: employee.type,
 			type: "password_reset",

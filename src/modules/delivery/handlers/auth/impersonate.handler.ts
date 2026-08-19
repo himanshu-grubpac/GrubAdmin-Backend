@@ -8,6 +8,7 @@ import { logger } from "@/utils/logger";
 import { CLIENT_DASHBOARD_URL } from "@/configs/env";
 import { DEFAULT_IP_ADDRESS } from "@/configs/constants";
 import type { client } from "@/db/types";
+import { signDeliverySessionToken } from "delivery/handlers/auth/delivery-auth-token";
 
 interface ImpersonateRequestBody {
 	token?: string;
@@ -81,7 +82,7 @@ export const deliveryImpersonateHandler = createHandlers(
 			);
 		}
 
-		const deliveryToken = JWT.signDeliveryAuthToken({
+		const deliveryToken = await signDeliverySessionToken(clientRecord.id, {
 			role: "admin",
 			id: clientRecord.id,
 		});

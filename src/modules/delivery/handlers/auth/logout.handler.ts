@@ -3,12 +3,15 @@ import type { APIResponse } from "@/types/api";
 import { deliveryAuthGuard } from "@/middlewares/auth";
 import { loggerService } from "@/services/system-log.ts";
 import { deleteCookie } from "hono/cookie";
+import { invalidateDeliveryAuthSessions } from "delivery/handlers/auth/delivery-auth-token";
 
 export const logoutHandler = createHandlers(
     deliveryAuthGuard(),
     async (context) => {
         deleteCookie(context, "otp_id");
         const { client_id, user_id, user, type } = context.var;
+
+        await invalidateDeliveryAuthSessions(client_id);
 
         // Log access
         const userObj = user as any;

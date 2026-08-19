@@ -1,7 +1,7 @@
 import { prisma } from "@/db";
 import { actionGrubpac, updateBoxLockStatus } from "@/db/actions/box.actions.ts";
 import { DeliveryEmployeeOtp } from "@/db/mongo-schema";
-import type { hardware_state } from "@/db/types";
+import type { hardware_state, Prisma } from "@/db/types";
 import { APIError } from "@/types/error";
 import type {
 	LockAction,
@@ -24,8 +24,11 @@ import {
 	BOX_POWERED_OFF_CONNECT_MESSAGE,
 	isBoxPoweredOff,
 } from "@/utils/box-power.ts";
+import { SEARCH_PAGE_SIZE } from "@/validators/pagination.ts";
 
 const MAX_LOCK_OTP_ATTEMPTS = 3;
+const MAX_MY_GRUBPACS_PAGE_SIZE = SEARCH_PAGE_SIZE;
+const MAX_DRIVER_BOXES_PAGE_SIZE = SEARCH_PAGE_SIZE;
 
 const boxInclude = {
 	telemetry: true,
@@ -72,33 +75,188 @@ export const resolveDriverBoxById = async (args: {
 	return { box: assignment.box, assignment };
 };
 
+export type ListDriverBoxesParams = {
+	employee_id: string;
+	client_id: string;
+	page?: number;
+	limit?: number;
+	include_historical?: boolean;
+};
+
+const driverBoxAssignmentWhere = (args: {
+	employee_id: string;
+	client_id: string;
+	include_historical?: boolean;
+}): Prisma.vertical_delivery_employee_boxWhereInput => ({
+	employee_id: args.employee_id,
+	status: args.include_historical
+		? { in: ["shared", "unlinked"] }
+		: "shared",
+	box: {
+		client_id: args.client_id,
+		status: { not: "suspended" },
+	},
+});
+
+/** Driver box list — always paginated; default and max page size 50 (DM-04). */
 export const listDriverBoxes = async (
-	employee_id: string,
-	client_id: string,
-	include_historical: boolean = false,
-): Promise<MobileBoxSummary[]> => {
-	const assignments = await prisma.vertical_delivery_employee_box.findMany({
-		where: {
-			employee_id,
-			status: include_historical ? { in: ["shared", "unlinked"] } : "shared",
-			box: {
-				client_id,
-				status: { not: "suspended" },
-			},
-		},
-		include: {
-			box: {
-				include: {
-					telemetry: true,
-					lock: true,
+	args: ListDriverBoxesParams,
+): Promise<{
+	boxes: MobileBoxSummary[];
+	count: number;
+	page: number;
+	limit: number;
+}> => {
+	const page = args.page ?? 1;
+	const limit = Math.min(
+		args.limit ?? MAX_DRIVER_BOXES_PAGE_SIZE,
+		MAX_DRIVER_BOXES_PAGE_SIZE,
+	);
+	const skip = (page - 1) * limit;
+	const where = driverBoxAssignmentWhere(args);
+
+	const [assignments, count] = await Promise.all([
+		prisma.vertical_delivery_employee_box.findMany({
+			where,
+			include: {
+				box: {
+					include: {
+						telemetry: true,
+						lock: true,
+					},
 				},
 			},
-		},
-	});
+			skip,
+			take: limit,
+			orderBy: { created_at: "desc" },
+		}),
+		prisma.vertical_delivery_employee_box.count({ where }),
+	]);
 
-	return assignments.map((assignment) =>
-		toMobileBoxSummary(assignment.box as BoxWithRelations, employee_id),
-	);
+	return {
+		boxes: assignments.map((assignment) =>
+			toMobileBoxSummary(assignment.box as BoxWithRelations, args.employee_id),
+		),
+		count,
+		page,
+		limit,
+	};
+};
+
+export type GetMyGrubpacsForClientParams = {
+	client_id: string;
+	power_status?: "on" | "off" | "unknown";
+	query?: string;
+	page?: number;
+	limit?: number;
+};
+
+export type MyGrubpacListItem = Record<string, unknown>;
+
+const myGrubpacBoxSelect = {
+	id: true,
+	box_display_id: true,
+	name: true,
+	vehicle_number: true,
+	status: true,
+	created_at: true,
+	updated_at: true,
+	telemetry: true,
+} as const;
+
+const buildMyGrubpacsWhereClause = (args: {
+	client_id: string;
+	power_status?: "on" | "off" | "unknown";
+	query?: string;
+}) => {
+	const whereClause: {
+		client_id: string;
+		status: { not: "suspended" };
+		telemetry?: { is: { power_status: "on" | "off" | "unknown" } };
+		OR?: Array<
+			| { name: { contains: string } }
+			| { box_display_id: { contains: string } }
+		>;
+	} = {
+		client_id: args.client_id,
+		status: {
+			not: "suspended",
+		},
+	};
+
+	if (args.power_status) {
+		whereClause.telemetry = {
+			is: {
+				power_status: args.power_status,
+			},
+		};
+	}
+
+	if (args.query) {
+		whereClause.OR = [
+			{ name: { contains: args.query } },
+			{ box_display_id: { contains: args.query } },
+		];
+	}
+
+	return whereClause;
+};
+
+const formatMyGrubpacBox = (box: {
+	id: string;
+	box_display_id: string;
+	name: string | null;
+	vehicle_number: string | null;
+	status: string;
+	created_at: Date;
+	updated_at: Date;
+	telemetry: Record<string, unknown> | null;
+}): MyGrubpacListItem => {
+	const { telemetry, ...boxData } = box;
+	const {
+		id: _telemetryId,
+		box_id: _telemetryBoxId,
+		updated_at: _telemetryUpdatedAt,
+		...telemetryData
+	} = (telemetry || {}) as Record<string, unknown>;
+
+	return {
+		...boxData,
+		...telemetryData,
+	};
+};
+
+/** Account my GrubPacs — always paginated; default and max page size 50 (DM-03). */
+export const getMyGrubpacsForClient = async (
+	args: GetMyGrubpacsForClientParams,
+): Promise<{
+	boxes: MyGrubpacListItem[];
+	count: number;
+	page: number;
+	limit: number;
+}> => {
+	const page = args.page ?? 1;
+	const limit = Math.min(args.limit ?? MAX_MY_GRUBPACS_PAGE_SIZE, MAX_MY_GRUBPACS_PAGE_SIZE);
+	const skip = (page - 1) * limit;
+	const whereClause = buildMyGrubpacsWhereClause(args);
+
+	const [boxes, count] = await Promise.all([
+		prisma.box.findMany({
+			where: whereClause,
+			select: myGrubpacBoxSelect,
+			skip,
+			take: limit,
+			orderBy: { created_at: "desc" },
+		}),
+		prisma.box.count({ where: whereClause }),
+	]);
+
+	return {
+		boxes: boxes.map(formatMyGrubpacBox),
+		count,
+		page,
+		limit,
+	};
 };
 
 export const registerDriverBox = async (args: {

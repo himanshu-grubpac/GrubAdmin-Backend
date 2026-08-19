@@ -11,11 +11,11 @@ import {
 	activateVerticalDeliveryEmployee,
 	resolveVerticalDeliveryEmployeeForEmailAuth,
 } from "@/db/actions/vertical-delivery-employee.actions";
-import { JWT } from "@/utils/jwt.ts";
 import type { APIResponse } from "@/types/api";
 import type { client, vertical_delivery_employee } from "@/db/types";
 import { loggerService } from "@/services/system-log.ts";
 import { getCookie } from "hono/cookie";
+import { signDeliverySessionToken } from "delivery/handlers/auth/delivery-auth-token";
 
 interface ResponseData {
 	auth_token: string;
@@ -91,7 +91,8 @@ export const verifyOtpHandler = createHandlers(
 				? (employee.employee as client).id
 				: ((employee.employee as vertical_delivery_employee).client_id ?? "");
 
-		const token = JWT.signDeliveryAuthToken(
+		const token = await signDeliverySessionToken(
+			client_id,
 			{
 				id: employee.employee.id,
 				role: employee.type,

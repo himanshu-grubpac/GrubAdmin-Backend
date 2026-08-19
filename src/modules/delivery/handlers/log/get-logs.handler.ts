@@ -1,7 +1,7 @@
 import { createHandlers } from "@/utils/hono-factory.ts";
 import { deliveryAuthGuard } from "@/middlewares/auth";
 import { getSystemLogsRequestQueryValidator, searchSystemLogsRequestBodyValidator, categoriesEnum, typesEnum, categoryToTypes, filterStructure } from "delivery/validators/log.validators.ts";
-import { getSystemLogs } from "@/db/actions/system-log.action.ts";
+import { getDeliverySystemLogs } from "@/db/actions/delivery-system-log.action.ts";
 import type { APIResponse } from "@/types/api";
 import { calculatePagination } from "@/utils/pagination.ts";
 import { resolveMessageTemplate } from "@/utils/message";
@@ -24,7 +24,7 @@ export const getSystemLogsHandler = createHandlers(
 			limit 
 		} = context.req.valid("query");
 
-		const result = await getSystemLogs({
+		const result = await getDeliverySystemLogs({
 			category,
 			type,
 			actor_id,
@@ -69,7 +69,7 @@ export const searchSystemLogsHandler = createHandlers(
 			limit 
 		} = context.req.valid("json");
 
-		const result = await getSystemLogs({
+		const result = await getDeliverySystemLogs({
 			filters,
 			actor_id,
 			subject_id,

@@ -1,6 +1,13 @@
 import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
 import { validatorErrorHandler } from "@/utils/zod.ts";
+import { SEARCH_PAGE_SIZE } from "@/validators/pagination.ts";
+
+const myGrubpacsPageSizeSchema = z.coerce
+	.number()
+	.int()
+	.min(1)
+	.max(SEARCH_PAGE_SIZE, `Page size cannot exceed ${SEARCH_PAGE_SIZE}`);
 
 export const updateAccountRequestBodyValidator = zValidator(
     "json",
@@ -93,15 +100,25 @@ export const deleteAccountRequestBodyValidator = zValidator(
 );
 
 export const getMyGrubpacsRequestQueryValidator = zValidator(
-    "query",
-    z.object({
-        power_status: z.enum(["on", "off", "unknown"]).optional(),
-        query: z.string().optional(),
-    }),
-    (response) => {
-        if (!response.success) {
-            validatorErrorHandler(response.error);
-        }
-    },
+	"query",
+	z
+		.object({
+			power_status: z.enum(["on", "off", "unknown"]).optional(),
+			query: z.string().optional(),
+			page: z.coerce.number().int().min(1).optional(),
+			limit: myGrubpacsPageSizeSchema.optional(),
+			page_size: myGrubpacsPageSizeSchema.optional(),
+		})
+		.transform((data) => ({
+			power_status: data.power_status,
+			query: data.query,
+			page: data.page ?? 1,
+			limit: data.page_size ?? data.limit ?? SEARCH_PAGE_SIZE,
+		})),
+	(response) => {
+		if (!response.success) {
+			validatorErrorHandler(response.error);
+		}
+	},
 );
 

@@ -24,7 +24,7 @@ ENV NODE_BINARY=/usr/bin/node
 # Copy dependency + prisma files first
 COPY package.json bun.lockb* ./
 
-RUN bun install
+RUN bun install --frozen-lockfile
 
 # Copy source code
 COPY . .
@@ -32,4 +32,14 @@ COPY . .
 # Generate Prisma Client (output directory is src/db/prisma)
 RUN bun prisma generate
 
+RUN groupadd --system appuser && useradd --system --gid appuser appuser \
+    && chown -R appuser:appuser /app
+
+USER appuser
+
 EXPOSE ${PORT}
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+  CMD curl -f http://localhost:${PORT}/api/v1/common/health || exit 1
+
+CMD ["bun", "src/index.ts"]

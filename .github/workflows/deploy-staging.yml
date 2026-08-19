@@ -1,0 +1,120 @@
+name: Deploy Staging
+
+on:
+  push:
+    branches:
+      - staging
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Test
+        run: bun test
+
+      - name: Build
+        run: bun run build
+
+  deploy:
+    needs: validate
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check staging slot configured
+        id: slot
+        run: |
+          if [ -z "${{ secrets.STAGING_DEPLOY_PATH }}" ]; then
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "::notice title=Staging slot not configured::STAGING_DEPLOY_PATH secret not set — CI gate passed; SSH deploy skipped until staging slot is ready on EC2."
+          else
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Setup SSH key
+        if: steps.slot.outputs.configured == 'true'
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRODUCTION_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+
+      - name: Add EC2 host to known_hosts
+        if: steps.slot.outputs.configured == 'true'
+        run: |
+          ssh-keyscan -t ed25519 -H ${{ secrets.SSH_PRODUCTION_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to staging slot via PM2
+        if: steps.slot.outputs.configured == 'true'
+        run: |
+          ssh -i ~/.ssh/id_ed25519 ${{ secrets.SSH_PRODUCTION_USER_NAME }}@${{ secrets.SSH_PRODUCTION_HOST }} 'set -e
+          export PATH="/home/ubuntu/.local/share/fnm/node-versions/v22.22.3/installation/bin:/home/ubuntu/.bun/bin:$PATH"
+          DEPLOY_PATH="${{ secrets.STAGING_DEPLOY_PATH }}"
+          PM2_ID="${{ secrets.STAGING_PM2_ID }}"
+          if [ -z "$PM2_ID" ]; then PM2_ID="grubadmin-api-staging"; fi
+          echo "=== Pulling latest code (staging) ==="
+          cd "$DEPLOY_PATH"
+          git stash
+          git pull origin staging
+          echo "=== Stopping running PM2 process ==="
+          pm2 delete "$PM2_ID" || true
+          echo "=== Installing dependencies ==="
+          bun install
+          echo "=== Killing idle database connections ==="
+          set -o allexport
+          . .env.production 2>/dev/null || . .env 2>/dev/null || true
+          set +o allexport
+          export AIVEN_ADMIN_PASSWORD="${{ secrets.AIVEN_ADMIN_PASSWORD }}"
+          bun src/cmd/kill-idle-connections.ts || true
+          echo "=== Running database migrations ==="
+          bun run db:fix-duplicate-employee-emails
+          bun run db:fix-orphaned-box-employees
+          sleep 3
+          success=false
+          for i in 1 2 3; do
+            echo "Attempt $i: prisma migrate deploy..."
+            if timeout 120 bun prisma migrate deploy; then
+              success=true
+              break
+            fi
+            echo "migrate deploy failed, waiting 5s before retry..."
+            sleep 5
+          done
+          if [ "$success" != "true" ]; then
+            echo "prisma migrate deploy failed after 3 attempts"
+            exit 1
+          fi
+          echo "=== Running db:generate ==="
+          timeout 120 bun db:generate
+          echo "=== Starting PM2 process ==="
+          cd "$DEPLOY_PATH"
+          pm2 start bun --name "$PM2_ID" --kill-timeout 15000 -- start
+          pm2 save
+          pm2 list
+          echo "=== Readiness check ==="
+          ready=false
+          for i in 1 2 3 4 5 6 7 8 9 10; do
+            if curl -sf http://127.0.0.1:8000/api/v1/common/readyz >/dev/null; then
+              ready=true
+              break
+            fi
+            echo "waiting for readyz (attempt $i)..."
+            sleep 3
+          done
+          if [ "$ready" != "true" ]; then
+            echo "readyz check failed after PM2 start"
+            exit 1
+          fi
+          echo "=== Staging deployment complete ==="'
+
+      - name: Done
+        if: steps.slot.outputs.configured == 'true'
+        run: echo "Backend deployed successfully to staging slot"

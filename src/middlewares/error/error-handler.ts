@@ -1,10 +1,82 @@
 import { type Context } from "hono";
+import { HTTPException } from "hono/http-exception";
 import { APIError } from "@/types/error";
 import { Prisma } from "@/db/prisma";
 import { JsonWebTokenError } from "jsonwebtoken";
 import { ZodError } from "zod";
 import { type StatusCode } from "hono/utils/http-status";
 import { logger } from "@/utils/logger";
+
+/** Runtime check — avoids frozen NODE_ENV from env module load (testable). */
+export const isProductionErrorSanitizationEnabled = (): boolean =>
+	(process.env.NODE_ENV || "development") === "production";
+
+export const GENERIC_SERVER_ERROR_MESSAGE =
+	"Something went wrong. Please try again later.";
+
+export const GENERIC_UNAVAILABLE_MESSAGE =
+	"Service temporarily unavailable. Database connection issue.";
+
+/** Ops-facing root_cause codes preserved on sanitized 5xx prod responses (P3-05 runbook). */
+export const PRODUCTION_OPS_ROOT_CAUSES = new Set([
+	"mysql_pool_timeout",
+	"mongodb_buffering_timeout",
+	"mongodb_connection_error",
+	"database_connection_failed",
+]);
+
+const INTERNAL_CLIENT_RESPONSE_KEYS = new Set([
+	"stack",
+	"prisma_code",
+	"prisma_meta",
+]);
+
+/**
+ * Strip internal diagnostics from client JSON in production.
+ * Dev/staging responses pass through unchanged for debugging.
+ */
+export const sanitizeClientErrorPayload = (
+	body: Record<string, unknown>,
+	httpStatus: number,
+): Record<string, unknown> => {
+	if (!isProductionErrorSanitizationEnabled()) {
+		return body;
+	}
+
+	const sanitized: Record<string, unknown> = { ...body };
+
+	for (const key of INTERNAL_CLIENT_RESPONSE_KEYS) {
+		delete sanitized[key];
+	}
+
+	if (httpStatus < 500) {
+		return sanitized;
+	}
+
+	const rootCause = sanitized.root_cause;
+	const keepRootCause =
+		typeof rootCause === "string" && PRODUCTION_OPS_ROOT_CAUSES.has(rootCause);
+
+	if (!keepRootCause) {
+		delete sanitized.root_cause;
+	}
+
+	const useUnavailableMessage =
+		httpStatus === 503 ||
+		(typeof rootCause === "string" && PRODUCTION_OPS_ROOT_CAUSES.has(rootCause));
+
+	sanitized.error = useUnavailableMessage
+		? GENERIC_UNAVAILABLE_MESSAGE
+		: GENERIC_SERVER_ERROR_MESSAGE;
+
+	return sanitized;
+};
+
+const respondError = (
+	ctx: Context,
+	body: Record<string, unknown>,
+	status: 400 | 401 | 403 | 404 | 429 | 500 | 503,
+) => ctx.json(sanitizeClientErrorPayload(body, status), { status });
 
 /**
  * Extract a structured context object for error logging.
@@ -66,7 +138,8 @@ export const globalErrorHandler = async (error: unknown, ctx: Context) => {
 				}
 			}
 
-			return ctx.json(
+			return respondError(
+				ctx,
 				{
 					success: false,
 					error: errorMessage,
@@ -74,14 +147,13 @@ export const globalErrorHandler = async (error: unknown, ctx: Context) => {
 					client_id,
 					request_id: errCtx.request_id,
 				},
-				{
-					status: 400,
-				},
+				400,
 			);
 		}
 
 		if (error.code === "P2023") {
-			return ctx.json(
+			return respondError(
+				ctx,
 				{
 					success: false,
 					error: "Either no data found or some inconsistent column data type found.",
@@ -89,14 +161,13 @@ export const globalErrorHandler = async (error: unknown, ctx: Context) => {
 					client_id,
 					request_id: errCtx.request_id,
 				},
-				{
-					status: 400,
-				},
+				400,
 			);
 		}
 
 		if (error.code === "P2025") {
-			return ctx.json(
+			return respondError(
+				ctx,
 				{
 					success: false,
 					error: "Data not found!!",
@@ -104,14 +175,13 @@ export const globalErrorHandler = async (error: unknown, ctx: Context) => {
 					client_id,
 					request_id: errCtx.request_id,
 				},
-				{
-					status: 404,
-				},
+				404,
 			);
 		}
 
 		// Unhandled Prisma error
-		return ctx.json(
+		return respondError(
+			ctx,
 			{
 				success: false,
 				error: "Database error. Please try again.",
@@ -122,28 +192,30 @@ export const globalErrorHandler = async (error: unknown, ctx: Context) => {
 				prisma_code: error.code,
 				prisma_meta: error.meta,
 			},
-			{ status: 500 },
+			500,
 		);
 	}
 
 	if (error instanceof Prisma.PrismaClientInitializationError) {
 		logger.error(`Prisma initialization error: ${error.message}`);
-		return ctx.json(
+		return respondError(
+			ctx,
 			{
 				success: false,
-				error: "Service temporarily unavailable. Database connection issue.",
+				error: GENERIC_UNAVAILABLE_MESSAGE,
 				code: 503,
 				client_id,
 				request_id: errCtx.request_id,
 				root_cause: "database_connection_failed",
 			},
-			{ status: 503 },
+			503,
 		);
 	}
 
 	if (error instanceof Prisma.PrismaClientRustPanicError) {
 		logger.error(`Prisma rust panic: ${error.message}`);
-		return ctx.json(
+		return respondError(
+			ctx,
 			{
 				success: false,
 				error: "Internal database error. Please try again.",
@@ -152,12 +224,13 @@ export const globalErrorHandler = async (error: unknown, ctx: Context) => {
 				request_id: errCtx.request_id,
 				root_cause: "prisma_rust_panic",
 			},
-			{ status: 500 },
+			500,
 		);
 	}
 
 	if (error instanceof ZodError) {
-		return ctx.json(
+		return respondError(
+			ctx,
 			{
 				success: false,
 				code: 400,
@@ -166,14 +239,13 @@ export const globalErrorHandler = async (error: unknown, ctx: Context) => {
 				request_id: errCtx.request_id,
 				root_cause: "validation_error",
 			},
-			{
-				status: 400,
-			},
+			400,
 		);
 	}
 
 	if (error instanceof JsonWebTokenError) {
-		return ctx.json(
+		return respondError(
+			ctx,
 			{
 				success: false,
 				error: error.message,
@@ -182,9 +254,23 @@ export const globalErrorHandler = async (error: unknown, ctx: Context) => {
 				request_id: errCtx.request_id,
 				root_cause: "jwt_error",
 			},
+			401,
+		);
+	}
+
+	if (error instanceof HTTPException) {
+		const status = (error.status ?? 500) as 400 | 401 | 403 | 404 | 429 | 500 | 503;
+		return respondError(
+			ctx,
 			{
-				status: 401,
+				success: false,
+				error: error.message || "Request failed",
+				code: status,
+				client_id,
+				request_id: errCtx.request_id,
+				root_cause: status === 400 ? "invalid_request_body" : "http_exception",
 			},
+			status,
 		);
 	}
 
@@ -218,15 +304,18 @@ export const globalErrorHandler = async (error: unknown, ctx: Context) => {
 			}
 		}
 
-		const finalData = {
-			success: false,
-			error: error.message,
-			code: error.code,
-			data: error.data,
-			...templateData,
-			client_id,
-			request_id: errCtx.request_id,
-		};
+		const finalData = sanitizeClientErrorPayload(
+			{
+				success: false,
+				error: error.message,
+				code: error.code,
+				data: error.data,
+				...templateData,
+				client_id,
+				request_id: errCtx.request_id,
+			},
+			error.code ?? 400,
+		);
 
 		ctx.status(finalData.code as StatusCode);
 		return ctx.json(finalData);
@@ -248,16 +337,17 @@ export const globalErrorHandler = async (error: unknown, ctx: Context) => {
 				client_id,
 				request_id: errCtx.request_id,
 			});
-			return ctx.json(
+			return respondError(
+				ctx,
 				{
 					success: false,
-					error: "Service temporarily unavailable. Database connection issue.",
+					error: GENERIC_UNAVAILABLE_MESSAGE,
 					code: 503,
 					client_id,
 					request_id: errCtx.request_id,
 					root_cause: "mongodb_buffering_timeout",
 				},
-				{ status: 503 },
+				503,
 			);
 		}
 
@@ -272,20 +362,53 @@ export const globalErrorHandler = async (error: unknown, ctx: Context) => {
 				path: errCtx.path,
 				request_id: errCtx.request_id,
 			});
-			return ctx.json(
+			return respondError(
+				ctx,
 				{
 					success: false,
-					error: "Service temporarily unavailable. Database connection issue.",
+					error: GENERIC_UNAVAILABLE_MESSAGE,
 					code: 503,
 					client_id,
 					request_id: errCtx.request_id,
 					root_cause: "mongodb_connection_error",
 				},
-				{ status: 503 },
+				503,
 			);
 		}
 
-		return ctx.json(
+		// P3-05 / P2-14 — MySQL pool timeout & connection failures (see tracker Runbook).
+		// MariaDB driver throws e.g. "pool timeout: failed to retrieve a connection from pool"
+		// when DATABASE_POOL_SIZE is exhausted or Aiven TLS/connect is slow (P4-16).
+		// Maps to HTTP 503 + root_cause mysql_pool_timeout (kept on delivery/medical/admin
+		// prod JSON via PRODUCTION_OPS_ROOT_CAUSES; hospitality wrapper strips root_cause).
+		if (
+			errorMessage.includes("pool timeout") ||
+			errorMessage.includes("failed to retrieve a connection from pool") ||
+			errorMessage.includes("Connection lost") ||
+			errorMessage.includes("ECONNREFUSED") ||
+			errorMessage.includes("ETIMEDOUT")
+		) {
+			logger.error(`MySQL pool/connection error: ${errorMessage}`, {
+				path: errCtx.path,
+				client_id,
+				request_id: errCtx.request_id,
+			});
+			return respondError(
+				ctx,
+				{
+					success: false,
+					error: GENERIC_UNAVAILABLE_MESSAGE,
+					code: 503,
+					client_id,
+					request_id: errCtx.request_id,
+					root_cause: "mysql_pool_timeout",
+				},
+				503,
+			);
+		}
+
+		return respondError(
+			ctx,
 			{
 				success: false,
 				error: error.message,
@@ -294,13 +417,12 @@ export const globalErrorHandler = async (error: unknown, ctx: Context) => {
 				request_id: errCtx.request_id,
 				root_cause: "unhandled_error",
 			},
-			{
-				status: 400,
-			},
+			400,
 		);
 	}
 
-	return ctx.json(
+	return respondError(
+		ctx,
 		{
 			success: false,
 			error: "Internal Server Error",
@@ -309,8 +431,6 @@ export const globalErrorHandler = async (error: unknown, ctx: Context) => {
 			request_id: errCtx.request_id,
 			root_cause: "unknown_error",
 		},
-		{
-			status: 500,
-		},
+		500,
 	);
 };

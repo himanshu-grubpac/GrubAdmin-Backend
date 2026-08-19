@@ -1,12 +1,19 @@
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { validatorErrorHandler } from "@/utils/zod.ts";
+import { SEARCH_PAGE_SIZE } from "@/validators/pagination";
+
+const deliveryNotificationPageSizeSchema = z.coerce
+	.number()
+	.int()
+	.min(1)
+	.max(SEARCH_PAGE_SIZE, `Limit cannot exceed ${SEARCH_PAGE_SIZE}`);
 
 export const getNotificationsRequestQueryValidator = zValidator(
 	"query",
 	z.object({
 		page: z.coerce.number().int().min(1).optional(),
-		limit: z.coerce.number().int().min(1).optional(),
+		limit: deliveryNotificationPageSizeSchema.optional(),
 		types: z.union([
 			z.enum(["warning", "error", "success", "notification"]),
 			z.array(z.enum(["warning", "error", "success", "notification"])),
@@ -38,6 +45,7 @@ export const getNotificationsRequestQueryValidator = zValidator(
 			...data,
 			is_read,
 			page: data.page ?? 1,
+			limit: data.limit ?? SEARCH_PAGE_SIZE,
 			types: data.types ? (Array.isArray(data.types) ? data.types : [data.types]) : undefined,
 			restaurant_ids: data.restaurant_ids ? (Array.isArray(data.restaurant_ids) ? data.restaurant_ids : [data.restaurant_ids]) : undefined,
 			box_ids: data.box_ids ? (Array.isArray(data.box_ids) ? data.box_ids : [data.box_ids]) : undefined,

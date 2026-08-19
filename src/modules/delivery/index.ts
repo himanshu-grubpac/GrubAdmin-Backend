@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { globalErrorHandler } from "@/middlewares/error";
 import { reqInputsMiddleware } from "@/middlewares/req-inputs";
+import { createDeliveryRateLimits } from "delivery/middlewares/delivery-rate-limit";
 import {
 	loginHandler,
 	deliveryImpersonateHandler,
@@ -111,23 +112,31 @@ import {
 
 export const deliveryRouter = new Hono();
 
+const limits = createDeliveryRateLimits();
+
 deliveryRouter.onError(globalErrorHandler);
 deliveryRouter.use(reqInputsMiddleware);
+deliveryRouter.use("*", limits.general);
 
 /* Base route: /api/v1/delivery/auth */
-deliveryRouter.post("/auth/login", ...loginHandler);
-deliveryRouter.post("/auth/send-otp", ...sendOtpHandler);
-deliveryRouter.post("/auth/verify-otp", ...verifyOtpHandler);
-deliveryRouter.post("/auth/resend-otp", ...resendOtpHandler);
-deliveryRouter.post("/auth/forget-password/send", ...sendForgetPasswordMagicLinkHandler);
+deliveryRouter.post("/auth/login", limits.auth, ...loginHandler);
+deliveryRouter.post("/auth/send-otp", limits.auth, ...sendOtpHandler);
+deliveryRouter.post("/auth/verify-otp", limits.auth, ...verifyOtpHandler);
+deliveryRouter.post("/auth/resend-otp", limits.auth, ...resendOtpHandler);
+deliveryRouter.post(
+	"/auth/forget-password/send",
+	limits.auth,
+	...sendForgetPasswordMagicLinkHandler,
+);
 deliveryRouter.post(
 	"/auth/forget-password/verify",
+	limits.auth,
 	...verifyForgetPasswordMagicLinkHandler,
 );
-deliveryRouter.post("/auth/reset-password", ...resetPasswordMagicLinkHandler);
-deliveryRouter.post("/auth/set-password", ...setNewPasswordHandler);
+deliveryRouter.post("/auth/reset-password", limits.auth, ...resetPasswordMagicLinkHandler);
+deliveryRouter.post("/auth/set-password", limits.auth, ...setNewPasswordHandler);
 deliveryRouter.post("/auth/logout", ...logoutHandler);
-deliveryRouter.post("/auth/impersonate", ...deliveryImpersonateHandler);
+deliveryRouter.post("/auth/impersonate", limits.auth, ...deliveryImpersonateHandler);
 
 /* Base route: /api/v1/delivery/account */
 deliveryRouter.get("/account/me", ...getMyAccountHandler);

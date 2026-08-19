@@ -1,8 +1,15 @@
+import { readFileSync } from "fs";
 import { logger } from "@/utils/logger";
 import { PrismaClient } from "./prisma";
 import mongoose from "mongoose";
-import { DATABASE_URL, MONGO_URI } from "@/configs/env";
+import {
+	DATABASE_POOL_SIZE,
+	DATABASE_SSL_CA_PATH,
+	DATABASE_URL,
+	MONGO_URI,
+} from "@/configs/env";
 import { PrismaMariaDb } from "@prisma/adapter-mariadb";
+import type mariadb from "mariadb";
 
 // Prevent multiple instances of Prisma Client in dev (hot reloads)
 const globalForPrisma = globalThis as unknown as {
@@ -18,27 +25,112 @@ const globalForPrisma = globalThis as unknown as {
 let prismaConnected = false;
 let prismaConnectionPromise: Promise<void> | null = null;
 
-function getPrismaInstance(): PrismaClient {
-	if (globalForPrisma.prisma) {
-		return globalForPrisma.prisma;
+function isMysqlTlsRequired(dbUrl: URL, isRemoteHost: boolean): boolean {
+	if (!isRemoteHost) {
+		return false;
 	}
 
-	let dbConfig: any = DATABASE_URL;
+	const sslMode = dbUrl.searchParams.get("ssl-mode")?.toLowerCase();
+	if (
+		sslMode === "required" ||
+		sslMode === "verify_ca" ||
+		sslMode === "verify_identity"
+	) {
+		return true;
+	}
+
+	const host = dbUrl.hostname.toLowerCase();
+	return host.includes("aivencloud.com") || host.includes("rds.amazonaws.com");
+}
+
+function buildMariaDbSslConfig(
+	dbUrl: URL,
+	isRemoteHost: boolean,
+): mariadb.PoolConfig["ssl"] | undefined {
+	if (!isMysqlTlsRequired(dbUrl, isRemoteHost)) {
+		return undefined;
+	}
+
+	if (DATABASE_SSL_CA_PATH) {
+		try {
+			const ca = readFileSync(DATABASE_SSL_CA_PATH, "utf8");
+			if (ca.trim()) {
+				logger.info(
+					`MySQL TLS: verified mode enabled (CA bundle: ${DATABASE_SSL_CA_PATH})`,
+				);
+				return { ca, rejectUnauthorized: true };
+			}
+			logger.warn(
+				`MySQL TLS: CA bundle at ${DATABASE_SSL_CA_PATH} is empty; falling back to unverified TLS`,
+			);
+		} catch (err) {
+			logger.warn(
+				`MySQL TLS: could not read CA bundle at ${DATABASE_SSL_CA_PATH}: ${err}`,
+			);
+		}
+	} else {
+		logger.warn(
+			"MySQL TLS: remote SSL connection without DATABASE_SSL_CA_PATH — using rejectUnauthorized=false until CA bundle is installed (see .env.production.example)",
+		);
+	}
+
+	return { rejectUnauthorized: false };
+}
+
+function buildMariaDbPoolConfig(): mariadb.PoolConfig | string {
 	try {
 		const dbUrl = new URL(DATABASE_URL);
-		dbConfig = {
+		const isRemoteHost =
+			dbUrl.hostname !== "localhost" &&
+			dbUrl.hostname !== "127.0.0.1" &&
+			!dbUrl.hostname.endsWith(".local");
+
+		// MariaDB driver defaults: connectTimeout=1000ms, acquireTimeout=10000ms.
+		// Remote Aiven connections often need several seconds for TLS — 1s causes
+		// pool creation to fail while $connect() retries succeed, yielding
+		// active=0 idle=0 pool timeouts on later queries.
+		const connectTimeoutMs = parseInt(
+			process.env.MYSQL_CONNECT_TIMEOUT_MS || (isRemoteHost ? "30000" : "5000"),
+			10,
+		);
+		const acquireTimeoutMs = parseInt(
+			process.env.MYSQL_ACQUIRE_TIMEOUT_MS || (isRemoteHost ? "30000" : "10000"),
+			10,
+		);
+
+		const ssl = buildMariaDbSslConfig(dbUrl, isRemoteHost);
+
+		const poolConfig: mariadb.PoolConfig = {
 			host: dbUrl.hostname,
 			port: parseInt(dbUrl.port || "3306", 10),
 			user: decodeURIComponent(dbUrl.username),
 			password: decodeURIComponent(dbUrl.password),
 			database: dbUrl.pathname.replace(/^\//, ""),
-			ssl: {
-				rejectUnauthorized: false,
-			},
+			connectionLimit: DATABASE_POOL_SIZE,
+			connectTimeout: connectTimeoutMs,
+			acquireTimeout: acquireTimeoutMs,
+			initializationTimeout: connectTimeoutMs,
+			idleTimeout: parseInt(process.env.MYSQL_IDLE_TIMEOUT_S || "600", 10),
+			minimumIdle: parseInt(process.env.MYSQL_MIN_IDLE || "1", 10),
 		};
+
+		if (ssl !== undefined) {
+			poolConfig.ssl = ssl;
+		}
+
+		return poolConfig;
 	} catch (err) {
 		logger.error(`Error parsing DATABASE_URL for MariaDB config object: ${err}`);
+		return DATABASE_URL;
 	}
+}
+
+function getPrismaInstance(): PrismaClient {
+	if (globalForPrisma.prisma) {
+		return globalForPrisma.prisma;
+	}
+
+	const dbConfig = buildMariaDbPoolConfig();
 
 	const newAdapter = new PrismaMariaDb(dbConfig);
 	const newPrisma = new PrismaClient({
@@ -64,12 +156,19 @@ export const prisma = new Proxy({} as PrismaClient, {
  * structured 503 errors instead of crashing.
  */
 const connectPrisma = async (): Promise<void> => {
+	if (prismaConnectionPromise) {
+		return prismaConnectionPromise;
+	}
+
 	const maxRetries = parseInt(process.env.PRISMA_MAX_RETRIES || "3", 10);
 	const retryDelayMs = parseInt(process.env.PRISMA_RETRY_DELAY_MS || "2000", 10);
 
+	prismaConnectionPromise = (async () => {
 	for (let attempt = 1; attempt <= maxRetries; attempt++) {
 		try {
-			logger.info(`Connecting to MySQL via Prisma (attempt ${attempt}/${maxRetries})...`);
+			logger.info(
+				`Connecting to MySQL via Prisma (attempt ${attempt}/${maxRetries}, pool connectionLimit=${DATABASE_POOL_SIZE})...`,
+			);
 			const client = getPrismaInstance();
 			await client.$connect();
 			prismaConnected = true;
@@ -87,6 +186,9 @@ const connectPrisma = async (): Promise<void> => {
 	prismaConnected = false;
 	logger.error(`MySQL connection failed after ${maxRetries} attempts`);
 	logger.warn("Server will continue without MySQL. Prisma queries will return 503.");
+	})();
+
+	return prismaConnectionPromise;
 };
 
 export const isPrismaConnected = (): boolean => prismaConnected;

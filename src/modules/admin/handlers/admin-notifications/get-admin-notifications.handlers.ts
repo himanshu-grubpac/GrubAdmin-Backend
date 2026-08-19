@@ -4,6 +4,7 @@ import { getAdminNotificationsRequestQueryValidators } from "@/modules/admin/val
 import type { AdminNotificationModel } from "@/db/mongo-schema";
 import { getAdminNotifications } from "@/db/actions/admin-notification.action.ts";
 import type { APIResponse } from "@/types/api";
+import { calculatePagination } from "@/utils/pagination.ts";
 
 interface ResponseData {
 	notifications: AdminNotificationModel[];
@@ -13,14 +14,20 @@ export const getAdminNotificationsHandler = createHandlers(
 	authGuard(["admin", "employee"]),
 	getAdminNotificationsRequestQueryValidators,
 	async (context) => {
-		const { query, type, status, minified } = context.req.valid("query");
+		const { query, type, status, page, limit } = context.req.valid("query");
 		const { admin } = context.var;
 
-		const notifications = await getAdminNotifications({
+		const {
+			notifications,
+			count,
+			page: effectivePage,
+			limit: effectiveLimit,
+		} = await getAdminNotifications({
 			query,
-			type: typeof type === "string" ? [type] : type,
-			status: typeof status === "string" ? [status] : status,
-			minified,
+			type,
+			status,
+			page,
+			limit,
 			userId: admin?.id ?? "",
 		});
 
@@ -31,6 +38,11 @@ export const getAdminNotificationsHandler = createHandlers(
 				data: {
 					notifications,
 				},
+				pagination: calculatePagination(
+					effectivePage,
+					effectiveLimit,
+					count,
+				),
 			},
 			{
 				status: 200,

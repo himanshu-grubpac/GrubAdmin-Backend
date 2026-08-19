@@ -1,10 +1,13 @@
-import { AdminNotification } from "@/db/mongo-schema";
+import { AdminNotification, type AdminNotificationModel } from "@/db/mongo-schema";
 import type {
 	AdminNotificationGoal,
 	AdminNotificationStatus,
 	AdminNotificationType,
 } from "@/types/common";
 import { Types } from "mongoose";
+import {
+	ADMIN_NOTIFICATION_MAX_PAGE_SIZE,
+} from "@/modules/admin/configs/admin-notification-limits.ts";
 
 interface CreateAdminNotificationArgs {
 	title: string;
@@ -30,14 +33,30 @@ interface GetAdminNotificationsArgs {
 	query?: string;
 	type?: AdminNotificationType[];
 	status?: AdminNotificationStatus[];
-	minified?: boolean;
+	page?: number;
+	limit?: number;
 	userId: string;
 }
 
+export interface AdminNotificationsResult {
+	notifications: AdminNotificationModel[];
+	count: number;
+	page: number;
+	limit: number;
+}
+
+/** Admin list — always paginated; default and max page size 50 (A-BE-02). */
 export const getAdminNotifications = async (
 	args: GetAdminNotificationsArgs,
-) => {
-	const query: Record<string, any> = {
+): Promise<AdminNotificationsResult> => {
+	const page = Math.max(args.page ?? 1, 1);
+	const limit = Math.min(
+		args.limit ?? ADMIN_NOTIFICATION_MAX_PAGE_SIZE,
+		ADMIN_NOTIFICATION_MAX_PAGE_SIZE,
+	);
+	const skip = (page - 1) * limit;
+
+	const query: Record<string, unknown> = {
 		recipient_id: args.userId,
 	};
 
@@ -70,15 +89,16 @@ export const getAdminNotifications = async (
 		};
 	}
 
-	const notificationsQuery = AdminNotification.find(query).sort({
-		createdAt: -1,
-	});
+	const [notifications, count] = await Promise.all([
+		AdminNotification.find(query)
+			.sort({ createdAt: -1 })
+			.skip(skip)
+			.limit(limit)
+			.exec(),
+		AdminNotification.countDocuments(query),
+	]);
 
-	if (args.minified) {
-		notificationsQuery.limit(4);
-	}
-
-	return await notificationsQuery.exec();
+	return { notifications, count, page, limit };
 };
 
 interface ReadAdminNotificationArgs {

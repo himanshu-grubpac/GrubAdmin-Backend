@@ -4,6 +4,7 @@ import {
 	PAGE_SIZE,
 	LONG_PAGE_SIZE,
 } from "@/configs/constants";
+import { ADMIN_EXPORT_MAX_ROWS } from "@/modules/admin/configs/admin-export-limits.ts";
 import { validatorErrorHandler } from "@/utils/zod";
 import { zValidator } from "@hono/zod-validator";
 import z from "zod";
@@ -195,7 +196,10 @@ export const exportClientRequestQueryValidator = zValidator(
 			.number("Please provide a page size")
 			.int("Page size must an integer")
 			.min(1, "Page size must be at least 1")
-			.max(LONG_PAGE_SIZE, `page_size must be less than or equal to ${LONG_PAGE_SIZE}`)
+			.max(
+				ADMIN_EXPORT_MAX_ROWS,
+				`page_size must be less than or equal to ${ADMIN_EXPORT_MAX_ROWS}`,
+			)
 			.default(PAGE_SIZE),
 		filter: z
 			.union([

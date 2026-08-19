@@ -1,10 +1,10 @@
-import { loggerService } from "@/services/system-log.ts";
+import { createDeliveryNotifications } from "@/db/actions/delivery-notification.actions.ts";
+import { createDeliveryGrubLockStatusLogs } from "@/db/actions/delivery-system-log.action.ts";
 import { logger } from "@/utils/logger.ts";
 import { createHandlers } from "@/utils/hono-factory.ts";
 import { deliveryAuthGuard } from "@/middlewares/auth";
 import { lockUnlockGrublockRequestBodyValidator } from "delivery/validators/box.validators.ts";
 import { updateBoxLockStatus } from "@/db/actions/box.actions.ts";
-import { createNotification } from "@/db/actions/notification.actions.ts";
 import type { APIResponse } from "@/types/api";
 import { resolveMessageTemplate } from "@/utils/message";
 
@@ -48,39 +48,36 @@ export const lockGrublockHandler = createHandlers(
    data: result,
   };
 
-  // Create notification for each locked box
+  const consumerSuffix = consumer_full_name ? ` by ${consumer_full_name}` : "";
+
   try {
-   for (const boxId of ids) {
-    await createNotification({
+   await createDeliveryNotifications(
+    ids.map((boxId) => ({
      client_id,
      vertical_id,
      box_id: boxId,
      type: "warning",
      title: "Box Locked",
-     description: `Box ${boxId} has been locked${consumer_full_name ? ` by ${consumer_full_name}` : ""}`,
-    });
-   }
+     description: `Box ${boxId} has been locked${consumerSuffix}`,
+    })),
+   );
   } catch (err) {
-   console.error("Failed to create lock notification:", err);
+   logger.error(`Failed to create lock notifications: ${err}`);
   }
 
-  // Audit log
   try {
-   for (const id of ids) {
-    await loggerService.log({
-     category: "GrubLock",
-     type: "Status",
-     actor: {
-      id: user_id,
-      name: userName || "Unknown",
-      role: type,
-      table: type === "admin" ? "client" : "vertical_delivery_employee",
-     },
-     client_id,
-     subject: { id: id, name: id, type: "box" },
-     metadata: { action: "lock", recipient: consumer_full_name || undefined }
-    });
-   }
+   await createDeliveryGrubLockStatusLogs({
+    client_id,
+    vertical_id,
+    box_ids: ids,
+    actor: {
+     id: user_id,
+     name: userName || "Unknown",
+     role: type,
+     table: type === "admin" ? "client" : "vertical_delivery_employee",
+    },
+    metadata: { action: "lock", recipient: consumer_full_name || undefined },
+   });
   } catch (err) {
    logger.error(`Failed to write GrubLock lock audit log: ${err}`);
   }

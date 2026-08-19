@@ -18,12 +18,15 @@ import { getCookie, setCookie } from "hono/cookie";
 import { resolveMessageTemplate } from "@/utils/message.ts";
 import { prisma } from "@/db";
 import { assertEmailAvailableInVertical } from "@/utils/account";
+import { invalidateDeliveryAuthSessions } from "delivery/handlers/auth/delivery-auth-token";
 
 export const updateAccountHandler = createHandlers(
 	deliveryAuthGuard(),
 	updateAccountRequestBodyValidator,
 	async (context) => {
 		const { user, type, vertical_id } = context.var;
+		const client_id =
+			type === "admin" ? user.id : (user as vertical_delivery_employee).client_id ?? "";
 
 		const {
 			full_name,
@@ -187,6 +190,9 @@ export const updateAccountHandler = createHandlers(
 					immediateUpdateData.password = hashedPassword;
 				}
 				await updateVerticalDeliveryEmployee(immediateUpdateData);
+				if (hashedPassword && client_id) {
+					await invalidateDeliveryAuthSessions(client_id);
+				}
 			}
 
 			// Generate 4-digit OTP and hash it before storing
@@ -284,6 +290,9 @@ export const updateAccountHandler = createHandlers(
 
 		// updateVerticalDeliveryEmployee routes to client or vertical_delivery_employee based on type
 		await updateVerticalDeliveryEmployee(updateData);
+		if (isPasswordActuallyChanged && client_id) {
+			await invalidateDeliveryAuthSessions(client_id);
+		}
 
 		// Log updation changes
 		const changes: any[] = [];

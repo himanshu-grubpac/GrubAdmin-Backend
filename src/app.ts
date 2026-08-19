@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { networkLogger } from "@/middlewares/network-logger";
-import { ALLOWED_ORIGINS, FRONTEND_URL, NODE_ENV, loadEnv } from "@/configs/env.ts";
+import { ALLOWED_ORIGINS, FRONTEND_URL, HOSPITALITY_FRONTEND_URL, NODE_ENV, loadEnv } from "@/configs/env.ts";
 import { logger } from "@/utils/logger";
 import { router } from "@/modules";
 import { connectMongoDB, initializeDatabases, isMongoConnected, isPrismaConnected, isDatabaseReady } from "./db";
@@ -12,6 +12,14 @@ import { randomUUID } from "crypto";
 export const server = new Hono().basePath("/api/v1");
 
 loadEnv();
+
+const isProduction = NODE_ENV === "production";
+
+if (isProduction && ALLOWED_ORIGINS.length === 0) {
+    logger.error(
+        "[CORS] Production ALLOWED_ORIGINS is empty — all cross-origin browser requests will be rejected",
+    );
+}
 
 // ── Readiness state ─────────────────────────────────────────────────────────
 // Tracks whether the server can serve traffic.  Starts false and only
@@ -66,16 +74,26 @@ server.use(
                 return origin;
             }
 
+            if (isProduction) {
+                logger.warn(
+                    `[CORS] Blocked request from origin: ${origin}. Allowed origins: ${ALLOWED_ORIGINS.join(", ") || "(none)"}`,
+                );
+                return null;
+            }
+
+            // Non-production: dev frontends, localhost, and Vercel previews
             if (FRONTEND_URL && origin === FRONTEND_URL) {
                 return origin;
             }
 
-            // Always allow local frontend simulator for testing
+            if (HOSPITALITY_FRONTEND_URL && origin === HOSPITALITY_FRONTEND_URL) {
+                return origin;
+            }
+
             if (origin === "http://localhost:5173" || origin === "http://localhost:3000") {
                 return origin;
             }
 
-            // Allow any Vercel deployments (preview or production)
             if (origin.endsWith(".vercel.app")) {
                 return origin;
             }

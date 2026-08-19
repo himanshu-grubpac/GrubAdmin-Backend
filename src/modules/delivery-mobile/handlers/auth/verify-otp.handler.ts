@@ -14,6 +14,10 @@ import { JWT } from "@/utils/jwt.ts";
 import type { APIResponse } from "@/types/api";
 import type { client, vertical_delivery_employee } from "@/db/types";
 import { resolveMessageTemplate } from "@/utils/message.ts";
+import {
+	signDeliverySessionRefreshToken,
+	signDeliverySessionToken,
+} from "delivery/handlers/auth/delivery-auth-token";
 
 interface ResponseData {
 	auth_token: string;
@@ -45,8 +49,6 @@ export const verifyOtpHandler = createHandlers(
 			throw new APIError(undefined, "delivery.auth.login.OTP_EXPIRED", undefined, 400);
 		}
 
-		console.log(savedOtp);
-
 		const for_what = savedOtp.for_what;
 
 		const isOtpValid = await compareOtp(otp, savedOtp.otp);
@@ -59,8 +61,6 @@ export const verifyOtpHandler = createHandlers(
 		}
 
 		await deleteSavedDeliveryEmployeeOtp(employeeEmail);
-
-		console.log(employee);
 
 		if (!employee?.employee) {
 			throw new APIError(undefined, "delivery.auth.login.ACCOUNT_NOT_FOUND", undefined, 404);
@@ -90,8 +90,8 @@ export const verifyOtpHandler = createHandlers(
 			role: employee.type,
 			type: "password_reset",
 		};
-		const token = JWT.signDeliveryAuthToken(payload as any);
-		const refreshToken = JWT.signDeliveryRefreshToken(payload as any);
+		const token = await signDeliverySessionToken(client_id, payload);
+		const refreshToken = await signDeliverySessionRefreshToken(client_id, payload);
 
 		const response = {
 			success: true as const,

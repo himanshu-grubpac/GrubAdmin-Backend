@@ -1,12 +1,32 @@
-name: Backend CI/CD
+name: Deploy Production
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
-  deploy:
+  validate:
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Test
+        run: bun test
+
+      - name: Build
+        run: bun run build
+
+  deploy:
+    needs: validate
+    runs-on: ubuntu-latest
+    environment: production
     steps:
       - uses: actions/checkout@v4
 
@@ -44,26 +64,40 @@ jobs:
           sleep 3
           success=false
           for i in 1 2 3; do
-            echo "Attempt $i: prisma db push..."
-            if timeout 120 bun db:push; then
+            echo "Attempt $i: prisma migrate deploy..."
+            if timeout 120 bun prisma migrate deploy; then
               success=true
               break
             fi
-            echo "db:push failed, waiting 5s before retry..."
+            echo "migrate deploy failed, waiting 5s before retry..."
             sleep 5
           done
           if [ "$success" != "true" ]; then
-            echo "db:push failed after 3 attempts"
+            echo "prisma migrate deploy failed after 3 attempts"
             exit 1
           fi
           echo "=== Running db:generate ==="
           timeout 120 bun db:generate
           echo "=== Starting PM2 process ==="
           cd ~/grubadmin-backend/GrubAdmin-Backend
-          pm2 start bun --name "${{ secrets.PRODUCTION_PM2_ID }}" -- start
+          pm2 start bun --name "${{ secrets.PRODUCTION_PM2_ID }}" --kill-timeout 15000 -- start
           pm2 save
           pm2 list
+          echo "=== Readiness check ==="
+          ready=false
+          for i in 1 2 3 4 5 6 7 8 9 10; do
+            if curl -sf http://127.0.0.1:8000/api/v1/common/readyz >/dev/null; then
+              ready=true
+              break
+            fi
+            echo "waiting for readyz (attempt $i)..."
+            sleep 3
+          done
+          if [ "$ready" != "true" ]; then
+            echo "readyz check failed after PM2 start"
+            exit 1
+          fi
           echo "=== Deployment complete ==="'
 
       - name: Done
-        run: echo "Backend deployed successfully to EC2"
+        run: echo "Backend deployed successfully to production"

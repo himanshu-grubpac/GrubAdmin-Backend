@@ -1,6 +1,6 @@
 import { createHandlers } from "@/utils/hono-factory.ts";
 import { deliveryAuthGuard } from "@/middlewares/auth";
-import { getSystemLogs } from "@/db/actions/system-log.action.ts";
+import { getDeliverySystemLogs } from "@/db/actions/delivery-system-log.action.ts";
 import type { APIResponse } from "@/types/api";
 import { calculatePagination } from "@/utils/pagination.ts";
 import { searchSystemLogsRequestBodyValidator, filterStructure } from "delivery/validators/log.validators.ts";
@@ -18,7 +18,7 @@ export const postRestaurantLogsHandler = createHandlers(
 		const { client_id } = context.var;
 		const body = context.req.valid("json");
 
-		const result = await getSystemLogs({
+		const result = await getDeliverySystemLogs({
 			...body,
 			category: "Restaurant",
 			page_size: body.limit,
@@ -61,7 +61,7 @@ export const postEmployeeLogsHandler = createHandlers(
 		const { client_id } = context.var;
 		const body = context.req.valid("json");
 
-		const result = await getSystemLogs({
+		const result = await getDeliverySystemLogs({
 			...body,
 			category: "Employee",
 			page_size: body.limit,
@@ -98,7 +98,7 @@ export const postGrubpacLogsHandler = createHandlers(
 		const { client_id } = context.var;
 		const body = context.req.valid("json");
 
-		const result = await getSystemLogs({
+		const result = await getDeliverySystemLogs({
 			...body,
 			category: ["GrubPac", "GrubLock"],
 			page_size: body.limit,
@@ -144,7 +144,7 @@ export const postGrublockLogsHandler = createHandlers(
 		const { client_id } = context.var;
 		const body = context.req.valid("json");
 
-		const result = await getSystemLogs({
+		const result = await getDeliverySystemLogs({
 			...body,
 			category: "GrubLock",
 			page_size: body.limit,

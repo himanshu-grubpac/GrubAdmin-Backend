@@ -1,18 +1,25 @@
 import { createHandlers } from "@/utils/hono-factory.ts";
 import { deliveryAuthGuard } from "@/middlewares/auth";
-import { prisma } from "@/db";
 import type { APIResponse } from "@/types/api";
 import { getMyGrubpacsRequestQueryValidator } from "@/modules/delivery-mobile/validators/account.validators.ts";
+import { getMyGrubpacsForClient } from "@/db/actions/delivery-mobile/box.actions.ts";
+import { calculatePagination } from "@/utils/pagination.ts";
+import type { MyGrubpacListItem } from "@/db/actions/delivery-mobile/box.actions.ts";
+
+interface ResponseData {
+	boxes: MyGrubpacListItem[];
+	count: number;
+}
 
 export const getMyGrubpacsHandler = createHandlers(
 	deliveryAuthGuard(["admin"]),
 	getMyGrubpacsRequestQueryValidator,
 	async (context) => {
 		const { client_id } = context.var;
-		const { power_status, query } = context.req.valid("query") as any;
+		const { power_status, query, page, limit } = context.req.valid("query");
 
 		if (!client_id) {
-			return context.json<APIResponse<any>>(
+			return context.json<APIResponse<ResponseData>>(
 				{
 					success: false,
 					code: 403,
@@ -22,65 +29,28 @@ export const getMyGrubpacsHandler = createHandlers(
 			);
 		}
 
-		const whereClause: any = {
-			client_id: client_id,
-			status: {
-				not: "suspended",
-			},
-		};
+		const { boxes, count, page: effectivePage, limit: effectiveLimit } =
+			await getMyGrubpacsForClient({
+				client_id,
+				power_status,
+				query,
+				page,
+				limit,
+			});
 
-		if (power_status) {
-			whereClause.telemetry = {
-				is: {
-					power_status: power_status,
-				},
-			};
-		}
-
-		if (query) {
-			whereClause.OR = [
-				{ name: { contains: query } },
-				{ box_display_id: { contains: query } },
-			];
-		}
-
-		const boxes = await prisma.box.findMany({
-			where: whereClause,
-			select: {
-				id: true,
-				box_display_id: true,
-				name: true,
-				vehicle_number: true,
-				status: true,
-				created_at: true,
-				updated_at: true,
-				telemetry: true,
-			},
-		});
-
-		const formattedBoxes = boxes.map((box) => {
-			const { telemetry, ...boxData } = box;
-			const { id: _telemetryId, box_id: _telemetryBoxId, updated_at: _telemetryUpdatedAt, ...telemetryData } = (telemetry || {}) as any;
-			return {
-				...boxData,
-				...telemetryData,
-			};
-		});
-
-		return context.json<APIResponse<any>>(
+		return context.json<APIResponse<ResponseData>>(
 			{
 				success: true,
 				code: 200,
 				data: {
-					boxes: formattedBoxes,
-					count: boxes.length,
+					boxes,
+					count,
 				},
+				pagination: calculatePagination(effectivePage, effectiveLimit, count),
 			},
 			{
 				status: 200,
 			},
 		);
-
 	},
 );
-

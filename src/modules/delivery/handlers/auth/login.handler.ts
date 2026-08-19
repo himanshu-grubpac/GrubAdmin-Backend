@@ -2,10 +2,10 @@ import { createHandlers } from "@/utils/hono-factory";
 import { loginRequestBodyValidator } from "delivery/validators/auth.validators";
 import { activateVerticalDeliveryEmployee, resolveVerticalDeliveryEmployeeForPasswordLogin } from "@/db/actions/vertical-delivery-employee.actions";
 import { APIError } from "@/types/error";
-import { JWT } from "@/utils/jwt.ts";
 import { loggerService } from "@/services/system-log.ts";
 import { resolveMessageTemplate } from "@/utils/message";
 import type { APIResponse } from "@/types/api";
+import { signDeliverySessionToken } from "delivery/handlers/auth/delivery-auth-token";
 
 import type { client, vertical_delivery_employee } from "@/db/types";
 
@@ -77,7 +77,8 @@ export const loginHandler = createHandlers(
 				? (employee.employee as client).id
 				: ((employee.employee as vertical_delivery_employee).client_id ?? "");
 
-		const token = JWT.signDeliveryAuthToken(
+		const token = await signDeliverySessionToken(
+			client_id,
 			{
 				role:
 					employee.type === "admin" ? "admin" : employee.type,

@@ -102,6 +102,8 @@ interface GetClientsArgs {
 	omit?: Prisma.clientOmit;
 	filter?: BoxType[];
 	fetch_all?: boolean;
+	/** Max page_size when paginated; list endpoints default to LONG_PAGE_SIZE. */
+	maxPageSize?: number;
 }
 
 interface GetClientsResponse {
@@ -129,9 +131,9 @@ export const getClients = async (
 		);
 	}
 
-	const safePageSize = fetch_all 
-		? undefined 
-		: Math.min(pageSize ?? PAGE_SIZE, LONG_PAGE_SIZE);
+	const safePageSize = fetch_all
+		? undefined
+		: Math.min(pageSize ?? PAGE_SIZE, args.maxPageSize ?? LONG_PAGE_SIZE);
 	const safePageNumber = Math.max(pageNumber ?? 1, 1);
 
 	const clientsQuery: Prisma.clientFindManyArgs = {

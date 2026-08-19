@@ -8,6 +8,7 @@ import { EMPLOYEES_PERMISSIONS } from "@/configs/constants.ts";
 import { ipMiddleware } from "@/middlewares/common/ip.ts";
 import { sanitizeCsvValue } from "@/utils/string.ts";
 import { services } from "@/services";
+import { resolveAdminExportPagination } from "@/modules/admin/configs/admin-export-limits.ts";
 
 export const exportAdminsHandler = createHandlers(
 	authGuard(["admin", "employee"]),
@@ -37,31 +38,33 @@ export const exportAdminsHandler = createHandlers(
 			include_roles,
 		} = context.req.valid("query");
 
+		const exportPagination = resolveAdminExportPagination({
+			fetch_all,
+			page_number,
+			page_size,
+		});
+
 		const data =
 			status === "dismissed"
 				? await getDismissedAdmins({
 						query,
-						pageSize: page_size,
-						pageNumber: page_number,
+						pageSize: exportPagination.page_size,
+						pageNumber: exportPagination.page_number,
 						role: typeof role === "string" ? [role] : role,
-						fetchAll: fetch_all,
+						fetchAll: exportPagination.fetch_all,
 						excludeRoles: !include_roles,
 					})
 				: await getAdmins({
 						query,
-						pageSize: page_size,
-						pageNumber: page_number,
+						pageSize: exportPagination.page_size,
+						pageNumber: exportPagination.page_number,
 						role_id: typeof role === "string" ? [role] : role,
-						fetchAll: fetch_all,
+						fetchAll: exportPagination.fetch_all,
 						excludeRoles: !include_roles,
 						status: status as "active" | "suspended" | "unassigned" | undefined,
 					});
 
-		
-		const MAX_EXPORT_LIMIT = 5000;
-		const adminsToExport = data.admins.slice(0, MAX_EXPORT_LIMIT);
-
-		const exportRows = adminsToExport.map((admin: any) => ({
+		const exportRows = data.admins.map((admin: any) => ({
 			"First Name": sanitizeCsvValue(admin.first_name),
 			"Last Name": sanitizeCsvValue(admin.last_name),
 			"Email": sanitizeCsvValue(admin.email),

@@ -7,6 +7,7 @@ import { getUniqueVerticalDeliveryEmployee } from "@/db/actions/vertical-deliver
 import { prisma } from "@/db";
 import { NODE_ENV } from "@/configs/env.ts";
 import { logger } from "@/utils/logger";
+import type { DeliveryAuthPayload } from "@/types/jwt/delivery-auth-payload";
 
 
 export const deliveryAuthGuard = (type?: VerticalDeliveryEmployeeRoleType[], customErrorMessage?: string) =>
@@ -31,17 +32,16 @@ export const deliveryAuthGuard = (type?: VerticalDeliveryEmployeeRoleType[], cus
 
 		let userId: string;
 		let isImpersonation = false;
-		let impersonationAdminId: string | null = null;
+		let deliveryAuthUser: DeliveryAuthPayload | null = null;
 
 		if (JWT.isImpersonationToken(authToken)) {
 			const impersonationUser = JWT.verifyImpersonationToken(authToken);
 			userId = impersonationUser.client_id;
 			isImpersonation = true;
-			impersonationAdminId = impersonationUser.admin_id;
 			logger.info(`[Auth] Impersonation token verified: admin=${impersonationUser.admin_id} target_customer=${impersonationUser.client_id}`);
 		} else {
-			const user = JWT.verifyDeliveryAuthToken(authToken);
-			userId = user.id;
+			deliveryAuthUser = JWT.verifyDeliveryAuthToken(authToken);
+			userId = deliveryAuthUser.id;
 		}
 
 		const employee = await getUniqueVerticalDeliveryEmployee({
@@ -51,6 +51,11 @@ export const deliveryAuthGuard = (type?: VerticalDeliveryEmployeeRoleType[], cus
 		if (!employee) {
 			logger.error(`[Auth] Employee lookup failed: userId=${userId} isImpersonation=${isImpersonation}`);
 			throw new APIError("No employee found... unauthorized access", undefined, undefined, 403);
+		}
+
+		if (employee.employee.status === "suspended") {
+			logger.warn(`[Auth] Suspended employee blocked: userId=${userId}`);
+			throw new APIError("Your account has been suspended!", undefined, undefined, 403);
 		}
 
 		if (type && !type.includes(employee?.type)) {
@@ -80,8 +85,42 @@ export const deliveryAuthGuard = (type?: VerticalDeliveryEmployeeRoleType[], cus
 
 		const client = await prisma.client.findUnique({
 			where: { id: client_id },
-			include: { vertical: true },
+			select: {
+				name: true,
+				organization_name: true,
+				vertical_id: true,
+				status: true,
+				auth_token_version: true,
+				vertical: { select: { name: true } },
+			},
 		});
+
+		if (!client) {
+			logger.error(`[Auth] Client not found: userId=${userId} clientId=${client_id}`);
+			throw new APIError("Unauthorized access... please contact the admin", undefined, undefined, 403);
+		}
+
+		if (client.status === "suspended") {
+			logger.warn(`[Auth] Suspended client blocked: userId=${userId} clientId=${client_id}`);
+			throw new APIError("Your account has been suspended!", undefined, undefined, 403);
+		}
+
+		if (client.status !== "active") {
+			logger.warn(`[Auth] Inactive client blocked: userId=${userId} clientId=${client_id} status=${client.status}`);
+			throw new APIError("Your account is not active.", undefined, undefined, 403);
+		}
+
+		if (!isImpersonation && deliveryAuthUser) {
+			const tokenVersion = deliveryAuthUser.token_version ?? 0;
+			if (tokenVersion !== (client.auth_token_version ?? 0)) {
+				throw new APIError(
+					"The auth token is either invalid or has expired!",
+					undefined,
+					undefined,
+					401,
+				);
+			}
+		}
 
 		const debug_client_name = client?.name || "";
 		const debug_client_organization_name = client?.organization_name || "";

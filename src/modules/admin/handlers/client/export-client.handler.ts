@@ -9,6 +9,7 @@ import type { BoxType } from "@/types/common/box-type.ts";
 import { services } from "@/services";
 import { ipMiddleware } from "@/middlewares/common/ip.ts";
 import { sanitizeCsvValue } from "@/utils/string.ts";
+import { resolveAdminExportPagination, ADMIN_EXPORT_MAX_ROWS } from "@/modules/admin/configs/admin-export-limits.ts";
 
 export const exportClientHandler = createHandlers(
 	authGuard(["admin", "employee"]),
@@ -39,11 +40,18 @@ export const exportClientHandler = createHandlers(
 			? (perms.perm["verticals"] as BoxType[])
 			: undefined;
 
+		const exportPagination = resolveAdminExportPagination({
+			fetch_all,
+			page_number,
+			page_size,
+		});
+
 		const data = await getClients({
 			query,
-			pageSize: page_size,
-			fetch_all,
-			pageNumber: page_number,
+			pageSize: exportPagination.page_size,
+			fetch_all: exportPagination.fetch_all,
+			pageNumber: exportPagination.page_number,
+			maxPageSize: ADMIN_EXPORT_MAX_ROWS,
 			filter: filter
 				? typeof filter === "string"
 					? [filter]

@@ -2,6 +2,19 @@ import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { validatorErrorHandler } from "@/utils/zod.ts";
 import { PAGE_SIZE } from "@/configs/constants.ts";
+import { SEARCH_PAGE_SIZE } from "@/validators/pagination";
+
+const deliveryListPageSizeSchema = z.coerce
+	.number()
+	.int()
+	.min(1)
+	.max(SEARCH_PAGE_SIZE, `Page size cannot exceed ${SEARCH_PAGE_SIZE}`);
+
+const deliverySearchLimitSchema = z.coerce
+	.number()
+	.int()
+	.min(1)
+	.max(SEARCH_PAGE_SIZE, `Limit cannot exceed ${SEARCH_PAGE_SIZE}`);
 
 export const getBoxesRequestQueryValidator = zValidator(
 	"query",
@@ -11,8 +24,8 @@ export const getBoxesRequestQueryValidator = zValidator(
 		employee_id: z.string().ulid("Please provide a valid employee id").nullable().optional().or(z.literal("")),
 		page_number: z.coerce.number().int().min(1).optional(),
 		page: z.coerce.number().int().min(1).optional(),
-		page_size: z.coerce.number().int().min(1).optional(),
-		limit: z.coerce.number().int().min(1).optional(),
+		page_size: deliveryListPageSizeSchema.optional(),
+		limit: deliveryListPageSizeSchema.optional(),
 		query: z.string().trim().optional(),
 		search: z.string().trim().optional(),
 		group_by: z.enum(["lock_status", "restaurants", "power_status"]).optional(),
@@ -39,7 +52,7 @@ export const getBoxesRequestQueryValidator = zValidator(
 	}).transform((data) => ({
 		...data,
 		page: data.page ?? data.page_number ?? 1,
-		limit: data.limit ?? data.page_size ?? undefined,
+		limit: data.limit ?? data.page_size ?? SEARCH_PAGE_SIZE,
 		query: data.query ?? data.search,
 	})),
 	(r) => {
@@ -179,11 +192,11 @@ export const searchBoxesRequestQueryValidator = zValidator(
 	z.object({
 		query: z.string().trim().optional(),
 		search: z.string().trim().optional(),
-		limit: z.coerce.number().int().min(1).optional(),
+		limit: deliverySearchLimitSchema.optional(),
 		status: z.enum(["active", "suspended"]).optional(),
 	}).transform((data) => ({
 		...data,
-		limit: data.limit ?? 50,
+		limit: data.limit ?? SEARCH_PAGE_SIZE,
 		query: data.query ?? data.search,
 	})),
 	(r) => {
@@ -250,11 +263,11 @@ export const searchGrublockRequestQueryValidator = zValidator(
 	z.object({
 		query: z.string().trim().optional(),
 		search: z.string().trim().optional(),
-		limit: z.coerce.number().int().min(1).optional(),
+		limit: deliverySearchLimitSchema.optional(),
 		status: z.enum(["active", "suspended"]).optional(),
 	}).transform((data) => ({
 		...data,
-		limit: data.limit ?? 50,
+		limit: data.limit ?? SEARCH_PAGE_SIZE,
 		query: data.query ?? data.search,
 	})),
 	(r) => {

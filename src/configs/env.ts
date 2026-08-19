@@ -14,6 +14,34 @@ export const PORT = process.env.PORT as string;
 export const NODE_ENV = process.env.NODE_ENV || "development";
 export const DATABASE_URL = process.env.DATABASE_URL as string;
 
+/** Default pool size for local dev only — production sets DATABASE_POOL_SIZE via .env.production (see .env.production.example). */
+const DEFAULT_DATABASE_POOL_SIZE = 10;
+const MIN_DATABASE_POOL_SIZE = 1;
+const MAX_DATABASE_POOL_SIZE = 50;
+
+function clampDatabasePoolSize(value: number): number {
+	if (!Number.isFinite(value)) {
+		return DEFAULT_DATABASE_POOL_SIZE;
+	}
+	return Math.min(MAX_DATABASE_POOL_SIZE, Math.max(MIN_DATABASE_POOL_SIZE, value));
+}
+
+const parsedDatabasePoolSize = parseInt(
+	process.env.DATABASE_POOL_SIZE || process.env.MYSQL_POOL_LIMIT || String(DEFAULT_DATABASE_POOL_SIZE),
+	10,
+);
+
+/** MySQL pool size for Prisma MariaDB adapter. Default 10 (local dev); production: 15–20 recommended. Alias: MYSQL_POOL_LIMIT. Clamped 1–50. */
+export const DATABASE_POOL_SIZE = clampDatabasePoolSize(parsedDatabasePoolSize);
+
+/**
+ * Optional PEM path for MySQL TLS CA verification (Aiven, AWS RDS).
+ * When set and readable, MariaDB pool uses rejectUnauthorized=true.
+ * Alias: RDS_CA_BUNDLE_PATH. Download RDS bundle from AWS docs; pilot P0 installs on EC2.
+ */
+export const DATABASE_SSL_CA_PATH =
+	process.env.DATABASE_SSL_CA_PATH || process.env.RDS_CA_BUNDLE_PATH || undefined;
+
 export const MONGO_URI = process.env.MONGO_URI as string;
 export const MAIL = process.env.MAIL as string;
 export const MAIL_PASS = process.env.MAIL_PASS as string;
@@ -97,6 +125,24 @@ export const loadEnv = (): void => {
 			"Please ensure all required environment variables are set in your .env file",
 		);
 		process.exit(1);
+	}
+
+	if (NODE_ENV === "production" && ALLOWED_ORIGINS.length === 0) {
+		logger.error(
+			"❌ Production ALLOWED_ORIGINS parsed to an empty list — set comma-separated portal origins",
+		);
+		process.exit(1);
+	}
+
+	if (NODE_ENV === "production") {
+		const devOrigins = ALLOWED_ORIGINS.filter(
+			(o) => o.includes("localhost") || o.includes("127.0.0.1"),
+		);
+		if (devOrigins.length > 0) {
+			logger.warn(
+				`[CORS] Production ALLOWED_ORIGINS contains dev origins (${devOrigins.join(", ")}) — remove for lockdown`,
+			);
+		}
 	}
 
 	logger.info("✅ All environment variables are properly configured");

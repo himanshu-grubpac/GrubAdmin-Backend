@@ -14,6 +14,7 @@
 		"verbatimModuleSyntax": true,
 		"noEmit": true,
 		// Bun globals (Bun, bun:test) — already in package.json as @types/bun
+		"baseUrl": ".",
 		"types": ["bun"],
 		// Best practices
 		"strict": true,
@@ -35,5 +36,6 @@
 			"medical/*": ["./src/modules/medical/*"],
 			"hospitality/*": ["./src/modules/hospitality/*"]
 		}
-	}
+	},
+	"include": ["src/**/*.ts"]
 }

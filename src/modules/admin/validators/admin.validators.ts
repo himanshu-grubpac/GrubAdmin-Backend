@@ -2,6 +2,7 @@ import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { validatorErrorHandler } from "@/utils/zod.ts";
 import { PAGE_SIZE } from "@/configs/constants.ts";
+import { ADMIN_EXPORT_MAX_ROWS } from "@/modules/admin/configs/admin-export-limits.ts";
 
 export const createAdminRequestBodyValidator = zValidator(
 	"json",
@@ -272,7 +273,11 @@ export const exportAdminsRequestQueryValidator = zValidator(
 		page_size: z.coerce
 			.number("Please provide a page size")
 			.int("Page size must an integer")
-			.nonnegative("Page size cannot be negative")
+			.min(1, "Page size must be at least 1")
+			.max(
+				ADMIN_EXPORT_MAX_ROWS,
+				`page_size must be less than or equal to ${ADMIN_EXPORT_MAX_ROWS}`,
+			)
 			.default(PAGE_SIZE),
 		role: z
 			.union([

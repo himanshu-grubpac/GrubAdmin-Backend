@@ -1,6 +1,16 @@
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { validatorErrorHandler } from "@/utils/zod.ts";
+import {
+	DELIVERY_LOG_DEFAULT_PAGE_SIZE,
+	DELIVERY_LOG_EXPORT_MAX_ROWS,
+} from "delivery/configs/delivery-log-limits.ts";
+
+const deliveryLogLimitSchema = z.coerce
+	.number()
+	.int()
+	.min(1)
+	.max(DELIVERY_LOG_EXPORT_MAX_ROWS, `Limit cannot exceed ${DELIVERY_LOG_EXPORT_MAX_ROWS}`);
 
 export const categoriesEnum = ["Restaurant", "Employee", "GrubPac", "Profile", "GrubLock"] as const;
 export const typesEnum = [
@@ -68,10 +78,12 @@ export const getSystemLogsRequestQueryValidator = zValidator(
 			return date;
 		}),
 		page: z.coerce.number().int().min(1).optional(),
-		limit: z.coerce.number().int().min(1).optional(),
+		limit: deliveryLogLimitSchema.optional(),
 	}).transform((data) => ({
 		...data,
 		search: data.search ?? data.query,
+		page: data.page ?? 1,
+		limit: data.limit ?? DELIVERY_LOG_DEFAULT_PAGE_SIZE,
 	})),
 	(r) => {
 		if (!r.success) validatorErrorHandler(r.error);
@@ -100,10 +112,12 @@ export const searchSystemLogsRequestBodyValidator = zValidator(
 			return date;
 		}),
 		page: z.coerce.number().int().min(1).optional(),
-		limit: z.coerce.number().int().min(1).optional(),
+		limit: deliveryLogLimitSchema.optional(),
 	}).transform((data) => ({
 		...data,
 		search: data.search ?? data.query,
+		page: data.page ?? 1,
+		limit: data.limit ?? DELIVERY_LOG_DEFAULT_PAGE_SIZE,
 	})),
 	(r) => {
 		if (!r.success) validatorErrorHandler(r.error);

@@ -237,7 +237,7 @@ export class s3Service {
 				Bucket: this.bucket,
 				Key: key,
 			});
-			return getSignedUrl(this.client, command, { expiresIn: expiresInSeconds });
+			return getSignedUrl(this.client as never, command as never, { expiresIn: expiresInSeconds });
 		};
 
 		try {
@@ -269,7 +269,7 @@ export class s3Service {
 				Key: key,
 				...(contentType ? { ContentType: contentType } : {}),
 			});
-			return getSignedUrl(this.client, command, { expiresIn: expiresInSeconds });
+			return getSignedUrl(this.client as never, command as never, { expiresIn: expiresInSeconds });
 		};
 
 		try {

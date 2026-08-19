@@ -8,6 +8,7 @@ import { SUPPORT_PERMISSIONS } from "@/configs/constants.ts";
 import { ipMiddleware } from "@/middlewares/common/ip.ts";
 import { services } from "@/services";
 import { sanitizeCsvValue } from "@/utils/string.ts";
+import { ADMIN_EXPORT_MAX_ROWS } from "@/modules/admin/configs/admin-export-limits.ts";
 
 export const exportFaqsHandler = createHandlers(
 	authGuard(["employee", "admin"]),
@@ -29,6 +30,8 @@ export const exportFaqsHandler = createHandlers(
 			category_id,
 			publishing_status,
 			state: "active",
+			pageNumber: 1,
+			pageSize: ADMIN_EXPORT_MAX_ROWS,
 		});
 
 		const sanitizedFaqs = faqs.faqs.map((f) => sanitizeCsvValue(f));

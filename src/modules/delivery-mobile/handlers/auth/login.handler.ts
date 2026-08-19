@@ -3,9 +3,14 @@ import { loginRequestBodyValidator } from "delivery-mobile/validators/auth.valid
 import { getUniqueVerticalDeliveryEmployee } from "@/db/actions/vertical-delivery-employee.actions";
 import { APIError } from "@/types/error";
 import { Bcrypt } from "@/utils/bcrypt.ts";
-import { JWT } from "@/utils/jwt.ts";
 import type { APIResponse } from "@/types/api";
 import type { client, vertical_delivery_employee } from "@/db/types";
+import type { VerticalDeliveryEmployeeRoleType } from "@/types/common";
+import type { DeliveryAuthPayload } from "@/types/jwt/delivery-auth-payload";
+import {
+	signDeliverySessionRefreshToken,
+	signDeliverySessionToken,
+} from "delivery/handlers/auth/delivery-auth-token";
 
 interface ResponseData {
 	auth_token: string;
@@ -23,8 +28,6 @@ export const loginHandler = createHandlers(
 			email,
 			phone,
 		});
-
-		console.log(employee);
 
 		if (!employee) {
 			throw new APIError("No employee can be found!", undefined, undefined, 400);
@@ -62,12 +65,12 @@ export const loginHandler = createHandlers(
 				? (employee.employee as client).id
 				: ((employee.employee as vertical_delivery_employee).client_id ?? "");
 
-		const payload = {
-			role: employee.type === "admin" ? "admin" : employee.type,
+		const payload: Omit<DeliveryAuthPayload, "token_version"> = {
+			role: employee.type === "admin" ? "admin" : (employee.type as VerticalDeliveryEmployeeRoleType),
 			id: employee.employee.id,
 		};
-		const token = JWT.signDeliveryAuthToken(payload as any);
-		const refreshToken = JWT.signDeliveryRefreshToken(payload as any);
+		const token = await signDeliverySessionToken(client_id, payload);
+		const refreshToken = await signDeliverySessionRefreshToken(client_id, payload);
 
 		return context.json<APIResponse<ResponseData>>({
 			success: true,

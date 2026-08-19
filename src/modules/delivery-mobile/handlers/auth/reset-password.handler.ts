@@ -10,6 +10,8 @@ import { getUniqueVerticalDeliveryEmployee } from "@/db/actions/vertical-deliver
 import { Bcrypt } from "@/utils/bcrypt.ts";
 import type { APIResponse } from "@/types/api";
 import { prisma } from "@/db";
+import type { vertical_delivery_employee } from "@/db/types";
+import { invalidateDeliveryAuthSessions } from "delivery/handlers/auth/delivery-auth-token";
 
 export const resetPasswordHandler = createHandlers(
 	resetPasswordRequestBodyValidator,
@@ -78,6 +80,14 @@ export const resetPasswordHandler = createHandlers(
 					password: hashedPassword,
 				},
 			});
+		}
+
+		const client_id =
+			employee.type === "admin"
+				? employee.employee.id
+				: ((employee.employee as vertical_delivery_employee).client_id ?? "");
+		if (client_id) {
+			await invalidateDeliveryAuthSessions(client_id);
 		}
 
 		return context.json<APIResponse>(

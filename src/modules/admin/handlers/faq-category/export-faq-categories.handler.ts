@@ -9,6 +9,7 @@ import { Permission } from "@/utils/permission.ts";
 import { ipMiddleware } from "@/middlewares/common/ip.ts";
 import { services } from "@/services";
 import { sanitizeCsvValue } from "@/utils/string.ts";
+import { resolveAdminExportPagination } from "@/modules/admin/configs/admin-export-limits.ts";
 
 export const exportFaqCategoriesHandler = createHandlers(
 	authGuard(["admin", "employee"]),
@@ -21,6 +22,8 @@ export const exportFaqCategoriesHandler = createHandlers(
 			category_state,
 			question_status,
 			vertical_id,
+			page_number,
+			page_size,
 		} = context.req.valid("query");
 
 		const { admin, role, ip } = context.var;
@@ -40,11 +43,19 @@ export const exportFaqCategoriesHandler = createHandlers(
 			},
 		});
 
+		const exportPagination = resolveAdminExportPagination({
+			fetch_all,
+			page_number,
+			page_size,
+		});
+
 		const data = await getFaqCategory({
 			query,
 			includeQuestions: true,
 			questionType: question_status,
-			fetchAll: fetch_all,
+			fetchAll: exportPagination.fetch_all,
+			pageSize: exportPagination.page_size,
+			pageNumber: exportPagination.page_number,
 			state: category_state,
 			vertical_id,
 		});

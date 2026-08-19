@@ -1,6 +1,13 @@
 import { validatorErrorHandler } from "@/utils/zod";
 import { zValidator } from "@hono/zod-validator";
 import z from "zod";
+import { SEARCH_PAGE_SIZE } from "@/validators/pagination.ts";
+
+const driverBoxesPageSizeSchema = z.coerce
+	.number()
+	.int()
+	.min(1)
+	.max(SEARCH_PAGE_SIZE, `Page size cannot exceed ${SEARCH_PAGE_SIZE}`);
 
 export const boxIdParamValidator = zValidator(
 	"param",
@@ -62,5 +69,24 @@ export const verifyLockOtpBodyValidator = zValidator(
 	}),
 	(r) => {
 		if (!r.success) validatorErrorHandler(r.error);
+	},
+);
+
+export const listDriverBoxesRequestQueryValidator = zValidator(
+	"query",
+	z
+		.object({
+			page: z.coerce.number().int().min(1).optional(),
+			limit: driverBoxesPageSizeSchema.optional(),
+			page_size: driverBoxesPageSizeSchema.optional(),
+		})
+		.transform((data) => ({
+			page: data.page ?? 1,
+			limit: data.page_size ?? data.limit ?? SEARCH_PAGE_SIZE,
+		})),
+	(response) => {
+		if (!response.success) {
+			validatorErrorHandler(response.error);
+		}
 	},
 );

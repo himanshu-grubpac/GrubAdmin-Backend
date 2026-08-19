@@ -19,6 +19,8 @@ import { loggerService } from "@/services/system-log.ts";
 import { withFullAddress } from "@/utils/restaurant.ts";
 import { nullifyEmptyFKs } from "@/utils/clean-query.ts";
 import { isMongoConnected, getMongoConnectionState } from "@/db";
+import { calculatePagination } from "@/utils/pagination.ts";
+import { SEARCH_PAGE_SIZE } from "@/validators/pagination.ts";
 
 /**
  * Assert that MongoDB is connected before executing a MongoDB operation.
@@ -622,6 +624,18 @@ export const getDeliveryEmployeeBoxes = async (employeeId: string) => {
 };
 
 
+export const DELIVERY_BOX_LIST_MAX_PAGE_SIZE = 50;
+export const DELIVERY_BOX_LIST_DEFAULT_PAGE_SIZE = 50;
+const MAX_DELIVERY_GROUP_KEYS = 100;
+
+export const resolveDeliveryListPage = (page?: number) =>
+	page && page > 0 ? page : 1;
+
+export const resolveDeliveryListLimit = (limit?: number) => {
+	if (!limit || limit <= 0) return DELIVERY_BOX_LIST_DEFAULT_PAGE_SIZE;
+	return Math.min(limit, DELIVERY_BOX_LIST_MAX_PAGE_SIZE);
+};
+
 interface GetVerticalDeliveryBoxesArgs {
 	client_id: string;
 	status?: "active" | "suspended" | "";
@@ -631,9 +645,12 @@ interface GetVerticalDeliveryBoxesArgs {
 	fetchAll?: boolean;
 	include_configs?: boolean;
 	connection_status?: string;
+	connection_status_exclude?: string;
 	power_status?: string;
+	power_status_exclude?: string;
 	health_status?: string;
 	grublock_status?: string;
+	grublock_status_exclude?: box_lock_status;
 	restaurant_assigned?: boolean;
 	vehicle_assigned?: boolean;
 	ioniser_status?: string;
@@ -649,19 +666,20 @@ interface GetVerticalDeliveryBoxesArgs {
 	query?: string;
 }
 
-export const getVerticalDeliveryBoxes = async (args: GetVerticalDeliveryBoxesArgs) => {
+const buildDeliveryBoxWhereInput = async (
+	args: GetVerticalDeliveryBoxesArgs,
+): Promise<Prisma.boxWhereInput> => {
 	const {
 		client_id,
 		status,
 		restaurant_id,
-		page_size,
-		page_number,
-		fetchAll,
-		include_configs,
 		connection_status,
+		connection_status_exclude,
 		power_status,
+		power_status_exclude,
 		health_status,
 		grublock_status,
+		grublock_status_exclude,
 		restaurant_assigned,
 		vehicle_assigned,
 		ioniser_status,
@@ -677,8 +695,10 @@ export const getVerticalDeliveryBoxes = async (args: GetVerticalDeliveryBoxesArg
 		query,
 	} = args;
 
-	const telemetryFilter: any = {};
-	if (connection_status) telemetryFilter.connection_status = connection_status as box_connection_status;
+	const telemetryFilter: Prisma.box_telemetry_latestWhereInput = {};
+	if (connection_status) {
+		telemetryFilter.connection_status = connection_status as box_connection_status;
+	}
 	if (power_status) telemetryFilter.power_status = power_status as hardware_state;
 	if (health_status) telemetryFilter.health_status = health_status as box_health_status;
 	if (ioniser_status) telemetryFilter.ioniser_status = ioniser_status as hardware_state;
@@ -694,16 +714,11 @@ export const getVerticalDeliveryBoxes = async (args: GetVerticalDeliveryBoxesArg
 		telemetryFilter.ext_temp = { gte: ext_min, lte: ext_max };
 	}
 
-	// Employee / permission scoping. This can itself produce an `OR` (the
-	// "shared" branch), which previously lived on the same `where` object as the
-	// search `OR` below — so the later `OR` silently overwrote the employee one
-	// (dropping the employee filter). Build it separately and combine both under
-	// `AND` so search and employee scoping always apply together.
 	const employeeFilter: Prisma.boxWhereInput = employee_id
 		? (await (async () => {
 			const employee = await prisma.vertical_delivery_employee.findUnique({
 				where: { id: employee_id, client_id },
-				select: { role: true, restaurant_id: true }
+				select: { role: true, restaurant_id: true },
 			});
 
 			if (employee?.role === "manager") {
@@ -745,7 +760,7 @@ export const getVerticalDeliveryBoxes = async (args: GetVerticalDeliveryBoxesArg
 				vertical_delivery_employee_boxes: {
 					some: {
 						employee_id,
-						...(permission_status ? { status: permission_status as any } : {}),
+						...(permission_status ? { status: permission_status as employee_box_status } : {}),
 					},
 				},
 			};
@@ -754,7 +769,7 @@ export const getVerticalDeliveryBoxes = async (args: GetVerticalDeliveryBoxesArg
 			? {
 				vertical_delivery_employee_boxes: {
 					some: {
-						status: permission_status as any,
+						status: permission_status as employee_box_status,
 					},
 				},
 			}
@@ -781,41 +796,333 @@ export const getVerticalDeliveryBoxes = async (args: GetVerticalDeliveryBoxesArg
 	const andConditions: Prisma.boxWhereInput[] = [];
 	if (employeeOr) andConditions.push({ OR: employeeOr });
 	if (searchOr) andConditions.push({ OR: searchOr });
+	if (connection_status_exclude) {
+		andConditions.push({
+			OR: [
+				{ telemetry: { connection_status: { not: connection_status_exclude as box_connection_status } } },
+				{ telemetry: { is: null } },
+			],
+		});
+	}
+	if (power_status_exclude) {
+		andConditions.push({
+			OR: [
+				{ telemetry: { power_status: { not: power_status_exclude as hardware_state } } },
+				{ telemetry: { is: null } },
+			],
+		});
+	}
+
+	let lockFilter: Prisma.boxWhereInput["lock"] | undefined;
+	if (grublock_status) {
+		lockFilter = { lock_status: grublock_status as box_lock_status };
+	} else if (grublock_status_exclude) {
+		andConditions.push({
+			OR: [
+				{ lock: { is: null } },
+				{ lock: { lock_status: { not: grublock_status_exclude } } },
+			],
+		});
+	}
+
+	return {
+		client_id,
+		status: status || { not: "suspended" },
+		restaurant_boxes:
+			restaurant_assigned !== undefined
+				? restaurant_assigned
+					? { some: { status: "shared" } }
+					: { none: { status: "shared" } }
+				: restaurant_id
+					? {
+						some: {
+							restaurant_id,
+							status: "shared",
+						},
+					}
+					: undefined,
+		vehicle_number:
+			vehicle_assigned !== undefined
+				? vehicle_assigned
+					? { not: null }
+					: null
+				: undefined,
+		...(Object.keys(telemetryFilter).length > 0 ? { telemetry: { is: telemetryFilter } } : {}),
+		lock: lockFilter,
+		...employeeFilterRest,
+		...(andConditions.length > 0 ? { AND: andConditions } : {}),
+	};
+};
+
+export interface GetDeliveryGrubpacListArgs extends GetVerticalDeliveryBoxesArgs {
+	group_by?: "lock_status" | "restaurants" | "power_status" | "restaurant";
+	group_by_selected_table?: string;
+	group_by_restaurants_has_offline_box?: number;
+}
+
+type DeliveryGrubpacGroupPayload = {
+	array: Awaited<ReturnType<typeof getVerticalDeliveryBoxes>>["boxes"];
+	count: number;
+	pagination: ReturnType<typeof calculatePagination>;
+	name?: string;
+	address?: string;
+};
+
+const restaurantSlug = (name: string) => name.toLowerCase().replace(/\s+/g, "_");
+
+const fetchDeliveryBoxPage = async (args: GetVerticalDeliveryBoxesArgs) => {
+	const page = resolveDeliveryListPage(args.page_number);
+	const limit = resolveDeliveryListLimit(args.page_size);
+	return getVerticalDeliveryBoxes({
+		...args,
+		page_number: page,
+		page_size: limit,
+		fetchAll: false,
+	});
+};
+
+export const getDeliveryGrubpacList = async (args: GetDeliveryGrubpacListArgs) => {
+	const page = resolveDeliveryListPage(args.page_number);
+	const limit = resolveDeliveryListLimit(args.page_size);
+	const baseArgs: GetVerticalDeliveryBoxesArgs = {
+		...args,
+		page_number: page,
+		page_size: limit,
+		fetchAll: false,
+		...(args.group_by_restaurants_has_offline_box === 0
+			? { connection_status_exclude: "disconnected" }
+			: {}),
+	};
+
+	if (!args.group_by) {
+		const result = await fetchDeliveryBoxPage(baseArgs);
+		return {
+			boxes: result.boxes,
+			count: result.count,
+			total_count: result.count,
+			pagination: calculatePagination(page, limit, result.count),
+		};
+	}
+
+	if (args.group_by === "power_status") {
+		const requested = args.group_by_selected_table;
+		const keys =
+			requested === "on" || requested === "off"
+				? [requested]
+				: requested
+					? [requested]
+					: (["on", "off"] as const);
+
+		const groups: Record<string, DeliveryGrubpacGroupPayload> = {};
+		let totalCount = 0;
+
+		await Promise.all(
+			keys.map(async (key) => {
+				if (key !== "on" && key !== "off") return;
+				const result = await fetchDeliveryBoxPage({
+					...baseArgs,
+					include_configs: true,
+					power_status: key === "on" ? "on" : undefined,
+					power_status_exclude: key === "off" ? "on" : undefined,
+				});
+				totalCount += result.count;
+				if (result.count > 0 || requested) {
+					groups[key] = {
+						array: result.boxes,
+						count: result.count,
+						pagination: calculatePagination(page, limit, result.count),
+					};
+				}
+			}),
+		);
+
+		return { boxes: [], count: totalCount, total_count: totalCount, groups };
+	}
+
+	if (args.group_by === "lock_status") {
+		const requested = args.group_by_selected_table;
+		const keys =
+			requested === "locked" || requested === "unlocked"
+				? [requested]
+				: requested
+					? [requested]
+					: (["locked", "unlocked"] as const);
+
+		const groups: Record<string, DeliveryGrubpacGroupPayload> = {};
+		let totalCount = 0;
+
+		await Promise.all(
+			keys.map(async (key) => {
+				if (key !== "locked" && key !== "unlocked") return;
+				const result = await fetchDeliveryBoxPage({
+					...baseArgs,
+					grublock_status: key === "locked" ? "locked" : undefined,
+					grublock_status_exclude: key === "unlocked" ? "locked" : undefined,
+				});
+				totalCount += result.count;
+				if (result.count > 0 || requested) {
+					groups[key] = {
+						array: result.boxes,
+						count: result.count,
+						pagination: calculatePagination(page, limit, result.count),
+					};
+				}
+			}),
+		);
+
+		return { boxes: [], count: totalCount, total_count: totalCount, groups };
+	}
+
+	const requestedTable = args.group_by_selected_table;
+	const groups: Record<string, DeliveryGrubpacGroupPayload> = {};
+
+	if (requestedTable === "unassigned") {
+		const result = await fetchDeliveryBoxPage({
+			...baseArgs,
+			restaurant_assigned: false,
+		});
+		if (result.count > 0 || requestedTable) {
+			groups.unassigned = {
+				array: result.boxes,
+				count: result.count,
+				pagination: calculatePagination(page, limit, result.count),
+				name: "Unassigned",
+			};
+		}
+		return {
+			boxes: [],
+			count: result.count,
+			total_count: result.count,
+			groups,
+		};
+	}
+
+	if (requestedTable) {
+		const restaurants = await prisma.restaurant.findMany({
+			where: { client_id: args.client_id },
+			select: { id: true, name: true, full_address: true },
+		});
+		const matched = restaurants.find(
+			(r) =>
+				restaurantSlug(r.name) === requestedTable || r.name === requestedTable,
+		);
+		if (!matched) {
+			return { boxes: [], count: 0, total_count: 0, groups: {} };
+		}
+
+		const slug = restaurantSlug(matched.name);
+		const result = await fetchDeliveryBoxPage({
+			...baseArgs,
+			restaurant_id: matched.id,
+		});
+		groups[slug] = {
+			array: result.boxes,
+			count: result.count,
+			pagination: calculatePagination(page, limit, result.count),
+			name: matched.name,
+			address: matched.full_address ?? undefined,
+		};
+		return {
+			boxes: [],
+			count: result.count,
+			total_count: result.count,
+			groups,
+		};
+	}
+
+	const baseWhere = await buildDeliveryBoxWhereInput(baseArgs);
+	const restaurantCounts = await prisma.restaurant_box.groupBy({
+		by: ["restaurant_id"],
+		where: {
+			status: "shared",
+			restaurant: { client_id: args.client_id },
+			box: baseWhere,
+		},
+		_count: { _all: true },
+	});
+
+	const sortedRestaurantCounts = [...restaurantCounts]
+		.sort((a, b) => b._count._all - a._count._all)
+		.slice(0, MAX_DELIVERY_GROUP_KEYS);
+
+	const restaurantIds = sortedRestaurantCounts.map((row) => row.restaurant_id);
+	const restaurants = restaurantIds.length
+		? await prisma.restaurant.findMany({
+			where: { id: { in: restaurantIds }, client_id: args.client_id },
+			select: { id: true, name: true, full_address: true },
+		})
+		: [];
+	const restaurantById = new Map(restaurants.map((r) => [r.id, r]));
+
+	let totalCountAcrossGroups = 0;
+
+	await Promise.all(
+		sortedRestaurantCounts.map(async (row) => {
+			const restaurant = restaurantById.get(row.restaurant_id);
+			if (!restaurant) return;
+
+			const result = await fetchDeliveryBoxPage({
+				...baseArgs,
+				restaurant_id: row.restaurant_id,
+			});
+			const slug = restaurantSlug(restaurant.name);
+			totalCountAcrossGroups += row._count._all;
+			groups[slug] = {
+				array: result.boxes,
+				count: row._count._all,
+				pagination: calculatePagination(page, limit, row._count._all),
+				name: restaurant.name,
+				address: restaurant.full_address ?? undefined,
+			};
+		}),
+	);
+
+	if (baseArgs.restaurant_assigned !== false && baseArgs.restaurant_id == null) {
+		const unassigned = await fetchDeliveryBoxPage({
+			...baseArgs,
+			restaurant_assigned: false,
+		});
+		if (unassigned.count > 0) {
+			totalCountAcrossGroups += unassigned.count;
+			groups.unassigned = {
+				array: unassigned.boxes,
+				count: unassigned.count,
+				pagination: calculatePagination(page, limit, unassigned.count),
+				name: "Unassigned",
+			};
+		}
+	}
+
+	const [totalMatching] = await prisma.$transaction([
+		prisma.box.count({ where: baseWhere }),
+	]);
+
+	return {
+		boxes: [],
+		count: totalCountAcrossGroups,
+		total_count: totalMatching,
+		groups,
+	};
+};
+
+export const getVerticalDeliveryBoxes = async (args: GetVerticalDeliveryBoxesArgs) => {
+	const {
+		client_id,
+		page_size,
+		page_number,
+		fetchAll,
+		include_configs,
+	} = args;
+
+	const effectivePage = resolveDeliveryListPage(page_number);
+	const effectivePageSize = resolveDeliveryListLimit(page_size);
+	const where = await buildDeliveryBoxWhereInput(args);
 
 	const boxesQueryArgs: Prisma.boxFindManyArgs = {
-		where: {
-			client_id: client_id,
-			status: status || { not: "suspended" },
-			restaurant_boxes:
-				restaurant_assigned !== undefined
-					? restaurant_assigned
-						? { some: { status: "shared" } }
-						: { none: { status: "shared" } }
-					: restaurant_id
-						? {
-							some: {
-								restaurant_id,
-								status: "shared",
-							},
-						}
-						: undefined,
-			vehicle_number:
-				vehicle_assigned !== undefined
-					? vehicle_assigned
-						? { not: null }
-						: null
-					: undefined,
-			...(Object.keys(telemetryFilter).length > 0 ? { telemetry: { is: telemetryFilter } } : {}),
-			lock: grublock_status ? { lock_status: grublock_status as box_lock_status } : undefined,
-			...employeeFilterRest,
-			...(andConditions.length > 0 ? { AND: andConditions } : {}),
-		},
+		where,
 
-		skip:
-			!fetchAll && page_number && page_size
-				? (page_number - 1) * page_size
-				: undefined,
-		take: !fetchAll && page_size ? page_size : undefined,
+		skip: fetchAll ? undefined : (effectivePage - 1) * effectivePageSize,
+		take: fetchAll ? undefined : effectivePageSize,
 		include: {
 			restaurant_boxes: {
 				include: {
@@ -1854,7 +2161,8 @@ export interface SearchVerticalDeliveryBoxesArgs {
 }
 
 export const searchVerticalDeliveryBoxes = async (args: SearchVerticalDeliveryBoxesArgs) => {
-	const { query = "", limit = 50, status, client_id } = args;
+	const { query = "", limit = SEARCH_PAGE_SIZE, status, client_id } = args;
+	const effectiveLimit = Math.min(Math.max(1, limit), SEARCH_PAGE_SIZE);
 
 	return await prisma.box.findMany({
 		where: {
@@ -1881,6 +2189,7 @@ export const searchVerticalDeliveryBoxes = async (args: SearchVerticalDeliveryBo
 			created_at: true,
 			updated_at: true,
 		},
+		take: effectiveLimit,
 	});
 };
 

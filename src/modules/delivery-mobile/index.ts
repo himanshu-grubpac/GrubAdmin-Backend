@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { NODE_ENV } from "@/configs/env.ts";
 import { globalErrorHandler } from "@/middlewares/error";
 import { createMobileRateLimits } from "@/middlewares/mobile-rate-limits";
 import { getConfigHandler } from "@/modules/delivery-mobile/handlers/config";
@@ -184,4 +185,6 @@ deliveryMobileRouter.patch("/boxes/:box_id/lock", ...lockBoxHandler);
  */
 deliveryMobileRouter.get("/notification", ...getNotificationsHandler);
 deliveryMobileRouter.patch("/notification", ...markNotificationsHandler);
-deliveryMobileRouter.post("/notification/test-trigger", ...testTriggerNotificationHandler);
+if (NODE_ENV !== "production") {
+	deliveryMobileRouter.post("/notification/test-trigger", ...testTriggerNotificationHandler);
+}

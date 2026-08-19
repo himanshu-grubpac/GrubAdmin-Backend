@@ -12,6 +12,8 @@ import {
     getSavedOtp,
 } from "@/db/actions/otp.actions.ts";
 import { getCookie } from "hono/cookie";
+import type { vertical_delivery_employee } from "@/db/types";
+import { invalidateDeliveryAuthSessions } from "delivery/handlers/auth/delivery-auth-token";
 
 export const setNewPasswordHandler = createHandlers(
     setNewPasswordRequestBodyValidator,
@@ -127,6 +129,14 @@ export const setNewPasswordHandler = createHandlers(
                     password: hashedPassword,
                 },
             });
+        }
+
+        const client_id =
+            employee.type === "admin"
+                ? employee.employee.id
+                : ((employee.employee as vertical_delivery_employee).client_id ?? "");
+        if (client_id) {
+            await invalidateDeliveryAuthSessions(client_id);
         }
 
         const employeeEmail = employee.employee.email;
