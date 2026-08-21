@@ -142,8 +142,16 @@ jobs:
             exit 1
           fi
 
-          echo "=== Stopping previous active PM2 slot ==="
-          pm2 delete "$ACTIVE_PM2" || true
+          echo "=== Keep previous slot as warm standby (instant rollback) ==="
+          echo "Previous active remains online: pm2=${ACTIVE_PM2} (do not delete)"
+          if ! "$BG_SCRIPT" wait-readyz "$("$BG_SCRIPT" active-port)" 5; then
+            echo "WARN: new active readyz soft-fail after cutover — check manually"
+          fi
+          # Ensure previous color still answers locally (warm standby)
+          PREV_PORT="$("$BG_SCRIPT" inactive-port)"
+          if ! "$BG_SCRIPT" wait-readyz "$PREV_PORT" 5; then
+            echo "WARN: warm standby on port ${PREV_PORT} not healthy — rollback still needs manual restart"
+          fi
           pm2 save
           pm2 list
 
@@ -153,7 +161,7 @@ jobs:
           }
 
           "$BG_SCRIPT" status
-          echo "=== Blue-green production deployment complete ==="'
+          echo "=== Blue-green production deployment complete (dual-slot warm standby) ==="'
 
       - name: Done
         run: echo "Backend blue-green deployed successfully to production"
